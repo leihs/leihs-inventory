@@ -100,6 +100,9 @@
 (defn select-entitlements-with-item-count
   "Selects entitlements with corresponding item counts for given pool and models."
   [ds inventory-pool-id model-ids exclude-group-id]
+  (println ">o> abc.a.inventory-pool-id" inventory-pool-id)
+  (println ">o> abc.b.model-ids" model-ids)
+  (println ">o> abc.c.exclude-group-id" exclude-group-id)
   (let [subquery
         {:select [[[:count :*] :count]]
          :from [[:items :i]]
@@ -133,7 +136,7 @@
     (let [tx (:tx request)
           pool-id (-> request path-params :pool_id)
           entitlement-group-id (-> request path-params :entitlement_group_id)
-
+p (println ">o> abc1" )
           ;; 1️⃣ Fetch entitlement group
           query (-> (sql/select :g.id :g.name :g.is_verification_required)
                   (sql/from [:entitlement_groups :g])
@@ -145,6 +148,7 @@
                   sql-format)
           entitlement-group (jdbc/execute-one! tx query)
 
+p (println ">o> abc2" )
           ;; 2️⃣ Fetch users in entitlement group
           query (-> (sql/select :egu.id :egu.type :u.firstname :u.lastname :u.email :u.searchable)
                   (sql/from [:entitlement_groups_users :egu])
@@ -153,6 +157,7 @@
                   sql-format)
           users-groups (jdbc/execute! tx query)
 
+p (println ">o> abc3" )
           ;; 3️⃣ Fetch models linked to entitlement group
           query (-> (sql/select
                       [:m.id :model_id]
@@ -167,14 +172,27 @@
           models (jdbc/execute! tx query)
           model-ids (mapv :model_id models)
 
+
+          models3 (if (seq model-ids)
+             (let [
+
+p (println ">o> abc4" )
           ;; 4️⃣ Fetch item counts per model
           model-ids (to-uuid model-ids)
           models2 (select-entitlements-with-item-count tx pool-id model-ids entitlement-group-id)
 
+p (println ">o> abc5" )
           ;; 5️⃣ Join models + counts, compute availability
           models3 (->> (join-by :model_id models models2)
                     add-allocation-considered-count)
+                      ]models3)
+             []
 
+                    )
+
+
+
+p (println ">o> abc6" )
           ;; 6️⃣ Fetch linked groups
           query (-> (sql/select :egg.id :egg.group_id :g.name :g.searchable)
                   (sql/from [:entitlement_groups_groups :egg])
@@ -182,6 +200,7 @@
                   (sql/where [:= :egg.entitlement_group_id entitlement-group-id])
                   sql-format)
           groups (jdbc/execute! tx query)
+p (println ">o> abc7" )
 
           result {:entitlement-group entitlement-group
                   :users users-groups
@@ -205,6 +224,21 @@
           data (-> request body-params)
           models (:models data)
 
+
+          _ (let [ids (map :model_id models)
+                duplicates (->> ids
+                             frequencies
+                             (filter (fn [[_ freq]] (> freq 1)))
+                             (map first))]
+            (when (seq duplicates)
+              (throw (ex-info "Duplicate model_id(s) detected"
+                       {:duplicate-model-ids duplicates
+
+                        :status 400
+
+                        }))))
+
+
           current-time (java.sql.Timestamp/from          (java.time.Instant/now)
                          )
           ;new-eg (-> data
@@ -216,8 +250,6 @@
                    ;(assoc :inventory_pool_id (to-uuid pool_id) :created_at current-time :updated_at current-time)
                    (dissoc :models)
                    )
-
-
           p (println ">o> abc.post1" pool_id new-eg)
           p (println ">o> abc.post2"  (:inventory_pool_id new-eg) (type (:inventory_pool_id new-eg)))
           p (println ">o> abc.post3"  (:is_verification_required new-eg) (type (:is_verification_required new-eg)))
@@ -243,9 +275,9 @@
 
 
 
-
+          ;; FETCH DB-DATA
           p (println ">o> abc.data" data)
-          query (-> (sql/select :e.id, :e.model_id, :e.quantity)
+          query (-> (sql/select :e.id, :e.model_id, :e.entitlement_group_id :e.quantity)
                   (sql/from [:entitlements :e])
                   ;(sql/values new-models)
                   (sql/where [:= :e.entitlement_group_id (to-uuid entitlement_group_id)])
@@ -255,15 +287,28 @@
                   )
           db-models (jdbc/execute! tx query)
 
+          p (println ">o> >>>>>>> abc.db-model-ids1" db-models)
           ;p (println ">o> abc.db-models" db-models)
           ;db-model-ids (vector (filterv :id db-models))
           db-model-ids (filterv :id db-models)
           db-model-ids  (mapv :id db-model-ids)
-          p (println ">o> abc.db-model-ids" db-model-ids)
+          p (println ">o> >>>>>>> abc.db-model-ids2" db-model-ids)
+
+
+
+
+
+
+
+
+
 
           ;; update
           models-to-update (filterv :id models)
-          p (println ">o> abc.models-to-update" models-to-update)
+
+
+
+          p (println ">o> >>>> abc.models-to-update" models-to-update)
           updated-entitlements (update-entitlements tx models-to-update)
 
           ;; create
@@ -273,7 +318,7 @@
                                ;:position 0
                                ))
                        new-models)
-          p (println ">o> abc.models-to-create" new-models)
+          p (println ">o> >>>> abc.models-to-create" new-models)
           created-entitlements (create-entitlements tx new-models)
 
 
@@ -285,6 +330,10 @@
 
           ;; DELETE
           entitlement-ids-to-delete (remove (set entitlement-ids) db-model-ids)
+
+          p (println ">o> >>>> abc.models-to-delete" entitlement-ids-to-delete)
+
+
           deleted-entitlements (delete-entitlements tx entitlement-ids-to-delete)
           ;p (println ">o> abc.entitlement-ids-to-delete" entitlement-ids-to-delete)
           ;
@@ -295,11 +344,11 @@
           ]
       ;(response (create-pagination-response request query nil post-fnc)))
       (response {
-                 ;:entitlement_group res
+                 :entitlement_group res
                  ;:models models
-                 :updated updated-entitlements
-                 :created created-entitlements
-                 :deleted deleted-entitlements
+                 :updated_model updated-entitlements
+                 :created_model created-entitlements
+                 :deleted_model deleted-entitlements
                  }))
     (catch Exception e
       (println e)

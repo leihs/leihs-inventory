@@ -23,8 +23,9 @@
 
 
 (defn delete-entitlements [tx entitlement-ids]
+  (println ">o> abc.delete-entitlements1" )
 
-     (let [
+     (if (seq entitlement-ids) (let [
 
            p (println ">o> abc.entitlement-ids2" entitlement-ids)
 
@@ -39,14 +40,18 @@
   (println ">o> abc.delete-entitlements.DONE")
        models
 )
+                               []
+                               )
 
 
   )
 
 
 (defn create-entitlements [tx new-models]
+  (println ">o> abc.create-entitlements1" )
 
-     (let [
+     (if (seq new-models)
+       (let [
 
               p (println ">o> abc.new-models" new-models)
 
@@ -62,35 +67,16 @@
               ]
   (println ">o> abc.create-entitlements.DONE")
        models
-)
+) []
+       )
 
   )
 
 
-;(defn update-entitlements [tx models]
-;  (println ">o> abc.update-entitlements1" models)
-;  (doseq [model models]
-;    (println ">o> abc.update-entitlements2" model)
-;    (let [
-;          ;data (filter-keys model [:quantity])
-;          ;data (mapv #(select-keys % [:quantity]) model)
-;          data (select-keys model [:quantity])
-;          p (println ">o> abc.data" data)
-;          query (-> (sql/update :entitlements)
-;                  (sql/set data)
-;                  (sql/where [:= :id (:id model)])
-;                  (sql/returning :*)
-;                  sql-format)
-;          result (jdbc/execute! tx query)]
-;      (println ">o> abc.updated-model" result))
-;
-;    )
-;  (println ">o> abc.update-entitlements.DONE"))
-
-
 (defn update-entitlements [tx models]
   (println ">o> abc.update-entitlements1" models)
-  (let [results
+  (if (seq models)
+    (let [results
         (mapv
           (fn [model]
             (println ">o> abc.update-entitlements2" model)
@@ -106,4 +92,7 @@
               result))
           models)]
     (println ">o> abc.update-entitlements.DONE" results)
-    results))
+    results)
+  )
+  []
+  )
