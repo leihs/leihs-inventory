@@ -75,15 +75,12 @@
                    ($ DropdownMenuSeparator)
                    ($ DropdownMenuLabel {:className "text-xs font-normal"} (t "header.app-menu.inventory-pools", "Geräteparks") ":")
                    ($ DropdownMenuGroup
-                      (doall
-                       (map-indexed
-                        (fn [idx pool]
-                          (let [url (router/generatePath "/inventory/:pool-id" #js {:pool-id (:id pool)})]
-                            ($ DropdownMenuItem {:key idx
-                                                 :asChild true
-                                                 :className (when (= pool-id (:id pool)) "font-semibold")}
-                               ($ :a {:href url} (:name pool)))))
-                        (sort-by :name available_inventory_pools))))))
+                      (for [pool (sort-by :name available_inventory_pools)]
+                        (let [url (router/generatePath "/inventory/:pool-id" #js {:pool-id (:id pool)})]
+                          ($ DropdownMenuItem {:key (:id pool)
+                                               :asChild true
+                                               :className (when (= pool-id (:id pool)) "font-semibold")}
+                             ($ :a {:href url} (:name pool))))))))
 
              ($ DropdownMenu
                 ($ DropdownMenuTrigger {:asChild "true" :className "ml-4"}
@@ -111,20 +108,18 @@
                       ($ DropdownMenuSubTrigger (t "header.user-menu.language"))
                       ($ DropdownMenuPortal
                          ($ DropdownMenuSubContent
-                            (doall
-                             (map-indexed
-                              (fn [idx lang]
-                                ($ DropdownMenuItem {:key idx
-                                                     :asChild true}
-                                   ($ fetcher.Form {:method "patch"
-                                                    :action "/profile"}
-                                      ($ Input {:type "hidden"
-                                                :name "language"
-                                                :value (:locale lang)})
-                                      ($ Button {:variant "ghost"
-                                                 :type "submit"
-                                                 :class-name (str "w-full justify-start font-normal " (when (= current-lang (:locale lang)) "font-semibold"))
-                                                 #_:value #_(:locale lang)
-                                                 #_:on-click #_update-lang}
-                                         (:name lang)))))
-                              languages))))))))))))
+                            (for [language languages]
+                              ($ DropdownMenuItem {:key (:locale language)
+                                                   :asChild true}
+                                 ($ fetcher.Form {:class-name "!p-0"
+                                                  :method "patch"
+                                                  :action "/profile"}
+                                    ($ Button {:type "submit"
+                                               :variant "ghost"
+                                               :class-name (str "py-1.5 px-2 w-full justify-start font-normal " (when (= current-lang (:locale language)) "font-semibold"))
+                                               #_:value #_(:locale lang)
+                                               #_:on-click #_update-lang}
+                                       (:name language))
+                                    ($ Input {:type "hidden"
+                                              :name "language"
+                                              :value (:locale language)}))))))))))))))
