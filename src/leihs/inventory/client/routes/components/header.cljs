@@ -106,8 +106,6 @@
                       ($ :form {:action "/sign-out" :method :POST :id "sign-out-form"}
                          ($ :input {:type :hidden :name csrf/token-field-name :value csrf/token})))
 
-                   ($ fetcher.Form)
-
                    ($ DropdownMenuSeparator)
                    ($ DropdownMenuSub
                       ($ DropdownMenuSubTrigger (t "header.user-menu.language"))
