@@ -51,7 +51,9 @@
              ($ :div {:className "flex gap-6"}
                 ($ :a {:href (or current-lending-url "/manage/")}
                    (t "header.links.lending" "Verleih"))
-                ($ :a {:href "/inventory/" :className "font-semibold"} (t "header.links.inventory" "Inventar"))))
+                ($ :a {:href "/inventory/"
+                       :className "font-semibold"}
+                   (t "header.links.inventory" "Inventar"))))
 
           ($ :div {:className "flex"}
              ($ DropdownMenu
@@ -98,10 +100,16 @@
                            ($ DropdownMenuItem {:asChild true}
                               ($ :a {:href url} (t "header.user-menu.my-documents")))))
                       ($ DropdownMenuItem {:asChild true}
-                         ($ :button {:type :submit :form "sign-out-form" :className "w-full"}
+                         ($ :button {:type :submit
+                                     :form "sign-out-form"
+                                     :className "w-full"}
                             (t "header.user-menu.logout")))
-                      ($ :form {:action "/sign-out" :method :POST :id "sign-out-form"}
-                         ($ :input {:type :hidden :name csrf/token-field-name :value csrf/token})))
+                      ($ :form {:action "/sign-out"
+                                :method :POST
+                                :id "sign-out-form"}
+                         ($ :input {:type :hidden
+                                    :name csrf/token-field-name
+                                    :value csrf/token})))
 
                    ($ DropdownMenuSeparator)
                    ($ DropdownMenuSub
