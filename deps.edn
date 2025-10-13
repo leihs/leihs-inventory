@@ -57,6 +57,7 @@
          :exec-fn cognitect.test-runner.api/test}
 
   :frontend {:deps {cljs-http/cljs-http {:mvn/version "0.1.48"}
+                    funcool/promesa {:mvn/version "11.0.678"}
                     noencore/noencore {:mvn/version "0.3.8"}
                     com.pitch/uix.core {:mvn/version "1.0.1"}
                     com.pitch/uix.dom {:mvn/version "1.0.1"}}
@@ -66,5 +67,4 @@
                           thheller/shadow-cljs {:mvn/version "2.28.14"}}}
 
   :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "2.9.1221"}}
-             :main-opts ["-m" "antq.core"]}
-  }}
+             :main-opts ["-m" "antq.core"]}}}

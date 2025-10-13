@@ -12,6 +12,7 @@
    ["react-router-dom" :as router]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
    [leihs.core.core :refer [detect]]
+   [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.csrf :as csrf]
    [leihs.inventory.client.lib.language :refer [switch-language]]
    [leihs.inventory.client.lib.utils :refer [jc cj]]
@@ -28,11 +29,18 @@
 
         update-lang (fn [event]
                       (let [new-lang (.. event -target -value)]
-                        (.. fetcher (submit (cj {:intent "update-lang"
-                                                 :data {:lang new-lang}})
+                        #_(-> http-client
+                              (.patch "/inventory/profile/" (cj {:language new-lang}))
+                              (.then (fn [response]
+                                       (.. i18n (changeLanguage new-lang))
+                                       #_(.. fetcher (load "/inventory"))))
+                              (.catch (fn [error]
+                                        (js/console.error "Language change error:" error))))
 
-                                            #js {:method "post"
-                                                 :action "/inventory"
+                        (.. fetcher (submit (cj {:language new-lang})
+
+                                            #js {:method "patch"
+                                                 :action "/profile"
                                                  :encType "application/json"}))))]
 
     ($ :header {:className "bg-white sticky z-50 top-0 flex h-12 items-center gap-4 border-b h-16"}
@@ -97,6 +105,9 @@
                             (t "header.user-menu.logout")))
                       ($ :form {:action "/sign-out" :method :POST :id "sign-out-form"}
                          ($ :input {:type :hidden :name csrf/token-field-name :value csrf/token})))
+
+                   ($ fetcher.Form)
+
                    ($ DropdownMenuSeparator)
                    ($ DropdownMenuSub
                       ($ DropdownMenuSubTrigger (t "header.user-menu.language"))
@@ -108,7 +119,7 @@
                                 ($ DropdownMenuItem {:key idx
                                                      :asChild true}
                                    ($ Button {:variant "ghost"
-                                              :type "button"
+                                              #_:type #_"submit"
                                               :class-name (str "w-full justify-start font-normal " (when (= current-lang (:locale lang)) "font-semibold"))
                                               :value (:locale lang)
                                               :on-click update-lang}

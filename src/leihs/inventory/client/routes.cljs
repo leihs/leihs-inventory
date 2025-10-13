@@ -25,11 +25,15 @@
 (def routes
   (router/createBrowserRouter
    (cj
-    [{:path "/inventory"
+    [{:path "/profile"
+      :id "profile"
+      :loader loader/profile
+      :action actions/profile}
+
+     {:path "/inventory"
       :id "root"
       :element ($ root-layout)
       ;; :errorElement ($ notfound-page)
-      :action actions/root-layout
       :loader loader/root-layout
       :children
       (cj
