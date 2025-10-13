@@ -23,9 +23,8 @@
       (.catch (fn [error] (js/console.log "error" error) #js {}))))
 
 (defn root-layout []
-  (js/console.debug "root-layout loader")
   (-> http-client
-      (.get "/inventory/profile/")
+      (.get "/inventory/profile/" #js {:id "profile"})
       (.then (fn [res]
                (let [data (jc (.. res -data))]
                  #_(.. i18n (changeLanguage (-> data :user_details :language_locale)))

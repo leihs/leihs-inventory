@@ -27,21 +27,21 @@
         current-lending-url (->> navigation :manage_nav_items (detect #(= (:name current-pool) (:name %))) :href)
         current-lang (.. i18n -language)
 
-        update-lang (fn [event]
-                      (let [new-lang (.. event -target -value)]
-                        #_(-> http-client
-                              (.patch "/inventory/profile/" (cj {:language new-lang}))
-                              (.then (fn [response]
-                                       (.. i18n (changeLanguage new-lang))
-                                       #_(.. fetcher (load "/inventory"))))
-                              (.catch (fn [error]
-                                        (js/console.error "Language change error:" error))))
+        #_update-lang #_(fn [event]
+                          (let [new-lang (.. event -target -value)]
+                            #_(-> http-client
+                                  (.patch "/inventory/profile/" (cj {:language new-lang}))
+                                  (.then (fn [response]
+                                           (.. i18n (changeLanguage new-lang))
+                                           #_(.. fetcher (load "/inventory"))))
+                                  (.catch (fn [error]
+                                            (js/console.error "Language change error:" error))))
 
-                        (.. fetcher (submit (cj {:language new-lang})
+                            (.. fetcher (submit (cj {:language new-lang})
 
-                                            #js {:method "patch"
-                                                 :action "/profile"
-                                                 :encType "application/json"}))))]
+                                                #js {:method "patch"
+                                                     :action "/profile"
+                                                     :encType "application/json"}))))]
 
     ($ :header {:className "bg-white sticky z-50 top-0 flex h-12 items-center gap-4 border-b h-16"}
        ($ :nav {:className "container w-full flex flex-row justify-between text-sm items-center"}
@@ -118,10 +118,15 @@
                               (fn [idx lang]
                                 ($ DropdownMenuItem {:key idx
                                                      :asChild true}
-                                   ($ Button {:variant "ghost"
-                                              #_:type #_"submit"
-                                              :class-name (str "w-full justify-start font-normal " (when (= current-lang (:locale lang)) "font-semibold"))
-                                              :value (:locale lang)
-                                              :on-click update-lang}
-                                      (:name lang))))
+                                   ($ fetcher.Form {:method "patch"
+                                                    :action "/profile"}
+                                      ($ Input {:type "hidden"
+                                                :name "language"
+                                                :value (:locale lang)})
+                                      ($ Button {:variant "ghost"
+                                                 :type "submit"
+                                                 :class-name (str "w-full justify-start font-normal " (when (= current-lang (:locale lang)) "font-semibold"))
+                                                 #_:value #_(:locale lang)
+                                                 #_:on-click #_update-lang}
+                                         (:name lang)))))
                               languages))))))))))))
