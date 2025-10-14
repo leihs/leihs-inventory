@@ -42,6 +42,7 @@
         (resp/status response-status))))
 
 (defn exception-handler [request message e]
+   (println ">o> exception-handler" )
   (let [accept (get-in request [:headers "accept"])]
     (cond
       (instance? PSQLException e)

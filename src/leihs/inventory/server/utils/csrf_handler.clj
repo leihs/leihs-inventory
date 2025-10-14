@@ -8,6 +8,7 @@
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.constants :as consts]
    [ring.util.codec :as codec]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [ring.util.response :as response]
    [taoensso.timbre :refer [debug]]))
 
@@ -63,7 +64,7 @@
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
-              (debug e)
+              (log-by-severity e)
               (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
                   (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
