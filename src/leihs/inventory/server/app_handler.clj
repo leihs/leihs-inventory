@@ -6,6 +6,7 @@
    [leihs.core.ring-audits :as ring-audits]
    [leihs.core.routing.back :as core-routing]
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
+   [leihs.core.settings :as settings]
    [leihs.inventory.server.resources.routes :as routes]
    [leihs.inventory.server.swagger :as swagger]
    [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
@@ -41,6 +42,7 @@
                   wrap-strict-format-negotiate
                   wrap-handle-coercion-error
                   db/wrap-tx
+                  settings/wrap
                   core-routing/wrap-canonicalize-params-maps
                   muuntaja/format-middleware
                   ring-audits/wrap

@@ -5,7 +5,7 @@
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.core.remote-navbar.shared :refer [sub-apps]]
-   [leihs.core.settings :refer [settings!]]
+   [leihs.core.settings :refer [settings]]
    [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
    [leihs.inventory.server.resources.profile.languages :as l]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
@@ -19,7 +19,7 @@
   (get-by-id tx (or user-id target-user-id)))
 
 (defn get-navigation [tx authenticated-entity]
-  (let [settings (settings! tx [:external_base_url :documentation_link])
+  (let [settings (settings tx [:external_base_url :documentation_link])
         base-url (:external_base_url settings)
         sub-apps (sub-apps tx authenticated-entity)]
     {:borrow-url (when (:borrow sub-apps) (str base-url "/borrow/"))
