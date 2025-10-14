@@ -2,7 +2,7 @@
   (:require
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.profile.main :as profile]
-   [leihs.inventory.server.resources.profile.types :refer [profile-response-schema]]
+   [leihs.inventory.server.resources.profile.types :as type]
    [reitit.coercion.schema]))
 
 (defn routes []
@@ -14,6 +14,16 @@
           :produces ["application/json"]
           :handler profile/get-resource
           :responses {200 {:description "OK"
-                           :body profile-response-schema}
+                           :body type/profile-response-schema}
                       404 {:description "Not Found"}
-                      500 {:description "Internal Server Error"}}}}])
+                      500 {:description "Internal Server Error"}}}
+
+    :patch {:accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :swagger {:produces ["application/json"]}
+            :parameters {:body type/profile-patch-schema}
+            :handler profile/patch-resource
+            :responses {200 {:description "OK"
+                             :body type/profile-patch-schema}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}])

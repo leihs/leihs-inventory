@@ -83,10 +83,7 @@
                                                          (sql/from :user_sessions)
                                                          (sql/where [:= :token_hash token-hash])
                                                          sql-format))
-                pools (jdbc/execute! tx
-                                     (get-pools-access-rights-of-user-query
-                                      true user_id "direct_access_rights"))
-                p (println ">o> abc.pools" (count pools) pools)
+                pools (jdbc/execute! tx (get-pools-access-rights-of-user-query true user_id))
                 return-to (if (or (empty? pools) (> (count pools) 1))
                             INVENTORY_VIEW_PATH
                             (->> (first pools)
