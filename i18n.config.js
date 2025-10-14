@@ -1,9 +1,5 @@
 import i18n from "i18next"
 import { initReactI18next } from "react-i18next"
-// import Backend from "i18next-http-backend"
-// import LanguageDetector from "i18next-browser-languagedetector"
-// import { i18nextPlugin } from "translation-check"
-
 import de from "./resources/public/inventory/assets/locales/de/translation.json"
 import en from "./resources/public/inventory/assets/locales/en/translation.json"
 
@@ -31,14 +27,6 @@ import * as z from "zod"
   }
 
   i18n
-    // .use(i18nextPlugin)
-    // load translation using http -> see /public/locales (i.e. https://github.com/i18next/react-i18next/tree/master/example/react/public/locales)
-    // learn more: https://github.com/i18next/i18next-http-backend
-    // want your translations to be loaded from a professional CDN? => https://github.com/locize/react-tutorial#step-2---use-the-locize-cdn
-    // .use(Backend)
-    // detect user language
-    // learn more: https://github.com/i18next/i18next-browser-languageDetector
-    // .use(LanguageDetector)
     // pass the i18n instance to react-i18next.
     .use(initReactI18next)
     // init i18next
@@ -52,20 +40,15 @@ import * as z from "zod"
       debug: true,
     })
 
-  // async function loadLocale(locale) {
-  //   const { default: loc } = await import(`zod/v4/locales/${locale}.js`)
-  //   z.config(loc())
-  // }
-
   i18n.on("languageChanged", async (lng) => {
     if (lng.startsWith("de")) {
       const { default: de } = await import(
-        "./resources/public/inventory/assets/locales/de/de.js"
+        "./resources/public/inventory/assets/locales/de/zod-localization.js"
       )
       z.config(de())
     } else {
       const { default: en } = await import(
-        "./resources/public/inventory/assets/locales/en/en.js"
+        "./resources/public/inventory/assets/locales/en/zod-localization.js"
       )
       z.config(en())
     }
