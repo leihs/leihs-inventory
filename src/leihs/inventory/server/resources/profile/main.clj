@@ -46,7 +46,7 @@
                       (:id (:authenticated-entity request)))
           auth (convert-to-map (:authenticated-entity request))
           user-details (get-one tx (:target-user-id request) user-id)
-          pools (jdbc/execute! tx (get-pools-access-rights-of-user-query true user-id)) ]
+          pools (jdbc/execute! tx (get-pools-access-rights-of-user-query true user-id))]
       (response {:navigation (snake-case-keys (get-navigation tx auth))
                  :available_inventory_pools pools
                  :user_details (snake-case-keys user-details)
@@ -61,16 +61,13 @@
           user-id (or (presence (-> request :path-params :user_id))
                       (:id (:authenticated-entity request)))
           data (get-in request [:parameters :body])
-          p (println ">o> abc.res.before")
           res (jdbc/execute-one!
                tx
                (-> (sql/update :users)
                    (sql/set {:language_locale (:language data)})
                    (sql/where [:= :id user-id])
                    (sql/returning :language_locale)
-                   sql-format))
-          p (println ">o> abc.res" res)
-          ]
+                   sql-format))]
       (response {:language (:language_locale res)}))
     (catch Exception e
       (log-by-severity ERROR_GET_USER e)

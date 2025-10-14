@@ -35,27 +35,11 @@
 (defn convert-to-map [dict]
   (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) dict)))
 
-
-(defn pr
-  ([str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc
-  )
-
-  ([str str2 fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str str2)
-  fnc
-  )
-)
-
 (defn log-by-severity
   ([e]
    (log-by-severity nil e))
   ([message e]
-   (println ">o> abc.???1" )
    (if (nil? message)
-     (pr ">o>" "1" (error (.getMessage e)))
-     (pr ">o>" "2"(error message (.getMessage e))))
+     (error (.getMessage e))
+     (error message (.getMessage e)))
    (debug e)))

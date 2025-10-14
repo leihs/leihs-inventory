@@ -7,10 +7,9 @@
    [leihs.core.constants :as constants]
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.constants :as consts]
-   [ring.util.codec :as codec]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
-   [ring.util.response :as response]
-   [taoensso.timbre :refer [debug]]))
+   [ring.util.codec :as codec]
+   [ring.util.response :as response]))
 
 (defn parse-cookies [cookie-header]
   (->> (str/split cookie-header #"; ")
