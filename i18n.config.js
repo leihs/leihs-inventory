@@ -39,21 +39,21 @@ import * as z from "zod"
       fallbackLng: ["de"],
       debug: true,
     })
-
-  i18n.on("languageChanged", async (lng) => {
-    if (lng.startsWith("de")) {
-      const { default: de } = await import(
-        "./resources/public/inventory/assets/locales/de/zod-localization.js"
-      )
-      z.config(de())
-    } else {
-      const { default: en } = await import(
-        "./resources/public/inventory/assets/locales/en/zod-localization.js"
-      )
-      z.config(en())
-    }
-  })
 })()
+
+i18n.on("languageChanged", async (lng) => {
+  if (lng.startsWith("de")) {
+    const { default: de } = await import(
+      "./resources/public/inventory/assets/locales/de/zod-localization.js"
+    )
+    z.config(de())
+  } else {
+    const { default: en } = await import(
+      "./resources/public/inventory/assets/locales/en/zod-localization.js"
+    )
+    z.config(en())
+  }
+})
 
 export { i18n }
 export default i18n
