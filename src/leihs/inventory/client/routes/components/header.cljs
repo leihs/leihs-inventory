@@ -9,12 +9,10 @@
    ["@@/input" :refer [Input]]
    ["lucide-react" :refer [ChevronsUpDown CircleUser LayoutGrid]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Form]]
+   ["react-router-dom" :as router]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
    [leihs.core.core :refer [detect]]
-   [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.csrf :as csrf]
-   [leihs.inventory.client.lib.language :refer [switch-language]]
    [leihs.inventory.client.lib.utils :refer [jc cj]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -25,23 +23,7 @@
         fetcher (router/useFetcher)
         current-pool (->> available_inventory_pools (detect #(= pool-id (:id %))))
         current-lending-url (->> navigation :manage_nav_items (detect #(= (:name current-pool) (:name %))) :href)
-        current-lang (.. i18n -language)
-
-        #_update-lang #_(fn [event]
-                          (let [new-lang (.. event -target -value)]
-                            #_(-> http-client
-                                  (.patch "/inventory/profile/" (cj {:language new-lang}))
-                                  (.then (fn [response]
-                                           (.. i18n (changeLanguage new-lang))
-                                           #_(.. fetcher (load "/inventory"))))
-                                  (.catch (fn [error]
-                                            (js/console.error "Language change error:" error))))
-
-                            (.. fetcher (submit (cj {:language new-lang})
-
-                                                #js {:method "patch"
-                                                     :action "/profile"
-                                                     :encType "application/json"}))))]
+        current-lang (.. i18n -language)]
 
     ($ :header {:className "bg-white sticky z-50 top-0 flex h-12 items-center gap-4 border-b h-16"}
        ($ :nav {:className "container w-full flex flex-row justify-between text-sm items-center"}
@@ -122,9 +104,7 @@
                                                    :asChild true}
                                  ($ :button {:type "submit"
                                              :form (str "form-" (:locale language))
-                                             :class-name (str "w-full font-normal " (when (= current-lang (:locale language)) "font-semibold"))
-                                             #_:value #_(:locale lang)
-                                             #_:on-click #_update-lang}
+                                             :class-name (str "w-full font-normal " (when (= current-lang (:locale language)) "font-semibold"))}
                                     (:name language)
 
                                     ($ fetcher.Form {:id (str "form-" (:locale language))

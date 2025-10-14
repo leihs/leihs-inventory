@@ -14,21 +14,10 @@
 ;; Generic view data should be named with the `data` key in the returned map.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn profile []
-  (-> http-client
-      (.get "/inventory/profile/")
-      (.then (fn [res]
-               (let [data (jc (.. res -data))]
-                 data)))
-      (.catch (fn [error] (js/console.log "error" error) #js {}))))
-
 (defn root-layout []
   (-> http-client
       (.get "/inventory/profile/" #js {:id "profile"})
-      (.then (fn [res]
-               (let [data (jc (.. res -data))]
-                 #_(.. i18n (changeLanguage (-> data :user_details :language_locale)))
-                 data)))
+      (.then (fn [res] (jc (.. res -data))))
       (.catch (fn [error] (js/console.log "error" error) #js {}))))
 
 (defn models-page [route-data]

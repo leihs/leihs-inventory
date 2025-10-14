@@ -27,7 +27,6 @@
    (cj
     [{:path "/profile"
       :id "profile"
-      :loader loader/profile
       :action actions/profile}
 
      {:path "/inventory"
