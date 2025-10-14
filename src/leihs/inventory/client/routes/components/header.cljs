@@ -9,7 +9,7 @@
    ["@@/input" :refer [Input]]
    ["lucide-react" :refer [ChevronsUpDown CircleUser LayoutGrid]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router-dom" :as router :refer [Form]]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
    [leihs.core.core :refer [detect]]
    [leihs.inventory.client.lib.client :refer [http-client]]
@@ -103,13 +103,14 @@
                          ($ :button {:type :submit
                                      :form "sign-out-form"
                                      :className "w-full"}
-                            (t "header.user-menu.logout")))
-                      ($ :form {:action "/sign-out"
-                                :method :POST
-                                :id "sign-out-form"}
-                         ($ :input {:type :hidden
-                                    :name csrf/token-field-name
-                                    :value csrf/token})))
+                            (t "header.user-menu.logout")
+
+                            ($ :form {:action "/sign-out"
+                                      :method :POST
+                                      :id "sign-out-form"}
+                               ($ :input {:type :hidden
+                                          :name csrf/token-field-name
+                                          :value csrf/token})))))
 
                    ($ DropdownMenuSeparator)
                    ($ DropdownMenuSub
@@ -119,15 +120,16 @@
                             (for [language languages]
                               ($ DropdownMenuItem {:key (:locale language)
                                                    :asChild true}
-                                 ($ fetcher.Form {:class-name "!p-0"
-                                                  :method "patch"
-                                                  :action "/profile"}
-                                    ($ Button {:type "submit"
-                                               :variant "ghost"
-                                               :class-name (str "py-1.5 px-2 w-full justify-start font-normal " (when (= current-lang (:locale language)) "font-semibold"))
-                                               #_:value #_(:locale lang)
-                                               #_:on-click #_update-lang}
-                                       (:name language))
-                                    ($ Input {:type "hidden"
-                                              :name "language"
-                                              :value (:locale language)}))))))))))))))
+                                 ($ :button {:type "submit"
+                                             :form (str "form-" (:locale language))
+                                             :class-name (str "w-full font-normal " (when (= current-lang (:locale language)) "font-semibold"))
+                                             #_:value #_(:locale lang)
+                                             #_:on-click #_update-lang}
+                                    (:name language)
+
+                                    ($ fetcher.Form {:id (str "form-" (:locale language))
+                                                     :method "PATCH"
+                                                     :action "/profile"}
+                                       ($ :input {:type "hidden"
+                                                  :name "language"
+                                                  :value (:locale language)})))))))))))))))
