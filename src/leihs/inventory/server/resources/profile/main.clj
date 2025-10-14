@@ -10,7 +10,6 @@
    [leihs.inventory.server.resources.profile.languages :as l]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys log-by-severity]]
-   [leihs.inventory.server.utils.request-utils :refer [query-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [response]]))
 
@@ -29,18 +28,14 @@
      :manage-nav-items (map #(assoc % :url (:href %)) (:manage sub-apps))
      :documentation-url (:documentation_link settings)}))
 
-(defn get-pools-access-rights-of-user-query [min-raw user-id access-right-raw]
+(defn get-pools-access-rights-of-user-query [min-raw user-id]
   (let [min (boolean min-raw)
-        access-right (if (and access-right-raw (not (contains? #{"direct_access_rights" "group_access_rights"} access-right-raw)))
-                       nil
-                       access-right-raw)
         select (if min (sql/select :i.id :i.name) (sql/select :i.is_active :i.name :u.*))
         query (-> select
                   (sql/from [:unified_access_rights :u])
                   (sql/join [:inventory_pools :i] [:= :u.inventory_pool_id :i.id])
                   (sql/where [:= :u.user_id user-id])
-                  (cond-> (= access-right "direct_access_rights") (sql/where [:is-not :u.direct_access_right_id nil])
-                          (= access-right "group_access_rights") (sql/where [:is-not :u.group_access_right_id nil]))
+                  (sql/where [:in :u.role ["inventory_manager" "lending_manager"]])
                   sql-format)]
     query))
 
@@ -51,7 +46,7 @@
                       (:id (:authenticated-entity request)))
           auth (convert-to-map (:authenticated-entity request))
           user-details (get-one tx (:target-user-id request) user-id)
-          pools (jdbc/execute! tx (get-pools-access-rights-of-user-query true user-id "direct_access_rights"))]
+          pools (jdbc/execute! tx (get-pools-access-rights-of-user-query true user-id))]
       (response {:navigation (snake-case-keys (get-navigation tx auth))
                  :available_inventory_pools pools
                  :user_details (snake-case-keys user-details)
