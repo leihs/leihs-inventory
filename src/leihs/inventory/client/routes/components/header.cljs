@@ -96,7 +96,9 @@
 
                    ($ DropdownMenuSeparator)
                    ($ DropdownMenuSub
-                      ($ DropdownMenuSubTrigger (t "header.user-menu.language"))
+                      ($ DropdownMenuSubTrigger
+                         ($ :button {:type "button"}
+                            (t "header.user-menu.language")))
                       ($ DropdownMenuPortal
                          ($ DropdownMenuSubContent
                             (for [language languages]
