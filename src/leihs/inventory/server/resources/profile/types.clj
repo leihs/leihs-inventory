@@ -27,11 +27,8 @@
    :default s/Bool
    :active s/Bool})
 
-(def profile-response-schema
+(s/defschema profile-response-schema
   {:navigation navigation-schema
    :available_inventory_pools [inventory-pool-schema]
    :user_details s/Any
    :languages [language-schema]})
-
-(def profile-patch-schema
-  {:language s/Str})

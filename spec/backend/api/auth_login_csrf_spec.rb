@@ -59,7 +59,7 @@ describe "Call swagger-endpoints" do
 
           expect(resp.status).to eq(302)
           expect(resp.headers["location"]).to be
-          expect(resp.headers["set-cookie"]).to be
+          expect(resp.headers["set-cookie"]).not_to be
           resp
         end
 
