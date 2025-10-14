@@ -18,9 +18,7 @@
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.util.response :refer [redirect response status]])
-  (:gen-class)
-  (:import
-   (org.jsoup Jsoup)))
+  (:gen-class))
 
 (defn swagger-api-docs-handler [request]
   (let [path (:uri request)]
@@ -52,9 +50,9 @@
         query (convert-to-map (:query-params request))
         params (-> {:authFlow {:returnTo (or (:return-to query) INVENTORY_VIEW_PATH)}
                     :flashMessages []}
-                   (assoc :csrfToken {:name "csrf-token" :value mtoken})
-                   (cond-> (:message query)
-                     (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
+                 (assoc :csrfToken {:name "csrf-token" :value mtoken})
+                 (cond-> (:message query)
+                   (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
         html (add-csrf-tags request (sign-in-view params) params)]
     html))
 
@@ -73,25 +71,23 @@
       (be/create-error-response user req)
       (let [resp (-> req convert-params be/routes)
             created-session (or (get-in resp [:cookies :leihs-user-session :value])
-                                (get-in resp [:cookies "leihs-user-session" :value]))]
+                              (get-in resp [:cookies "leihs-user-session" :value]))]
         (if (nil? created-session)
           resp
           (let [tx (:tx req)
                 token-hash (pandect.core/sha256 created-session)
                 {:keys [user_id]} (jdbc/execute-one! tx
-                                                     (-> (sql/select :*)
-                                                         (sql/from :user_sessions)
-                                                         (sql/where [:= :token_hash token-hash])
-                                                         sql-format))
-                pools (jdbc/execute! tx
-                                     (get-pools-access-rights-of-user-query
-                                      true user_id "direct_access_rights"))
+                                    (-> (sql/select :*)
+                                      (sql/from :user_sessions)
+                                      (sql/where [:= :token_hash token-hash])
+                                      sql-format))
+                pools (jdbc/execute! tx (get-pools-access-rights-of-user-query true user_id))
                 return-to (if (or (empty? pools) (> (count pools) 1))
                             INVENTORY_VIEW_PATH
                             (->> (first pools)
-                                 :id
-                                 str
-                                 (format "/inventory/%s/list")))]
+                              :id
+                              str
+                              (format "/inventory/%s/list")))]
 
             (assoc-in resp [:headers "Location"] return-to)))))))
 
@@ -106,7 +102,7 @@
 
 (defn post-sign-out [request]
   (let [params (-> request
-                   convert-params
-                   (assoc-in [:accept :mime] :html))
+                 convert-params
+                 (assoc-in [:accept :mime] :html))
         _ (so/routes params)]
     {:status 302, :headers {"Location" "/inventory/"}}))
