@@ -58,8 +58,8 @@
             (sql/where [:= :items.model_id :inventory.id])
             (sql/where (items-shared/owner-or-responsible-cond pool-id))
             (items-shared/item-query-params pool-id inventory_pool_id
-                               owned in_stock before_last_check
-                               retired borrowable broken incomplete))
+                                            owned in_stock before_last_check
+                                            retired borrowable broken incomplete))
         :items])))
 
 (defn all-items [query pool-id
@@ -97,8 +97,8 @@
                     (sql/where [:= :items.model_id :inventory.id])
                     (sql/where (items-shared/owner-or-responsible-cond pool-id))
                     (items-shared/item-query-params pool-id inventory_pool_id
-                                       owned in_stock before_last_check
-                                       retired borrowable broken incomplete))])))
+                                                    owned in_stock before_last_check
+                                                    retired borrowable broken incomplete))])))
 
 (defn without-items [query pool-id]
   (-> query
