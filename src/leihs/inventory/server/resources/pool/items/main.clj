@@ -3,10 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.items.shared :as items-shared :refer [in-stock
-                                                                                owner-or-responsible-cond
-                                                                                owner-and-responsible-cond
-                                                                                not-owner-and-responsible-cond]]
+   [leihs.inventory.server.resources.pool.items.shared :as items-shared]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
@@ -20,16 +17,37 @@
 (def ERROR_GET_ITEMS "Failed to get items")
 
 (def columns
-  [:i.id :i.insurance_number :i.inventory_code
-   :i.inventory_pool_id :i.invoice_date
-   :i.invoice_number :i.is_borrowable
-   :i.is_broken :i.is_incomplete :i.is_inventory_relevant
-   :i.item_version :i.last_check :i.model_id
-   :i.name :i.needs_permission :i.note
-   :i.owner_id :i.parent_id :i.price
-   :i.properties :i.responsible :i.retired
-   :i.retired_reason :i.room_id :i.serial_number
-   :i.shelf :i.status_note :i.supplier_id :i.user_name
+  [:items.id
+   :items.model_id
+   :items.name
+   :items.inventory_pool_id
+
+   :insurance_number
+   :inventory_code
+   :invoice_date
+   :invoice_number
+   :is_borrowable
+   :is_broken
+   :is_incomplete
+   :is_inventory_relevant
+   :item_version
+   :last_check
+   :needs_permission
+   :note
+   :owner_id
+   :parent_id
+   :price
+   :properties
+   :responsible
+   :retired
+   :retired_reason
+   :room_id
+   :serial_number
+   :shelf
+   :status_note
+   :supplier_id
+   :user_name
+
    [:ip.name :inventory_pool_name]
    [:r.end_date :reservation_end_date]
    [:r.user_id :reservation_user_id]
@@ -43,8 +61,8 @@
    [[:nullif [:concat_ws " " :u.firstname :u.lastname] ""] :reservation_user_name]
 
    [(-> (sql/select :%count.*) ; [[:count :*]]
-        (sql/from :items)
-        (sql/where [:= :items.parent_id :i.id]))
+        (sql/from [:items :i])
+        (sql/where [:= :i.parent_id :items.id]))
     :package_items]])
 
 (defn index-resources
@@ -60,14 +78,14 @@
          select (apply sql/select columns)
 
          query (-> select
-                   (sql/from [:items :i])
+                   (sql/from :items)
                    ;; Join inventory pool
                    (sql/join [:inventory_pools :ip]
-                             [:= :ip.id :i.inventory_pool_id])
+                             [:= :ip.id :items.inventory_pool_id])
 
                    ;; Join rooms
                    (sql/join [:rooms :rs]
-                             [:= :i.room_id :rs.id])
+                             [:= :items.room_id :rs.id])
 
                    ;; Join rooms
                    (sql/join [:buildings :b]
@@ -76,13 +94,13 @@
                    ;; Join models
                    (sql/left-join [:models :m]
                                   [:or
-                                   [:= :i.model_id :m.id]
+                                   [:= :items.model_id :m.id]
                                    [:= :m.id model_id]])
 
                    ;; Join reservations (only active)
                    (sql/left-join [:reservations :r]
                                   [:and
-                                   [:= :r.item_id :i.id]
+                                   [:= :r.item_id :items.id]
                                    [:= :r.returned_date nil]])
 
                     ;; Join users
@@ -91,11 +109,11 @@
 
                     ;; Filters
                    (sql/where [:or
-                               [:= :i.inventory_pool_id pool_id]
-                               [:= :i.owner_id pool_id]])
+                               [:= :items.inventory_pool_id pool_id]
+                               [:= :items.owner_id pool_id]])
 
-                   (cond-> model_id (sql/where [:= :i.model_id model_id]))
-                   (cond-> parent_id (sql/where [:= :i.parent_id parent_id]))
+                   (cond-> model_id (sql/where [:= :items.model_id model_id]))
+                   (cond-> parent_id (sql/where [:= :items.parent_id parent_id]))
 
                    (items-shared/item-query-params pool_id inventory_pool_id
                                                    owned in_stock before_last_check
@@ -103,7 +121,7 @@
 
                    (cond-> (seq search_term)
                      (sql/where [:or
-                                 [:ilike :i.inventory_code (str "%" search_term "%")]
+                                 [:ilike :items.inventory_code (str "%" search_term "%")]
                                  [:ilike :m.product (str "%" search_term "%")]
                                  [:ilike :m.manufacturer (str "%" search_term "%")]])))]
 

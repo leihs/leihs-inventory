@@ -10,6 +10,7 @@
                                                                all-items
                                                                with-search
                                                                without-items]]
+
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 model->enrich-with-image-attr]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
