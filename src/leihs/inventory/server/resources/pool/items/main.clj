@@ -17,7 +17,7 @@
 
 (def ERROR_GET_ITEMS "Failed to get items")
 
-(def columns
+(def item-columns
   [:items.id
    :items.model_id
    :items.name
@@ -47,24 +47,7 @@
    :shelf
    :status_note
    :supplier_id
-   :user_name
-
-   [:ip.name :inventory_pool_name]
-   [:r.end_date :reservation_end_date]
-   [:r.user_id :reservation_user_id]
-   [:m.is_package :is_package]
-   [:m.name :model_name]
-   [:rs.name :room_name]
-   [:rs.description :room_description]
-   [:b.name :building_name]
-   [:b.code :building_code]
-
-   [[:nullif [:concat_ws " " :u.firstname :u.lastname] ""] :reservation_user_name]
-
-   [(-> (sql/select :%count.*) ; [[:count :*]]
-        (sql/from [:items :i])
-        (sql/where [:= :i.parent_id :items.id]))
-    :package_items]])
+   :user_name])
 
 (defn index-resources
   ([request]
@@ -76,7 +59,24 @@
                  inventory_pool_id
                  in_stock before_last_check]} (query-params request)
 
-         select (apply sql/select columns)
+         select (apply sql/select
+                       (concat item-columns
+                               [[:ip.name :inventory_pool_name]
+                                [:r.end_date :reservation_end_date]
+                                [:r.user_id :reservation_user_id]
+                                [:m.is_package :is_package]
+                                [:m.name :model_name]
+                                [:rs.name :room_name]
+                                [:rs.description :room_description]
+                                [:b.name :building_name]
+                                [:b.code :building_code]
+
+                                [[:nullif [:concat_ws " " :u.firstname :u.lastname] ""] :reservation_user_name]
+
+                                [(-> (sql/select :%count.*) ; [[:count :*]]
+                                     (sql/from [:items :i])
+                                     (sql/where [:= :i.parent_id :items.id]))
+                                 :package_items]]))
 
          query (-> select
                    (sql/from :items)
