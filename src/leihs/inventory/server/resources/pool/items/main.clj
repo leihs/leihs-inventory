@@ -4,6 +4,7 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
+   [leihs.inventory.server.resources.pool.items.types :as types]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
@@ -129,7 +130,7 @@
      (try
        (-> request
            (create-pagination-response query nil)
-           (pick-fields fields query)
+           (pick-fields fields types/item)
            response)
        (catch Exception e
          (log-by-severity ERROR_GET_ITEMS e)
