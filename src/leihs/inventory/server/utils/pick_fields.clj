@@ -22,7 +22,7 @@
     ;; Vector of field names
     (sequential? schema)
     (set (map keyword schema))
-    
+
     ;; Map with keys as field names (including Schema maps)
     (map? schema)
     (->> (keys schema)
@@ -30,7 +30,7 @@
          (filter some?)
          (map keyword)
          set)
-    
+
     ;; Default: empty set
     :else #{}))
 
@@ -47,30 +47,30 @@
   (if-let [requested-fields (parse-fields fields-param)]
     (let [valid-field-set (extract-valid-fields valid-fields)
           invalid-fields (remove valid-field-set requested-fields)]
-      
+
       (when (seq invalid-fields)
         (throw (IllegalArgumentException.
                 (str "Invalid fields requested: "
                      (str/join ", " (map name invalid-fields))))))
-      
+
       (debug "pick-fields: requested" requested-fields "valid" valid-field-set)
-      
+
       (let [pick (fn [m] (select-keys m requested-fields))]
         (cond
           ;; Wrapped form: {:data [...] :pagination ...}
           (and (map? data) (vector? (:data data)))
           (update data :data #(mapv pick %))
-          
+
           ;; Direct vector of maps
           (sequential? data)
           (mapv pick data)
-          
+
           ;; Single map
           (map? data)
           (pick data)
-          
+
           ;; Unexpected: return unchanged
           :else data)))
-    
+
     ;; No fields specified: return data unchanged
     data))
