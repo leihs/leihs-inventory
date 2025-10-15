@@ -3,47 +3,49 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-
+   [leihs.inventory.server.resources.pool.items.shared :as items-shared :refer [in-stock
+                                                                                owner-or-responsible-cond
+                                                                                owner-and-responsible-cond
+                                                                                not-owner-and-responsible-cond]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
-
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.pick-fields :refer [pick-fields]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [ring.middleware.accept]
-
    [ring.util.response :refer [response]]
    [taoensso.timbre :refer [debug]]))
 
 (def ERROR_GET_ITEMS "Failed to get items")
 
-(defn in-stock [query true-or-false]
-  (-> query
-      (sql/where [:= :i.parent_id nil])
-      (sql/where
-       [(if true-or-false :not-exists :exists)
-        (-> (sql/select 1)
-            (sql/from :reservations)
-            (sql/where [:= :reservations.item_id :i.id])
-            (sql/where [:and
-                        [:= :reservations.status ["signed"]]
-                        [:= :reservations.returned_date nil]]))])))
+(def columns
+  [:i.id :i.insurance_number :i.inventory_code
+   :i.inventory_pool_id :i.invoice_date
+   :i.invoice_number :i.is_borrowable
+   :i.is_broken :i.is_incomplete :i.is_inventory_relevant
+   :i.item_version :i.last_check :i.model_id
+   :i.name :i.needs_permission :i.note
+   :i.owner_id :i.parent_id :i.price
+   :i.properties :i.responsible :i.retired
+   :i.retired_reason :i.room_id :i.serial_number
+   :i.shelf :i.status_note :i.supplier_id :i.user_name
+   [:ip.name :inventory_pool_name]
+   [:r.end_date :reservation_end_date]
+   [:r.user_id :reservation_user_id]
+   [:m.is_package :is_package]
+   [:m.name :model_name]
+   [:rs.name :room_name]
+   [:rs.description :room_description]
+   [:b.name :building_name]
+   [:b.code :building_code]
 
-(defn owner-or-responsible-cond [pool-id]
-  [:or
-   [:= :i.owner_id pool-id]
-   [:= :i.inventory_pool_id pool-id]])
+   [[:nullif [:concat_ws " " :u.firstname :u.lastname] ""] :reservation_user_name]
 
-(defn owner-and-responsible-cond [pool-id inventory-pool-id]
-  [:and
-   [:= :i.owner_id pool-id]
-   [:= :i.inventory_pool_id inventory-pool-id]])
-
-(defn not-owner-and-responsible-cond [pool-id inventory-pool-id]
-  [:and
-   [:not= :i.owner_id pool-id]
-   [:= :i.inventory_pool_id inventory-pool-id]])
+   [(-> (sql/select :%count.*) ; [[:count :*]]
+        (sql/from :items)
+        (sql/where [:= :items.parent_id :i.id]))
+    :package_items]])
 
 (defn index-resources
   ([request]
@@ -55,84 +57,7 @@
                  inventory_pool_id
                  in_stock before_last_check]} (query-params request)
 
-         query-params (fn [query]
-                        (-> query
-                            (#(cond
-                                (and inventory_pool_id (true? owned))
-                                (sql/where % (owner-and-responsible-cond pool_id inventory_pool_id))
-
-                                (and inventory_pool_id (false? owned))
-                                (sql/where % (not-owner-and-responsible-cond pool_id inventory_pool_id))
-
-                                inventory_pool_id
-                                (sql/where % (owner-or-responsible-cond inventory_pool_id))
-
-                                (true? owned)
-                                (sql/where % [:= :i.owner_id pool_id])
-
-                                (false? owned)
-                                (sql/where % [:not= :i.owner_id pool_id])
-
-                                :else %))
-                            (cond-> (boolean? in_stock) (in-stock in_stock))
-                            (cond-> before_last_check
-                              (sql/where [:<= :i.last_check before_last_check]))
-                            (cond-> (boolean? retired)
-                              (sql/where [(if retired :<> :=) :i.retired nil]))
-                            (cond-> (boolean? borrowable)
-                              (sql/where [:= :i.is_borrowable borrowable]))
-                            (cond-> (boolean? broken)
-                              (sql/where [:= :i.is_broken broken]))
-                            (cond-> (boolean? incomplete)
-                              (sql/where [:= :i.is_incomplete incomplete]))))
-
-         select (sql/select
-                 :i.id
-                 :i.insurance_number
-                 :i.inventory_code
-                 :i.inventory_pool_id
-                 :i.invoice_date
-                 :i.invoice_number
-                 :i.is_borrowable
-                 :i.is_broken
-                 :i.is_incomplete
-                 :i.is_inventory_relevant
-                 :i.item_version
-                 :i.last_check
-                 :i.model_id
-                 :i.name
-                 :i.needs_permission
-                 :i.note
-                 :i.owner_id
-                 :i.parent_id
-                 :i.price
-                 :i.properties
-                 :i.responsible
-                 :i.retired
-                 :i.retired_reason
-                 :i.room_id
-                 :i.serial_number
-                 :i.shelf
-                 :i.status_note
-                 :i.supplier_id
-                 :i.user_name
-                 [:ip.name :inventory_pool_name]
-                 [:r.end_date :reservation_end_date]
-                 [:r.user_id :reservation_user_id]
-                 [:m.is_package :is_package]
-                 [:m.name :model_name]
-                 [:rs.name :room_name]
-                 [:rs.description :room_description]
-                 [:b.name :building_name]
-                 [:b.code :building_code]
-
-                 [[:nullif [:concat_ws " " :u.firstname :u.lastname] ""] :reservation_user_name]
-
-                 [(-> (sql/select :%count.*) ; [[:count :*]]
-                      (sql/from :items)
-                      (sql/where [:and
-                                  [:= :items.parent_id :i.id]]))
-                  :package_items])
+         select (apply sql/select columns)
 
          query (-> select
                    (sql/from [:items :i])
@@ -172,7 +97,9 @@
                    (cond-> model_id (sql/where [:= :i.model_id model_id]))
                    (cond-> parent_id (sql/where [:= :i.parent_id parent_id]))
 
-                   query-params
+                   (items-shared/item-query-params pool_id inventory_pool_id
+                                                   owned in_stock before_last_check
+                                                   retired borrowable broken incomplete)
 
                    (cond-> (seq search_term)
                      (sql/where [:or

@@ -70,9 +70,9 @@
                         [:= :reservations.status ["signed"]]
                         [:= :reservations.returned_date nil]]))])))
 
-(defn- item-query-params [query pool-id inventory_pool_id
-                          owned in_stock before_last_check
-                          retired borrowable broken incomplete]
+(defn item-query-params [query pool-id inventory_pool_id
+                         owned in_stock before_last_check
+                         retired borrowable broken incomplete]
   (-> query
       (#(cond
           (and inventory_pool_id (true? owned))
@@ -103,10 +103,10 @@
       (cond-> (boolean? incomplete)
         (sql/where [:= :items.is_incomplete incomplete]))))
 
-(defn all-items [query pool-id
-                 & {:keys [retired borrowable incomplete broken
-                           inventory_pool_id owned
-                           in_stock before_last_check]}]
+(defn items-count [query pool-id
+                   & {:keys [retired borrowable incomplete broken
+                             inventory_pool_id owned
+                             in_stock before_last_check]}]
   (-> query
       (sql/select
        [(-> (sql/select [[:case
@@ -119,41 +119,37 @@
             (item-query-params pool-id inventory_pool_id
                                owned in_stock before_last_check
                                retired borrowable broken incomplete))
-        :items])
-      (sql/where
-       [:or
-        [:exists (-> (sql/select 1)
-                     (sql/from :items)
-                     (sql/where [:= :items.model_id :inventory.id])
-                     (sql/where (owner-or-responsible-cond pool-id))
-                     (item-query-params pool-id inventory_pool_id
-                                        owned in_stock before_last_check
-                                        retired borrowable broken incomplete))]
-        [:not [:exists (-> (sql/select 1)
-                           (sql/from :items)
-                           (sql/where [:= :items.model_id :inventory.id])
-                           (sql/where (owner-or-responsible-cond pool-id))
-                           (item-query-params pool-id inventory_pool_id
-                                              owned in_stock before_last_check
-                                              retired borrowable broken incomplete))]]])))
+        :items])))
+
+(defn all-items [query pool-id
+                 & {:keys [retired borrowable incomplete broken
+                           inventory_pool_id owned
+                           in_stock before_last_check]}]
+  (-> query
+      (items-count pool-id
+                   :retired retired
+                   :borrowable borrowable
+                   :incomplete incomplete
+                   :broken broken
+                   :inventory_pool_id inventory_pool_id
+                   :owned owned
+                   :in_stock in_stock
+                   :before_last_check before_last_check)))
 
 (defn with-items [query pool-id
                   & {:keys [retired borrowable incomplete broken
                             inventory_pool_id owned
                             in_stock before_last_check]}]
   (-> query
-      (sql/select
-       [(-> (sql/select [[:case
-                          [:= :inventory.type "Option"] nil
-                          :else
-                          :%count.*]])
-            (sql/from :items)
-            (sql/where [:= :items.model_id :inventory.id])
-            (sql/where (owner-or-responsible-cond pool-id))
-            (item-query-params pool-id inventory_pool_id
-                               owned in_stock before_last_check
-                               retired borrowable broken incomplete))
-        :items])
+      (items-count pool-id
+                   :retired retired
+                   :borrowable borrowable
+                   :incomplete incomplete
+                   :broken broken
+                   :inventory_pool_id inventory_pool_id
+                   :owned owned
+                   :in_stock in_stock
+                   :before_last_check before_last_check)
       (sql/where
        [:exists (-> (sql/select 1)
                     (sql/from :items)
