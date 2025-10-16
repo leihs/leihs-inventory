@@ -97,7 +97,7 @@
                    ($ DropdownMenuSeparator)
                    ($ DropdownMenuSub
                       ($ DropdownMenuSubTrigger
-                         ($ :button {:type "button"}
+                         ($ :button {:type "button" :data-test-id "language-menu"}
                             (t "header.user-menu.language")))
                       ($ DropdownMenuPortal
                          ($ DropdownMenuSubContent
@@ -106,6 +106,7 @@
                                                    :asChild true}
                                  ($ :button {:type "submit"
                                              :form (str "form-" (:locale language))
+                                             :data-test-id (if (= current-lang (:locale language)) "language-btn-selected" "language-btn")
                                              :class-name (str "w-full font-normal " (when (= current-lang (:locale language)) "font-semibold"))}
                                     (:name language)
 
