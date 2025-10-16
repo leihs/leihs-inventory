@@ -1,11 +1,13 @@
-(ns leihs.inventory.client.routes.pools.inventory.list.components.status-filter
+(ns leihs.inventory.client.routes.pools.inventory.list.components.filters.status-filter
   (:require
+   ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuGroup DropdownMenuItem
                                DropdownMenuPortal DropdownMenuSub
                                DropdownMenuSubContent DropdownMenuSubTrigger
                                DropdownMenuTrigger]]
+   ["@@/tooltip" :refer [TooltipProvider Tooltip TooltipContent TooltipTrigger]]
    ["lucide-react" :refer [Check ChevronDown CirclePlus]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
@@ -20,6 +22,9 @@
         in_stock (.. search-params (get "in_stock"))
         incomplete (.. search-params (get "incomplete"))
         broken (.. search-params (get "broken"))
+        status-count (-> identity
+                         (filter [owned in_stock incomplete broken])
+                         count)
         handle-status (fn [e]
                         (let [name (.. e -target -name)
                               value (.. e -target -value)]
@@ -77,17 +82,24 @@
           ($ Button {:variant "outline"
                      :disabled (or (= with_items "false")
                                    (= type "option"))
-                     :class-name class-name}
-             ($ CirclePlus {:className "h-4 w-4 mr-2 "})
+                     :class-name (str "min-w-48 max-w-48 " class-name)}
+
+             ($ CirclePlus {:className "h-4 w-4"})
              (t "pool.models.filters.status.title")
-             ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))
+
+             (if (pos? status-count)
+               ($ Badge {:class-name "ml-auto w-6 justify-center "
+                         :variant "secondary"}
+                  status-count)
+               ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"}))))
        ($ DropdownMenuContent {:align "start"}
           ($ DropdownMenuGroup
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
                    ($ Button {:variant "ghost"
-                              :class-name "p-0 h-auto font-normal"
+                              :class-name (str (when owned "italic ")
+                                               "p-0 h-auto font-normal")
                               :type "button"}
                       (t "pool.models.filters.status.owned"))
 
@@ -118,7 +130,8 @@
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
                    ($ Button {:variant "ghost"
-                              :class-name "p-0 h-auto font-normal"
+                              :class-name (str (when in_stock "italic ")
+                                               "p-0 h-auto font-normal")
                               :type "button"}
                       (t "pool.models.filters.status.in_stock"))
 
@@ -149,7 +162,8 @@
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
                    ($ Button {:variant "ghost"
-                              :class-name "p-0 h-auto font-normal"
+                              :class-name (str (when broken "italic ")
+                                               "p-0 h-auto font-normal")
                               :disabled (= type "software")
                               :type "button"}
                       (t "pool.models.filters.status.broken"))
@@ -179,15 +193,16 @@
                                     ($ Check {:className "ml-auto h-4 w-4"})))))))))
 
              ($ DropdownMenuSub
-                ($ DropdownMenuSubTrigger
+                ($ DropdownMenuSubTrigger {:class-name (when incomplete "bg-accent")}
                    ($ Button {:variant "ghost"
-                              :class-name "p-0 h-auto font-normal"
+                              :class-name (str (when incomplete "italic ")
+                                               "p-0 h-auto font-normal")
                               :disabled (= type "software")
                               :type "button"}
                       (t "pool.models.filters.status.incomplete"))
 
                    ($ DropdownMenuPortal
-                      ($ DropdownMenuSubContent {:class-name (when (= type "software") "hidden ")}
+                      ($ DropdownMenuSubContent
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ Button {:variant "ghost"
