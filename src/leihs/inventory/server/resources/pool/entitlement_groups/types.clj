@@ -14,10 +14,12 @@
 
 (def get-model {:id s/Uuid
                 :model_id s/Uuid
-                :name s/Str
-                :quantity PosInt
+                :name (s/maybe s/Str)
+                :quantity s/Int
                 :available_count s/Int
-                :is_quantity_ok s/Bool})
+                (s/optional-key :items_count) s/Int
+                :is_quantity_ok s/Bool
+                })
 
 (def user {:id s/Uuid
            :user_id s/Uuid

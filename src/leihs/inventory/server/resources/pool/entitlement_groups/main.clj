@@ -82,8 +82,20 @@
                     (sql/order-by :g.name))
           post-fnc (fn [models]
                      (if (seq models)
-                       (let [ids (to-uuid (mapv :id models))
-                             result (jdbc/execute! tx (prep-query ids))]
+                       (let [
+
+                             p (println ">o> abc.models" models)
+
+
+                             ids (to-uuid (mapv :id models))
+
+
+
+                             result (jdbc/execute! tx (prep-query ids))
+
+                             p (println ">o> abc.result" result)
+
+                             ]
                          (merge-by-id models result))
                        []))]
       (response (create-pagination-response request query nil post-fnc)))

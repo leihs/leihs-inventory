@@ -96,9 +96,14 @@
         model-ids (mapv :model_id models)]
     (if (seq model-ids)
       (let [model-ids (to-uuid model-ids)
+            p (println ">o> abc.model-ids" model-ids)
             models2 (select-entitlements-with-item-count tx pool-id model-ids entitlement-group-id)
+            p (println ">o> ??1 abc.models2" models2)
             models3 (->> (join-by :model_id models models2)
-                         add-allocation-considered-count)] models3)
+                         add-allocation-considered-count)
+
+            p (println ">o> ??2 abc.models3" models3)
+            ] models3)
       [])))
 
 (defn fetch-groups-of-entitlement-group [tx entitlement-group-id]

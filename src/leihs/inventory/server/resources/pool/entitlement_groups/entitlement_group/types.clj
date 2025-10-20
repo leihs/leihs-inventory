@@ -26,4 +26,5 @@
                                             :is_verification_required s/Bool}
                         :models [get-model]
                         :users s/Any
-                        :groups s/Any})
+                        :groups s/Any
+                        })

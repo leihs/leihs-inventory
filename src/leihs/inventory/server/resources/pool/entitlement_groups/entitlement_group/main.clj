@@ -44,7 +44,14 @@
           entitlement-group (fetch-entitlement-group tx request)
           users-groups (fetch-users-of-entitlement-group tx entitlement-group-id)
           models (fetch-models-of-entitlement-group tx request)
-          groups (fetch-groups-of-entitlement-group tx entitlement-group-id)]
+          groups (fetch-groups-of-entitlement-group tx entitlement-group-id)
+
+          p (println ">o> abc.models" {:entitlement_group entitlement-group
+                                       :users users-groups
+                                       :groups groups
+                                       :models models})
+
+          ]
       (response {:entitlement_group entitlement-group
                  :users users-groups
                  :groups groups
