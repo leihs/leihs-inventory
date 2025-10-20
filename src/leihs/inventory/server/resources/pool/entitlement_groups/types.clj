@@ -47,6 +47,7 @@
                    :name s/Str
                    :inventory_pool_id s/Uuid
                    :is_verification_required s/Bool
+                   :is_quantity_ok s/Bool
                    :created_at s/Any
                    :updated_at s/Any
 

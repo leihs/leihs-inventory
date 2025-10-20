@@ -7,6 +7,7 @@
    [leihs.inventory.server.resources.pool.entitlement-groups.common :refer [create-entitlements
                                                                             link-users-to-entitlement-group
                                                                             link-groups-to-entitlement-group]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [enrich-is-quantity-ok]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
@@ -89,6 +90,9 @@
 
                              ids (to-uuid (mapv :id models))
 
+
+                             res (enrich-is-quantity-ok tx pool_id ids)
+                             models (merge-by-id models res)
 
 
                              result (jdbc/execute! tx (prep-query ids))
