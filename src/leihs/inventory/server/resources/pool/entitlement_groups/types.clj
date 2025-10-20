@@ -50,7 +50,6 @@
                    :is_quantity_ok s/Bool
                    :created_at s/Any
                    :updated_at s/Any
-
                    :number_of_models s/Int
                    :number_of_groups s/Int
                    :number_of_direct_users s/Int

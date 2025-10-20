@@ -53,6 +53,42 @@
          (clojure.string/join ", "))
        ");")}))
 
+
+
+(defn- prep-query [ids]
+  (let [m-subquery (-> (sql/select :entitlement_group_id
+                         [[:count :id] :number_of_models])
+                     (sql/from :entitlements)
+                     (sql/group-by :entitlement_group_id))
+        u-subquery (-> (sql/select :entitlement_group_id
+                         [[:count :id] :number_of_users]
+                         [[:sum
+                           [:case
+                            [:in :type ["direct_entitlement" "mixed"]] 1
+                            :else 0]]
+                           :number_of_direct_users])
+                     (sql/from :entitlement_groups_users)
+                     (sql/group-by :entitlement_group_id))
+        g-subquery (-> (sql/select :entitlement_group_id
+                         [[:count :id] :number_of_groups])
+                     (sql/from :entitlement_groups_groups)
+                     (sql/group-by :entitlement_group_id))]
+    (-> (sql/select :eg.id
+          :eg.name
+          :eg.is_verification_required
+          [[:coalesce :m.number_of_models 0] :number_of_models]
+          [[:coalesce :u.number_of_users 0] :number_of_users]
+          [[:coalesce :u.number_of_direct_users 0] :number_of_direct_users]
+          [[:coalesce :g.number_of_groups 0] :number_of_groups])
+      (sql/from [:entitlement_groups :eg])
+      (sql/left-join [m-subquery :m] [:= :m.entitlement_group_id :eg.id])
+      (sql/left-join [u-subquery :u] [:= :u.entitlement_group_id :eg.id])
+      (sql/left-join [g-subquery :g] [:= :g.entitlement_group_id :eg.id])
+      (sql/where [:in :eg.id ids])
+      sql-format)))
+
+
+
 (def ERROR_GET "Failed to get entitlement-groups")
 
 (defn- merge-by-id
