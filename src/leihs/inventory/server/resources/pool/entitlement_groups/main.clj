@@ -10,6 +10,7 @@
    [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [enrich-with-is-quantity-ok]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [body-params path-params]]
    [next.jdbc :as jdbc]
@@ -17,6 +18,7 @@
    [ring.util.response :refer [response]]))
 
 (def ERROR_GET "Failed to get entitlement-groups")
+
 (defn- enrich-with-stats [tx ids]
   (let [m-subquery (-> (sql/select :entitlement_group_id
                                    [[:count :id] :number_of_models])
@@ -107,4 +109,5 @@
                  :users users
                  :groups groups}))
     (catch Exception e
+      (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))
