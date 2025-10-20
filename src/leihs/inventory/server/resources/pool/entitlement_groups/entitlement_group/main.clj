@@ -14,9 +14,7 @@
                                                                                              fetch-users-of-entitlement-group
                                                                                              fetch-entitlement-group
                                                                                              fetch-groups-of-entitlement-group
-
                                                                                              fetch-models-of-entitlement-group]]
-
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.request-utils :refer [path-params body-params]]
    [next.jdbc :as jdbc]

@@ -47,4 +47,3 @@
                             :body types/post-response-body}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}])
-
