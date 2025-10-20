@@ -79,27 +79,40 @@
         users-groups (jdbc/execute! tx query)]
     users-groups))
 
-(defn fetch-models-of-entitlement-group [tx request]
-  (let [pool-id (-> request path-params :pool_id)
-        entitlement-group-id (-> request path-params :entitlement_group_id)
-        query (-> (sql/select
-                   [:m.id :model_id]
-                   :m.name
-                   :e.id
-                   :e.entitlement_group_id
-                   :e.quantity)
-                  (sql/from [:entitlements :e])
-                  (sql/join [:models :m] [:= :e.model_id :m.id])
-                  (sql/where [:= :e.entitlement_group_id entitlement-group-id])
-                  sql-format)
-        models (jdbc/execute! tx query)
-        model-ids (mapv :model_id models)]
-    (if (seq model-ids)
-      (let [model-ids (to-uuid model-ids)
-            models2 (select-entitlements-with-item-count tx pool-id model-ids entitlement-group-id)
-            models3 (->> (join-by :model_id models models2)
-                         add-allocation-considered-count)] models3)
-      [])))
+(defn fetch-models-of-entitlement-group
+  ([tx request]
+   (let [pool-id (-> request path-params :pool_id)
+         entitlement-group-id (-> request path-params :entitlement_group_id)]
+     (fetch-models-of-entitlement-group tx pool-id entitlement-group-id)))
+
+  ([tx pool-id entitlement-group-id]
+   (let [query (-> (sql/select
+                    [:m.id :model_id]
+                    :m.name
+                    :e.id
+                    :e.entitlement_group_id
+                    :e.quantity)
+                   (sql/from [:entitlements :e])
+                   (sql/join [:models :m] [:= :e.model_id :m.id])
+                   (sql/where [:= :e.entitlement_group_id entitlement-group-id])
+                   sql-format)
+         models (jdbc/execute! tx query)
+         model-ids (mapv :model_id models)]
+     (if (seq model-ids)
+       (let [model-ids (to-uuid model-ids)
+             models2 (select-entitlements-with-item-count tx pool-id model-ids entitlement-group-id)
+             models3 (->> (join-by :model_id models models2)
+                          add-allocation-considered-count)]
+         models3)
+       []))))
+
+(defn enrich-with-is-quantity-ok [tx pool-id entitlement-group-ids]
+  (let [res (mapv (fn [eg-id]
+                    (let [models (fetch-models-of-entitlement-group tx pool-id eg-id)
+                          all-ok? (every? :is_quantity_ok models)]
+                      {:id eg-id :is_quantity_ok all-ok?}))
+                  entitlement-group-ids)]
+    res))
 
 (defn fetch-groups-of-entitlement-group [tx entitlement-group-id]
   (let [query (-> (sql/select :egg.id :egg.group_id :g.name :g.searchable)
@@ -129,7 +142,6 @@
                                      entitlements-to-create)
         entitlement-ids (set (mapv :id models))
         entitlement-ids-to-delete (remove entitlement-ids db-entitlement-ids)]
-
     {:entitlements-to-update entitlements-to-update
      :entitlements-to-create entitlements-to-create
      :entitlement-ids-to-delete entitlement-ids-to-delete}))
