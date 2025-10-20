@@ -79,37 +79,14 @@
         users-groups (jdbc/execute! tx query)]
     users-groups))
 
-
-
-
-
-
-
-
-
 (defn fetch-models-of-entitlement-group
-
   ([tx request]
    (let [pool-id (-> request path-params :pool_id)
-         entitlement-group-id (-> request path-params :entitlement_group_id)
-
-
-         ;res (calculation-models-allocations tx pool-id entitlement-group-id)
-         res (fetch-models-of-entitlement-group tx pool-id entitlement-group-id)
-
-         ]
-
-     res
-     ))
-
-
-
+         entitlement-group-id (-> request path-params :entitlement_group_id)]
+     (fetch-models-of-entitlement-group tx pool-id entitlement-group-id)))
 
   ([tx pool-id entitlement-group-id]
-   (let [
-         ;pool-id (-> request path-params :pool_id)
-         ;entitlement-group-id (-> request path-params :entitlement_group_id)
-         query (-> (sql/select
+   (let [query (-> (sql/select
                      [:m.id :model_id]
                      :m.name
                      :e.id
@@ -120,47 +97,22 @@
                  (sql/where [:= :e.entitlement_group_id entitlement-group-id])
                  sql-format)
          models (jdbc/execute! tx query)
-         model-ids (mapv :model_id models)
-
-         ]
+         model-ids (mapv :model_id models)]
      (if (seq model-ids)
        (let [model-ids (to-uuid model-ids)
-             p (println ">o> abc.model-ids" model-ids)
              models2 (select-entitlements-with-item-count tx pool-id model-ids entitlement-group-id)
-             p (println ">o> ??1 abc.models2" models2)
              models3 (->> (join-by :model_id models models2)
-                       add-allocation-considered-count)
-
-             p (println ">o> ??2 abc.models3" models3)
-             ] models3)
-       [])))
-
-  )
-
-
-
+                          add-allocation-considered-count)]
+         models3)
+       []))))
 
 (defn enrich-is-quantity-ok [tx pool-id entitlement-group-ids]
-     (let [
-  res (reduce
-    (fn [acc eg-id]
-      (let [models (fetch-models-of-entitlement-group tx pool-id eg-id)
-            all-ok? (every? :is_quantity_ok models)]
-        (conj acc {:id eg-id
-                   :is_quantity_ok all-ok?})))
-    []
-    entitlement-group-ids)
-
-
-           p (println ">o> ???? abc.simplified" res)
-
-
-           ]res)
-  )
-
-
-
-
+    (let [res (mapv (fn [eg-id]
+                      (let [models (fetch-models-of-entitlement-group tx pool-id eg-id)
+                            all-ok? (every? :is_quantity_ok models)]
+                        {:id eg-id :is_quantity_ok all-ok?}))
+                    entitlement-group-ids)]
+      res))
 
 (defn fetch-groups-of-entitlement-group [tx entitlement-group-id]
   (let [query (-> (sql/select :egg.id :egg.group_id :g.name :g.searchable)
