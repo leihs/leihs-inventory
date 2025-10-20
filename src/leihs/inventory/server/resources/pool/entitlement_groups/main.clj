@@ -7,7 +7,7 @@
    [leihs.inventory.server.resources.pool.entitlement-groups.common :refer [create-entitlements
                                                                             link-groups-to-entitlement-group
                                                                             link-users-to-entitlement-group]]
-   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [enrich-is-quantity-ok]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [enrich-with-is-quantity-ok]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
@@ -16,64 +16,42 @@
    [ring.middleware.accept]
    [ring.util.response :refer [response]]))
 
-(defn- prep-query [ids]
-  (sql-format
-    {:raw
-     (str
-       "SELECT
-                 eg.id,
-                 eg.name,
-                 eg.is_verification_required,
-                 COALESCE(m.number_of_models, 0) AS number_of_models,
-                 COALESCE(u.number_of_users, 0) AS number_of_users,
-                 COALESCE(u.number_of_direct_users, 0) AS number_of_direct_users,
-                 COALESCE(g.number_of_groups, 0) AS number_of_groups
-              FROM entitlement_groups eg
-              LEFT JOIN (
-                  SELECT entitlement_group_id, COUNT(id) AS number_of_models
-                  FROM entitlements
-                  GROUP BY entitlement_group_id
-              ) m ON m.entitlement_group_id = eg.id
-              LEFT JOIN (
-                  SELECT entitlement_group_id,
-                         COUNT(id) AS number_of_users,
-                         SUM(CASE WHEN type IN ('direct_entitlement', 'mixed')
-                                  THEN 1 ELSE 0 END) AS number_of_direct_users
-                  FROM entitlement_groups_users
-                  GROUP BY entitlement_group_id
-              ) u ON u.entitlement_group_id = eg.id
-              LEFT JOIN (
-                  SELECT entitlement_group_id, COUNT(id) AS number_of_groups
-                  FROM entitlement_groups_groups
-                  GROUP BY entitlement_group_id
-              ) g ON g.entitlement_group_id = eg.id
-              WHERE eg.id IN ("
-       (->> ids
-         (map #(str "'" % "'"))
-         (clojure.string/join ", "))
-       ");")}))
+(def ERROR_GET "Failed to get entitlement-groups")
+(defn- enrich-with-stats [tx ids]
+  (let [
+
+        p (println ">o> abc.ids" ids)
 
 
-
-(defn- prep-query [ids]
-  (let [m-subquery (-> (sql/select :entitlement_group_id
+        m-subquery (-> (sql/select :entitlement_group_id
                          [[:count :id] :number_of_models])
                      (sql/from :entitlements)
                      (sql/group-by :entitlement_group_id))
         u-subquery (-> (sql/select :entitlement_group_id
                          [[:count :id] :number_of_users]
-                         [[:sum
-                           [:case
-                            [:in :type ["direct_entitlement" "mixed"]] 1
-                            :else 0]]
-                           :number_of_direct_users])
+
+                         ;[[:sum
+                         ;  [:case
+                         ;   [:in :type ["direct_entitlement" "mixed"]] 1
+                         ;   :else 0]]
+                         ;  :number_of_direct_users]
+
+                         [[:sum [:cast
+                                 [:case
+                                  [:in :type ["direct_entitlement" "mixed"]] 1
+                                  :else 0]
+                                 :integer]]
+                          :number_of_direct_users]
+
+                         )
                      (sql/from :entitlement_groups_users)
                      (sql/group-by :entitlement_group_id))
         g-subquery (-> (sql/select :entitlement_group_id
                          [[:count :id] :number_of_groups])
                      (sql/from :entitlement_groups_groups)
-                     (sql/group-by :entitlement_group_id))]
-    (-> (sql/select :eg.id
+                     (sql/group-by :entitlement_group_id))
+
+    query (-> (sql/select :eg.id
           :eg.name
           :eg.is_verification_required
           [[:coalesce :m.number_of_models 0] :number_of_models]
@@ -85,11 +63,12 @@
       (sql/left-join [u-subquery :u] [:= :u.entitlement_group_id :eg.id])
       (sql/left-join [g-subquery :g] [:= :g.entitlement_group_id :eg.id])
       (sql/where [:in :eg.id ids])
-      sql-format)))
-
-
-
-(def ERROR_GET "Failed to get entitlement-groups")
+      sql-format)
+        res (jdbc/execute! tx query)
+        p (println ">o> abc.res" res)
+        ]
+        res
+    ))
 
 (defn- merge-by-id
   "Merge two vectors of maps by matching :id.
@@ -120,8 +99,8 @@
           post-fnc (fn [models]
                      (if (seq models)
                        (let [ids (to-uuid (mapv :id models))
-                             models (merge-by-id models (enrich-is-quantity-ok tx pool_id ids))
-                             result (merge-by-id models (jdbc/execute! tx (prep-query ids))) ]
+                             models (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
+                             result (merge-by-id models (enrich-with-stats tx ids)) ]
                          result)
                        []))]
       (response (create-pagination-response request query nil post-fnc)))

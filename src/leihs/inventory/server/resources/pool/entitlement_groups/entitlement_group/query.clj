@@ -106,7 +106,7 @@
          models3)
        []))))
 
-(defn enrich-is-quantity-ok [tx pool-id entitlement-group-ids]
+(defn enrich-with-is-quantity-ok [tx pool-id entitlement-group-ids]
     (let [res (mapv (fn [eg-id]
                       (let [models (fetch-models-of-entitlement-group tx pool-id eg-id)
                             all-ok? (every? :is_quantity_ok models)]

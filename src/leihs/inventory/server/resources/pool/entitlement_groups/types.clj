@@ -55,5 +55,17 @@
                    :number_of_direct_users s/Int
                    :number_of_users s/Int})
 
+;(def get-response {:id s/Any
+;                   :name s/Str
+;                   :inventory_pool_id s/Any
+;                   :is_verification_required s/Bool
+;                   :is_quantity_ok s/Bool
+;                   :created_at s/Any
+;                   :updated_at s/Any
+;                   :number_of_models s/Int
+;                   :number_of_groups s/Int
+;                   :number_of_direct_users s/Int
+;                   :number_of_users s/Int})
+
 (def get-response-body
   (s/->Either [[get-response] {:data [get-response] :pagination pagination}]))
