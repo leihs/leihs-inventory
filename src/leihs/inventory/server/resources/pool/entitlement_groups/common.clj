@@ -41,7 +41,6 @@
     []))
 
 (defn update-entitlements [tx entitlements]
-  (println ">o> abc.entitlements" entitlements)
   (if (seq entitlements)
     (->> entitlements
          (mapv (fn [entitlement]
