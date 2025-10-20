@@ -18,7 +18,6 @@ describe "Inventory API Endpoints - Model Links" do
 
     context "GET /inventory/:pool-id/entitlement-groups/" do
       it "retrieves all compatible models and returns status 200" do
-        binding.pry
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(2)
       end
