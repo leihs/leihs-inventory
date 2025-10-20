@@ -14,9 +14,10 @@
 
 (def get-model {:id s/Uuid
                 :model_id s/Uuid
-                :name s/Str
-                :quantity PosInt
+                :name (s/maybe s/Str)
+                :quantity s/Int
                 :available_count s/Int
+                (s/optional-key :items_count) s/Int
                 :is_quantity_ok s/Bool})
 
 (def user {:id s/Uuid
@@ -45,9 +46,9 @@
                    :name s/Str
                    :inventory_pool_id s/Uuid
                    :is_verification_required s/Bool
+                   :is_quantity_ok s/Bool
                    :created_at s/Any
                    :updated_at s/Any
-
                    :number_of_models s/Int
                    :number_of_groups s/Int
                    :number_of_direct_users s/Int
