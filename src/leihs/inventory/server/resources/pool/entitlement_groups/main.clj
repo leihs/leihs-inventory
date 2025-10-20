@@ -18,57 +18,38 @@
 
 (def ERROR_GET "Failed to get entitlement-groups")
 (defn- enrich-with-stats [tx ids]
-  (let [
-
-        p (println ">o> abc.ids" ids)
-
-
-        m-subquery (-> (sql/select :entitlement_group_id
-                         [[:count :id] :number_of_models])
-                     (sql/from :entitlements)
-                     (sql/group-by :entitlement_group_id))
+  (let [m-subquery (-> (sql/select :entitlement_group_id
+                                   [[:count :id] :number_of_models])
+                       (sql/from :entitlements)
+                       (sql/group-by :entitlement_group_id))
         u-subquery (-> (sql/select :entitlement_group_id
-                         [[:count :id] :number_of_users]
-
-                         ;[[:sum
-                         ;  [:case
-                         ;   [:in :type ["direct_entitlement" "mixed"]] 1
-                         ;   :else 0]]
-                         ;  :number_of_direct_users]
-
-                         [[:sum [:cast
-                                 [:case
-                                  [:in :type ["direct_entitlement" "mixed"]] 1
-                                  :else 0]
-                                 :integer]]
-                          :number_of_direct_users]
-
-                         )
-                     (sql/from :entitlement_groups_users)
-                     (sql/group-by :entitlement_group_id))
+                                   [[:count :id] :number_of_users]
+                                   [[:sum [:cast
+                                           [:case
+                                            [:in :type ["direct_entitlement" "mixed"]] 1
+                                            :else 0]
+                                           :integer]]
+                                    :number_of_direct_users])
+                       (sql/from :entitlement_groups_users)
+                       (sql/group-by :entitlement_group_id))
         g-subquery (-> (sql/select :entitlement_group_id
-                         [[:count :id] :number_of_groups])
-                     (sql/from :entitlement_groups_groups)
-                     (sql/group-by :entitlement_group_id))
-
-    query (-> (sql/select :eg.id
-          :eg.name
-          :eg.is_verification_required
-          [[:coalesce :m.number_of_models 0] :number_of_models]
-          [[:coalesce :u.number_of_users 0] :number_of_users]
-          [[:coalesce :u.number_of_direct_users 0] :number_of_direct_users]
-          [[:coalesce :g.number_of_groups 0] :number_of_groups])
-      (sql/from [:entitlement_groups :eg])
-      (sql/left-join [m-subquery :m] [:= :m.entitlement_group_id :eg.id])
-      (sql/left-join [u-subquery :u] [:= :u.entitlement_group_id :eg.id])
-      (sql/left-join [g-subquery :g] [:= :g.entitlement_group_id :eg.id])
-      (sql/where [:in :eg.id ids])
-      sql-format)
-        res (jdbc/execute! tx query)
-        p (println ">o> abc.res" res)
-        ]
-        res
-    ))
+                                   [[:count :id] :number_of_groups])
+                       (sql/from :entitlement_groups_groups)
+                       (sql/group-by :entitlement_group_id))
+        query (-> (sql/select :eg.id
+                              :eg.name
+                              :eg.is_verification_required
+                              [[:coalesce :m.number_of_models 0] :number_of_models]
+                              [[:coalesce :u.number_of_users 0] :number_of_users]
+                              [[:coalesce :u.number_of_direct_users 0] :number_of_direct_users]
+                              [[:coalesce :g.number_of_groups 0] :number_of_groups])
+                  (sql/from [:entitlement_groups :eg])
+                  (sql/left-join [m-subquery :m] [:= :m.entitlement_group_id :eg.id])
+                  (sql/left-join [u-subquery :u] [:= :u.entitlement_group_id :eg.id])
+                  (sql/left-join [g-subquery :g] [:= :g.entitlement_group_id :eg.id])
+                  (sql/where [:in :eg.id ids])
+                  sql-format)]
+    (jdbc/execute! tx query)))
 
 (defn- merge-by-id
   "Merge two vectors of maps by matching :id.
@@ -80,11 +61,11 @@
 (defn- create-entitlement-group [tx data pool_id]
   (let [current-time (java.sql.Timestamp/from (java.time.Instant/now))
         new-eg (-> data
-                 (assoc :inventory_pool_id (to-uuid pool_id) :created_at current-time :updated_at current-time))
+                   (assoc :inventory_pool_id (to-uuid pool_id) :created_at current-time :updated_at current-time))
         query (-> (sql/insert-into :entitlement_groups)
-                (sql/values [new-eg])
-                (sql/returning :*)
-                sql-format)]
+                  (sql/values [new-eg])
+                  (sql/returning :*)
+                  sql-format)]
     (jdbc/execute-one! tx query)))
 
 (defn index-resources [request]
@@ -92,15 +73,15 @@
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
           query (-> (sql/select :g.*)
-                  (sql/from [:entitlement_groups :g])
-                  (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
-                  (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
-                  (sql/order-by :g.name))
+                    (sql/from [:entitlement_groups :g])
+                    (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
+                    (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
+                    (sql/order-by :g.name))
           post-fnc (fn [models]
                      (if (seq models)
                        (let [ids (to-uuid (mapv :id models))
                              models (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
-                             result (merge-by-id models (enrich-with-stats tx ids)) ]
+                             result (merge-by-id models (enrich-with-stats tx ids))]
                          result)
                        []))]
       (response (create-pagination-response request query nil post-fnc)))

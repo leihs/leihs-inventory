@@ -53,8 +53,7 @@
              :coercion reitit.coercion.schema/coercion
              :swagger {:produces ["application/json"]}
              :parameters {:path {:pool_id s/Uuid
-                                 :entitlement_group_id s/Uuid}
-                          }
+                                 :entitlement_group_id s/Uuid}}
              :produces ["application/json"]
              :handler entitlement-group/delete-resource
              :responses {200 {:description "OK"
