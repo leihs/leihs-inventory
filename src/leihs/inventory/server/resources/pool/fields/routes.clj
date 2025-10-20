@@ -20,7 +20,7 @@
           :middleware [accept-json-middleware]
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}
-                       :query {(s/optional-key :type) (s/enum :item :license)}}
+                       :query {:target_type (s/enum "item" "license" "package")}}
           :handler fields/index-resources
           :responses {200 {:description "OK"
                            :body s/Any} ;;FIXME
