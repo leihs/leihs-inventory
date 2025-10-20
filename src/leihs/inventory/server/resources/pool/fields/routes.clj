@@ -2,6 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.pool.fields.main :as fields]
+   [leihs.inventory.server.resources.pool.fields.types :as types]
    [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -23,6 +24,6 @@
                        :query {:target_type (s/enum "item" "license" "package")}}
           :handler fields/index-resources
           :responses {200 {:description "OK"
-                           :body s/Any} ;;FIXME
+                           :body {:fields [types/Field]}}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}}])
