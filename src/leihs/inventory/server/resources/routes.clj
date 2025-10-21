@@ -16,7 +16,6 @@
    [leihs.inventory.server.resources.pool.export.csv.routes :as export-csv]
    [leihs.inventory.server.resources.pool.export.excel.routes :as export-excel]
    [leihs.inventory.server.resources.pool.fields.routes :as fields]
-   [leihs.inventory.server.resources.pool.items.routes :as items]
    [leihs.inventory.server.resources.pool.list.routes :as list]
    [leihs.inventory.server.resources.pool.manufacturers.routes :as manufacturers]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :as attachment]
@@ -24,16 +23,12 @@
    [leihs.inventory.server.resources.pool.models.model.images.image.routes :as image]
    [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes :as images-thumbnail]
    [leihs.inventory.server.resources.pool.models.model.images.routes :as images]
-   [leihs.inventory.server.resources.pool.models.model.items.item.routes :as model-item]
-   [leihs.inventory.server.resources.pool.models.model.items.routes :as model-items]
-   [leihs.inventory.server.resources.pool.models.model.packages.package.routes :as package]
-   [leihs.inventory.server.resources.pool.models.model.packages.routes :as packages]
    [leihs.inventory.server.resources.pool.models.model.routes :as model]
    [leihs.inventory.server.resources.pool.models.routes :as models]
-   [leihs.inventory.server.resources.pool.owners.owner.routes :as owner]
-   [leihs.inventory.server.resources.pool.owners.routes :as owners]
    [leihs.inventory.server.resources.pool.options.option.routes :as option]
    [leihs.inventory.server.resources.pool.options.routes :as options]
+   [leihs.inventory.server.resources.pool.owners.owner.routes :as owner]
+   [leihs.inventory.server.resources.pool.owners.routes :as owners]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :as responsible-inventory-pools]
    [leihs.inventory.server.resources.pool.rooms.room.routes :as room]
    [leihs.inventory.server.resources.pool.rooms.routes :as rooms]
@@ -51,7 +46,8 @@
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
-   [reitit.swagger :as swagger]))
+   [reitit.swagger :as swagger]
+   [taoensso.timbre :as timbre :refer [debug spy]]))
 
 (defn sign-in-out-endpoints []
   [["sign-in"
@@ -139,11 +135,12 @@
   "Returns a vector of the core routes plus any additional routes passed in."
   []
   (let [core-routes [["/:pool_id"
+                      {:data {:middleware [(fn [handler] (fn [request]
+                                                           (debug "MIDDLEWARE")
+                                                           (handler request)))]}}
                       (models/routes)
                       (model/routes)
                       (list/routes)
-                      (packages/routes)
-                      (package/routes)
                       (software/routes)
                       (sw-software/routes)
                       (option/routes)
@@ -154,9 +151,6 @@
                       (images-thumbnail/routes)
                       (attachments/routes)
                       (attachment/routes)
-                      (items/routes)
-                      (model-items/routes)
-                      (model-item/routes)
                       (owners/routes)
                       (owner/routes)
                       (building/routes)
@@ -175,8 +169,7 @@
                          (fields/routes)
                          (export-csv/routes)
                          (export-excel/routes)
-                         (fields/routes)
-                         (items/routes)])
+                         (fields/routes)])
 
                       (when APPLY_DEV_ENDPOINTS
                         [(get-dev-routes)])]
