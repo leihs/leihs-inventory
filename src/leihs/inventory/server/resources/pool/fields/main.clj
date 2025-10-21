@@ -9,10 +9,22 @@
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error spy]]))
 
-(def excluded-keys #{:active :dynamic})
-(def data->keys-mapping {:label [:data :label]
-                         :group [:data :group]
-                         :type [:data :type]})
+(def excluded-keys #{:active :data :dynamic})
+(def common-data-keys #{:default
+                        :group
+                        :label
+                        :required
+                        :type
+                        :visibility_dependency_field_id
+                        :visibility_dependency_value})
+(def type-data-keys
+  {:select #{:default :values}
+   :checkbox #{:values}
+   :radio #{:default :values}
+   :date #{:default}
+   :autocomplete #{:values}
+   :autocomplete-search #{:form_name :value_attr :search_attr :search_path}
+   :composite #{:data_dependency_field_id}})
 
 (defn target-type-expr [ttype]
   (if (= ttype "package")
@@ -43,13 +55,22 @@
       (sql/where (target-type-expr ttype))))
 
 (defn transform-field-data [field]
-  (let [stripped (apply dissoc field excluded-keys)
-        mapped (reduce (fn [m [new-key path]]
-                         (assoc m new-key (get-in m path)))
-                       stripped
-                       data->keys-mapping)]
-    (-> (merge stripped mapped)
-        (dissoc :data))))
+  (let [base (reduce (fn [m data-key]
+                       (assoc m data-key
+                              (-> m
+                                  (get-in [:data data-key])
+                                  (cond-> (= data-key :required) boolean))))
+                     field
+                     common-data-keys)]
+    (-> base
+        ;; Merge in type-specific data keys
+        (merge (select-keys (:data base)
+                            (-> base :type keyword type-data-keys)))
+        ;; Remove excluded keys
+        (#(apply dissoc % excluded-keys))
+        ;; Remove all keys with nil values
+        (->> (remove (fn [[_ v]] (nil? v)))
+             (into {})))))
 
 (defn index-resources [{:keys [tx] :as request}]
   (try
@@ -63,9 +84,9 @@
       (bad-request {:error "Failed to get fields" :details (.getMessage e)}))))
 
 (comment
- (require '[leihs.core.db :as db])
- (let [tx (db/get-ds)]
-   (-> (base-query "item")
-       (sql-format :inline true)
-       (->> (jdbc/query tx))
-       (->> (map transform-field-data)))))
+  (require '[leihs.core.db :as db])
+  (let [tx (db/get-ds)]
+    (-> (base-query "item")
+        (sql-format :inline true)
+        (->> (jdbc/query tx))
+        (->> (map transform-field-data)))))
