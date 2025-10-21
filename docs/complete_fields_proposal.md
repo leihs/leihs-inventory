@@ -47,9 +47,7 @@ All 58 fields from the `fields` table, ordered by position:
   "form_name": "model_id",
   "value_attr": "id",
   "search_attr": "search_term",
-  "search_path": "/inventory/:pool-id/models",
-  "display_attr": "product",
-  "display_attr_ext": "version"
+  "search_path": "/inventory/:pool-id/models"
 }
 ```
 
@@ -74,9 +72,7 @@ All 58 fields from the `fields` table, ordered by position:
   "form_name": "model_id",
   "value_attr": "id",
   "search_attr": "search_term",
-  "search_path": "/inventory/:pool-id/software",
-  "display_attr": "product",
-  "display_attr_ext": "version"
+  "search_path": "/inventory/:pool-id/software"
 }
 ```
 
@@ -353,8 +349,7 @@ All 58 fields from the `fields` table, ordered by position:
     {"label": "Main Building", "value": "550e8400-e29b-41d4-a716-446655440001"},
     {"label": "Science Wing", "value": "550e8400-e29b-41d4-a716-446655440002"},
     {"label": "Arts Center", "value": "550e8400-e29b-41d4-a716-446655440003"}
-  ],
-  "exclude_from_submit": true
+  ]
 }
 ```
 
@@ -366,7 +361,7 @@ All 58 fields from the `fields` table, ordered by position:
   "position": 16,
   "type": "autocomplete",
   "required": true,
-  "values_url": "/manage/rooms.json?building_id=$$$parent_value$$$",
+  "values_url": "/inventory/:pool-id/rooms",
   "values_dependency_field_id": "building_id"
 }
 ```
@@ -859,7 +854,6 @@ When submitting item/license data, use a simplified flat structure with only fie
 - **default**: Default value for the field
 - **currency**: Boolean indicating if field represents currency value
 - **extensible**: Boolean allowing creation of new values (for autocomplete fields)
-- **exclude_from_submit**: Boolean to exclude from form submission
 - **form_name**: Alternative name to use in form submission
 
 ### Dependency Attributes
@@ -872,15 +866,13 @@ When submitting item/license data, use a simplified flat structure with only fie
 ### Values Attributes
 
 - **values**: Array of `{label, value}` objects for static options
-- **values_url**: Dynamic URL template for dependent values (e.g., rooms based on building)
+- **values_url**: Dynamic URL for fetching dependent values
 - **value_label**: Path to the value label in item object
 
 ### Autocomplete-Search Specific Attributes
 
 - **search_path**: API endpoint path for search
 - **search_attr**: Query parameter name for search term
-- **display_attr**: Primary attribute to display in results
-- **display_attr_ext**: Secondary attribute to display in results
 - **value_attr**: Attribute to use as the submitted value
 
 ---
