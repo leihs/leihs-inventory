@@ -160,7 +160,7 @@ shared_context :setup_admin_with_direct_access_right do
   end
 end
 
-shared_context :setup_models_api do |role = "inventory_manager"|
+shared_context :setup_models_api do |role = "inventory_manager", with_entitlements = true|
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
@@ -176,7 +176,7 @@ shared_context :setup_models_api do |role = "inventory_manager"|
     update_cover_image(model, image)
   end
 
-  include_context :setup_accessory_entitlements
+  include_context :setup_accessory_entitlements if with_entitlements
 end
 
 shared_context :setup_api do |role = "inventory_manager"|
@@ -251,8 +251,8 @@ def update_cover_image(model, image)
   model.update(cover_image_id: image.id)
 end
 
-shared_context :setup_models_api_model do |role = "inventory_manager"|
-  include_context :setup_models_api, role
+shared_context :setup_models_api_model do |role = "inventory_manager", with_entitlements = true|
+  include_context :setup_models_api, role, with_entitlements
 
   before :each do
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
@@ -349,6 +349,19 @@ end
 def create_and_add_group_permission(inventory_pool, group, role)
   FactoryBot.create :group_access_right, group_id: group.id,
     inventory_pool_id: inventory_pool.id, role: role
+end
+
+def create_and_add_group_permission_for_x_users(inventory_pool, group, role, user_count)
+  FactoryBot.create :group_access_right,
+    group_id: group.id,
+    inventory_pool_id: inventory_pool.id,
+    role: role
+
+  user_count.times.map do
+    user = FactoryBot.create(:user, login: Faker::Name.unique.name, password: "password")
+    FactoryBot.create(:group_user, user_id: user.id, group_id: group.id)
+    user
+  end
 end
 
 def create_and_add_user_permission(inventory_pool, user, role)
