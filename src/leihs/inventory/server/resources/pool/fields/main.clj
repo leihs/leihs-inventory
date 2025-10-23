@@ -3,11 +3,15 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.request-utils :refer [query-params]]
+   [leihs.core.db :as db]
+   [leihs.inventory.server.resources.pool.buildings.main :as buildings]
+   [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
+   [leihs.inventory.server.resources.pool.suppliers.main :as suppliers]
+   [leihs.inventory.server.utils.request-utils :refer [query-params path-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error spy]]))
+   [taoensso.timbre :refer [debug error spy]]))
 
 (def excluded-keys #{:active :data :dynamic})
 (def common-data-keys #{:default
@@ -22,9 +26,34 @@
    :checkbox #{:values}
    :radio #{:default :values}
    :date #{:default}
-   :autocomplete #{:values}
+   :autocomplete #{:values :values_url :values_dependency_field_id}
    :autocomplete-search #{:form_name :value_attr :search_attr :search_path}
    :composite #{:data_dependency_field_id}})
+
+(def keys-hooks
+  (let [pools-hook (fn [tx _ f]
+                     (assoc f :values
+                            (-> pools/base-query (dissoc :select)
+                                (sql/select [:id :value] [:name :label] :is_active)
+                                (sql/order-by [:is_active :desc] :name)
+                                sql-format
+                                (->> (jdbc/query tx)))))]
+    {:building_id (fn [tx _ f]
+                    (assoc f :values
+                           (-> buildings/base-query (dissoc :select)
+                               (sql/select [:id :value] [:name :label])
+                               sql-format (->> (jdbc/query tx)))))
+     :supplier_id (fn [tx _ f]
+                    (assoc f :values
+                           (-> suppliers/base-query (dissoc :select)
+                               (sql/select [:id :value] [:name :label])
+                               sql-format
+                               (->> (jdbc/query tx)))))
+     :inventory_pool_id pools-hook
+     :owner_id pools-hook
+     :room_id (fn [_ pool-id f]
+                (assoc f :values_url
+                       (str "/inventory/" pool-id "/rooms")))}))
 
 (defn target-type-expr [ttype]
   (if (= ttype "package")
@@ -54,10 +83,10 @@
       (sql/where [:= :fields.active true])
       (sql/where (target-type-expr ttype))))
 
-(defn transform-field-data [field]
-  (let [base (reduce (fn [m data-key]
-                       (assoc m data-key
-                              (-> m
+(defn transform-field-data [tx pool-id field]
+  (let [base (reduce (fn [f data-key]
+                       (assoc f data-key
+                              (-> f
                                   (get-in [:data data-key])
                                   (cond-> (= data-key :required) boolean))))
                      field
@@ -68,6 +97,10 @@
                             (-> base :type keyword type-data-keys)))
         ;; Remove excluded keys
         (#(apply dissoc % excluded-keys))
+        ;; Apply hooks for specific keys
+        (#(if-let [hook-fn (keys-hooks (-> % :id keyword))]
+            (hook-fn tx pool-id %)
+            %))
         ;; Remove all keys with nil values
         (->> (remove (fn [[_ v]] (nil? v)))
              (into {})))))
@@ -75,18 +108,19 @@
 (defn index-resources [{:keys [tx] :as request}]
   (try
     (let [{:keys [target_type]} (query-params request)
+          {:keys [pool_id]} (path-params request)
           query (base-query target_type)
-          fields (jdbc/query tx (spy (sql-format query :inline true)))
-          transformed-fields (map transform-field-data fields)]
+          fields (jdbc/query tx (sql-format query))
+          transformed-fields (map (partial transform-field-data tx pool_id) fields)]
       (response {:fields (vec transformed-fields)}))
     (catch Exception e
       (error "Failed to get fields" e)
       (bad-request {:error "Failed to get fields" :details (.getMessage e)}))))
 
 (comment
-  (require '[leihs.core.db :as db])
   (let [tx (db/get-ds)]
     (-> (base-query "item")
         (sql-format :inline true)
         (->> (jdbc/query tx))
-        (->> (map transform-field-data)))))
+        (->> (filter #(= (-> % :id) "room_id")))
+        (->> (map (partial transform-field-data tx nil))))))

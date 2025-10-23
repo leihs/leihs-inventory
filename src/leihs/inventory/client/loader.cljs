@@ -35,7 +35,7 @@
                            (.then #(jc (.-data %))))
 
             responsible-pools (-> http-client
-                                  (.get (str "/inventory/" pool-id "/responsible-inventory-pools/"))
+                                  (.get (str "/inventory/" pool-id "/inventory-pools/?responsible=true"))
                                   (.then #(jc (.-data %))))
 
             data (-> http-client

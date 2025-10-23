@@ -17,7 +17,8 @@
           :coercion reitit.coercion.schema/coercion
           :middleware [accept-json-middleware]
           :swagger {:produces ["application/json"]}
-          :parameters {:query {(s/optional-key :building_id) s/Uuid}}
+          :parameters {:path {:pool_id s/Uuid}
+                       :query {(s/optional-key :building_id) s/Uuid}}
           :handler rooms/index-resources
           :responses {200 {:description "OK"
                            :body [get-response]}

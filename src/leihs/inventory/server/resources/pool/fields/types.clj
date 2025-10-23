@@ -12,6 +12,8 @@
    (s/optional-key :default) (s/maybe s/Any)
    (s/optional-key :values) (s/conditional vector? [s/Any]
                                            string? s/Str)
+   (s/optional-key :values_url) s/Str
+   (s/optional-key :values_dependency_field_id) s/Str
    (s/optional-key :visibility_dependency_value) s/Str
    (s/optional-key :visibility_dependency_field_id) s/Str
    (s/optional-key :form_name) s/Str

@@ -16,6 +16,7 @@
    [leihs.inventory.server.resources.pool.export.csv.routes :as export-csv]
    [leihs.inventory.server.resources.pool.export.excel.routes :as export-excel]
    [leihs.inventory.server.resources.pool.fields.routes :as fields]
+   [leihs.inventory.server.resources.pool.inventory-pools.routes :as inventory-pools]
    [leihs.inventory.server.resources.pool.list.routes :as list]
    [leihs.inventory.server.resources.pool.manufacturers.routes :as manufacturers]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :as attachment]
@@ -27,9 +28,6 @@
    [leihs.inventory.server.resources.pool.models.routes :as models]
    [leihs.inventory.server.resources.pool.options.option.routes :as option]
    [leihs.inventory.server.resources.pool.options.routes :as options]
-   [leihs.inventory.server.resources.pool.owners.owner.routes :as owner]
-   [leihs.inventory.server.resources.pool.owners.routes :as owners]
-   [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :as responsible-inventory-pools]
    [leihs.inventory.server.resources.pool.rooms.room.routes :as room]
    [leihs.inventory.server.resources.pool.rooms.routes :as rooms]
    [leihs.inventory.server.resources.pool.software.routes :as software]
@@ -151,8 +149,6 @@
                       (images-thumbnail/routes)
                       (attachments/routes)
                       (attachment/routes)
-                      (owners/routes)
-                      (owner/routes)
                       (building/routes)
                       (buildings/routes)
                       (room/routes)
@@ -161,7 +157,7 @@
                       (entitlement-groups/routes)
 
                       (manufacturers/routes)
-                      (responsible-inventory-pools/routes)
+                      (inventory-pools/routes)
                       (suppliers/routes)
 
                       (when APPLY_API_ENDPOINTS_NOT_USED_IN_FE

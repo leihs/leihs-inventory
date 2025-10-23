@@ -8,14 +8,18 @@
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [debug error]]))
 
+(def base-query
+  (-> (sql/select :s.id :s.name :s.note)
+      (sql/from [:suppliers :s])
+      (sql/order-by :s.name)))
+
 (defn index-resources
   ([request]
    (try
      (let [search-term (-> request query-params :search)
-           base-query (-> (sql/select :s.id :s.name :s.note)
-                          (sql/from [:suppliers :s])
-                          (cond-> search-term (sql/where [:ilike :s.name (str "%" search-term "%")]))
-                          (sql/order-by :s.name))]
+           base-query (-> base-query
+                          (cond-> search-term
+                            (sql/where [:ilike :s.name (str "%" search-term "%")])))]
 
        (response (create-pagination-response request base-query nil)))
 
