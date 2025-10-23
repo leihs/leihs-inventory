@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.resources.pool.models.main
   (:require
    [clojure.set]
+   [clojure.string :as string]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
@@ -47,7 +48,7 @@
                          (cond-> search
                            (sql/where [:ilike :models.name (str "%" term "%")]))
                          (cond-> type 
-                           (sql/where [:= :type type]))
+                           (sql/where [:= :type (string/upper-case type)]))
                          (sql/group-by :models.id
                                        :models.product
                                        :models.version

@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.pool.models.routes
   (:require
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.main :as models]
    [leihs.inventory.server.resources.pool.models.types :refer [description-model-form
                                                                get-compatible-response
@@ -23,7 +22,8 @@
           :parameters {:path {:pool_id s/Uuid}
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int
-                               (s/optional-key :search) s/Str}}
+                               (s/optional-key :search) s/Str
+                               (s/optional-key :type) (s/enum "model")}}
           :handler models/index-resources
           :responses {200 {:description "OK"
                            :body get-compatible-response}

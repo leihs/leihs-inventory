@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.pool.suppliers.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.suppliers.main :as suppliers]
    [leihs.inventory.server.resources.pool.suppliers.types :refer [get-response]]
    [reitit.coercion.schema]
