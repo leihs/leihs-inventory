@@ -24,32 +24,32 @@
 (def ERROR_CREATE_MODEL "Failed to create model")
 (def ERROR_GET_MODEL "Failed to get models-compatible")
 
+(def base-query
+  (-> (sql/select :id :product :version :name :cover_image_id)
+      (sql/from :models)
+      (sql/order-by :name)))
+
 (defn index-resources [request]
   (try
     (let [tx (:tx request)
           pool-id (-> request path-params :pool_id)
-          {:keys [search]} (query-params request)
-          base-query (-> (sql/select
-                          :m.id
-                          :m.product
-                          :m.version
-                          :m.cover_image_id
-                          [[:count :i.id] :available])
-                         (sql/from [:models :m])
+          {:keys [search search_term]} (query-params request)
+          term (or search search_term) ; search_term needed for fields
+          base-query (-> base-query
+                         (sql/select [[:count :i.id] :available])
                          (sql/left-join [:items :i]
                                         [:and
-                                         [:= :i.model_id :m.id]
+                                         [:= :i.model_id :models.id]
                                          [:= :i.inventory_pool_id pool-id]
                                          [:= :i.is_borrowable true]
                                          [:= :i.retired nil]
                                          [:= :i.parent_id nil]])
                          (cond-> search
-                           (sql/where [:ilike :m.name (str "%" search "%")]))
-                         (sql/group-by :m.id
-                                       :m.product
-                                       :m.version
-                                       :m.cover_image_id)
-                         (sql/order-by [:m.name :asc]))
+                           (sql/where [:ilike :models.name (str "%" term "%")]))
+                         (sql/group-by :models.id
+                                       :models.product
+                                       :models.version
+                                       :models.cover_image_id))
 
           post-fnc (fn [models]
                      (->> models
