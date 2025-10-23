@@ -17,7 +17,7 @@
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}
                        :query {(s/optional-key :responsible) s/Bool}}
-          :handler inventory-pools/get-resources
+          :handler inventory-pools/index-resources
           :responses {200 {:description "OK"
                            :body get-response}
                       404 {:description "Not Found"}

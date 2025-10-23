@@ -14,7 +14,7 @@
       (sql/from :inventory_pools)
       (sql/where [:= :inventory_pools.is_active true])))
 
-(defn get-resources [request]
+(defn index-resources [request]
   (let [tx (:tx request)
         pool-id (-> request :parameters :path :pool_id)
         responsible (-> request :parameters :query :responsible)
