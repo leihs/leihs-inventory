@@ -126,5 +126,5 @@
     (-> (base-query "item")
         (sql-format :inline true)
         (->> (jdbc/query tx))
-        (->> (filter #(= (-> % :id) "room_id")))
+        (->> (filter #(= (-> % :data :type) "autocomplete-search")))
         (->> (map (partial transform-field-data tx nil))))))

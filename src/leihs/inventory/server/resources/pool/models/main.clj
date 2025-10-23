@@ -33,7 +33,7 @@
   (try
     (let [tx (:tx request)
           pool-id (-> request path-params :pool_id)
-          {:keys [search search_term]} (query-params request)
+          {:keys [search search_term type]} (query-params request)
           term (or search search_term) ; search_term needed for fields
           base-query (-> base-query
                          (sql/select [[:count :i.id] :available])
@@ -46,6 +46,8 @@
                                          [:= :i.parent_id nil]])
                          (cond-> search
                            (sql/where [:ilike :models.name (str "%" term "%")]))
+                         (cond-> type 
+                           (sql/where [:= :type type]))
                          (sql/group-by :models.id
                                        :models.product
                                        :models.version

@@ -5,7 +5,7 @@
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
-   ["lucide-react" :refer [Check ChevronsUpDown Image Trash Loader2Icon]]
+   ["lucide-react" :refer [Check ChevronsUpDown Image Loader2Icon Trash]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [useParams]]
