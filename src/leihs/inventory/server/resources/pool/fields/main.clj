@@ -60,7 +60,10 @@
                        (str "/inventory/" pool-id "/rooms")))
      :model_id (fn [_ pool-id f]
                  (assoc f :values_url
-                        (str "/inventory/" pool-id "/models/?type=model")))}))
+                        (str "/inventory/" pool-id "/models/?type=model")))
+     :software_model_id (fn [_ pool-id f]
+                          (assoc f :values_url
+                                 (str "/inventory/" pool-id "/software/")))}))
 
 (defn target-type-expr [ttype]
   (if (= ttype "package")
@@ -126,7 +129,7 @@
 
 (comment
   (let [tx (db/get-ds)]
-    (-> (base-query "item")
+    (-> (base-query "license")
         (sql-format :inline true)
         (->> (jdbc/query tx))
         (->> (filter #(= (-> % :data :type) "autocomplete-search")))
