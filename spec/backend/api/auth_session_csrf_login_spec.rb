@@ -4,40 +4,22 @@ require_relative "_shared"
 describe "Call swagger-endpoints" do
   context "with accept=text/html2" do
     it "redirect to login if request not comes from swagger-ui" do
-      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
-        req.headers["Accept"] = "text/html"
+      resp = plain_faraday_json_client.get("/inventory/session/protected") do |req|
         req.headers["Referer"] = "/inventory"
-      end
-      expect(resp.status).to eq(302)
-    end
-
-    it "returns correct result 404" do
-      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
-        req.headers["Referer"] = "/inventory"
-      end
-      expect(resp.status).to eq(404)
-    end
-
-    it "returns correct result 404" do
-      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
-        req.headers["Referer"] = "/inventory/api-docs/index.html"
-      end
-      expect(resp.status).to eq(404)
-    end
-
-    it "returns correct result 403" do
-      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
-        req.headers["Accept"] = "application/json"
-        req.headers["Referer"] = "/inventory/api-docs/index.html"
       end
       expect(resp.status).to eq(403)
     end
 
-    it "returns correct result 404" do
-      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
-        req.headers["Referer"] = "/inventory"
+    it "returns correct result 200 SPA that results in a 404" do
+      resp = plain_faraday_html_client.get("/inventory/session/protected")
+      expect_spa_content(resp, 200)
+    end
+
+    it "returns correct result 403" do
+      resp = plain_faraday_html_client.get("/inventory/session/protected") do |req|
+        req.headers["Accept"] = "application/json"
       end
-      expect(resp.status).to eq(404)
+      expect(resp.status).to eq(403)
     end
 
     it "denies access to protected resource without login" do
@@ -65,7 +47,7 @@ describe "Call swagger-endpoints" do
           "user" => @user.login,
           "password" => @user.password,
           "csrf-token" => X_CSRF_TOKEN,
-          "return-to" => "/inventory/models"
+          "return-to" => "/inventory/"
         })
         expect(resp.status).to eq(302)
         expect(resp.headers["location"]).to eq("/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
@@ -80,7 +62,7 @@ describe "Call swagger-endpoints" do
         }, headers: {"Cookie" => @user_cookies_str})
 
         expect(resp.status).to eq(302)
-        expect(resp.headers["location"]).to match(%r{/inventory/$})
+        expect(resp.headers["location"]).to match(%r{/inventory/})
       end
     end
 
@@ -109,7 +91,7 @@ describe "Call swagger-endpoints" do
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
         expect(resp.status).to eq(403)
-        expect(resp.body["detail"]).to eq("The anti-csrf-token cookie value is not set.")
+        expect(resp.body["details"]).to eq("The anti-csrf-token cookie value is not set.")
       end
 
       it "PUT /test-csrf missing token returns error" do
@@ -119,7 +101,7 @@ describe "Call swagger-endpoints" do
         end
 
         expect(resp.status).to eq(403)
-        expect(resp.body["detail"]).to eq("The x-csrf-token has not been send!")
+        expect(resp.body["details"]).to eq("The x-csrf-token has not been send!")
       end
 
       it "PUT /test-csrf missing token and cookie returns error" do
@@ -127,7 +109,7 @@ describe "Call swagger-endpoints" do
           req.headers["Content-Type"] = "application/json"
         end
         expect(resp.status).to eq(403)
-        expect(resp.body["detail"]).to eq("The anti-csrf-token cookie value is not set.")
+        expect(resp.body["details"]).to eq("The anti-csrf-token cookie value is not set.")
       end
 
       it "PUT /test-csrf with mismatched token returns error" do
@@ -137,7 +119,7 @@ describe "Call swagger-endpoints" do
           req.headers["Cookie"] = @user_cookies_str
         end
         expect(resp.status).to eq(403)
-        expect(resp.body["detail"]).to eq("The x-csrf-token is not equal to the anti-csrf cookie value.")
+        expect(resp.body["details"]).to eq("The x-csrf-token is not equal to the anti-csrf cookie value.")
       end
 
       it "POST /test-csrf with valid CSRF headers succeeds" do

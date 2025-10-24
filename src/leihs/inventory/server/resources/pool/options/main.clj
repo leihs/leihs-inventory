@@ -1,17 +1,21 @@
 (ns leihs.inventory.server.resources.pool.options.main
   (:require
    [clojure.set]
-   [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.cast-helper :refer [double-to-numeric-or-nil]]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec filter-and-coerce-by-spec]]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec
+                                                                filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.types :as ty]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]]))
+   [ring.util.response :refer [bad-request response]]))
+
+(def FETCH_OPTIONS_ERROR "Failed to fetch options")
+(def CREATE_OPTIONS_ERROR "Failed to create option")
 
 (defn post-resource [request]
   (let [tx (:tx request)
@@ -25,21 +29,13 @@
                                           (sql/values [multipart])
                                           (sql/returning :*)
                                           sql-format))]
-
         (if res
           (response (-> res
                         (filter-map-by-spec ::ty/response-option-object)))
-          (bad-request {:error "Failed to create option"})))
+          (bad-request {:message CREATE_OPTIONS_ERROR})))
       (catch Exception e
-        (debug e)
-        (error "Failed to create option" (.getMessage e))
-        (cond
-          (str/includes? (.getMessage e) "case_insensitive_inventory_code_for_options")
-          (-> (response {:status "failure"
-                         :message "Inventory code already exists"
-                         :detail {:product (:product multipart)}})
-              (status 409))
-          :else (bad-request {:error "Failed to create option" :details (.getMessage e)}))))))
+        (log-by-severity CREATE_OPTIONS_ERROR e)
+        (exception-handler request CREATE_OPTIONS_ERROR e)))))
 
 (defn index-resources [request]
   (let [pool-id (get-in request [:path-params :pool_id])]
@@ -52,6 +48,5 @@
             post-fnc (fn [models] (filter-and-coerce-by-spec models ::ty/response-option-object))]
         (response (create-pagination-response request base-query nil post-fnc)))
       (catch Exception e
-        (debug e)
-        (error "Failed to fetch options" (.getMessage e))
-        (bad-request {:error "Failed to fetch options" :details (.getMessage e)})))))
+        (log-by-severity FETCH_OPTIONS_ERROR e)
+        (exception-handler request FETCH_OPTIONS_ERROR e)))))

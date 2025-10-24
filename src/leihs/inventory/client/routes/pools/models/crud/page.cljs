@@ -325,14 +325,16 @@
                                       (t "pool.model.create.cancel")
                                       (t "pool.model.cancel"))))
 
-                              (when (not is-create)
+                              (when (and (not is-create)
+                                         (:is_deletable data))
                                 ($ DropdownMenuItem {:asChild true}
                                    ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id/delete" params)
                                             :state state}
                                       "Delete"))))))
 
                       ;; Dialog when deleting a model
-                     (when (not is-create)
+                     (when (and (not is-create)
+                                (:is_deletable data))
                        ($ AlertDialog {:open is-delete}
                           ($ AlertDialogContent
 

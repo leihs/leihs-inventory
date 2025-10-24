@@ -4,7 +4,8 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
-                                                                filter-map-by-spec]]
+                                                                filter-map-by-spec
+                                                                model->enrich-with-image-attr]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  process-accessories
                                                                                  process-categories
@@ -12,55 +13,61 @@
                                                                                  process-entitlements
                                                                                  process-properties]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [debug error]]))
+   [ring.util.response :refer [bad-request response]]))
 
-(defn get-resource [request]
+(def ERROR_CREATE_MODEL "Failed to create model")
+(def ERROR_GET_MODEL "Failed to get models-compatible")
+
+(defn index-resources [request]
   (try
     (let [tx (:tx request)
           pool-id (-> request path-params :pool_id)
           {:keys [search]} (query-params request)
           base-query (-> (sql/select
-                          :id
-                          :product
-                          :version
-                          :cover_image_id)
-                         (sql/from :models)
+                          :m.id
+                          :m.product
+                          :m.version
+                          :m.cover_image_id
+                          [[:count :i.id] :available])
+                         (sql/from [:models :m])
+                         (sql/left-join [:items :i]
+                                        [:and
+                                         [:= :i.model_id :m.id]
+                                         [:= :i.inventory_pool_id pool-id]
+                                         [:= :i.is_borrowable true]
+                                         [:= :i.retired nil]
+                                         [:= :i.parent_id nil]])
                          (cond-> search
-                           (sql/where [:or
-                                       [:ilike :product (str "%" search "%")]
-                                       [:ilike :name (str "%" search "%")]
-                                       [:ilike :version (str "%" search "%")]]))
-                         (sql/order-by [[:trim [:|| :product " " :version]] :asc]))
+                           (sql/where [:ilike :m.name (str "%" search "%")]))
+                         (sql/group-by :m.id
+                                       :m.product
+                                       :m.version
+                                       :m.cover_image_id)
+                         (sql/order-by [:m.name :asc]))
 
           post-fnc (fn [models]
                      (->> models
                           (fetch-thumbnails-for-ids tx)
-                          (map (fn [m]
-                                 (if-let [image-id (:image_id m)]
-                                   (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id)
-                                          :content_type (:content_type m))
-                                   m)))))]
+                          (map (model->enrich-with-image-attr pool-id))))]
 
       (response (create-pagination-response request base-query nil post-fnc)))
 
     (catch Exception e
-      (debug e)
-      (error "Failed to get models-compatible" e)
-      (bad-request {:error "Failed to get models-compatible" :details (.getMessage e)}))))
+      (log-by-severity ERROR_GET_MODEL e)
+      (exception-handler request ERROR_GET_MODEL e))))
 
 ;###################################################################################
 
-(defn create-model-handler [request]
+(defn post-resource [request]
   (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        {:keys [accessories prepared-model-data categories compatibles attachments properties
-                entitlements]}
+        {:keys [accessories prepared-model-data categories compatibles properties entitlements]}
         (extract-model-form-data request)]
 
     (try
@@ -79,10 +86,7 @@
 
         (if res
           (response res)
-          (bad-request {:error "Failed to create model"})))
+          (bad-request {:message ERROR_CREATE_MODEL})))
       (catch Exception e
-        (debug e)
-        (exception-to-response request e "Failed to create model")))))
-
-(defn post-resource [request]
-  (create-model-handler request))
+        (log-by-severity ERROR_CREATE_MODEL e)
+        (exception-handler request ERROR_CREATE_MODEL e)))))

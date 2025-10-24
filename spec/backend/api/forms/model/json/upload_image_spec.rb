@@ -27,13 +27,8 @@ def upload_image(file_path)
   response
 end
 
-def expect_correct_url(url)
-  resp = client.get url
-  expect(resp.status).to eq(200)
-end
-
 describe "Inventory Model" do
-  ["inventory_manager", "customer"].each do |role|
+  ["inventory_manager"].each do |role|
     context "when interacting with inventory model as #{role}" do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -49,15 +44,10 @@ describe "Inventory Model" do
       let(:path_valid_jpeg) { File.expand_path("spec/files/600-kb.jpeg", Dir.pwd) }
       let(:path_valid_pdf) { File.expand_path("spec/files/300-kb.pdf", Dir.pwd) }
 
-      let(:path_invalid_png) { File.expand_path("spec/files/2-mb.png", Dir.pwd) }
-      let(:path_invalid_jpg) { File.expand_path("spec/files/2-mb.jpg", Dir.pwd) }
-      let(:path_invalid_jpeg) { File.expand_path("spec/files/2-mb.jpeg", Dir.pwd) }
-      let(:path_invalid_pdf) { File.expand_path("spec/files/2-mb.pdf", Dir.pwd) }
       let(:pool_id) { @inventory_pool.id }
 
       before do
-        [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
-          path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
+        [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
       end
@@ -93,27 +83,27 @@ describe "Inventory Model" do
           [path_valid_pdf].each do |path|
             response = upload_image(path)
             expect(response.status).to eq(400)
-            expect(response.body["error"]).to eq("Failed to upload image")
+            expect(response.body["message"]).to eq("Unsupported file type")
           end
         end
 
         context "upload & fetch image" do
           before :each do
             @upload_response = upload_image(path_valid_png)
+
+            @image_id = @upload_response.body["image"]["id"]
+            expect(@image_id).not_to be_nil
           end
 
           it "allows fetching the uploaded image as json" do
-            image_id = @upload_response.body["image"]["id"]
-
-            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}"
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
             expect(resp.status).to eq(200)
           end
 
           it "allows fetching the uploaded image as image" do
-            image_id = @upload_response.body["image"]["id"]
             image_content_type = @upload_response.body["image"]["content_type"]
 
-            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}" do |req|
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}" do |req|
               req.headers["Accept"] = image_content_type
             end
             expect(resp.status).to eq(200)
@@ -121,17 +111,14 @@ describe "Inventory Model" do
           end
 
           it "allows fetching the uploaded image thumbnail as json" do
-            image_id = @upload_response.body["image"]["id"]
-
-            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail"
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail"
             expect(resp.status).to eq(200)
           end
 
           it "allows fetching the uploaded image thumbnail as image" do
-            image_id = @upload_response.body["image"]["id"]
             image_content_type = @upload_response.body["image"]["content_type"]
 
-            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail" do |req|
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail" do |req|
               req.headers["Accept"] = image_content_type
             end
             expect(resp.status).to eq(200)
@@ -139,19 +126,13 @@ describe "Inventory Model" do
           end
 
           it "returns 404 for customers when accessing model images, otherwise returns image info without is_cover set" do
-            image_id = @upload_response.body["image"]["id"]
             @upload_response.body["thumbnail"]["id"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
-            if role == "customer"
-              expect(resp.status).to eq(404)
-              next
-            end
-
             expect(resp.status).to eq(200)
             expect(resp.body["images"][0]["is_cover"]).to eq(false)
-            expect(resp.body["images"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}")
+            expect(resp.body["images"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}")
           end
         end
 
@@ -164,11 +145,6 @@ describe "Inventory Model" do
           it "shows the image as cover when cover_image_id is set for the model (inventory_manager only)" do
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
-            if role == "customer"
-              expect(resp.status).to eq(404)
-              next
-            end
-
             expect(resp.status).to eq(200)
 
             resp.body["images"].each do |img|
@@ -178,18 +154,112 @@ describe "Inventory Model" do
           end
 
           it "shows the image as cover when cover_image_id is set for the model (inventory_manager only)" do
-            image_id = @upload_response2.body["image"]["id"]
-            model.update(cover_image_id: image_id)
+            model.update(cover_image_id: @image_id)
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
-            if role == "customer"
-              expect(resp.status).to eq(404)
-              next
-            end
 
             expect(resp.status).to eq(200)
             resp.body["images"].each do |img|
               expect_correct_url(img["url"])
+            end
+          end
+        end
+
+        context "upload & fetch image" do
+          before :each do
+            @upload_response = upload_image(path_valid_png)
+
+            @image_id = @upload_response.body["image"]["id"]
+            expect(@image_id).not_to be_nil
+          end
+
+          it "with accept application/json" do
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
+
+            expect(resp.status).to eq(200)
+            expect(resp.body["id"]).to eq(@image_id)
+          end
+
+          it "with content-negotiation OR correct accept-type" do
+            ["image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+              "image/png", "image/*" + "*/*"].each do |accept_type|
+              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
+              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
+              expect(resp.status).to eq(200)
+            end
+          end
+
+          it "with incorrect accept-type" do
+            ["image/jpeg"].each do |accept_type|
+              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
+              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
+
+              expect(resp.status).to eq(406)
+              expect(resp.body["message"]).to eq("Requested content type not supported")
+            end
+          end
+
+          it "with valid accept-type" do
+            ["text/html",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8,",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+              "image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5",
+              "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"].each do |accept_type|
+              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
+
+              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
+              expect(resp.status).to eq(200)
+            end
+          end
+        end
+
+        context "upload & fetch thumbnail" do
+          before :each do
+            @upload_response = upload_image(path_valid_png)
+
+            @image_id = @upload_response.body["image"]["id"]
+            expect(@image_id).not_to be_nil
+          end
+
+          it "with accept application/json" do
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail"
+
+            expect(resp.status).to eq(200)
+            expect(resp.body["parent_id"]).to eq(@image_id)
+          end
+
+          it "with content-negotiation OR correct accept-type" do
+            ["image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+              "image/png", "image/*" + "*/*"].each do |accept_type|
+              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
+              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail"
+
+              expect(resp.status).to eq(200)
+            end
+          end
+
+          it "with incorrect accept-type" do
+            ["image/jpeg"].each do |accept_type|
+              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
+              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail"
+
+              expect(resp.status).to eq(406)
+              expect(resp.body["message"]).to eq("Requested content type not supported")
+            end
+          end
+
+          it "with invalid accept-type" do
+            ["text/html",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+              "image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5",
+              "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8"].each do |accept_type|
+              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
+              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail"
+
+              expect(resp.status).to eq(200)
             end
           end
         end

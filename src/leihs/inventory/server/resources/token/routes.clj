@@ -2,6 +2,7 @@
   (:require
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.token.main :as token]
+   [reitit.coercion.schema]
    [schema.core :as s]))
 
 (defn routes []
@@ -14,6 +15,7 @@
             :description "Generates an API token for a user with specific permissions and scopes"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
+            :produces ["application/json"]
             :parameters {:body {:description s/Str
                                 :scopes {:read s/Bool
                                          :write s/Bool

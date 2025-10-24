@@ -2,35 +2,47 @@ require "spec_helper"
 require "pry"
 require_relative "../shared/common"
 
-feature "LanguageSwitcher", type: :feature do
-  scenario "User switches language to English" do
+feature "Language ", type: :feature do
+  scenario "init en works" do
     pool = FactoryBot.create(:inventory_pool)
-    user = FactoryBot.create(:user)
+    user = FactoryBot.create(:user, language_locale: "en-GB")
+
     FactoryBot.create(:access_right,
       inventory_pool: pool,
       user: user,
       role: :inventory_manager)
 
     login(user)
+    expect(page).to have_content("Inventory List")
+  end
 
-    visit "/inventory/debug"
+  scenario "init de works" do
+    pool = FactoryBot.create(:inventory_pool)
+    user = FactoryBot.create(:user, language_locale: "de-CH")
 
-    # Click on the dropdown to select language
-    find("button", text: "Select Language").click
+    FactoryBot.create(:access_right,
+      inventory_pool: pool,
+      user: user,
+      role: :inventory_manager)
 
-    # FIXME:
-    # # Expect the dropdown to have the languages
-    # within('[role="menu"]') do
-    #   expect(page).to have_content("de")
-    #   expect(page).to have_content("en")
-    #   expect(page).to have_content("fr")
-    #   expect(page).to have_content("es")
-    # end
+    login(user)
+    expect(page).to have_content("Inventarliste")
+  end
 
-    # # Click on the English language option
-    # find("[role=menuitem]", text: "en").click
+  scenario "switching works" do
+    pool = FactoryBot.create(:inventory_pool)
+    user = FactoryBot.create(:user, language_locale: "en-GB")
 
-    # # Expect the page to have the word "Welcome"
-    # expect(page).to have_content("Welcome")
+    FactoryBot.create(:access_right,
+      inventory_pool: pool,
+      user: user,
+      role: :inventory_manager)
+
+    login(user)
+    expect(page).to have_content("Inventory List")
+    click_on user.firstname
+    click_on "Language"
+    click_on "Deutsch"
+    expect(page).to have_content("Inventarliste")
   end
 end

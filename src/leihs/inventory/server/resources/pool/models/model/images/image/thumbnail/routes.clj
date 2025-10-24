@@ -15,6 +15,7 @@
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}
+          :produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :image_id s/Uuid}}
@@ -22,5 +23,7 @@
           :responses {200 {:description "OK"
                            :body (s/->Either [image/image s/Any])}
                       404 {:description "Not Found"
-                           :body image/error-image-not-found}
+                           :body image/error-message-structure}
+                      406 {:description "Requested content type not supported"
+                           :body image/error-message-structure}
                       500 {:description "Internal Server Error"}}}}])

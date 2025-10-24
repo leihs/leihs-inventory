@@ -5,12 +5,16 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :as response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]]))
+   [ring.util.response :as response :refer [response status]]))
+
+(def ERROR_UPLOAD_ATTACHMENT "Failed to upload attachment")
+(def ERROR_GET_ATTACHMENTS "Failed to fetch thumbnails")
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
@@ -24,16 +28,16 @@
 (defn attachment-response-format [s]
   (sql/returning s :id :filename :content_type :size :model_id :item_id))
 
-(defn post-resource [req]
+(defn post-resource [request]
   (try
-    (let [{{:keys [model_id]} :path} (:parameters req)
-          body-stream (:body req)
+    (let [{{:keys [model_id]} :path} (:parameters request)
+          body-stream (:body request)
           max-size-mb (config-get :api :attachments :max-size-mb)
           upload-path (config-get :api :upload-dir)
-          tx (:tx req)
-          content-type (get-in req [:headers "content-type"])
-          filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
-          content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
+          tx (:tx request)
+          content-type (get-in request [:headers "content-type"])
+          filename-to-save (sanitize-filename (get-in request [:headers "x-filename"]))
+          content-length (some-> (get-in request [:headers "content-length"]) Long/parseLong)
           file-full-path (str upload-path filename-to-save)
           entry {:tempfile file-full-path
                  :filename filename-to-save
@@ -42,7 +46,7 @@
                  :model_id model_id}]
 
       (when (> content-length (* max-size-mb 1024 1024))
-        (throw (ex-info "File size exceeds limit" {:status 400 :error "File size exceeds limit"})))
+        (throw (ex-info "File size exceeds limit" {:status 400 :message "File size exceeds limit"})))
 
       (io/copy body-stream (io/file file-full-path))
 
@@ -57,9 +61,8 @@
         (status (response data) 200)))
 
     (catch Exception e
-      (debug e)
-      (error "Failed to upload attachment" e)
-      (bad-request {:error "Failed to upload attachment" :details (.getMessage e)}))))
+      (log-by-severity ERROR_UPLOAD_ATTACHMENT e)
+      (exception-handler request ERROR_UPLOAD_ATTACHMENT e))))
 
 (defn index-resources [request]
   (try
@@ -69,6 +72,5 @@
                     (cond-> model-id (sql/where [:= :a.model_id model-id])))]
       (response (create-pagination-response request query nil)))
     (catch Exception e
-      (debug e)
-      (error "Failed to get attachments" e)
-      (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))
+      (log-by-severity ERROR_GET_ATTACHMENTS e)
+      (exception-handler request ERROR_GET_ATTACHMENTS e))))

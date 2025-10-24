@@ -4,7 +4,8 @@
    [clojure.edn :as edn]
    [clojure.string :as str]
    [clojure.walk]
-   [taoensso.timbre :refer [debug warn]])
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [taoensso.timbre :refer [warn]])
   (:import
    [java.io ByteArrayInputStream]))
 
@@ -32,9 +33,7 @@
               (re-find #"^\(" x)) ;; crude check for EDN-ish string
        (try
          (edn/read-string x)
-         (catch Exception e
-           (debug e)
-           x))
+         (catch Exception e (log-by-severity "Error parsing edn-string" e) x))
        x))
    m))
 
@@ -65,7 +64,7 @@
          coercion (:coercion parsed-data)
          is-coercion? (some #{"spec" "schema"} [coercion])]
      (when is-coercion?
-       (let [errors (or (get-in parsed-data [:errors])
+       (let [errors (or (get-in parsed-data [:messages])
                         (beautify-problems (:problems parsed-data)))
              scope (some->> (:in parsed-data) (map str) (str/join "/"))
              status (if (str/includes? scope "response")
@@ -77,7 +76,7 @@
                         :uri (str (str/upper-case (name (:request-method req)))
                                   " " (:uri req))}
              full-resp (if with-errors?
-                         (assoc base-resp :errors errors)
+                         (assoc base-resp :messages errors)
                          base-resp)]
          {:is-coercion-error true
           :response-status status

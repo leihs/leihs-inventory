@@ -1,9 +1,7 @@
 (ns leihs.inventory.server.resources.session.public.routes
   (:require
    [clojure.set]
-   [clojure.test :refer :all]
    [crypto.random]
-   [cryptohash-clj.api :refer :all]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.session.public.main :as session-public]
    [reitit.coercion.schema]
@@ -19,4 +17,7 @@
 
     ["/public"
      {:get {:swagger {:security []}
+            :accept "application/json"
+            :public true
+            :produces ["application/json"]
             :handler session-public/get-resource}}]]])

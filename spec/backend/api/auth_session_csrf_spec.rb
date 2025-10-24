@@ -5,6 +5,8 @@ describe "Call swagger-endpoints" do
   context "with accept=text/html" do
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
+      @pool = create(:inventory_pool)
+      create(:access_right, user: @user, inventory_pool: @pool, role: "inventory_manager")
     end
 
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
@@ -40,18 +42,13 @@ describe "Call swagger-endpoints" do
         expect(resp.status).to eq(404)
       end
 
-      it "return 404 for unknown id by model-id" do
-        resp = client.get("/inventory/models/8bd16d45-0000-0000-0000-12849f034351")
-        expect(resp.status).to eq(404)
-      end
-
       it "return 404 for unknown id by pool-id/model-id" do
-        resp = client.get("/inventory/8bd16d45-0000-0000-0000-12849f034351/models/8bd16d45-0000-0000-0000-12849f034351")
+        resp = client.get("/inventory/#{@pool.id}/models/8bd16d45-0000-0000-0000-12849f034351")
         expect(resp.status).to eq(404)
       end
     end
 
-    it "accesses protected json-resource by accept=*/*" do
+    it "accesses protected json-resource by accept=application/json" do
       resp = plain_faraday_json_client.get("/inventory/test-csrf")
       expect(resp.status).to eq(403)
 
@@ -68,21 +65,21 @@ describe "Call swagger-endpoints" do
       expect(resp.status).to eq(403)
     end
 
-    it "protected access against json-resource by accept=*/*" do
-      resp = plain_faraday_client.get("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+    it "protected access against json-resource by accept=text/html" do
+      resp = plain_faraday_html_client.get("/inventory/test-csrf")
+      expect_spa_content(resp, 200)
 
-      resp = plain_faraday_client.post("/inventory/test-csrf")
-      expect(resp.status).to eq(403)
+      resp = plain_faraday_html_client.post("/inventory/test-csrf")
+      expect_spa_content(resp, 200)
 
-      resp = plain_faraday_client.delete("/inventory/test-csrf")
-      expect(resp.status).to eq(403)
+      resp = plain_faraday_html_client.delete("/inventory/test-csrf")
+      expect_spa_content(resp, 200)
 
-      resp = plain_faraday_client.put("/inventory/test-csrf")
-      expect(resp.status).to eq(403)
+      resp = plain_faraday_html_client.put("/inventory/test-csrf")
+      expect_spa_content(resp, 200)
 
-      resp = plain_faraday_client.patch("/inventory/test-csrf")
-      expect(resp.status).to eq(403)
+      resp = plain_faraday_html_client.patch("/inventory/test-csrf")
+      expect_spa_content(resp, 200)
     end
   end
 end

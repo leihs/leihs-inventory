@@ -1,9 +1,7 @@
 require "spec_helper"
 require "pry"
 require "faker"
-
 require "faraday"
-# require 'faraday-cookie_jar'
 
 def create_accessory(inventory_pool_id, model)
   accessory = FactoryBot.create(:accessory, leihs_model: model)
@@ -70,6 +68,33 @@ def create_and_add_category_to_model(models, category = nil)
   end
 
   created_categories
+end
+
+def create_procurement_request(model_id, user_id, quantity = 1, motivation = "testing")
+  room = Room.first
+  org_id = database[:procurement_organizations].insert(name: Faker::Company.name)
+  main_cat_id = database[:procurement_main_categories].insert(name: Faker::Name.name)
+  cat_id = database[:procurement_categories].insert(name: Faker::Name.name, main_category_id: main_cat_id)
+  budget_id = database[:procurement_budget_periods].insert(name: "period-1", inspection_start_date: Date.today, end_date: Date.today + 1.year)
+
+  database[:procurement_requests].returning.insert(budget_period_id: budget_id,
+    category_id: cat_id,
+    user_id: user_id,
+    organization_id: org_id,
+    model_id: model_id,
+    requested_quantity: quantity,
+    room_id: room.id,
+    motivation: motivation)
+end
+
+def create_procurement_template(model_id)
+  main_cat_id = database[:procurement_main_categories].insert(name: Faker::Name.name)
+  cat_id = database[:procurement_categories].insert(name: Faker::Name.name, main_category_id: main_cat_id)
+
+  database[:procurement_templates].returning.insert(
+    category_id: cat_id,
+    model_id: model_id
+  )
 end
 
 def link_categories_to_pool(categories, inventory_pool)
@@ -152,6 +177,16 @@ shared_context :setup_models_api do |role = "inventory_manager"|
   end
 
   include_context :setup_accessory_entitlements
+end
+
+shared_context :setup_api do |role = "inventory_manager"|
+  before :each do
+    @user = FactoryBot.create(:user, login: "test", password: "password")
+    @inventory_pool = FactoryBot.create(:inventory_pool)
+    @inventory_pool_id = @inventory_pool.id
+
+    @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: role)
+  end
 end
 
 shared_context :setup_models_for_duplicates_api do |role = "inventory_manager"|
@@ -330,6 +365,26 @@ shared_context :setup_models_api2 do
   end
 end
 
+shared_context :setup_template_with_model do
+  let!(:model) {
+    FactoryBot.create(:leihs_model,
+      id: SecureRandom.uuid,
+      product: Faker::Commerce.product_name)
+  }
+  let!(:model_id) { model.id }
+
+  let!(:template) { FactoryBot.create(:template, inventory_pool: @inventory_pool) }
+  let!(:template_id) { template.id }
+  let!(:model_link) {
+    db = defined?(Sequel::Model) ? Sequel::Model.db : database
+    db[:model_links].insert(
+      model_group_id: template.id,
+      model_id: model.id,
+      quantity: 2
+    )
+  }
+end
+
 shared_context :setup_access_rights do
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
@@ -381,7 +436,6 @@ shared_context :setup_models_min_api do
   before :each do
     @user = FactoryBot.create(:user, login: Faker::Lorem.word, password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
-    # @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
     @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "inventory_manager")
   end
 end
@@ -408,8 +462,9 @@ def create_and_login(role, login = nil, password = nil)
     "user" => user.login,
     "password" => user.password,
     "csrf-token" => token
-  }, multipart: true, headers: {Cookie: cookie_str})
-  expect(response.status).to eq(200)
+  }, multipart: true, headers: {Cookie: cookie_str, Accept: "text/html"})
+  expect(response.status).to eq(302)
+  expect(response.headers["location"]).to be
 
   session_cookie = parse_cookie(response.headers["set-cookie"])["leihs-user-session"]
 
@@ -417,20 +472,30 @@ def create_and_login(role, login = nil, password = nil)
 end
 
 def create_and_login_by(user)
-  # resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/sign-in")
-
   resp = plain_faraday_json_client.get("/inventory/csrf-token/")
   token = resp.body["csrf-token"]
   _, cookie_str = generate_csrf_data(token)
 
-  resp = common_plain_faraday_client(:post, "/sign-in", body: {
+  response = common_plain_faraday_client(:post, "/sign-in", body: {
     "user" => user.login,
     "password" => user.password,
     "csrf-token" => token
-  }, multipart: true, headers: {Cookie: cookie_str})
+  }, multipart: true, headers: {Cookie: cookie_str, Accept: "text/html"})
 
-  expect(resp.status).to eq(200)
-  session_cookie = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+  expect(response.status).to eq(302)
+  expect(response.headers["location"]).to be
+
+  session_cookie = parse_cookie(response.headers["set-cookie"])["leihs-user-session"]
 
   generate_csrf_session_data(session_cookie) + [session_cookie]
+end
+
+def expect_correct_url(url)
+  resp = client.get url
+  expect(resp.status).to eq(200)
+end
+
+def expect_spa_content(resp, status)
+  expect(resp.body).to include("<title>Inventory</title>")
+  expect(resp.status).to eq(status)
 end

@@ -8,7 +8,7 @@
    :target_id s/Uuid
    :content_type s/Str
    :filename s/Str
-   :size s/Int
+   :size (s/maybe s/Int)
    :thumbnail s/Bool})
 
 (def post-response {:image image

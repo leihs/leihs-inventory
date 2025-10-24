@@ -59,7 +59,7 @@ function Item({ children, className, file, generatePreview = true }) {
                   <TooltipTrigger className="cursor-pointer" asChild>
                     <img
                       src={preview}
-                      className="w-10 h-10 rounded object-cover"
+                      className="w-10 h-10 rounded object-contain"
                       onClick={handleOpen}
                     />
                   </TooltipTrigger>
@@ -82,11 +82,14 @@ function Item({ children, className, file, generatePreview = true }) {
           </div>
         </div>
         <Dialog open={open} onOpenChange={handleOpen}>
-          <DialogContent className="max-w-fit">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>{file.name}</DialogTitle>
             </DialogHeader>
-            <img src={preview} className="w-fit h-auto rounded" />
+            <img
+              src={preview}
+              className="w-[50vh] aspect-square object-contain"
+            />
           </DialogContent>
         </Dialog>
       </TableCell>
@@ -150,7 +153,7 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
         </div>
       ) : (
         <div className="flex items-center flex-col gap-1.5">
-          <div className="flex items-center flex-row gap-0.5 text-sm font-medium">
+          <div className="flex dropzone.items-center flex-row gap-0.5 text-sm font-medium">
             <Upload className="mr-2 h-4 w-4" />
           </div>
           {props.maxSize && (

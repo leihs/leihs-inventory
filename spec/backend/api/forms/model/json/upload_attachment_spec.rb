@@ -31,13 +31,7 @@ def upload_and_expect(file_path, expected_ok)
   end
 end
 
-def expect_correct_url(url)
-  resp = client.get url
-  expect(resp.status).to eq(200)
-end
-
 describe "Inventory Model" do
-  # ['inventory_manager', 'customer'].each do |role|
   ["inventory_manager"].each do |role|
     context "when interacting with inventory model as #{role}" do
       include_context :setup_models_api_model, role
@@ -57,18 +51,12 @@ describe "Inventory Model" do
       let(:path_valid_jpg) { File.expand_path("spec/files/600-kb.jpg", Dir.pwd) }
       let(:path_valid_jpeg) { File.expand_path("spec/files/600-kb.jpeg", Dir.pwd) }
       let(:path_valid_pdf) { File.expand_path("spec/files/300-kb.pdf", Dir.pwd) }
-
-      let(:path_invalid_png) { File.expand_path("spec/files/2-mb.png", Dir.pwd) }
-      let(:path_invalid_jpg) { File.expand_path("spec/files/2-mb.jpg", Dir.pwd) }
-      let(:path_invalid_jpeg) { File.expand_path("spec/files/2-mb.jpeg", Dir.pwd) }
-      let(:path_invalid_pdf) { File.expand_path("spec/files/2-mb.pdf", Dir.pwd) }
+      let(:path_valid_txt) { File.expand_path("spec/files/text-file.txt", Dir.pwd) }
 
       let(:pool_id) { @inventory_pool.id }
 
       before do
-        # Ensure all fixture files exist
-        [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
-          path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
+        [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
       end
@@ -95,22 +83,105 @@ describe "Inventory Model" do
         context "upload & fetch attachments" do
           before :each do
             @upload_response = upload_and_expect(path_valid_pdf, true)
+
+            @attachment_id = @upload_response.body["id"]
+            expect(@attachment_id).not_to be_nil
           end
 
           it "fetches attachment" do
-            attachment_id = @upload_response.body["id"]
-
-            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}"
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{@attachment_id}"
             expect(resp.status).to eq(200)
           end
 
           it "verify attachment exists" do
-            attachment_id = @upload_response.body["id"]
-
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
             expect(resp.status).to eq(200)
-            expect(resp.body["attachments"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}")
+            expect(resp.body["attachments"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/attachments/#{@attachment_id}")
             expect_correct_url(resp.body["attachments"][0]["url"])
+          end
+        end
+
+        context "fetch not existing attachment" do
+          it "with accept application/json" do
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/11111111-1111-1111-1111-111111111111"
+            expect(resp.status).to eq(404)
+            expect(resp.body["details"]).to eq("No attachment found")
+          end
+
+          it "with correct accept-type" do
+            ["application/pdf"].each do |accept_type|
+              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
+              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/11111111-1111-1111-1111-111111111111"
+
+              expect(resp.status).to eq(404)
+              expect(resp.body["details"]).to eq("No attachment found")
+            end
+          end
+        end
+
+        context "upload & fetch attachment" do
+          before :each do
+            @upload_response = upload_and_expect(path_valid_pdf, true)
+
+            @attachment_id = @upload_response.body["id"]
+            expect(@attachment_id).not_to be_nil
+          end
+
+          it "with accept application/json" do
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{@attachment_id}"
+
+            expect(resp.status).to eq(200)
+            expect(resp.body["id"]).to eq(@attachment_id)
+          end
+
+          it "with correct accept-type" do
+            ["application/pdf" + "text/html"].each do |accept_type|
+              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
+              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{@attachment_id}"
+
+              expect(resp.status).to eq(200)
+            end
+          end
+
+          it "with incorrect accept-type" do
+            ["image/png", "image/jpeg", "text/plain", "image/gif", "text/rtf",
+              "image/vnd.dwg", "application/zip"].each do |accept_type|
+              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
+              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{@attachment_id}"
+
+              expect(resp.status).to eq(406)
+            end
+          end
+        end
+
+        context "upload different types & fetch attachment as CHROME" do
+          it "with content negotiation" do
+            [path_valid_pdf, path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_txt].each do |file|
+              upload_response = upload_and_expect(file, true)
+              attachment_id = upload_response.body["id"]
+
+              generic_accept_type = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng," \
+                "*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+              client = plain_faraday_json_client(cookie_header.merge({"Accept" => generic_accept_type}))
+
+              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}"
+              expect(resp.status).to eq(200)
+            end
+          end
+        end
+
+        context "upload different types & fetch attachment as FF" do
+          it "with content negotiation" do
+            [path_valid_pdf, path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_txt].each do |file|
+              upload_response = upload_and_expect(file, true)
+              attachment_id = upload_response.body["id"]
+
+              generic_accept_type = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+              client = plain_faraday_json_client(cookie_header.merge({"Accept" => generic_accept_type}))
+
+              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}"
+              expect(resp.status).to eq(200)
+            end
           end
         end
       end

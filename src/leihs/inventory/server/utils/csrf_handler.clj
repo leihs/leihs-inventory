@@ -7,10 +7,9 @@
    [leihs.core.constants :as constants]
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.constants :as consts]
-   [leihs.inventory.server.resources.main :refer [get-sign-in]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [ring.util.codec :as codec]
-   [ring.util.response :as response]
-   [taoensso.timbre :refer [debug]]))
+   [ring.util.response :as response]))
 
 (defn parse-cookies [cookie-header]
   (->> (str/split cookie-header #"; ")
@@ -42,9 +41,7 @@
           params (codec/form-decode body-str)
           keyword-params (keywordize-keys params)]
       keyword-params)
-    (catch Exception e
-      (debug e)
-      nil)))
+    (catch Exception _ nil)))
 
 (defn extract-header [handler]
   (fn [request]
@@ -54,36 +51,24 @@
                         (assoc :form-params (some-> (:body request) extract-form-params)))
                       add-cookies-to-request
                       convert-params)]
-      (try
-        (handler request)
-        (catch Throwable e
-          (debug e)
-          (if (instance? Throwable e)
-            (if (str/includes? (:uri request) "/sign-in")
-              (get-sign-in request)
-              (do (debug e)
-                  (-> (response/response {:status "failure"
-                                          :message "CSRF-Token/Session not valid"
-                                          :detail (.getMessage e)})
-                      (response/status 403))))
-            (response/status 404))))))) ;; coercion error for undefined urls
+      (handler request))))
 
 (defn wrap-csrf [handler]
   (fn [request]
     (let [uri (:uri request)
-          api-request? (and uri (str/includes? uri "/api-docs/"))]
+          api-request? (and uri (or (str/includes? uri "/api-docs/") (str/includes? uri "/swagger-ui/")))]
       (if api-request?
         (handler request)
         (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token/"])
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
-              (debug e)
+              (log-by-severity e)
               (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
                   (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
-                  {:status 400
+                  {:status 403
                    :headers {"Content-Type" "application/json"}
-                   :body (to-json {:message "Error updating password"
-                                   :detail (str "error: " (.getMessage e))})}))))
+                   :body (to-json {:message "Error during CSRF-Token/Session validation"
+                                   :details (str "error: " (.getMessage e))})}))))
           (handler request))))))

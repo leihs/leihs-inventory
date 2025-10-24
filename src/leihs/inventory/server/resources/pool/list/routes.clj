@@ -4,7 +4,6 @@
    [leihs.inventory.server.resources.pool.list.main :as list]
    [leihs.inventory.server.resources.pool.list.types :refer [get-response]]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -15,7 +14,7 @@
           :summary (fe "InventoryList-Endpoint with filters for models, software, options and packages")
           :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
           :coercion reitit.coercion.schema/coercion
-          :middleware [accept-json-middleware]
+          :produces ["application/json"]
           :parameters {:path {:pool_id s/Uuid}
                        :query {(s/optional-key :before_last_check) Date
                                (s/optional-key :borrowable) s/Bool

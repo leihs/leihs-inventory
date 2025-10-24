@@ -2,6 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.constants :refer [ACCEPT_TYPES_ATTACHMENT]]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.main :as attachment]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [error-attachment-not-found
                                                                                             get-attachment-response]]
@@ -13,11 +14,9 @@
 (defn routes []
   ["/models/:model_id/attachments/:attachments_id"
    {:get {:summary (fe "")
-          :accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          :swagger {:produces ["application/json" "application/octet-stream"
-                               "application/pdf" "image/png" "image/jpeg" "text/plain" "image/gif" "text/rtf"
-                               "image/vnd.dwg" "application/zip"]}
+          :swagger {:produces ACCEPT_TYPES_ATTACHMENT}
+          :produces ACCEPT_TYPES_ATTACHMENT
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :attachments_id s/Uuid}
@@ -27,6 +26,7 @@
                            :body get-attachment-response}
                       404 {:description "Not Found"
                            :body error-attachment-not-found}
+                      406 {:description "Requested content type not supported"}
                       500 {:description "Internal Server Error"}}}
 
     :delete {:accept "application/json"
@@ -35,6 +35,7 @@
              :parameters {:path {:pool_id s/Uuid
                                  :model_id s/Uuid
                                  :attachments_id s/Uuid}}
+             :produces ["application/json"]
              :handler attachment/delete-resource
              :responses {200 {:description "OK"
                               :body s/Any}

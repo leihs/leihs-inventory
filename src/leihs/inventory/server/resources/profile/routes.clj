@@ -2,9 +2,8 @@
   (:require
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.profile.main :as profile]
-   [leihs.inventory.server.resources.profile.types :refer [profile-response-schema]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware
-                                                    wrap-authenticate!]]))
+   [leihs.inventory.server.resources.profile.types :as type]
+   [reitit.coercion.schema]))
 
 (defn routes []
   ["/profile/"
@@ -12,10 +11,19 @@
           :summary (fe "Get details of the authenticated user")
           :description "Uses /inventory/pools-by-access-right for the pools."
           :coercion reitit.coercion.schema/coercion
-          :middleware [wrap-authenticate! accept-json-middleware]
-          :swagger {:produces ["application/json"]}
+          :produces ["application/json"]
           :handler profile/get-resource
           :responses {200 {:description "OK"
-                           :body profile-response-schema}
+                           :body type/profile-response-schema}
                       404 {:description "Not Found"}
-                      500 {:description "Internal Server Error"}}}}])
+                      500 {:description "Internal Server Error"}}}
+
+    :patch {:accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :swagger {:produces ["application/json"]}
+            :parameters {:body type/profile-patch-schema}
+            :handler profile/patch-resource
+            :responses {200 {:description "OK"
+                             :body type/profile-patch-schema}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}])

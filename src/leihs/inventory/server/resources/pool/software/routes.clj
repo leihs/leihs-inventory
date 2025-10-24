@@ -2,8 +2,6 @@
   (:require
    [leihs.inventory.server.resources.pool.software.main :as software]
    [leihs.inventory.server.resources.pool.software.types :as types]
-   [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
-   [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]))
 
@@ -13,7 +11,7 @@
            :coercion spec/coercion
            :parameters {:path {:pool_id uuid?}
                         :body :software-post/multipart}
-           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+           :produces ["application/json"]
            :handler software/post-resource
            :responses {200 {:description "OK"
                             :body ::types/post-response}

@@ -2,7 +2,8 @@
   (:require
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.session.protected.main :as session-protected]
-   [leihs.inventory.server.utils.auth.session :as ab]))
+   [leihs.inventory.server.utils.auth.session :as ab]
+   [reitit.coercion.schema]))
 
 (defn routes []
   ["/"
@@ -15,5 +16,6 @@
      {:get {:accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :swagger {:security [{:csrfToken []}]}
+            :produces ["application/json"]
             :handler session-protected/get-resource
             :middleware [ab/wrap-session-authorize!]}}]]])

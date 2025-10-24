@@ -28,6 +28,16 @@ def validate_map_structure(map, required_keys)
   end
 end
 
+def call(method, path, body: nil)
+  case method
+  when :get then client.get(path)
+  when :post then json_client_post(path, body: body, headers: cookie_header)
+  when :put then json_client_put(path, body: body, headers: cookie_header)
+  when :delete then json_client_delete(path, headers: cookie_header)
+  else raise ArgumentError, "Unknown method: #{method}"
+  end
+end
+
 def expected_form_fields(fields, expected_fields)
   form_field_ids = fields.map { |field| field["id"] }
   expect(form_field_ids).to eq(expected_fields)

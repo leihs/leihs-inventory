@@ -47,7 +47,7 @@ feature "Inventory Page", type: :feature do
 
     # user = FactoryBot.create(:user)
     user = FactoryBot.create(:user, language_locale: "en-GB")
-    [pool_1, pool_2].each do |pool|
+    [pool_1, pool_2, pool_5].each do |pool|
       FactoryBot.create(:access_right,
         inventory_pool: pool,
         user: user,
@@ -173,7 +173,10 @@ feature "Inventory Page", type: :feature do
     visit "/inventory"
     find("nav button", text: "Inventory").click
     click_on pool_1.name
-    expect(page).to have_content("Inventory List - #{pool_1.name}")
+
+    expect(page).to have_css('nav[aria-label="breadcrumb"]', text: pool_1.name)
+    expect(page).to have_css('nav[aria-label="breadcrumb"]', text: "Inventory List")
+
     uri = URI.parse(current_url)
     query_params = CGI.parse(uri.query)
     expect(query_params).to eq({"with_items" => ["true"], "retired" => ["false"], "page" => ["1"], "size" => ["50"]})

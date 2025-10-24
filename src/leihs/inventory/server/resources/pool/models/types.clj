@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.models.types
   (:require
    [clojure.spec.alpha :as sa]
-   [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
+   [leihs.inventory.server.resources.pool.models.basic-coercion :as sp]
    [leihs.inventory.server.resources.types :refer [pagination]]
    [reitit.coercion.schema]
    [schema.core :as s]
@@ -61,6 +61,7 @@
                   :product (s/maybe s/Str)
                   :version (s/maybe s/Str)
                   :cover_image_id (s/maybe s/Uuid)
+                  :available (s/maybe s/Int)
 
                   (s/optional-key :url) (s/maybe s/Str)
                   (s/optional-key :content_type) (s/maybe s/Str)

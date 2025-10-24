@@ -7,11 +7,15 @@
    [leihs.inventory.server.resources.pool.buildings.main :as buildings]
    [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
    [leihs.inventory.server.resources.pool.suppliers.main :as suppliers]
-   [leihs.inventory.server.utils.request-utils :refer [query-params path-params]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params
+                                                       query-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [debug error spy]]))
+   [ring.util.response :refer [response]]))
+
+(def ERROR_GET "Failed to get fields")
 
 (def excluded-keys #{:active :data :dynamic})
 (def common-data-keys #{:default
@@ -114,8 +118,8 @@
           transformed-fields (map (partial transform-field-data tx pool_id) fields)]
       (response {:fields (vec transformed-fields)}))
     (catch Exception e
-      (error "Failed to get fields" e)
-      (bad-request {:error "Failed to get fields" :details (.getMessage e)}))))
+      (log-by-severity ERROR_GET e)
+      (exception-handler request ERROR_GET e))))
 
 (comment
   (let [tx (db/get-ds)]

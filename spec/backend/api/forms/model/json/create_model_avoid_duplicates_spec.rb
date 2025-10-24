@@ -92,7 +92,7 @@ describe "Inventory Model" do
             headers: cookie_header
           )
           expect(resp.status).to eq(409)
-          expect(resp.body["message"]).to eq("Model already exists")
+          expect(resp.body["message"]).to eq("Failed to create model")
 
           # create model with different version
           form_data = {
@@ -132,7 +132,7 @@ describe "Inventory Model" do
             headers: cookie_header
           )
           expect(resp.status).to eq(409)
-          # expect(resp.body["message"]).to eq("Model already exists")
+          expect(resp.body["message"]).to eq("Failed to create model")
 
           # create model with different version
           form_data = {

@@ -25,6 +25,11 @@
     }
   },
   "pool": {
+    "inventory": {
+      "breadcrumbs": {
+        "inventory": "Inventar"
+      }
+    },
     "models": {
       "title": "Inventarliste",
       "filters": {
@@ -81,11 +86,13 @@
         "add_option": "Neue Option",
         "add_software": "Neue Software"
       },
+      "add_template": "Vorlage hinzufügen",
       "tabs": {
         "inventory_list": "Inventarliste",
         "advanced_search": "Erweiterte Suche",
         "statistics": "Statistik",
-        "entitlement_groups": "Anspruchsgruppen"
+        "entitlement_groups": "Anspruchsgruppen",
+        "templates": "Vorlagen"
       },
       "list": {
         "empty": "Keine Modelle gefunden",
@@ -97,6 +104,73 @@
         "actions": {
           "edit": "editieren",
           "add_item": "Gegenstand hinzufügen"
+        }
+      }
+    },
+    "templates": {
+      "title": "Vorlagen",
+      "description": "Editieren Sie die Vorlagen und weisen die Modelle zu",
+      "add": "Vorlage hinzufügen",
+      "list": {
+        "quantity_error": "Anzahl übersteigt Verfügbarkeit",
+        "empty": "Keine Vorlagen gefunden",
+        "header": {
+          "name": "Name",
+          "models_count": "Anzahl Modelle"
+        },
+        "actions": {
+          "edit": "editieren"
+        }
+      },
+      "template": {
+        "quantity_error": "Anzahl übersteigt Verfügbarkeit",
+        "title": "Vorlage",
+        "create": {
+          "description": "Geben Sie alle erforderlichen Informationen an",
+          "submit": "Vorlage speichern",
+          "cancel": "Abbrechen",
+          "success": "Vorlage wurde erfolgreich erstellt",
+          "invalid_one": "Vorlage konnte nicht erstellt werden, da ein Feld ungültig ist",
+          "invalid_other": "Vorlage konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+          "conflict": "Vorlage konnte nicht erstellt werden, da eine Vorlage mit dem gleichen Namen bereits existiert",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
+        },
+        "edit": {
+          "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Vorlage speichern",
+          "delete": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Vorlage wurde erfolgreich gespeichert",
+          "invalid_one": "Vorlage konnte nicht gespeichert werden, da ein Feld ungültig ist",
+          "invalid_other": "Vorlage konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
+        },
+        "delete": {
+          "title": "Vorlage löschen",
+          "description": "Sind Sie sicher, dass Sie diese Vorlage löschen möchten?",
+          "confirm": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Vorlage wurde erfolgreich gelöscht",
+          "error": "Vorlage konnte nicht gelöscht werden"
+        },
+        "name": {
+          "blocks": {
+            "name": {
+              "label": "Name der Vorlage"
+            }
+          }
+        },
+        "models": {
+          "title": "Zuteilungen",
+          "blocks": {
+            "models": {
+              "label": "Modell auswählen und Anzahl zuweisen",
+              "not_found": "Modell nicht gefunden",
+              "select": "Modell auswählen",
+              "placeholder": "Modell suchen",
+              "search_empty": "Geben Sie mindestens 2 Zeichen ein",
+              "searching": "Suche..."
+            }
+          }
         }
       }
     },
@@ -114,7 +188,7 @@
         "invalid_one": "Software konnte nicht erstellt werden, da ein Feld ungültig ist",
         "invalid_other": "Software konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
         "409": "Software konnte nicht erstellt werden, da eine Software mit dem gleichen Namen bereits existiert",
-        "500": "Beim erstellen ist ein Fehler aufgetreten"
+        "500": "Beim Erstellen ist ein Fehler aufgetreten"
       },
       "edit": {
         "delete": "Löschen",
@@ -173,7 +247,7 @@
         "invalid_one": "Option konnte nicht erstellt werden, da ein Feld ungültig ist",
         "invalid_other": "Option konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
         "409": "Option konnte nicht erstellt werden, da eine Option mit dem gleichen Iventarcode bereits existiert",
-        "500": "Beim erstellen ist ein Fehler aufgetreten"
+        "500": "Beim Erstellen ist ein Fehler aufgetreten"
       },
       "edit": {
         "title": "Option bearbeiten",
@@ -184,7 +258,7 @@
         "invalid_one": "Option konnte nicht erstellt werden, da ein Feld ungültig ist",
         "invalid_other": "Option konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
         "409": "Option konnte nicht erstellt werden, da eine Option mit dem gleichen Iventarcode bereits existiert",
-        "500": "Beim erstellen ist ein Fehler aufgetreten"
+        "500": "Beim Erstellen ist ein Fehler aufgetreten"
       },
       "delete": {
         "title": "Option löschen",
@@ -336,7 +410,7 @@
         "invalid_one": "Modell konnte nicht erstellt werden, da ein Feld ungültig ist",
         "invalid_other": "Modell konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
         "409": "Modell konnte nicht erstellt werden, da ein Modell mit dem gleichen Namen bereits existiert",
-        "500": "Beim erstellen ist ein Fehler aufgetreten"
+        "500": "Beim Erstellen ist ein Fehler aufgetreten"
       },
       "edit": {
         "success": "Modell wurde erfolgreich gespeichert",
