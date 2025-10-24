@@ -47,7 +47,7 @@
                                          [:= :i.parent_id nil]])
                          (cond-> search
                            (sql/where [:ilike :models.name (str "%" term "%")]))
-                         (cond-> type 
+                         (cond-> type
                            (sql/where [:= :type (string/upper-case type)]))
                          (sql/group-by :models.id
                                        :models.product
