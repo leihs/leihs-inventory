@@ -26,9 +26,11 @@
 (def ERROR_GET_MODEL "Failed to get models-compatible")
 
 (def base-query
-  (-> (sql/select :id :product :version :name :cover_image_id)
+  (-> (sql/select :models.id
+                  :models.product :models.version :models.name
+                  :models.cover_image_id)
       (sql/from :models)
-      (sql/order-by :name)))
+      (sql/order-by :models.name)))
 
 (defn index-resources [request]
   (try
@@ -50,8 +52,7 @@
                          (cond-> type
                            (sql/where [:= :type (string/upper-case type)]))
                          (sql/group-by :models.id
-                                       :models.product
-                                       :models.version
+                                       :models.name
                                        :models.cover_image_id))
 
           post-fnc (fn [models]
