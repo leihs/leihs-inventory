@@ -14,8 +14,8 @@
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
    [leihs.inventory.server.utils.exception-handler :refer [wrap-exception]]
    [leihs.inventory.server.utils.middleware-handler :refer [wrap-html-40x
-                                                            wrap-strict-format-negotiate
-                                                            wrap-session-token-authenticate!]]
+                                                            wrap-session-token-authenticate!
+                                                            wrap-strict-format-negotiate]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [muuntaja.core :as m]
    [reitit.coercion.schema]
@@ -87,15 +87,12 @@
     (handler (assoc request :reitit.router router))))
 
 (defn init []
-  (let [router (ring/router
-                (routes/all-api-endpoints)
-                default-router-config)
-        app (ring/routes
-             (swagger/init)
-             (ring/ring-handler
-              router
-              (ring/create-default-handler
-               {:not-found custom-not-found-handler})))
+  (let [router (ring/router (routes/all-api-endpoints)
+                            default-router-config)
+        app (ring/routes (swagger/init)
+                         (ring/ring-handler router
+                                            (ring/create-default-handler
+                                             {:not-found custom-not-found-handler})))
         app (wrap-router app router)]
     (-> app
         (cache-buster2/wrap-resource "public" cache-bust-options)

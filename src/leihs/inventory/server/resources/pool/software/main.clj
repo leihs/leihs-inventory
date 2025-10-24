@@ -5,18 +5,24 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
                                                          str-to-bool]]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
+                                                                filter-map-by-spec
+                                                                model->enrich-with-image-attr]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
    [leihs.inventory.server.resources.pool.software.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params
+                                                       query-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]])
   (:import
    (java.time LocalDateTime)))
 
 (def ERROR_CREATE_SOFTWARE "Failed to create software")
+(def ERROR_GET_SOFTWARE "Failed to get software")
 
 (defn prepare-software-data
   [data]
@@ -26,6 +32,34 @@
            :type "Software"
            :created_at created-ts
            :updated_at created-ts)))
+
+(def base-query
+  (-> (sql/select :models.id
+                  :models.product :models.version :models.name
+                  :models.cover_image_id)
+      (sql/from :models)
+      (sql/where [:= :models.type "Software"])
+      (sql/order-by :models.name)))
+
+(defn index-resources [request]
+  (try
+    (let [tx (:tx request)
+          pool-id (-> request path-params :pool_id)
+          {:keys [search search_term]} (query-params request)
+          term (or search search_term) ; search_term needed for fields
+          base-query (-> base-query
+                         (cond-> term
+                           (sql/where [:ilike :models.name (str "%" term "%")])))
+          post-fnc (fn [models]
+                     (->> models
+                          (fetch-thumbnails-for-ids tx)
+                          (map (model->enrich-with-image-attr pool-id))))]
+
+      (response (create-pagination-response request base-query nil post-fnc)))
+
+    (catch Exception e
+      (log-by-severity ERROR_GET_SOFTWARE e)
+      (exception-handler request ERROR_GET_SOFTWARE e))))
 
 (defn post-resource [request]
   (let [tx (:tx request)
