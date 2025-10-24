@@ -57,7 +57,10 @@
      :owner_id pools-hook
      :room_id (fn [_ pool-id f]
                 (assoc f :values_url
-                       (str "/inventory/" pool-id "/rooms")))}))
+                       (str "/inventory/" pool-id "/rooms")))
+     :model_id (fn [_ pool-id f]
+                 (assoc f :values_url
+                        (str "/inventory/" pool-id "/models/?type=model")))}))
 
 (defn target-type-expr [ttype]
   (if (= ttype "package")
@@ -127,4 +130,4 @@
         (sql-format :inline true)
         (->> (jdbc/query tx))
         (->> (filter #(= (-> % :data :type) "autocomplete-search")))
-        (->> (map (partial transform-field-data tx nil))))))
+        (->> (map (partial transform-field-data tx ":pool-id"))))))

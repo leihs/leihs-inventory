@@ -20,7 +20,8 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]]))
+   [ring.util.response :refer [bad-request response]]
+   [taoensso.timbre :as timbre :refer [debug spy]]))
 
 (def ERROR_CREATE_MODEL "Failed to create model")
 (def ERROR_GET_MODEL "Failed to get models-compatible")
@@ -47,10 +48,10 @@
                                          [:= :i.is_borrowable true]
                                          [:= :i.retired nil]
                                          [:= :i.parent_id nil]])
-                         (cond-> search
+                         (cond-> term
                            (sql/where [:ilike :models.name (str "%" term "%")]))
                          (cond-> type
-                           (sql/where [:= :type (string/upper-case type)]))
+                           (sql/where [:= :type (string/capitalize type)]))
                          (sql/group-by :models.id
                                        :models.name
                                        :models.cover_image_id))

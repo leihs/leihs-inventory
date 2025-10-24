@@ -23,6 +23,7 @@
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int
                                (s/optional-key :search) s/Str
+                               (s/optional-key :search_term) s/Str
                                (s/optional-key :type) (s/enum "model")}}
           :handler models/index-resources
           :responses {200 {:description "OK"
