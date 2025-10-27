@@ -21,13 +21,18 @@
                         ;:body get-items-response} ;; FIXME broken
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
-    
+
     :post {:description "Create a new item. Fields starting with 'properties_' are stored in the properties JSONB column, others in their respective item columns."
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json"]}
            :parameters {:path {:pool_id s/Uuid}
-                        :body {s/Keyword s/Any}}
+                        :body {(s/optional-key :inventory_code) s/Str
+                               (s/optional-key :model_id) s/Uuid
+                               (s/optional-key :room_id) s/Uuid
+                               (s/optional-key :inventory_pool_id) s/Uuid
+                               (s/optional-key :owner_id) s/Uuid
+                               s/Keyword s/Any}}
            :handler items/post-resource
            :responses {200 {:description "OK"
                             :body s/Any}

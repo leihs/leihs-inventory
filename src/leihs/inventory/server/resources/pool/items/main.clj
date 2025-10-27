@@ -10,11 +10,11 @@
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
-   [next.jdbc.sql :rename {query jdbc-query}]
    [next.jdbc :as jdbc]
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn base-pool-query [query pool-id]
   (-> query
@@ -100,10 +100,11 @@
      :properties properties}))
 
 (defn validate-field-permissions [tx role body-params]
-  (let [permitted-fields (-> (fields/base-query "item" role)
+  (let [permitted-fields (-> (fields/base-query "item" (keyword role))
                              sql-format
                              (->> (jdbc-query tx)))
         permitted-field-ids (->> permitted-fields
+                                 (map (comp keyword :id))
                                  set)
         body-keys (set (keys body-params))
         unpermitted-fields (set/difference body-keys permitted-field-ids)]
@@ -119,12 +120,18 @@
       (if validation-error
         (bad-request {:error "Unpermitted fields" :details validation-error})
         (let [{:keys [item-data properties]} (split-item-data body-params)
-              item-data-with-properties (assoc item-data :properties properties)
-              result (jdbc/execute-one! tx
-                                        (-> (sql/insert-into :items)
-                                            (sql/values [item-data-with-properties])
-                                            (sql/returning :*)
-                                            sql-format))]
+              properties-json (or (not-empty properties) {})
+              now (java.time.Instant/now)
+              item-data-with-timestamps (assoc item-data
+                                               :created_at now
+                                               :updated_at now)
+              item-data-with-properties (assoc item-data-with-timestamps
+                                               :properties [:lift properties-json])
+              sql-query (-> (sql/insert-into :items)
+                            (sql/values [item-data-with-properties])
+                            (sql/returning :*)
+                            sql-format)
+              result (jdbc/execute-one! tx sql-query)]
           (if result
             (response result)
             (bad-request {:error ERROR_CREATE_ITEM})))))
