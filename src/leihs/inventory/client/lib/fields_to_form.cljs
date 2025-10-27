@@ -1,0 +1,94 @@
+(ns leihs.inventory.client.lib.fields-to-form)
+
+(def implemented-field-types
+  #{"text" "textarea" "date" "select" "radio" "checkbox" "attachment" "autocomplete-search"})
+
+(defn- field-type->component [field-type]
+  (case field-type
+    "text" "input"
+    "textarea" "textarea"
+    "date" "calendar"
+    "select" "select"
+    "radio" "radio-group"
+    "checkbox" "checkbox"
+    "attachment" "attachments"
+    "autocomplete-search" "instant-search"
+    nil))
+
+(defn- transform-field-values [values field-type]
+  (when values
+    (mapv (fn [v]
+            (if (map? v)
+              (cond
+                (contains? v :value) {:value (str (:value v))
+                                      :label (:label v)}
+                :else v)
+              {:value (str v) :label (str v)}))
+          values)))
+
+(defn- transform-field [field]
+  (let [field-type (:type field)
+        component (field-type->component field-type)]
+    (when component
+      (let [base-block {:name (:id field)
+                        :label (:label field)
+                        :component component}
+            props (cond-> {}
+                    (= field-type "text") (assoc :type "text" :autoComplete "off")
+                    (= field-type "date") (assoc :mode "single")
+                    (= field-type "attachment") (assoc :multiple true)
+                    (= field-type "autocomplete-search") (assoc :resource (:values_url field)
+                                                                :not-found "pool.item.create.instant-search.not-found")
+                    (contains? field :values) (assoc :options (transform-field-values (:values field) field-type))
+                    (contains? field :placeholder) (assoc :placeholder (:placeholder field)))
+            
+            ;; Add visibility dependency if present
+            visibility-dep (when (and (:visibility_dependency_field_id field)
+                                     (:visibility_dependency_value field))
+                            {:field (:visibility_dependency_field_id field)
+                             :value (:visibility_dependency_value field)})]
+        
+        (cond-> base-block
+          (seq props) (assoc :props props)
+          (:description field) (assoc :description (:description field))
+          visibility-dep (assoc :visibility-dependency visibility-dep))))))
+
+(defn- group-fields-by-group [fields]
+  (reduce (fn [acc field]
+            (let [group-name (or (:group field) "General Information")]
+              (update acc group-name (fnil conj []) field)))
+          {}
+          fields))
+
+(defn transform-fields-to-structure [fields-response]
+  (let [fields (-> fields-response :fields)
+        ;; Filter only implemented field types
+        implemented-fields (filter #(implemented-field-types (:type %)) fields)
+        grouped (group-fields-by-group implemented-fields)]
+    (mapv (fn [[group-name group-fields]]
+            {:title group-name
+             :blocks (->> group-fields
+                          (sort-by :position)
+                          (map transform-field)
+                          (filter some?)
+                          vec)})
+          grouped)))
+
+(defn extract-default-values [fields-response]
+  (let [fields (-> fields-response :fields)
+        implemented-fields (filter #(implemented-field-types (:type %)) fields)]
+    (reduce (fn [acc field]
+              (if (contains? field :default)
+                (let [field-id (keyword (:id field))
+                      default-val (:default field)
+                      ;; Convert default value based on field type
+                      converted-val (case (:type field)
+                                      "checkbox" (boolean default-val)
+                                      "date" (if (= default-val "today")
+                                               (js/Date.)
+                                               default-val)
+                                      default-val)]
+                  (assoc acc field-id converted-val))
+                acc))
+            {}
+            implemented-fields)))
