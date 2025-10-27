@@ -1,12 +1,20 @@
 (ns leihs.inventory.server.resources.pool.items.main
   (:require
-   [clojure.set]
+   [clojure.set :as set]
+   [clojure.string :as string]
+   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.fields.main :as fields]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
+   [next.jdbc.sql :rename {query jdbc-query}]
+   [next.jdbc :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [response]]))
+   [ring.util.response :refer [bad-request response]]
+   [taoensso.timbre :refer [error]]))
 
 (defn base-pool-query [query pool-id]
   (-> query
@@ -67,3 +75,59 @@
                         (cond-> (and sort-by item_id) (sql/order-by item_id)))]
 
      (response (create-pagination-response request base-query nil)))))
+
+(def ERROR_CREATE_ITEM "Failed to create item")
+
+(def PROPERTIES_PREFIX "properties_")
+
+(defn split-item-data [body-params]
+  (let [field-keys (keys body-params)
+        properties-keys (filter #(string/starts-with? (name %) PROPERTIES_PREFIX)
+                                field-keys)
+        item-keys (remove #(string/starts-with? (name %) PROPERTIES_PREFIX)
+                          field-keys)
+        properties (->> properties-keys
+                        (map (fn [k]
+                               [(-> k
+                                    name
+                                    (string/replace
+                                     (re-pattern (str "^" PROPERTIES_PREFIX)) "")
+                                    keyword)
+                                (get body-params k)]))
+                        (into {}))
+        item-data (select-keys body-params item-keys)]
+    {:item-data item-data
+     :properties properties}))
+
+(defn validate-field-permissions [tx role body-params]
+  (let [permitted-fields (-> (fields/base-query "item" role)
+                             sql-format
+                             (->> (jdbc-query tx)))
+        permitted-field-ids (->> permitted-fields
+                                 set)
+        body-keys (set (keys body-params))
+        unpermitted-fields (set/difference body-keys permitted-field-ids)]
+    (when (seq unpermitted-fields)
+      {:unpermitted-fields unpermitted-fields})))
+
+(defn post-resource [request]
+  (try
+    (let [tx (:tx request)
+          {:keys [role]} (:authenticated-entity request)
+          body-params (get-in request [:parameters :body])
+          validation-error (validate-field-permissions tx role body-params)]
+      (if validation-error
+        (bad-request {:error "Unpermitted fields" :details validation-error})
+        (let [{:keys [item-data properties]} (split-item-data body-params)
+              item-data-with-properties (assoc item-data :properties properties)
+              result (jdbc/execute-one! tx
+                                        (-> (sql/insert-into :items)
+                                            (sql/values [item-data-with-properties])
+                                            (sql/returning :*)
+                                            sql-format))]
+          (if result
+            (response result)
+            (bad-request {:error ERROR_CREATE_ITEM})))))
+    (catch Exception e
+      (log-by-severity ERROR_CREATE_ITEM e)
+      (exception-handler request ERROR_CREATE_ITEM e))))
