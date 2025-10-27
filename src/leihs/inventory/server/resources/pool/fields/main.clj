@@ -54,7 +54,11 @@
                                sql-format
                                (->> (jdbc/query tx)))))
      :inventory_pool_id pools-hook
-     :owner_id pools-hook
+     :owner_id  (fn [tx pool-id f]
+                  (-> f
+                      (->> (pools-hook tx pool-id))
+                      (assoc :default pool-id)))
+     
      :room_id (fn [_ pool-id f]
                 (assoc f :values_url
                        (str "/inventory/" pool-id "/rooms")))
@@ -129,8 +133,8 @@
 
 (comment
   (let [tx (db/get-ds)]
-    (-> (base-query "license")
+    (-> (base-query "item")
         (sql-format :inline true)
         (->> (jdbc/query tx))
-        (->> (filter #(= (-> % :data :type) "autocomplete-search")))
-        (->> (map (partial transform-field-data tx ":pool-id"))))))
+        (->> (map (partial transform-field-data tx "0a78a94e-f545-4a67-b42f-86f716fcf764")))
+        (->> (map #(select-keys % [:id :type :default]))))))
