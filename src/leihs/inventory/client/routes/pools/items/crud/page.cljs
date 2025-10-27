@@ -13,13 +13,16 @@
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["lucide-react" :refer [Trash]]
-   ["react-hook-form" :refer [useForm]]
+   ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
+   ["zod" :as z]
    [cljs.core.async :as async :refer [go <!]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.fields-to-form :as fields-to-form]
+   [leihs.inventory.client.lib.fields-to-zod :as fields-to-zod]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.items.crud.components.fields :as form-fields]
    [leihs.inventory.client.routes.pools.items.crud.core :as core]
@@ -50,11 +53,24 @@
 
         is-edit (not (or is-create is-delete))
 
-        model (into {} (:model (jc (router/useLoaderData))))
-        form (useForm #js {:resolver (zodResolver schema)
+        loader-data (jc (router/useLoaderData))
+        model (into {} (:data loader-data))
+        fields-data (:fields loader-data)
+
+        ;; Transform fields data to form structure
+        form-structure (fields-to-form/transform-fields-to-structure fields-data)
+
+        ;; Generate Zod schema from fields
+        zod-schema (fields-to-zod/fields-to-zod-schema fields-data)
+
+        ;; Extract default values from fields
+        dynamic-defaults (when fields-data
+                           (cj (fields-to-form/extract-default-values fields-data)))
+
+        form (useForm #js {:resolver (zodResolver zod-schema)
                            :defaultValues (if is-edit
                                             (fn [] (core/prepare-default-values model))
-                                            default-values)})
+                                            (or dynamic-defaults default-values))})
 
         get-values (.. form -getValues)
         ;; reactive values
@@ -70,15 +86,6 @@
         handle-delete (fn [] (go))
 
         on-submit (fn [data event] (go))]
-
-    (uix/use-effect
-     (fn []
-       (when (not is-loading)
-         (let [retire-reason (.. js/document (querySelector "[name='retire-reason']"))]
-           (if (= is-retired "yes")
-             (.. retire-reason -classList (remove "hidden"))
-             (.. retire-reason -classList (add "hidden"))))))
-     [is-loading is-retired])
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
@@ -105,7 +112,7 @@
                                :className "space-y-12 w-full lg:w-3/5"
                                :on-submit (handle-submit on-submit on-invalid)}
 
-                        (for [section (jc structure)]
+                        (for [section form-structure]
                           ($ ScrollspyItem {:className "scroll-mt-[10vh]"
                                             :key (:title section)
                                             :id (:title section)
@@ -165,5 +172,4 @@
                                             :state state}
 
                                       (t "pool.model.delete.cancel")))))))))))))))
-
 
