@@ -54,11 +54,11 @@
                                sql-format
                                (->> (jdbc/query tx)))))
      :inventory_pool_id pools-hook
-     :owner_id  (fn [tx pool-id f]
-                  (-> f
-                      (->> (pools-hook tx pool-id))
-                      (assoc :default pool-id)))
-     
+     :owner_id (fn [tx pool-id f]
+                 (-> f
+                     (->> (pools-hook tx pool-id))
+                     (assoc :default pool-id)))
+
      :room_id (fn [_ pool-id f]
                 (assoc f :values_url
                        (str "/inventory/" pool-id "/rooms")))
@@ -91,11 +91,12 @@
      :lending_manager ["lending_manager"]
      :inventory_manager ["lending_manager" "inventory_manager"])])
 
-(defn base-query [ttype]
+(defn base-query [ttype role]
   (-> (sql/select :*)
       (sql/from :fields)
       (sql/where [:= :fields.active true])
-      (sql/where (target-type-expr ttype))))
+      (sql/where (target-type-expr ttype))
+      (sql/where (min-req-role-expr role))))
 
 (defn transform-field-data [tx pool-id field]
   (let [base (reduce (fn [f data-key]
@@ -119,11 +120,12 @@
         (->> (remove (fn [[_ v]] (nil? v)))
              (into {})))))
 
-(defn index-resources [{:keys [tx] :as request}]
+(defn index-resources
+  [{:keys [tx] {:keys [role]} :authenticated-entity :as request}]
   (try
     (let [{:keys [target_type]} (query-params request)
           {:keys [pool_id]} (path-params request)
-          query (base-query target_type)
+          query (base-query target_type role)
           fields (jdbc/query tx (sql-format query))
           transformed-fields (map (partial transform-field-data tx pool_id) fields)]
       (response {:fields (vec transformed-fields)}))
@@ -132,9 +134,13 @@
       (exception-handler request ERROR_GET e))))
 
 (comment
-  (let [tx (db/get-ds)]
-    (-> (base-query "item")
+  (let [tx (db/get-ds)
+        ttype "item"
+        role :lending_manager
+        pool-id "0a78a94e-f545-4a67-b42f-86f716fcf764"]
+    (-> (base-query ttype role)
         (sql-format :inline true)
         (->> (jdbc/query tx))
-        (->> (map (partial transform-field-data tx "0a78a94e-f545-4a67-b42f-86f716fcf764")))
-        (->> (map #(select-keys % [:id :type :default]))))))
+        (->> (map (partial transform-field-data tx pool-id)))
+        (->> (map #(select-keys % [:id :type :default])))
+        count)))
