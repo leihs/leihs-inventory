@@ -61,7 +61,7 @@
 
      :room_id (fn [_ pool-id f]
                 (assoc f :values_url
-                       (str "/inventory/" pool-id "/rooms")))
+                       (str "/inventory/" pool-id "/rooms/")))
      :model_id (fn [_ pool-id f]
                  (assoc f :values_url
                         (str "/inventory/" pool-id "/models/?type=model")))
