@@ -96,7 +96,7 @@
       (sql/from :fields)
       (sql/where [:= :fields.active true])
       (sql/where (target-type-expr ttype))
-      (sql/where (min-req-role-expr role))))
+      (sql/where (min-req-role-expr (keyword role)))))
 
 (defn transform-field-data [tx pool-id field]
   (let [base (reduce (fn [f data-key]
