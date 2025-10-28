@@ -67,7 +67,7 @@
                                         dep (:field values-dep)]
                                     {:remap (fn [item] {:value (str (:id item))
                                                         :label (:name item)})
-                                     :values-url (str values-url "/?" dep "=" watched-dependency)})
+                                     :values-url (str values-url "?" dep "=" watched-dependency)})
                                   (:props block))})
 
         (-> block :component (= "instant-search"))
