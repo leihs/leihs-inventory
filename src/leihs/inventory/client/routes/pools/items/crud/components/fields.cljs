@@ -20,7 +20,7 @@
    [leihs.inventory.client.components.form.instant-search :refer [InstantSearch]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.items.crud.components.inventory-code :refer [InventoryCode]]
-   [leihs.inventory.client.routes.pools.items.crud.components.models :refer [Models]]
+   ;; [leihs.inventory.client.routes.pools.items.crud.components.models :refer [Models]]
    [uix.core :as uix :refer [$ defui]]))
 
 (def fields-map
@@ -56,6 +56,7 @@
 
         (-> block :component (= "attachments"))
         ($ Attachments {:form form
+                        :label (:label block)
                         :props (:props block)})
 
         (-> block :component (= "autocomplete"))
@@ -76,10 +77,10 @@
                           :label (:label block)
                           :props (:props block)})
 
-        (-> block :component (= "models"))
-        ($ Models {:control control
-                   :form form
-                   :block block})
+        ;; (-> block :component (= "models"))
+        ;; ($ Models {:control control
+        ;;            :form form
+        ;;            :block block})
 
         (-> block :component (= "checkbox"))
         ($ FormField {:control (cj control)
