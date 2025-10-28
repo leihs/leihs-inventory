@@ -1,7 +1,7 @@
 (ns leihs.inventory.client.lib.fields-to-form)
 
 (def implemented-field-types
-  #{"text" "textarea" "date" "select" "radio" "checkbox" "attachment" "autocomplete-search"})
+  #{"text" "textarea" "date" "select" "radio" "checkbox" "attachment" "autocomplete-search" "autocomplete"})
 
 (defn- field-type->component [field-type]
   (case field-type
@@ -13,6 +13,7 @@
     "checkbox" "checkbox"
     "attachment" "attachments"
     "autocomplete-search" "instant-search"
+    "autocomplete" "autocomplete"
     nil))
 
 (defn- transform-field-values [values field-type]
@@ -21,7 +22,8 @@
             (if (map? v)
               (cond
                 (contains? v :value) {:value (str (:value v))
-                                      :label (:label v)}
+                                      :label (:label v)
+                                      :is_active (:is_active v)}
                 :else v)
               {:value (str v) :label (str v)}))
           values)))
@@ -33,25 +35,41 @@
       (let [base-block {:name (:id field)
                         :label (:label field)
                         :component component}
+            ;; For autocomplete-search, construct proper resource URL with search param
+            search-resource (when (= field-type "autocomplete-search")
+                             (let [base-url (:values_url field)
+                                   search-attr (:search_attr field "search_term")
+                                   ;; Check if URL already has query params
+                                   separator (if (clojure.string/includes? base-url "?") "&" "?")]
+                               (str base-url separator search-attr "=")))
+            
             props (cond-> {}
                     (= field-type "text") (assoc :type "text" :autoComplete "off")
                     (= field-type "date") (assoc :mode "single")
                     (= field-type "attachment") (assoc :multiple true)
-                    (= field-type "autocomplete-search") (assoc :resource (:values_url field)
+                    (= field-type "autocomplete-search") (assoc :resource search-resource
                                                                 :not-found "pool.item.create.instant-search.not-found")
                     (contains? field :values) (assoc :options (transform-field-values (:values field) field-type))
-                    (contains? field :placeholder) (assoc :placeholder (:placeholder field)))
+                    (contains? field :placeholder) (assoc :placeholder (:placeholder field))
+                    ;; For autocomplete with values_url, pass the URL
+                    (and (= field-type "autocomplete") (:values_url field))
+                    (assoc :values-url (:values_url field)))
             
             ;; Add visibility dependency if present
             visibility-dep (when (and (:visibility_dependency_field_id field)
                                      (:visibility_dependency_value field))
                             {:field (:visibility_dependency_field_id field)
-                             :value (:visibility_dependency_value field)})]
+                             :value (:visibility_dependency_value field)})
+            
+            ;; Add values dependency if present (e.g., room depends on building)
+            values-dep (when (:values_dependency_field_id field)
+                        {:field (:values_dependency_field_id field)})]
         
         (cond-> base-block
           (seq props) (assoc :props props)
           (:description field) (assoc :description (:description field))
-          visibility-dep (assoc :visibility-dependency visibility-dep))))))
+          visibility-dep (assoc :visibility-dependency visibility-dep)
+          values-dep (assoc :values-dependency values-dep))))))
 
 (defn- group-fields-by-group [fields]
   (reduce (fn [acc field]
