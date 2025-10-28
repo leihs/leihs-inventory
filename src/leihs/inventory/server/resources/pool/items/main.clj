@@ -111,6 +111,16 @@
     (when (seq unpermitted-fields)
       {:unpermitted-fields unpermitted-fields})))
 
+(defn flatten-properties [item]
+  (let [properties (:properties item)
+        properties-with-prefix
+        (reduce (fn [acc [k v]]
+                  (assoc acc (keyword (str "properties_" (name k))) v))
+                {}
+                properties)
+        item-without-properties (dissoc item :properties)]
+    (merge item-without-properties properties-with-prefix)))
+
 (defn post-resource [request]
   (try
     (let [tx (:tx request)
@@ -133,7 +143,7 @@
                             sql-format)
               result (jdbc/execute-one! tx sql-query)]
           (if result
-            (response result)
+            (response (flatten-properties result))
             (bad-request {:error ERROR_CREATE_ITEM})))))
     (catch Exception e
       (log-by-severity ERROR_CREATE_ITEM e)
