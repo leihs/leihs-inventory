@@ -30,17 +30,19 @@
          (set-width! (.. buttonRef -current -offsetWidth))))
      [])
 
-    (uix/use-effect
-     (fn []
-       (when values-url
-         (-> http-client
-             (.get values-url)
-             (.then (fn [response]
-                      (let [data (jc (.. response -data))]
-                        (if remap
-                          (set-options! (map remap data))
-                          (set-options! data))))))))
-     [values-url remap])
+    #_(uix/use-effect
+       (fn []
+         (when values-url
+           (-> http-client
+               (.get values-url)
+               (.then (fn [response]
+                        (let [data (jc (.. response -data))]
+                          (if remap
+                            (set-options! (map remap data))
+                            (set-options! data))))))))
+       [values-url remap])
+
+    ;; (js/console.debug "Autocomplete options:" values-url options)
 
     ($ FormField
        {:control (cj control)
@@ -57,6 +59,7 @@
                        ($ FormLabel (t label))
                        ($ Popover {:open open
                                    :on-open-change (fn [val] (set-open! val))}
+
                           ($ PopoverTrigger {:as-child true}
                              ($ Button {:ref buttonRef
                                         :variant "outline"
@@ -77,6 +80,7 @@
                                                         :onSelect (fn []
                                                                     (set-open! false)
                                                                     ((-> field :field :onChange) (:value option)))
+                                                        :keywords #js [(:label option)]
                                                         :key (:value option)}
 
                                            ($ Check

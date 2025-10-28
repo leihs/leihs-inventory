@@ -66,6 +66,7 @@
                          :props (if values-dep
                                   (let [values-url (-> block :props :values-url)
                                         dep (:field values-dep)]
+                                    (js/console.debug "values-dep" values-dep)
                                     {:remap (fn [item] {:value (str (:id item))
                                                         :label (:name item)})
                                      :values-url (str values-url "?" dep "=" watched-dependency)})
@@ -140,7 +141,7 @@
                                              ($ :<> (:label option)))))
                                      ($ FormMessage)))})
 
-    ;; Calendar field 
+        ;; Calendar field 
         (-> block :component (= "calendar"))
         ($ FormField {:control (cj control)
                       :name (:name block)
@@ -162,7 +163,8 @@
 
                                        ($ PopoverContent {:class-name "w-auto p-0"
                                                           :align "start"}
-                                          ($ Calendar (merge {:onSelect (aget % "field" "onChange")
+                                          ($ Calendar (merge {:captionLayout "dropdown"
+                                                              :onSelect (aget % "field" "onChange")
                                                               :selected (aget % "field" "value")}
                                                              (:props block))))))
 

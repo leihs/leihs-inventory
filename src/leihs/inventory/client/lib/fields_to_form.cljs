@@ -12,13 +12,12 @@
     "radio" "radio-group"
     "checkbox" "checkbox"
     "attachment" "attachments"
-    "autocomplete-search" "instant-search"
+    "autocomplete-search" "autocomplete-search"
     "autocomplete" "autocomplete"
     nil))
 
 (defn- transform-field-values [values field-type]
   (when values
-    (js/console.debug values)
     (mapv (fn [v]
             (if (map? v)
               (cond
@@ -51,8 +50,7 @@
                                                  :autoComplete "off")
                     (= field-type "date") (assoc :mode "single")
                     (= field-type "attachment") (assoc :multiple true)
-                    (= field-type "autocomplete-search") (assoc :resource search-resource
-                                                                :not-found "pool.item.create.instant-search.not-found")
+                    (= field-type "autocomplete-search") (assoc :values-url search-resource)
 
                     (contains? field :values) (assoc :options (transform-field-values (:values field) field-type))
                     (contains? field :placeholder) (assoc :placeholder (:placeholder field))
