@@ -78,6 +78,32 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.body["properties_imei_number"]).to eq("123456789012345")
         expect(resp.body["id"]).not_to be_nil
       end
+
+      it "rejects unpermitted fields based on user role and returns status 400" do
+        # Update an existing field to be inactive
+        inactive_field = Field.find(id: "properties_mac_address")
+        inactive_field.update(active: false)
+
+        item_data = {
+          inventory_code: "TEST-#{SecureRandom.hex(4)}",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          properties_mac_address: "00:1B:44:11:3A:B7"
+        }
+
+        resp = client.post url do |req|
+          req.body = item_data.to_json
+          req.headers["Content-Type"] = "application/json"
+          req.headers["Accept"] = "application/json"
+          req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        end
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["error"]).to eq("Unpermitted fields")
+        expect(resp.body["details"]["unpermitted-fields"]).to include("properties_mac_address")
+      end
     end
   end
 end
