@@ -11,7 +11,7 @@ FactoryBot.define do
     transient do
       field_name { "#{Faker::Lorem.word}_#{SecureRandom.hex(4)}" }
     end
-    
+
     id { "properties_#{field_name}" }
     active { true }
     dynamic { true }

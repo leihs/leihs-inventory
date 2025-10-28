@@ -104,6 +104,28 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.body["error"]).to eq("Unpermitted fields")
         expect(resp.body["details"]["unpermitted-fields"]).to include("properties_mac_address")
       end
+
+      it "rejects license-specific fields when creating items and returns status 400" do
+        item_data = {
+          inventory_code: "TEST-#{SecureRandom.hex(4)}",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          properties_dongle_id: "DONGLE-12345"
+        }
+
+        resp = client.post url do |req|
+          req.body = item_data.to_json
+          req.headers["Content-Type"] = "application/json"
+          req.headers["Accept"] = "application/json"
+          req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        end
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["error"]).to eq("Unpermitted fields")
+        expect(resp.body["details"]["unpermitted-fields"]).to include("properties_dongle_id")
+      end
     end
   end
 
@@ -116,13 +138,13 @@ describe "Swagger Inventory Endpoints - Items Create" do
         inventory_pool_id: @inventory_pool.id,
         user_id: @lending_user.id,
         role: "lending_manager")
-      
-      @model = FactoryBot.create(:leihs_model, 
+
+      @model = FactoryBot.create(:leihs_model,
         product: "Test Product",
         is_package: false)
-      
+
       @building = FactoryBot.create(:building, name: "Test Building")
-      @room = FactoryBot.create(:room, 
+      @room = FactoryBot.create(:room,
         name: "Test Room",
         building_id: @building.id)
     end
