@@ -85,8 +85,11 @@
         handle-submit (.. form -handleSubmit)
         handle-delete (fn [] (go))
 
-        on-submit (fn [data event] (go))]
-    ;; (js/console.debug form-structure)
+        on-submit (fn [data event]
+                    (go
+                      (js/console.debug "Submitting data:" data)
+                      (.-preventDefault event)))]
+    (js/console.debug form-structure)
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
@@ -110,6 +113,7 @@
 
                   ($ Form (merge form)
                      ($ :form {:id "create-model"
+                               :no-validate true
                                :className "space-y-12 w-full lg:w-3/5"
                                :on-submit (handle-submit on-submit on-invalid)}
 
