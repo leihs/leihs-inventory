@@ -13,6 +13,7 @@
                          "radio" (z/string)
                          "checkbox" (z/boolean)
                          "autocomplete-search" (z/string)
+                         "autocomplete" (z/string)
                          "attachment" (z/array (z/any))
                          (z/string))]
     

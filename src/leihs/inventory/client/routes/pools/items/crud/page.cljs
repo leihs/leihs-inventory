@@ -86,6 +86,7 @@
         handle-delete (fn [] (go))
 
         on-submit (fn [data event] (go))]
+    ;; (js/console.debug form-structure)
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}

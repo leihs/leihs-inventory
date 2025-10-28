@@ -16,6 +16,7 @@
    ["lucide-react" :refer [CalendarIcon]]
    ["react-hook-form" :refer [useWatch]]
    [leihs.inventory.client.components.form.attachments :refer [Attachments]]
+   [leihs.inventory.client.components.form.autocomplete :refer [Autocomplete]]
    [leihs.inventory.client.components.form.instant-search :refer [InstantSearch]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.items.crud.components.inventory-code :refer [InventoryCode]]
@@ -29,14 +30,25 @@
 
 (defui field [{:keys [control form block]}]
   (let [visibility (:visibility-dependency block)
-        ;; Always call useWatch (hooks must be called unconditionally)
-        watched-value (useWatch #js {:control control
-                                     :name (:field visibility)})
-        is-visible (if visibility
-                     (= (str watched-value) (str (:value visibility)))
-                     true)]
+        values-dep (:values-dependency block)
 
-    (when is-visible
+        ;; Always call useWatch (hooks must be called unconditionally)
+        watched-visibility (useWatch #js {:control control
+                                          :name (:field visibility)})
+        watched-dependency (useWatch #js {:control control
+                                          :name (:field values-dep)})
+
+        ;; Check visibility
+        is-visible (if visibility
+                     (= (str watched-visibility) (str (:value visibility)))
+                     true)
+
+        ;; Check if field should show based on values dependency
+        has-dependency-value (if values-dep
+                               (and watched-dependency (not= watched-dependency ""))
+                               true)]
+
+    (when (and is-visible has-dependency-value)
       (cond
         (-> block :component (= "inventory-code"))
         ($ InventoryCode {:control control
@@ -45,6 +57,18 @@
         (-> block :component (= "attachments"))
         ($ Attachments {:form form
                         :props (:props block)})
+
+        (-> block :component (= "autocomplete"))
+        ($ Autocomplete {:control control
+                         :name (:name block)
+                         :label (:label block)
+                         :props (if values-dep
+                                  (let [values-url (-> block :props :values-url)
+                                        dep (:field values-dep)]
+                                    {:remap (fn [item] {:value (str (:id item))
+                                                        :label (:name item)})
+                                     :values-url (str values-url "/?" dep "=" watched-dependency)})
+                                  (:props block))})
 
         (-> block :component (= "instant-search"))
         ($ InstantSearch {:form form
@@ -71,7 +95,7 @@
                                   ($ FormLabel {:className "pl-4"} (:label block))
                                   ($ FormMessage))})
 
-    ;; Radiogroup field
+        ;; Radiogroup field
         (-> block :component (= "radio-group"))
         ($ FormField {:control (cj control)
                       :name (:name block)
@@ -92,7 +116,7 @@
                                              ($ FormLabel {:class-name "font-normal"}
                                                 (:label option)))))))})
 
-    ;; Select field
+        ;; Select field
         (-> block :component (= "select"))
         ($ FormField {:control (cj control)
                       :name (:name block)
@@ -140,7 +164,7 @@
 
                                   ($ FormMessage))})
 
-    ;; "default case - this renders a component from the component map"
+        ;; "default case - this renders a component from the component map"
         :else
         (let [comp (get fields-map (:component block))]
           (when comp
