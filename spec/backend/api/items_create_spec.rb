@@ -106,4 +106,53 @@ describe "Swagger Inventory Endpoints - Items Create" do
       end
     end
   end
+
+  context "when creating items with lending_manager role" do
+    include_context :setup_models_min_api
+
+    before :each do
+      @lending_user, @lending_cookies, @lending_cookies_str, @lending_cookie_token = create_and_login(:user)
+      FactoryBot.create(:access_right,
+        inventory_pool_id: @inventory_pool.id,
+        user_id: @lending_user.id,
+        role: "lending_manager")
+      
+      @model = FactoryBot.create(:leihs_model, 
+        product: "Test Product",
+        is_package: false)
+      
+      @building = FactoryBot.create(:building, name: "Test Building")
+      @room = FactoryBot.create(:room, 
+        name: "Test Room",
+        building_id: @building.id)
+    end
+
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @lending_cookies) }
+    let(:inventory_pool_id) { @inventory_pool.id }
+    let(:url) { "/inventory/#{inventory_pool_id}/items/" }
+
+    context "POST /inventory/:pool-id/items/" do
+      it "rejects fields not permitted for lending_manager role and returns status 400" do
+        item_data = {
+          inventory_code: "TEST-#{SecureRandom.hex(4)}",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          is_inventory_relevant: true
+        }
+
+        resp = client.post url do |req|
+          req.body = item_data.to_json
+          req.headers["Content-Type"] = "application/json"
+          req.headers["Accept"] = "application/json"
+          req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        end
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["error"]).to eq("Unpermitted fields")
+        expect(resp.body["details"]["unpermitted-fields"]).to include("is_inventory_relevant")
+      end
+    end
+  end
 end
