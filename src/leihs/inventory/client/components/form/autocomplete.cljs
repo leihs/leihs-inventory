@@ -36,10 +36,10 @@
          (-> http-client
              (.get values-url)
              (.then (fn [response]
-                      (let [data (.. response -data)]
+                      (let [data (jc (.. response -data))]
                         (if remap
-                          (set-options! (map remap (jc data)))
-                          (set-options! (jc data)))))))))
+                          (set-options! (map remap data))
+                          (set-options! data))))))))
      [values-url remap])
 
     ($ FormField
