@@ -48,6 +48,8 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.body["inventory_code"]).to eq(item_data[:inventory_code])
         expect(resp.body["model_id"]).to eq(@model.id)
         expect(resp.body["room_id"]).to eq(@room.id)
+        expect(resp.body["inventory_pool_id"]).to eq(@inventory_pool.id)
+        expect(resp.body["owner_id"]).to eq(@inventory_pool.id)
         expect(resp.body["id"]).not_to be_nil
       end
     end
