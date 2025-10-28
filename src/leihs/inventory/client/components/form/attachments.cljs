@@ -3,6 +3,7 @@
    ["@@/button" :refer [Button]]
    ["@@/dropzone" :refer [Dropzone DropzoneArea DropzoneFiles ErrorMessages
                           Item]]
+   ["@@/label" :refer [Label]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
    ["lucide-react" :refer [Trash Eye]]
@@ -21,7 +22,7 @@
   (when (seq items)
     (some #(when (= id (:id %)) (:url %)) items)))
 
-(defui main [{:keys [form props]}]
+(defui main [{:keys [form label props]}]
   (let [set-value (aget form "setValue")
         get-values (aget form "getValues")
         [t] (useTranslation)
@@ -61,6 +62,8 @@
      [set-value attachments])
 
     ($ Dropzone
+       (when label
+         ($ Label {:class-name "mt-6"} label))
        ($ DropzoneArea (merge
                         {:multiple (:multiple props)
                          ;; :filetypes (:filetypes props)
