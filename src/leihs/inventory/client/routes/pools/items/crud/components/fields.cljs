@@ -101,7 +101,8 @@
         ($ FormField {:control (cj control)
                       :name (:name block)
                       :render #($ FormItem {:class-name "mt-6"}
-                                  ($ FormLabel (:label block))
+                                  ($ FormLabel (:label block)
+                                     (when (-> block :props :required) " *"))
 
                                   ($ FormControl
                                      ($ RadioGroup {:onValueChange (aget % "field" "onChange")
@@ -122,7 +123,8 @@
         ($ FormField {:control (cj control)
                       :name (:name block)
                       :render #($ FormItem {:class-name "mt-6"}
-                                  ($ FormLabel (:label block))
+                                  ($ FormLabel (:label block)
+                                     (when (-> block :props :required) "*"))
 
                                   ($ Select {:onValueChange (aget % "field" "onChange")
                                              :defaultValue (aget % "field" "value")}
@@ -143,7 +145,8 @@
         ($ FormField {:control (cj control)
                       :name (:name block)
                       :render #($ FormItem {:class-name "flex flex-col mt-6"}
-                                  ($ FormLabel (:label block))
+                                  ($ FormLabel (:label block)
+                                     (when (-> block :props :required) "*"))
                                   (let [field-value (aget % "field" "value")]
                                     ($ Popover
                                        ($ PopoverTrigger {:asChild true}
@@ -172,7 +175,8 @@
             ($ FormField {:control (cj control)
                           :name (:name block)
                           :render #($ FormItem {:class-name "mt-6"}
-                                      ($ FormLabel (:label block))
+                                      ($ FormLabel (:label block)
+                                         (when (-> block :props :required) "*"))
                                       ($ FormControl
                                          ($ comp (merge
                                                   (:props block)
