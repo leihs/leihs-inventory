@@ -4,7 +4,7 @@
    [clojure.edn :as edn]
    [clojure.string :as str]
    [clojure.walk]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [taoensso.timbre :refer [warn]])
   (:import
    [java.io ByteArrayInputStream]))

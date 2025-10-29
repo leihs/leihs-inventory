@@ -10,8 +10,8 @@
                                                                    process-delete-template-models
                                                                    process-update-template-models]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [not-found response]]
    [taoensso.timbre :refer [debug]]))

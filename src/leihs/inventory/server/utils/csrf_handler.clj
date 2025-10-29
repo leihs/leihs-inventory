@@ -7,7 +7,7 @@
    [leihs.core.constants :as constants]
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.constants :as consts]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [ring.util.codec :as codec]
    [ring.util.response :as response]))
 

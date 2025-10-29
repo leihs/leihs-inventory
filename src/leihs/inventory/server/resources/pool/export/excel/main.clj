@@ -3,7 +3,7 @@
    [clojure.java.io :as io]
    [clojure.set]
    [dk.ative.docjure.spreadsheet :as ss]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [ring.middleware.accept]))
 
 (defn generate-excel-from-map

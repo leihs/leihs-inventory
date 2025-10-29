@@ -7,8 +7,8 @@
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-schema]]
    [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [leihs.inventory.server.resources.pool.models.model.images.types :as types]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64
                                                               resize-and-convert-to-base64]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
