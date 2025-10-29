@@ -4,8 +4,8 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.constants :refer [CONTENT_DISPOSITION_INLINE_FORMATS]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]])

@@ -8,8 +8,8 @@
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.option.types :as type]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [not-found response]]))
 

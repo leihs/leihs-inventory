@@ -8,8 +8,9 @@
    [leihs.core.settings :refer [settings]]
    [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
    [leihs.inventory.server.resources.profile.languages :as l]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys log-by-severity]]
+   [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [response]]))
 

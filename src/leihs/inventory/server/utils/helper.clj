@@ -34,12 +34,3 @@
 
 (defn convert-to-map [dict]
   (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) dict)))
-
-(defn log-by-severity
-  ([e]
-   (log-by-severity nil e))
-  ([message e]
-   (if (nil? message)
-     (error (.getMessage e))
-     (error message (.getMessage e)))
-   (debug e)))

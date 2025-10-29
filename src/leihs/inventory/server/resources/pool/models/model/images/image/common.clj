@@ -2,7 +2,7 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [ring.util.response :refer [response status]])
   (:import
    [java.io ByteArrayInputStream]

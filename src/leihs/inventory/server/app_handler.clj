@@ -11,7 +11,7 @@
    [leihs.inventory.server.swagger :as swagger]
    [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
-   [leihs.inventory.server.utils.debug-handler :as debug-mw]
+   [leihs.inventory.server.utils.debug :as debug-mw]
    [leihs.inventory.server.utils.exception-handler :refer [wrap-exception]]
    [leihs.inventory.server.utils.middleware-handler :refer [wrap-html-40x
                                                             wrap-strict-format-negotiate

@@ -3,7 +3,7 @@
    [cheshire.core :as json]
    [clojure.string :as str]
    [clojure.walk]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [ring.util.response :as resp :refer [content-type response]]
    [taoensso.timbre :refer [warn]])
   (:import
