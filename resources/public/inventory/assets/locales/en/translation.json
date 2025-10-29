@@ -30,6 +30,44 @@
         "inventory": "Inventory"
       }
     },
+    "items": {
+      "item": {
+        "create": {
+          "title": "Create New Item",
+          "description": "Provide all required information",
+          "submit": "Create Item",
+          "cancel": "Cancel",
+          "success": "Item was successfully created",
+          "invalid_one": "Item could not be created because one field is invalid",
+          "invalid_other": "Item could not be created because {{count}} fields are invalid",
+          "409": "Item could not be created because an item with the same inventory code already exists",
+          "500": "An error occurred while creating"
+        },
+        "edit": {
+          "title": "Edit Item",
+          "description": "Make changes and save afterwards",
+          "delete": "Delete",
+          "success": "Item was successfully saved",
+          "invalid_one": "Item could not be saved because one field is invalid",
+          "invalid_other": "Item could not be saved because {{count}} fields are invalid"
+        },
+        "delete": {
+          "title": "Delete Item",
+          "description": "Are you sure you want to delete this item?",
+          "confirm": "Delete",
+          "cancel": "Cancel",
+          "success": "Item was successfully deleted",
+          "error": "Item could not be deleted"
+        },
+        "fields": {
+          "autocomplete": {
+            "select": "Make a selection",
+            "search": "Enter search term",
+            "not_found": "No results found for this search term"
+          }
+        }
+      }
+    },
     "models": {
       "title": "Inventory list",
       "filters": {

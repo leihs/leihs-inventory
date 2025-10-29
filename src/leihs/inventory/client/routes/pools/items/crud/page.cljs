@@ -89,7 +89,6 @@
                     (go
                       (js/console.debug "Submitting data:" data)
                       (.-preventDefault event)))]
-    (js/console.debug form-structure)
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}

@@ -1,7 +1,15 @@
 (ns leihs.inventory.client.lib.fields-to-form)
 
 (def implemented-field-types
-  #{"text" "textarea" "date" "select" "radio" "checkbox" "attachment" "autocomplete-search" "autocomplete"})
+  #{"text"
+    "textarea"
+    "date"
+    "select"
+    "radio"
+    "checkbox"
+    "attachment"
+    "autocomplete-search"
+    "autocomplete"})
 
 (defn- field-type->component [field-type]
   (case field-type
@@ -50,7 +58,8 @@
                                                  :autoComplete "off")
                     (= field-type "date") (assoc :mode "single")
                     (= field-type "attachment") (assoc :multiple true)
-                    (= field-type "autocomplete-search") (assoc :values-url search-resource)
+                    (= field-type "autocomplete-search") (assoc :values-url search-resource
+                                                                :instant true)
 
                     (contains? field :values) (assoc :options (transform-field-values (:values field) field-type))
                     (contains? field :placeholder) (assoc :placeholder (:placeholder field))
@@ -88,6 +97,7 @@
         ;; Filter only implemented field types
         implemented-fields (filter #(implemented-field-types (:type %)) fields)
         grouped (group-fields-by-group implemented-fields)]
+
     (mapv (fn [[group-name group-fields]]
             {:title group-name
              :blocks (->> group-fields
@@ -101,17 +111,32 @@
   (let [fields (-> fields-response :fields)
         implemented-fields (filter #(implemented-field-types (:type %)) fields)]
     (reduce (fn [acc field]
-              (if (contains? field :default)
-                (let [field-id (keyword (:id field))
-                      default-val (:default field)
-                      ;; Convert default value based on field type
-                      converted-val (case (:type field)
-                                      "checkbox" (boolean default-val)
+              (let [field-id (keyword (:id field))
+                    field-type (:type field)
+                    has-default? (contains? field :default)
+                    default-val (if has-default?
+                                  (str (:default field))
+                                  ;; Set type-specific defaults when no default provided
+                                  (case field-type
+                                    "text" ""
+                                    "textarea" ""
+                                    "select" nil
+                                    "date" nil
+                                    "radio" ""
+                                    "checkbox" false
+                                    "attachment" []
+                                    "autocomplete-search" {}
+                                    "autocomplete" ""
+                                    nil))
+                    ;; Convert default value based on field type
+                    converted-val (when default-val
+                                    (case field-type
+                                      "checkbox" (str default-val)
                                       "date" (if (= default-val "today")
                                                (js/Date.)
                                                default-val)
-                                      (str default-val))]
-                  (assoc acc field-id converted-val))
-                acc))
+                                      "attachment" (if (vector? default-val) default-val [])
+                                      default-val))]
+                (assoc acc field-id converted-val)))
             {}
             implemented-fields)))
