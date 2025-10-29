@@ -1,10 +1,11 @@
 (ns leihs.inventory.client.components.form.autocomplete
   (:require
-   ["@/components/ui/command" :refer [Command CommandEmpty CommandGroup
+   ["@/components/ui/command" :refer [Command CommandEmpty
                                       CommandInput CommandItem CommandList]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
    ["@@/form" :refer [FormField FormItem FormLabel FormMessage]]
+   ["@@/spinner" :refer [Spinner]]
    ["lucide-react" :refer [Check ChevronsUpDown]]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.client :refer [http-client]]
@@ -12,17 +13,61 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defui main [{:keys [control name label props]}]
+(defui main [{:keys [form name label props]}]
   (let [[t] (useTranslation)
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
-        buttonRef (uix/use-ref nil)
 
+        control (cj (.-control form))
+        buttonRef (uix/use-ref nil)
+        debounceTimerRef (uix/use-ref nil)
+        instant? (boolean (:instant props))
         values-url (:values-url props)
         remap (if values-url (:remap props) nil)
+
+        set-value (aget form "setValue")
+        get-values (aget form "getValues")
+
         ;; State for dynamically fetched options
         [options set-options!] (uix/use-state (if values-url [] (:options props)))
-        [is-loading set-loading!] (uix/use-state false)]
+        [loading? set-loading!] (uix/use-state false)
+
+        get-label (fn [value]
+                    (some (fn [opt]
+                            (when (= (:value opt) value)
+                              (:label opt)))
+                          options))
+
+        handle-select (fn [value]
+                        (set-open! false)
+                        (set-value name #js {:value value
+                                             :label (get-label value)})
+                        (when instant?
+                          (set-options! [])))
+
+        handle-search (fn [event]
+                        (let [value (.. event -target -value)]
+                          ;; Clear existing timeout
+                          (when @debounceTimerRef
+                            (js/clearTimeout @debounceTimerRef))
+
+                          (when (and instant? (> (count value) 3))
+                            ;; Set new timeout for debouncing (300ms delay)
+                            (reset! debounceTimerRef
+                                    (js/setTimeout
+                                     (fn []
+                                       (set-loading! true)
+                                       (-> http-client
+                                           (.get (str values-url value))
+                                           (.then (fn [response]
+                                                    (let [data (jc (.. response -data))]
+                                                      (if remap
+                                                        (set-options! (map remap data))
+                                                        (set-options! data))
+                                                      (set-loading! false))))))
+                                     300)))))
+
+        handle-open-change (fn [val] (set-open! val))]
 
     (uix/use-effect
      (fn []
@@ -30,66 +75,60 @@
          (set-width! (.. buttonRef -current -offsetWidth))))
      [])
 
-    #_(uix/use-effect
-       (fn []
-         (when values-url
-           (-> http-client
-               (.get values-url)
-               (.then (fn [response]
-                        (let [data (jc (.. response -data))]
-                          (if remap
-                            (set-options! (map remap data))
-                            (set-options! data))))))))
-       [values-url remap])
-
-    ;; (js/console.debug "Autocomplete options:" values-url options)
+    (uix/use-effect
+     (fn []
+       (when (and (not instant?) values-url)
+         (set-loading! true)
+         (-> http-client
+             (.get values-url)
+             (.then (fn [response]
+                      (let [data (jc (.. response -data))]
+                        (if remap
+                          (set-options! (map remap data))
+                          (set-options! data))
+                        (set-loading! false)))))))
+     [values-url remap instant?])
 
     ($ FormField
-       {:control (cj control)
+       {:control control
         :name name
-        :render (fn [field-data]
-                  (let [field (jc field-data)
-                        current-value (-> field :field :value)
-                        selected-label (some (fn [opt]
-                                               (when (= (:value opt) current-value)
-                                                 (:label opt)))
-                                             options)]
+        :render #($ FormItem {:class-name "mt-6"}
+                    ($ FormLabel label)
+                    ($ Popover {:open open
+                                :on-open-change handle-open-change}
 
-                    ($ FormItem {:class-name "mt-6"}
-                       ($ FormLabel (t label))
-                       ($ Popover {:open open
-                                   :on-open-change (fn [val] (set-open! val))}
+                       ($ PopoverTrigger {:as-child true}
+                          ($ Button {:ref buttonRef
+                                     :variant "outline"
+                                     :role "combobox"
+                                     :class-name "w-full justify-between"}
+                             (or (get-values (str name ".label"))
+                                 (t "pool.items.item.fields.autocomplete.select"))
+                             ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
 
-                          ($ PopoverTrigger {:as-child true}
-                             ($ Button {:ref buttonRef
-                                        :variant "outline"
-                                        :role "combobox"
-                                        :class-name "w-full justify-between"}
-                                (or selected-label (t "pool.item.create.autocomplete.select"))
-                                ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
+                       ($ PopoverContent {:class-name "p-0"
+                                          :style {:width (str width "px")}}
 
-                          ($ PopoverContent {:class-name "p-0"
-                                             :style {:width (str width "px")}}
-                             ($ Command
-                                ($ CommandInput {:placeholder (t "pool.item.create.autocomplete.search")})
-                                ($ CommandList
-                                   ($ CommandEmpty (t "pool.item.create.autocomplete.not-found"))
-                                   ($ CommandGroup
-                                      (for [option options]
-                                        ($ CommandItem {:value (:value option)
-                                                        :onSelect (fn []
-                                                                    (set-open! false)
-                                                                    ((-> field :field :onChange) (:value option)))
-                                                        :keywords #js [(:label option)]
-                                                        :key (:value option)}
+                          ($ Command {:on-change handle-search}
+                             ($ CommandInput {:placeholder (t "pool.items.item.fields.autocomplete.search")})
+                             ($ CommandList
+                                (if loading?
+                                  ($ Spinner {:className "absolute right-0 top-0 m-3"})
+                                  ($ CommandEmpty (t "pool.items.item.fields.autocomplete.not_found")))
+                                (for [option options]
+                                  ($ CommandItem {:value (:value option)
+                                                  :onSelect handle-select
+                                                  :keywords #js [(:label option)]
+                                                  :key (:value option)}
 
-                                           ($ Check
-                                              {:class-name (str "mr-2 h-4 w-4 "
-                                                                (if (= (:value option) current-value)
-                                                                  "visible"
-                                                                  "invisible"))})
-                                           (:label option))))))))
-                       ($ FormMessage))))})))
+                                     ($ Check
+                                        {:class-name (str "mr-2 h-4 w-4 "
+                                                          (if (= (:value option)
+                                                                 (get-values (str name ".value")))
+                                                            "visible"
+                                                            "invisible"))})
+                                     (:label option)))))))
+                    ($ FormMessage))})))
 
 (def Autocomplete
   (uix/as-react

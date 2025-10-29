@@ -20,7 +20,6 @@
    [leihs.inventory.client.components.form.instant-search :refer [InstantSearch]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.items.crud.components.inventory-code :refer [InventoryCode]]
-   ;; [leihs.inventory.client.routes.pools.items.crud.components.models :refer [Models]]
    [uix.core :as uix :refer [$ defui]]))
 
 (def fields-map
@@ -49,41 +48,44 @@
                                true)]
 
     (when (and is-visible has-dependency-value)
-      (cond
-        (-> block :component (= "inventory-code"))
+      (case (:component block)
+        "inventory-code"
         ($ InventoryCode {:control control
                           :props (:props block)})
 
-        (-> block :component (= "attachments"))
+        "attachments"
         ($ Attachments {:form form
                         :label (:label block)
                         :props (:props block)})
 
-        (-> block :component (= "autocomplete"))
-        ($ Autocomplete {:control control
+        "autocomplete-search"
+        ($ Autocomplete {:form form
+                         :name (:name block)
+                         :label (:label block)
+                         :props (merge
+                                 {:remap (fn [item] {:value (str (:id item))
+                                                     :label (:name item)})}
+                                 (:props block))})
+
+        "autocomplete"
+        ($ Autocomplete {:form form
                          :name (:name block)
                          :label (:label block)
                          :props (if values-dep
                                   (let [values-url (-> block :props :values-url)
                                         dep (:field values-dep)]
-                                    (js/console.debug "values-dep" values-dep)
                                     {:remap (fn [item] {:value (str (:id item))
                                                         :label (:name item)})
                                      :values-url (str values-url "?" dep "=" watched-dependency)})
                                   (:props block))})
 
-        (-> block :component (= "instant-search"))
+        "instant-search"
         ($ InstantSearch {:form form
                           :name (:name block)
                           :label (:label block)
                           :props (:props block)})
 
-        ;; (-> block :component (= "models"))
-        ;; ($ Models {:control control
-        ;;            :form form
-        ;;            :block block})
-
-        (-> block :component (= "checkbox"))
+        "checkbox"
         ($ FormField {:control (cj control)
                       :name (:name block)
                       :render #($ FormItem {:class-name "mt-6"}
@@ -98,7 +100,7 @@
                                   ($ FormMessage))})
 
         ;; Radiogroup field
-        (-> block :component (= "radio-group"))
+        "radio-group"
         ($ FormField {:control (cj control)
                       :name (:name block)
                       :render #($ FormItem {:class-name "mt-6"}
@@ -120,7 +122,7 @@
                                                 (:label option)))))))})
 
         ;; Select field
-        (-> block :component (= "select"))
+        "select"
         ($ FormField {:control (cj control)
                       :name (:name block)
                       :render #($ FormItem {:class-name "mt-6"}
@@ -142,7 +144,7 @@
                                      ($ FormMessage)))})
 
         ;; Calendar field 
-        (-> block :component (= "calendar"))
+        "calendar"
         ($ FormField {:control (cj control)
                       :name (:name block)
                       :render #($ FormItem {:class-name "flex flex-col mt-6"}
@@ -171,7 +173,6 @@
                                   ($ FormMessage))})
 
         ;; "default case - this renders a component from the component map"
-        :else
         (let [comp (get fields-map (:component block))]
           (when comp
             ($ FormField {:control (cj control)
