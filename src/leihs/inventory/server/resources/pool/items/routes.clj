@@ -38,4 +38,18 @@
                             :body s/Any}
                        400 {:description "Bad Request"}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}])
+                       500 {:description "Internal Server Error"}}}
+
+    :put {:description "Update a single item. Fields starting with 'properties_' are stored in the properties JSONB column, others in their respective item columns."
+          :accept "application/json"
+          :coercion reitit.coercion.schema/coercion
+          :swagger {:produces ["application/json"]}
+          :parameters {:path {:pool_id s/Uuid}
+                       :body {:id s/Uuid
+                              s/Keyword s/Any}}
+          :handler items/put-resource
+          :responses {200 {:description "OK"
+                           :body s/Any}
+                      400 {:description "Bad Request"}
+                      404 {:description "Not Found"}
+                      500 {:description "Internal Server Error"}}}}])

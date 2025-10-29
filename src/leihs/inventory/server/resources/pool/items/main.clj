@@ -148,3 +148,17 @@
     (catch Exception e
       (log-by-severity ERROR_CREATE_ITEM e)
       (exception-handler request ERROR_CREATE_ITEM e))))
+
+(def ERROR_UPDATE_ITEM "Failed to update item")
+
+(defn put-resource [request]
+  (try
+    (let [tx (:tx request)
+          {:keys [role]} (:authenticated-entity request)
+          body-params (get-in request [:parameters :body])
+          item-id (:id body-params)
+          update-params (dissoc body-params :id)]
+      (response {:message "Update item placeholder" :id item-id :params update-params}))
+    (catch Exception e
+      (log-by-severity ERROR_UPDATE_ITEM e)
+      (exception-handler request ERROR_UPDATE_ITEM e))))
