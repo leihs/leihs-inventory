@@ -4,6 +4,7 @@
    [clojure.string :as string]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.pool.fields.main :as fields]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
@@ -78,8 +79,6 @@
 
 (def ERROR_CREATE_ITEM "Failed to create item")
 
-(def PROPERTIES_PREFIX "properties_")
-
 (defn split-item-data [body-params]
   (let [field-keys (keys body-params)
         properties-keys (filter #(string/starts-with? (name %) PROPERTIES_PREFIX)
@@ -115,7 +114,7 @@
   (let [properties (:properties item)
         properties-with-prefix
         (reduce (fn [acc [k v]]
-                  (assoc acc (keyword (str "properties_" (name k))) v))
+                  (assoc acc (keyword (str PROPERTIES_PREFIX (name k))) v))
                 {}
                 properties)
         item-without-properties (dissoc item :properties)]

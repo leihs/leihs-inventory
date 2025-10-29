@@ -4,6 +4,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.db :as db]
+   [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.pool.buildings.main :as buildings]
    [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
    [leihs.inventory.server.resources.pool.suppliers.main :as suppliers]
@@ -120,15 +121,46 @@
         (->> (remove (fn [[_ v]] (nil? v)))
              (into {})))))
 
+(defn get-item-data [tx pool-id item-id]
+  (let [item (-> (sql/select :*)
+                 (sql/from :items)
+                 (sql/where [:= :id item-id])
+                 (sql/where [:or
+                             [:= :owner_id pool-id]
+                             [:= :inventory_pool_id pool-id]])
+                 sql-format
+                 (->> (jdbc/query tx))
+                 first)
+        properties (:properties item)
+        item-without-properties (dissoc item :properties)
+        properties-with-prefix
+        (reduce (fn [acc [k v]]
+                  (assoc acc (keyword (str PROPERTIES_PREFIX (name k))) v))
+                {}
+                properties)]
+    (merge item-without-properties properties-with-prefix)))
+
+(defn merge-item-defaults [item-data field]
+  (let [field-id (keyword (:id field))
+        value (get item-data field-id)]
+    (if (some? value)
+      (assoc field :default value)
+      field)))
+
 (defn index-resources
   [{:keys [tx] {:keys [role]} :authenticated-entity :as request}]
   (try
-    (let [{:keys [target_type]} (query-params request)
+    (let [{:keys [target_type resource_id]} (query-params request)
           {:keys [pool_id]} (path-params request)
           query (base-query target_type role)
           fields (jdbc/query tx (sql-format query))
-          transformed-fields (map (partial transform-field-data tx pool_id) fields)]
-      (response {:fields (vec transformed-fields)}))
+          item-data (get-item-data tx pool_id resource_id)
+          transformed-fields (map (partial transform-field-data tx pool_id) fields)
+          fields-with-defaults
+          (if item-data
+            (map (partial merge-item-defaults item-data) transformed-fields)
+            transformed-fields)]
+      (response {:fields (vec fields-with-defaults)}))
     (catch Exception e
       (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))

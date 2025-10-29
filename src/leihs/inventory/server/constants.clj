@@ -13,4 +13,6 @@
 
 (def INVENTORY_VIEW_PATH "/inventory/")
 
+(def PROPERTIES_PREFIX "properties_")
+
 (defn fe [s] (if false (str "[fe] | " s) s))

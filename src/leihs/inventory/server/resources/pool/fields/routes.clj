@@ -19,7 +19,8 @@
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}
-                       :query {:target_type (s/enum "item" "license" "package")}}
+                       :query {:target_type (s/enum "item" "license" "package")
+                               (s/optional-key :resource_id) s/Uuid}}
           :handler fields/index-resources
           :responses {200 {:description "OK"
                            :body {:fields [types/Field]}}
