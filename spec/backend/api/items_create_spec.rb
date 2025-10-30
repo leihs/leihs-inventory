@@ -102,7 +102,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         expect(resp.status).to eq(400)
         expect(resp.body["error"]).to eq("Unpermitted fields")
-        expect(resp.body["details"]["unpermitted-fields"]).to include("properties_mac_address")
+        expect(resp.body["unpermitted-fields"]).to include("properties_mac_address")
       end
 
       it "rejects license-specific fields when creating items and returns status 400" do
@@ -124,7 +124,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         expect(resp.status).to eq(400)
         expect(resp.body["error"]).to eq("Unpermitted fields")
-        expect(resp.body["details"]["unpermitted-fields"]).to include("properties_dongle_id")
+        expect(resp.body["unpermitted-fields"]).to include("properties_dongle_id")
       end
     end
   end
@@ -173,7 +173,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         expect(resp.status).to eq(400)
         expect(resp.body["error"]).to eq("Unpermitted fields")
-        expect(resp.body["details"]["unpermitted-fields"]).to include("is_inventory_relevant")
+        expect(resp.body["unpermitted-fields"]).to include("is_inventory_relevant")
       end
     end
   end
