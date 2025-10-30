@@ -8,8 +8,8 @@
    [leihs.inventory.server.resources.pool.buildings.main :as buildings]
    [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
    [leihs.inventory.server.resources.pool.suppliers.main :as suppliers]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc.sql :as jdbc]

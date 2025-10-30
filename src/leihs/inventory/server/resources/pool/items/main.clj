@@ -6,10 +6,11 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.pool.fields.main :as fields]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params
+   [leihs.inventory.server.utils.request-utils :refer [body-params
+                                                       path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
@@ -32,23 +33,44 @@
       (sql/from [:items :i])
       (sql/join [:models :m] [:= :m.id :i.model_id])
       (cond-> pool-id (sql/where [:= :i.inventory_pool_id [:cast pool-id :uuid]]))
-      (sql/group-by :m.product :i.model_id :i.inventory_code :i.inventory_pool_id :i.retired :m.is_package :i.id :i.parent_id)))
+      (sql/group-by :m.product
+                    :i.model_id
+                    :i.inventory_code
+                    :i.inventory_pool_id
+                    :i.retired
+                    :m.is_package
+                    :i.id
+                    :i.parent_id)))
 
 (defn index-resources
   ([request]
    (let [{:keys [pool_id item_id]} (path-params request)
-         {:keys [search_term not_packaged packages retired result_type]} (query-params request)
+         {:keys [search_term
+                 not_packaged
+                 packages
+                 retired
+                 result_type]} (query-params request)
 
          base-select (cond
-                       (= result_type "Distinct") (sql/select-distinct-on [:m.product]
-                                                                          :i.retired :i.parent_id :i.id
-                                                                          :m.is_package
-                                                                          :i.inventory_code
-                                                                          :i.model_id
-                                                                          :i.inventory_pool_id
-                                                                          :m.product)
-                       (= result_type "Min") (sql/select :i.retired :i.parent_id :i.id :i.inventory_code :i.model_id :m.is_package)
-                       :else (sql/select :m.is_package :i.* [:b.name :building_name] [:r.name :room_name]))
+                       (= result_type "Distinct")
+                       (sql/select-distinct-on [:m.product]
+                                               :i.retired :i.parent_id :i.id
+                                               :m.is_package
+                                               :i.inventory_code
+                                               :i.model_id
+                                               :i.inventory_pool_id
+                                               :m.product)
+                       (= result_type "Min")
+                       (sql/select :i.retired
+                                   :i.parent_id
+                                   :i.id
+                                   :i.inventory_code
+                                   :i.model_id
+                                   :m.is_package)
+                       :else (sql/select :m.is_package
+                                         :i.*
+                                         [:b.name :building_name]
+                                         [:r.name :room_name]))
 
          base-query (-> base-select
                         ((fn [query]
@@ -68,7 +90,9 @@
                         (cond-> (= false not_packaged) (sql/where [:is-not :i.parent_id nil]))
 
                         (cond-> (seq search_term)
-                          (sql/where [:or [:ilike :i.inventory_code (str "%" search_term "%")] [:ilike :m.product (str "%" search_term "%")]
+                          (sql/where [:or
+                                      [:ilike :i.inventory_code (str "%" search_term "%")]
+                                      [:ilike :m.product (str "%" search_term "%")]
                                       [:ilike :m.manufacturer (str "%" search_term "%")]]))
 
                         (cond-> item_id (sql/where [:= :i.id item_id]))
@@ -98,7 +122,7 @@
     {:item-data item-data
      :properties properties}))
 
-(defn validate-field-permissions [tx role body-params]
+(defn validate-field-permissions [tx role body-params pool-id]
   (let [permitted-fields (-> (fields/base-query "item" (keyword role))
                              sql-format
                              (->> (jdbc-query tx)))
@@ -106,9 +130,17 @@
                                  (map (comp keyword :id))
                                  set)
         body-keys (set (keys body-params))
-        unpermitted-fields (set/difference body-keys permitted-field-ids)]
-    (when (seq unpermitted-fields)
-      {:unpermitted-fields unpermitted-fields})))
+        unpermitted-fields (set/difference body-keys permitted-field-ids)
+        {:keys [item-data]} (split-item-data body-params)
+        owner-id (:owner_id item-data)]
+    (cond
+      (seq unpermitted-fields)
+      {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
+
+      (not= owner-id pool-id)
+      {:error "owner_id must match pool_id from path"
+       :provided owner-id
+       :expected pool-id})))
 
 (defn flatten-properties [item]
   (let [properties (:properties item)
@@ -124,10 +156,11 @@
   (try
     (let [tx (:tx request)
           {:keys [role]} (:authenticated-entity request)
-          body-params (get-in request [:parameters :body])
-          validation-error (validate-field-permissions tx role body-params)]
+          body-params (body-params request)
+          {:keys [pool_id]} (path-params request)
+          validation-error (validate-field-permissions tx role body-params pool_id)]
       (if validation-error
-        (bad-request {:error "Unpermitted fields" :details validation-error})
+        (bad-request validation-error)
         (let [{:keys [item-data properties]} (split-item-data body-params)
               properties-json (or (not-empty properties) {})
               now (java.time.Instant/now)
