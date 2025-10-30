@@ -20,6 +20,7 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :as timbre :refer [debug spy]]))
 
@@ -32,6 +33,13 @@
                   :models.cover_image_id)
       (sql/from :models)
       (sql/order-by :models.name)))
+
+(defn get-by-id [tx id]
+  (-> base-query
+      (sql/where [:= :models.id id])
+      sql-format
+      (->> (jdbc-query tx))
+      first))
 
 (defn index-resources [request]
   (try

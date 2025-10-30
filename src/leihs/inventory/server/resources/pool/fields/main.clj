@@ -7,6 +7,9 @@
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.pool.buildings.main :as buildings]
    [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
+   [leihs.inventory.server.resources.pool.models.main :as models]
+   [leihs.inventory.server.resources.pool.rooms.main :as rooms]
+   [leihs.inventory.server.resources.pool.software.main :as software]
    [leihs.inventory.server.resources.pool.suppliers.main :as suppliers]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
@@ -56,12 +59,7 @@
                                sql-format
                                (->> (jdbc/query tx)))))
      :inventory_pool_id pools-hook
-     :owner_id (fn [tx pool f]
-                 (-> f
-                     (->> (pools-hook tx (:id pool)))
-                     (assoc :default {:value (:id pool)
-                                      :label (:name pool)})))
-
+     :owner_id pools-hook
      :room_id (fn [_ pool f]
                 (assoc f :values_url
                        (str "/inventory/" (:id pool) "/rooms/")))
@@ -71,6 +69,15 @@
      :software_model_id (fn [_ pool f]
                           (assoc f :values_url
                                  (str "/inventory/" (:id pool) "/software/")))}))
+
+(def defaults-hooks
+  {:building_id buildings/get-by-id
+   :supplier_id suppliers/get-by-id
+   :inventory_pool_id pools/get-by-id
+   :owner_id pools/get-by-id
+   :room_id rooms/get-by-id
+   :model_id models/get-by-id
+   :software_model_id software/get-by-id})
 
 (defn target-type-expr [ttype]
   (if (= ttype "package")
@@ -142,11 +149,16 @@
                 properties)]
     (merge item-without-properties properties-with-prefix)))
 
-(defn merge-item-defaults [item-data field]
+(defn merge-item-defaults [tx item-data field]
   (let [field-id (keyword (:id field))
         value (get item-data field-id)]
     (if (some? value)
-      (assoc field :default value)
+      (assoc field
+             :default
+             (if (uuid? value)
+               (let [res ((defaults-hooks field-id) tx value)]
+                 {:value (:id res), :label (:name res)})
+               value))
       field)))
 
 (defn index-resources
@@ -162,7 +174,7 @@
           transformed-fields (map (partial transform-field-data tx pool) fields)
           fields-with-defaults
           (if item-data
-            (map (partial merge-item-defaults item-data) transformed-fields)
+            (map (partial merge-item-defaults tx item-data) transformed-fields)
             transformed-fields)]
       (response {:fields (vec fields-with-defaults)}))
     (catch Exception e

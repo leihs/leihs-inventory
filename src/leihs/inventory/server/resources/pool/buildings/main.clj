@@ -17,6 +17,13 @@
       (sql/from :buildings)
       (sql/order-by :name)))
 
+(defn get-by-id [tx id]
+  (-> base-query
+      (sql/where [:= :buildings.id id])
+      sql-format
+      (->> (jdbc/query tx))
+      first))
+
 (defn index-resources [request]
   (try
     (let [tx (:tx request)
