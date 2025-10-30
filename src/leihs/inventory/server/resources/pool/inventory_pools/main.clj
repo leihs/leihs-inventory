@@ -14,6 +14,13 @@
       (sql/from :inventory_pools)
       (sql/where [:= :inventory_pools.is_active true])))
 
+(defn get-by-id [tx id]
+  (-> base-query
+      (sql/where [:= :inventory_pools.id id])
+      sql-format
+      (->> (jdbc/query tx))
+      first))
+
 (defn index-resources [request]
   (let [tx (:tx request)
         pool-id (-> request :parameters :path :pool_id)

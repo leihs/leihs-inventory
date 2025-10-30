@@ -14,7 +14,8 @@
                                                        query-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [response]]))
+   [ring.util.response :refer [response]]
+   [taoensso.timbre :as timbre :refer [debug spy]]))
 
 (def ERROR_GET "Failed to get fields")
 
@@ -55,20 +56,21 @@
                                sql-format
                                (->> (jdbc/query tx)))))
      :inventory_pool_id pools-hook
-     :owner_id (fn [tx pool-id f]
+     :owner_id (fn [tx pool f]
                  (-> f
-                     (->> (pools-hook tx pool-id))
-                     (assoc :default pool-id)))
+                     (->> (pools-hook tx (:id pool)))
+                     (assoc :default {:value (:id pool)
+                                      :label (:name pool)})))
 
-     :room_id (fn [_ pool-id f]
+     :room_id (fn [_ pool f]
                 (assoc f :values_url
-                       (str "/inventory/" pool-id "/rooms/")))
-     :model_id (fn [_ pool-id f]
+                       (str "/inventory/" (:id pool) "/rooms/")))
+     :model_id (fn [_ pool f]
                  (assoc f :values_url
-                        (str "/inventory/" pool-id "/models/?type=model")))
-     :software_model_id (fn [_ pool-id f]
+                        (str "/inventory/" (:id pool) "/models/?type=model")))
+     :software_model_id (fn [_ pool f]
                           (assoc f :values_url
-                                 (str "/inventory/" pool-id "/software/")))}))
+                                 (str "/inventory/" (:id pool) "/software/")))}))
 
 (defn target-type-expr [ttype]
   (if (= ttype "package")
@@ -99,7 +101,7 @@
       (sql/where (target-type-expr ttype))
       (sql/where (min-req-role-expr (keyword role)))))
 
-(defn transform-field-data [tx pool-id field]
+(defn transform-field-data [tx pool field]
   (let [base (reduce (fn [f data-key]
                        (assoc f data-key
                               (-> f
@@ -115,7 +117,7 @@
         (#(apply dissoc % excluded-keys))
         ;; Apply hooks for specific keys
         (#(if-let [hook-fn (keys-hooks (-> % :id keyword))]
-            (hook-fn tx pool-id %)
+            (hook-fn tx pool %)
             %))
         ;; Remove all keys with nil values
         (->> (remove (fn [[_ v]] (nil? v)))
@@ -149,13 +151,15 @@
 
 (defn index-resources
   [{:keys [tx] {:keys [role]} :authenticated-entity :as request}]
+  (debug request)
   (try
     (let [{:keys [target_type resource_id]} (query-params request)
           {:keys [pool_id]} (path-params request)
+          pool (pools/get-by-id tx pool_id)
           query (base-query target_type role)
           fields (jdbc/query tx (sql-format query))
           item-data (get-item-data tx pool_id resource_id)
-          transformed-fields (map (partial transform-field-data tx pool_id) fields)
+          transformed-fields (map (partial transform-field-data tx pool) fields)
           fields-with-defaults
           (if item-data
             (map (partial merge-item-defaults item-data) transformed-fields)
