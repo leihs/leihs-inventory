@@ -163,11 +163,7 @@
         (bad-request validation-error)
         (let [{:keys [item-data properties]} (split-item-data body-params)
               properties-json (or (not-empty properties) {})
-              now (java.time.Instant/now)
-              item-data-with-timestamps (assoc item-data
-                                               :created_at now
-                                               :updated_at now)
-              item-data-with-properties (assoc item-data-with-timestamps
+              item-data-with-properties (assoc item-data
                                                :properties [:lift properties-json])
               sql-query (-> (sql/insert-into :items)
                             (sql/values [item-data-with-properties])
