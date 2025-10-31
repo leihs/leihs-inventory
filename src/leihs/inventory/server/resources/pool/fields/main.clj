@@ -40,19 +40,21 @@
    :composite #{:data_dependency_field_id}})
 
 (def keys-hooks
-  (let [pools-hook (fn [tx _ f]
+  (let [pools-hook (fn [f & {:keys [tx resource-id user-id]}]
                      (assoc f :values
                             (-> pools/base-query (dissoc :select)
                                 (sql/select [:id :value] [:name :label] :is_active)
+                                (cond-> resource-id
+                                  (pools/for-inventory-manager user-id))
                                 (sql/order-by [:is_active :desc] :name)
                                 sql-format
                                 (->> (jdbc/query tx)))))]
-    {:building_id (fn [tx _ f]
+    {:building_id (fn [f & {:keys [tx]}]
                     (assoc f :values
                            (-> buildings/base-query (dissoc :select)
                                (sql/select [:id :value] [:name :label])
                                sql-format (->> (jdbc/query tx)))))
-     :supplier_id (fn [tx _ f]
+     :supplier_id (fn [f & {:keys [tx]}]
                     (assoc f :values
                            (-> suppliers/base-query (dissoc :select)
                                (sql/select [:id :value] [:name :label])
@@ -60,13 +62,13 @@
                                (->> (jdbc/query tx)))))
      :inventory_pool_id pools-hook
      :owner_id pools-hook
-     :room_id (fn [_ pool f]
+     :room_id (fn [f & {:keys [pool]}]
                 (assoc f :values_url
                        (str "/inventory/" (:id pool) "/rooms/")))
-     :model_id (fn [_ pool f]
+     :model_id (fn [f & {:keys [pool]}]
                  (assoc f :values_url
                         (str "/inventory/" (:id pool) "/models/?type=model")))
-     :software_model_id (fn [_ pool f]
+     :software_model_id (fn [f & {:keys [pool]}]
                           (assoc f :values_url
                                  (str "/inventory/" (:id pool) "/software/")))}))
 
@@ -108,7 +110,7 @@
       (sql/where (target-type-expr ttype))
       (sql/where (min-req-role-expr (keyword role)))))
 
-(defn transform-field-data [tx pool field]
+(defn transform-field-data [field & {:keys [tx pool user-id resource-id]}]
   (let [base (reduce (fn [f data-key]
                        (assoc f data-key
                               (-> f
@@ -124,7 +126,8 @@
         (#(apply dissoc % excluded-keys))
         ;; Apply hooks for specific keys
         (#(if-let [hook-fn (keys-hooks (-> % :id keyword))]
-            (hook-fn tx pool %)
+            (hook-fn % :tx tx :pool pool
+                     :resource-id resource-id :user-id user-id)
             %))
         ;; Remove all keys with nil values
         (->> (remove (fn [[_ v]] (nil? v)))
@@ -162,8 +165,7 @@
       field)))
 
 (defn index-resources
-  [{:keys [tx] {:keys [role]} :authenticated-entity :as request}]
-  (debug request)
+  [{:keys [tx] {:keys [role] user-id :id} :authenticated-entity :as request}]
   (try
     (let [{:keys [target_type resource_id]} (query-params request)
           {:keys [pool_id]} (path-params request)
@@ -171,7 +173,11 @@
           query (base-query target_type role)
           fields (jdbc/query tx (sql-format query))
           item-data (get-item-data tx pool_id resource_id)
-          transformed-fields (map (partial transform-field-data tx pool) fields)
+          transformed-fields (map #(transform-field-data % :tx tx
+                                                         :pool pool
+                                                         :user-id user-id
+                                                         :resource-id resource_id)
+                                  fields)
           fields-with-defaults
           (if item-data
             (map (partial merge-item-defaults tx item-data) transformed-fields)
@@ -180,15 +186,3 @@
     (catch Exception e
       (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))
-
-(comment
-  (let [tx (db/get-ds)
-        ttype "item"
-        role :lending_manager
-        pool-id "0a78a94e-f545-4a67-b42f-86f716fcf764"]
-    (-> (base-query ttype role)
-        (sql-format :inline true)
-        (->> (jdbc/query tx))
-        (->> (map (partial transform-field-data tx pool-id)))
-        (->> (map #(select-keys % [:id :type :default])))
-        count)))
