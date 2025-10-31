@@ -34,7 +34,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:url) { "/inventory/#{inventory_pool_id}/items/" }
 
-    context "PUT /inventory/:pool-id/items/" do
+    context "PATCH /inventory/:pool-id/items/" do
       it "updates an item with basic fields and returns status 200" do
         update_data = {
           id: @item.id,
@@ -45,7 +45,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
           owner_id: @inventory_pool.id
         }
 
-        resp = client.put url do |req|
+        resp = client.patch url do |req|
           req.body = update_data.to_json
           req.headers["Content-Type"] = "application/json"
           req.headers["Accept"] = "application/json"
@@ -70,7 +70,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
           properties_imei_number: "123456789012345"
         }
 
-        resp = client.put url do |req|
+        resp = client.patch url do |req|
           req.body = update_data.to_json
           req.headers["Content-Type"] = "application/json"
           req.headers["Accept"] = "application/json"

@@ -179,7 +179,7 @@
 
 (def ERROR_UPDATE_ITEM "Failed to update item")
 
-(defn put-resource [request]
+(defn patch-resource [request]
   (try
     (let [tx (:tx request)
           {:keys [role]} (:authenticated-entity request)
