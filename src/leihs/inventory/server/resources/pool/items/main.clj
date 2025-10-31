@@ -6,17 +6,16 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.pool.fields.main :as fields]
+   [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [leihs.inventory.server.utils.request-utils :refer [body-params
-                                                       path-params
+   [leihs.inventory.server.utils.request-utils :refer [body-params path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [debug error]]))
+   [ring.util.response :refer [bad-request response]]))
 
 (defn base-pool-query [query pool-id]
   (-> query
@@ -122,8 +121,13 @@
     {:item-data item-data
      :properties properties}))
 
-(defn validate-field-permissions [tx role body-params pool-id]
-  (let [permitted-fields (-> (fields/base-query "item" (keyword role))
+(defn validate-field-permissions [request]
+  (let [tx (:tx request)
+        role (:role (:authenticated-entity request))
+        body-params (body-params request)
+        {pool-id :pool_id} (path-params request)
+        item-id (:id body-params)
+        permitted-fields (-> (fields/base-query "item" (keyword role))
                              sql-format
                              (->> (jdbc-query tx)))
         permitted-field-ids (->> permitted-fields
@@ -137,8 +141,9 @@
       (seq unpermitted-fields)
       {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
 
-      (not= owner-id pool-id)
-      {:error "owner_id must match pool_id from path"
+      (or (and item-id (not (authorized-role-for-pool request owner-id)))
+          (not= owner-id pool-id))
+      {:error "Unpermitted owner_id"
        :provided owner-id
        :expected pool-id})))
 
@@ -155,10 +160,8 @@
 (defn post-resource [request]
   (try
     (let [tx (:tx request)
-          {:keys [role]} (:authenticated-entity request)
           body-params (body-params request)
-          {:keys [pool_id]} (path-params request)
-          validation-error (validate-field-permissions tx role body-params pool_id)]
+          validation-error (validate-field-permissions request)]
       (if validation-error
         (bad-request validation-error)
         (let [{:keys [item-data properties]} (split-item-data body-params)
@@ -179,30 +182,25 @@
 
 (def ERROR_UPDATE_ITEM "Failed to update item")
 
-(defn patch-resource [request]
+(defn patch-resource [{:keys [tx] :as request}]
   (try
-    (let [tx (:tx request)
-          {:keys [role]} (:authenticated-entity request)
-          body-params (body-params request)
-          {:keys [pool_id]} (path-params request)
-          item-id (:id body-params)
-          update-params (dissoc body-params :id)
-          validation-error (validate-field-permissions tx role update-params pool_id)]
-      (if validation-error
-        (bad-request validation-error)
-        (let [{:keys [item-data properties]} (split-item-data update-params)
-              properties-json (or (not-empty properties) {})
-              item-data-with-properties (assoc item-data
-                                               :properties [:lift properties-json])
-              sql-query (-> (sql/update :items)
-                            (sql/set item-data-with-properties)
-                            (sql/where [:= :id item-id])
-                            (sql/returning :*)
-                            sql-format)
-              result (jdbc/execute-one! tx sql-query)]
-          (if result
-            (response (flatten-properties result))
-            (bad-request {:error ERROR_UPDATE_ITEM})))))
+    (if-let [validation-error (validate-field-permissions request)]
+      (bad-request validation-error)
+      (let [update-params (body-params request)
+            {:keys [item-data properties]} (-> update-params (dissoc :id)
+                                               split-item-data)
+            properties-json (or (not-empty properties) {})
+            item-data-with-properties (assoc item-data
+                                             :properties [:lift properties-json])
+            sql-query (-> (sql/update :items)
+                          (sql/set item-data-with-properties)
+                          (sql/where [:= :id (:id update-params)])
+                          (sql/returning :*)
+                          sql-format)
+            result (jdbc/execute-one! tx sql-query)]
+        (if result
+          (response (flatten-properties result))
+          (bad-request {:error ERROR_UPDATE_ITEM}))))
     (catch Exception e
       (log-by-severity ERROR_UPDATE_ITEM e)
       (exception-handler request ERROR_UPDATE_ITEM e))))
