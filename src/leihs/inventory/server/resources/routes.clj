@@ -18,6 +18,7 @@
    [leihs.inventory.server.resources.pool.export.csv.routes :as export-csv]
    [leihs.inventory.server.resources.pool.export.excel.routes :as export-excel]
    [leihs.inventory.server.resources.pool.fields.routes :as fields]
+   [leihs.inventory.server.resources.pool.inventory-pools.routes :as inventory-pools]
    [leihs.inventory.server.resources.pool.items.routes :as items]
    [leihs.inventory.server.resources.pool.list.routes :as list]
    [leihs.inventory.server.resources.pool.manufacturers.routes :as manufacturers]
@@ -26,13 +27,10 @@
    [leihs.inventory.server.resources.pool.models.model.images.image.routes :as image]
    [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes :as images-thumbnail]
    [leihs.inventory.server.resources.pool.models.model.images.routes :as images]
-   [leihs.inventory.server.resources.pool.models.model.items.item.routes :as model-item]
-   [leihs.inventory.server.resources.pool.models.model.items.routes :as model-items]
    [leihs.inventory.server.resources.pool.models.model.routes :as model]
    [leihs.inventory.server.resources.pool.models.routes :as models]
    [leihs.inventory.server.resources.pool.options.option.routes :as option]
    [leihs.inventory.server.resources.pool.options.routes :as options]
-   [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :as responsible-inventory-pools]
    [leihs.inventory.server.resources.pool.rooms.room.routes :as room]
    [leihs.inventory.server.resources.pool.rooms.routes :as rooms]
    [leihs.inventory.server.resources.pool.software.routes :as software]
@@ -56,7 +54,7 @@
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [schema.core :as s]
-   [taoensso.timbre :refer [debug error]]))
+   [taoensso.timbre :refer [debug error spy]]))
 
 (defn- create-root-page [_]
   {:status 200
@@ -251,14 +249,13 @@
                       (options/routes)
                       (image/routes)
                       (images/routes)
+                      (image/routes)
                       (images-thumbnail/routes)
                       (attachment/routes)
                       (attachments/routes)
                       (items/routes)
                       (templates/routes)
                       (template/routes)
-                      (model-items/routes)
-                      (model-item/routes)
                       (building/routes)
                       (buildings/routes)
                       (room/routes)
@@ -267,7 +264,7 @@
                       (entitlement-groups/routes)
 
                       (manufacturers/routes)
-                      (responsible-inventory-pools/routes)
+                      (inventory-pools/routes)
                       (suppliers/routes)
 
                       (when APPLY_API_ENDPOINTS_NOT_USED_IN_FE
@@ -275,8 +272,7 @@
                          (fields/routes)
                          (export-csv/routes)
                          (export-excel/routes)
-                         (fields/routes)
-                         (items/routes)])
+                         (fields/routes)])
 
                       (when APPLY_DEV_ENDPOINTS
                         [(get-dev-routes)])]
