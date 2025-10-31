@@ -46,6 +46,11 @@
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}
                        :body {:id s/Uuid
+                              (s/optional-key :inventory_code) s/Str
+                              (s/optional-key :model_id) s/Uuid
+                              (s/optional-key :room_id) s/Uuid
+                              (s/optional-key :inventory_pool_id) s/Uuid
+                              (s/optional-key :owner_id) s/Uuid
                               s/Keyword s/Any}}
           :handler items/put-resource
           :responses {200 {:description "OK"

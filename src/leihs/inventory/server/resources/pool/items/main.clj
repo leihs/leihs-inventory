@@ -183,10 +183,26 @@
   (try
     (let [tx (:tx request)
           {:keys [role]} (:authenticated-entity request)
-          body-params (get-in request [:parameters :body])
+          body-params (body-params request)
+          {:keys [pool_id]} (path-params request)
           item-id (:id body-params)
-          update-params (dissoc body-params :id)]
-      (response {:message "Update item placeholder" :id item-id :params update-params}))
+          update-params (dissoc body-params :id)
+          validation-error (validate-field-permissions tx role update-params pool_id)]
+      (if validation-error
+        (bad-request validation-error)
+        (let [{:keys [item-data properties]} (split-item-data update-params)
+              properties-json (or (not-empty properties) {})
+              item-data-with-properties (assoc item-data
+                                               :properties [:lift properties-json])
+              sql-query (-> (sql/update :items)
+                            (sql/set item-data-with-properties)
+                            (sql/where [:= :id item-id])
+                            (sql/returning :*)
+                            sql-format)
+              result (jdbc/execute-one! tx sql-query)]
+          (if result
+            (response (flatten-properties result))
+            (bad-request {:error ERROR_UPDATE_ITEM})))))
     (catch Exception e
       (log-by-severity ERROR_UPDATE_ITEM e)
       (exception-handler request ERROR_UPDATE_ITEM e))))
