@@ -61,13 +61,6 @@
         ;; Transform fields data to form structure
         form-structure (fields-to-form/transform-fields-to-structure fields-data)
 
-        ;; Generate Zod schema from fields - memoize to prevent recreation on every render
-        zod-schema (react/useMemo
-                    (fn []
-                      (when fields-data
-                        (fields-to-zod/fields-to-zod-schema fields-data)))
-                    #js [fields-data])
-
         ;; Extract default values from fields
         dynamic-defaults (when fields-data
                            (cj (fields-to-form/extract-default-values fields-data)))
