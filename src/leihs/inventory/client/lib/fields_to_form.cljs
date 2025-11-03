@@ -141,10 +141,10 @@
                     converted-val (when default-val
                                     (case field-type
                                       "checkbox" (str default-val)
-                                      "autocomplete" (if has-default?
-                                                       {:value default-val
-                                                        :label (get-label default-val (:values field))}
-                                                       default-val)
+                                      ;; "autocomplete" (if has-default?
+                                      ;;                  {:value default-val
+                                      ;;                   :label (get-label default-val (:values field))}
+                                      ;;                  default-val)
                                       "date" (if (= default-val "today")
                                                (js/Date.)
                                                default-val)
