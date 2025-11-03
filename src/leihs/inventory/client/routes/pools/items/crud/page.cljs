@@ -13,6 +13,7 @@
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["lucide-react" :refer [Trash]]
+   ["react" :as react]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
@@ -60,14 +61,18 @@
         ;; Transform fields data to form structure
         form-structure (fields-to-form/transform-fields-to-structure fields-data)
 
-        ;; Generate Zod schema from fields
-        zod-schema (fields-to-zod/fields-to-zod-schema fields-data)
+        ;; Generate Zod schema from fields - memoize to prevent recreation on every render
+        zod-schema (react/useMemo
+                    (fn []
+                      (when fields-data
+                        (fields-to-zod/fields-to-zod-schema fields-data)))
+                    #js [fields-data])
 
         ;; Extract default values from fields
         dynamic-defaults (when fields-data
                            (cj (fields-to-form/extract-default-values fields-data)))
 
-        form (useForm #js {:resolver (zodResolver zod-schema)
+        form (useForm #js {:resolver (zodResolver (fields-to-zod/fields-to-zod-schema fields-data))
                            :defaultValues (if is-edit
                                             (fn [] (core/prepare-default-values model))
                                             (or dynamic-defaults default-values))})

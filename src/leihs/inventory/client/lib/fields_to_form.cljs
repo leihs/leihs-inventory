@@ -107,6 +107,12 @@
                           vec)})
           grouped)))
 
+(defn- get-label [value options]
+  (some (fn [opt]
+          (when (= (:value opt) value)
+            (:label opt)))
+        options))
+
 (defn extract-default-values [fields-response]
   (let [fields (-> fields-response :fields)
         implemented-fields (filter #(implemented-field-types (:type %)) fields)]
@@ -122,16 +128,23 @@
                                     "textarea" ""
                                     "select" nil
                                     "date" nil
-                                    "radio" ""
+                                    "radio" false
                                     "checkbox" false
                                     "attachment" []
-                                    "autocomplete-search" {}
-                                    "autocomplete" ""
+                                    "autocomplete-search" {:value nil
+                                                           :label nil}
+                                    "autocomplete" {:value nil
+                                                    :label nil}
                                     nil))
+
                     ;; Convert default value based on field type
                     converted-val (when default-val
                                     (case field-type
                                       "checkbox" (str default-val)
+                                      "autocomplete" (if has-default?
+                                                       {:value default-val
+                                                        :label (get-label default-val (:values field))}
+                                                       default-val)
                                       "date" (if (= default-val "today")
                                                (js/Date.)
                                                default-val)
