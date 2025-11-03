@@ -112,7 +112,9 @@
                       [:= :disabled_fields.inventory_pool_id pool-id]])
       (sql/where [:= :fields.active true])
       (sql/where [:= :disabled_fields.id nil])
+    (cond-> (not (= ttype "acvanced_search"))
       (sql/where (target-type-expr ttype))
+      )
       (sql/where (min-req-role-expr (keyword role)))))
 
 (defn transform-field-data [field & {:keys [tx pool user-id resource-id]}]
@@ -174,6 +176,9 @@
   (try
     (let [{:keys [target_type resource_id]} (query-params request)
           {:keys [pool_id]} (path-params request)
+
+          p (println ">o> abc.target_type" target_type)
+
           pool (pools/get-by-id tx pool_id)
           query (base-query target_type role pool_id)
           fields (jdbc/query tx (sql-format query))
