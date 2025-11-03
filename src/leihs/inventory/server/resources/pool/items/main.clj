@@ -15,7 +15,8 @@
    [next.jdbc :as jdbc]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response]]))
+   [ring.util.response :refer [bad-request response]]
+   [taoensso.timbre :as timbre :refer [debug spy]]))
 
 (defn base-pool-query [query pool-id]
   (-> query
@@ -133,7 +134,7 @@
         permitted-field-ids (->> permitted-fields
                                  (map (comp keyword :id))
                                  set)
-        body-keys (set (keys body-params))
+        body-keys (-> body-params (dissoc :id) keys set)
         unpermitted-fields (set/difference body-keys permitted-field-ids)
         {:keys [item-data]} (split-item-data body-params)
         owner-id (:owner_id item-data)]
@@ -141,8 +142,10 @@
       (seq unpermitted-fields)
       {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
 
-      (or (and item-id (not (authorized-role-for-pool request owner-id)))
-          (not= owner-id pool-id))
+      (or (and item-id (not= (authorized-role-for-pool request owner-id)
+                             "inventory_manager")
+               (not= owner-id pool-id))
+          (and (not item-id) (not= owner-id pool-id)))
       {:error "Unpermitted owner_id"
        :provided owner-id
        :expected pool-id})))

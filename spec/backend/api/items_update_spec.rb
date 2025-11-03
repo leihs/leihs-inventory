@@ -82,6 +82,58 @@ describe "Swagger Inventory Endpoints - Items Update" do
         expect(resp.body["properties_mac_address"]).to eq("00:1B:44:11:3A:B7")
         expect(resp.body["properties_imei_number"]).to eq("123456789012345")
       end
+
+      it "allows setting owner_id to another pool user is authorized for" do
+        # Create another inventory pool that the user HAS access to
+        another_pool = FactoryBot.create(:inventory_pool, name: "Another Authorized Pool")
+        FactoryBot.create(:access_right,
+          inventory_pool_id: another_pool.id,
+          user_id: @user.id,
+          role: "inventory_manager")
+
+        update_data = {
+          id: @item.id,
+          inventory_code: @item.inventory_code,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: another_pool.id
+        }
+
+        resp = client.patch url do |req|
+          req.body = update_data.to_json
+          req.headers["Content-Type"] = "application/json"
+          req.headers["Accept"] = "application/json"
+          req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        end
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["owner_id"]).to eq(another_pool.id)
+      end
+
+      it "returns 400 when trying to set owner_id to a pool user is not authorized for" do
+        # Create another inventory pool that the user does NOT have access to
+        unauthorized_pool = FactoryBot.create(:inventory_pool, name: "Unauthorized Pool")
+
+        update_data = {
+          id: @item.id,
+          inventory_code: @item.inventory_code,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: unauthorized_pool.id
+        }
+
+        resp = client.patch url do |req|
+          req.body = update_data.to_json
+          req.headers["Content-Type"] = "application/json"
+          req.headers["Accept"] = "application/json"
+          req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        end
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["error"]).to eq("Unpermitted owner_id")
+      end
     end
   end
 end
