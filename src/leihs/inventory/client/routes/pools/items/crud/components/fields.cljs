@@ -27,6 +27,22 @@
    "dropzone" Dropzone
    "textarea" Textarea})
 
+(defn- has-value?
+  "Check if a value is considered 'truthy' for dependency purposes.
+   Returns false for: nil, empty string, empty array, empty object, false"
+  [val]
+  (cond
+    (nil? val) false
+    (boolean? val) val
+    (string? val) (not= val "")
+    (array? val) (pos? (.-length val))
+    (object? val) (if (js/Object.hasOwn val "value")
+                    ;; For objects like {:value "..." :label "..."}, check the value property
+                    (has-value? (.-value val))
+                    ;; For plain objects without value property, check if they have keys
+                    (pos? (count (js/Object.keys val))))
+    :else true))
+
 (defui field [{:keys [control form block]}]
   (let [visibility (:visibility-dependency block)
         values-dep (:values-dependency block)
@@ -44,8 +60,13 @@
 
         ;; Check if field should show based on values dependency
         has-dependency-value (if values-dep
-                               (and watched-dependency (not= watched-dependency ""))
+                               (has-value? watched-dependency)
                                true)]
+
+    ;; (when values-dep
+    ;;   (js/console.debug "Watched dependency value for field "
+    ;;                     (:name block) ": "
+    ;;                     (seq (jc watched-dependency))))
 
     (when (and is-visible has-dependency-value)
       (case (:component block)
@@ -74,9 +95,10 @@
                          :props (if values-dep
                                   (let [values-url (-> block :props :values-url)
                                         dep (:field values-dep)]
+                                    ;; (js/console.debug "Autocomplete with values dependency:" watched-dependency)
                                     {:remap (fn [item] {:value (str (:id item))
                                                         :label (:name item)})
-                                     :values-url (str values-url "?" dep "=" watched-dependency)})
+                                     :values-url (str values-url "?" dep "=" (.-value watched-dependency))})
                                   (:props block))})
 
         "instant-search"
