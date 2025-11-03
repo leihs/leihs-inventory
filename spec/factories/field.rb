@@ -30,4 +30,9 @@ FactoryBot.define do
       })
     end
   end
+
+  factory :disabled_field do
+    association :field
+    association :inventory_pool
+  end
 end

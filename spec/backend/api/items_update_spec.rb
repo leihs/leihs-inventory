@@ -134,6 +134,60 @@ describe "Swagger Inventory Endpoints - Items Update" do
         expect(resp.status).to eq(400)
         expect(resp.body["error"]).to eq("Unpermitted owner_id")
       end
+
+      it "rejects disabled fields for the inventory pool and returns status 400" do
+        FactoryBot.create(:disabled_field,
+          field_id: "properties_mac_address",
+          inventory_pool_id: @inventory_pool.id)
+
+        update_data = {
+          id: @item.id,
+          inventory_code: @item.inventory_code,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          properties_mac_address: "00:1B:44:11:3A:B7"
+        }
+
+        resp = client.patch url do |req|
+          req.body = update_data.to_json
+          req.headers["Content-Type"] = "application/json"
+          req.headers["Accept"] = "application/json"
+          req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        end
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["error"]).to eq("Unpermitted fields")
+        expect(resp.body["unpermitted-fields"]).to include("properties_mac_address")
+      end
+
+      it "allows fields disabled in other pools but not current pool and returns status 200" do
+        other_pool = FactoryBot.create(:inventory_pool)
+        FactoryBot.create(:disabled_field,
+          field_id: "properties_mac_address",
+          inventory_pool_id: other_pool.id)
+
+        update_data = {
+          id: @item.id,
+          inventory_code: @item.inventory_code,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          properties_mac_address: "00:1B:44:11:3A:B7"
+        }
+
+        resp = client.patch url do |req|
+          req.body = update_data.to_json
+          req.headers["Content-Type"] = "application/json"
+          req.headers["Accept"] = "application/json"
+          req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        end
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["properties_mac_address"]).to eq("00:1B:44:11:3A:B7")
+      end
     end
   end
 end

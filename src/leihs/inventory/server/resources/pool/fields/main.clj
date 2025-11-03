@@ -103,10 +103,15 @@
      :lending_manager ["lending_manager"]
      :inventory_manager ["lending_manager" "inventory_manager"])])
 
-(defn base-query [ttype role]
-  (-> (sql/select :*)
+(defn base-query [ttype role pool-id]
+  (-> (sql/select :fields.*)
       (sql/from :fields)
+      (sql/left-join :disabled_fields
+                     [:and
+                      [:= :disabled_fields.field_id :fields.id]
+                      [:= :disabled_fields.inventory_pool_id pool-id]])
       (sql/where [:= :fields.active true])
+      (sql/where [:= :disabled_fields.id nil])
       (sql/where (target-type-expr ttype))
       (sql/where (min-req-role-expr (keyword role)))))
 
@@ -170,7 +175,7 @@
     (let [{:keys [target_type resource_id]} (query-params request)
           {:keys [pool_id]} (path-params request)
           pool (pools/get-by-id tx pool_id)
-          query (base-query target_type role)
+          query (base-query target_type role pool_id)
           fields (jdbc/query tx (sql-format query))
           item-data (get-item-data tx pool_id resource_id)
           transformed-fields (map #(transform-field-data % :tx tx

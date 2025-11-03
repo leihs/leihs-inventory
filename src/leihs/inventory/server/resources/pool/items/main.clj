@@ -128,7 +128,7 @@
         body-params (body-params request)
         {pool-id :pool_id} (path-params request)
         item-id (:id body-params)
-        permitted-fields (-> (fields/base-query "item" (keyword role))
+        permitted-fields (-> (fields/base-query "item" (keyword role) pool-id)
                              sql-format
                              (->> (jdbc-query tx)))
         permitted-field-ids (->> permitted-fields
