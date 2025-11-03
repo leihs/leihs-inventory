@@ -11,12 +11,8 @@
    :required s/Bool
    (s/optional-key :default) (s/maybe s/Any)
    (s/optional-key :values) (s/conditional vector? [s/Any]
-                              ;keyword? s/Keyword
                               string? s/Str)
-
-   ;(s/optional-key :values) s/Any
    (s/optional-key :data_dependency_field_id) s/Any
-
    (s/optional-key :values_url) s/Str
    (s/optional-key :values_dependency_field_id) s/Str
    (s/optional-key :visibility_dependency_value) s/Str
