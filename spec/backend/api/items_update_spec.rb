@@ -34,6 +34,15 @@ describe "Swagger Inventory Endpoints - Items Update" do
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:url) { "/inventory/#{inventory_pool_id}/items/" }
 
+    def patch_with_headers(client, url, data)
+      client.patch url do |req|
+        req.body = data.to_json
+        req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
+      end
+    end
+
     context "PATCH /inventory/:pool-id/items/" do
       it "updates an item with basic fields and returns status 200" do
         update_data = {
@@ -45,12 +54,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
           owner_id: @inventory_pool.id
         }
 
-        resp = client.patch url do |req|
-          req.body = update_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = patch_with_headers(client, url, update_data)
 
         expect(resp.status).to eq(200)
         expect(resp.body["id"]).to eq(@item.id)
@@ -70,12 +74,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
           properties_imei_number: "123456789012345"
         }
 
-        resp = client.patch url do |req|
-          req.body = update_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = patch_with_headers(client, url, update_data)
 
         expect(resp.status).to eq(200)
         expect(resp.body["id"]).to eq(@item.id)
@@ -100,12 +99,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
           owner_id: another_pool.id
         }
 
-        resp = client.patch url do |req|
-          req.body = update_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = patch_with_headers(client, url, update_data)
 
         expect(resp.status).to eq(200)
         expect(resp.body["owner_id"]).to eq(another_pool.id)
@@ -124,12 +118,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
           owner_id: unauthorized_pool.id
         }
 
-        resp = client.patch url do |req|
-          req.body = update_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = patch_with_headers(client, url, update_data)
 
         expect(resp.status).to eq(400)
         expect(resp.body["error"]).to eq("Unpermitted owner_id")
@@ -150,12 +139,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
           properties_mac_address: "00:1B:44:11:3A:B7"
         }
 
-        resp = client.patch url do |req|
-          req.body = update_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = patch_with_headers(client, url, update_data)
 
         expect(resp.status).to eq(400)
         expect(resp.body["error"]).to eq("Unpermitted fields")
@@ -178,12 +162,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
           properties_mac_address: "00:1B:44:11:3A:B7"
         }
 
-        resp = client.patch url do |req|
-          req.body = update_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = patch_with_headers(client, url, update_data)
 
         expect(resp.status).to eq(200)
         expect(resp.body["properties_mac_address"]).to eq("00:1B:44:11:3A:B7")

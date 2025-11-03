@@ -27,6 +27,15 @@ describe "Swagger Inventory Endpoints - Items Create" do
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:url) { "/inventory/#{inventory_pool_id}/items/" }
 
+    def post_with_headers(client, url, data)
+      client.post url do |req|
+        req.body = data.to_json
+        req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
+      end
+    end
+
     context "POST /inventory/:pool-id/items/" do
       it "creates an item with only required fields and returns status 200" do
         item_data = {
@@ -37,12 +46,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
           owner_id: @inventory_pool.id
         }
 
-        resp = client.post url do |req|
-          req.body = item_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = post_with_headers(client, url, item_data)
 
         expect(resp.status).to eq(200)
         expect(resp.body["inventory_code"]).to eq(item_data[:inventory_code])
@@ -64,12 +68,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
           properties_imei_number: "123456789012345"
         }
 
-        resp = client.post url do |req|
-          req.body = item_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = post_with_headers(client, url, item_data)
 
         expect(resp.status).to eq(200)
         expect(resp.body["inventory_code"]).to eq(item_data[:inventory_code])
@@ -93,12 +92,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
           properties_mac_address: "00:1B:44:11:3A:B7"
         }
 
-        resp = client.post url do |req|
-          req.body = item_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = post_with_headers(client, url, item_data)
 
         expect(resp.status).to eq(400)
         expect(resp.body["error"]).to eq("Unpermitted fields")
@@ -115,12 +109,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
           properties_dongle_id: "DONGLE-12345"
         }
 
-        resp = client.post url do |req|
-          req.body = item_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = post_with_headers(client, url, item_data)
 
         expect(resp.status).to eq(400)
         expect(resp.body["error"]).to eq("Unpermitted fields")
@@ -141,12 +130,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
           properties_mac_address: "00:1B:44:11:3A:B7"
         }
 
-        resp = client.post url do |req|
-          req.body = item_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = post_with_headers(client, url, item_data)
 
         expect(resp.status).to eq(400)
         expect(resp.body["error"]).to eq("Unpermitted fields")
@@ -168,12 +152,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
           properties_mac_address: "00:1B:44:11:3A:B7"
         }
 
-        resp = client.post url do |req|
-          req.body = item_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = post_with_headers(client, url, item_data)
 
         expect(resp.status).to eq(200)
         expect(resp.body["properties_mac_address"]).to eq("00:1B:44:11:3A:B7")
@@ -205,6 +184,15 @@ describe "Swagger Inventory Endpoints - Items Create" do
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:url) { "/inventory/#{inventory_pool_id}/items/" }
 
+    def post_with_headers(client, url, data)
+      client.post url do |req|
+        req.body = data.to_json
+        req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
+      end
+    end
+
     context "POST /inventory/:pool-id/items/" do
       it "rejects fields not permitted for lending_manager role and returns status 400" do
         item_data = {
@@ -216,12 +204,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
           is_inventory_relevant: true
         }
 
-        resp = client.post url do |req|
-          req.body = item_data.to_json
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        end
+        resp = post_with_headers(client, url, item_data)
 
         expect(resp.status).to eq(400)
         expect(resp.body["error"]).to eq("Unpermitted fields")
