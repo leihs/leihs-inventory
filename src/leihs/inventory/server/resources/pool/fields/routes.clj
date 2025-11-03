@@ -23,6 +23,7 @@
                                (s/optional-key :resource_id) s/Uuid}}
           :handler fields/index-resources
           :responses {200 {:description "OK"
-                           :body {:fields [types/Field]}}
+                           :body {:fields [types/Field]}
+                           }
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}}])
