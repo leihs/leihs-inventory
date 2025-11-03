@@ -55,7 +55,8 @@
         is-edit (not (or is-create is-delete))
 
         loader-data (jc (router/useLoaderData))
-        model (into {} (:data loader-data))
+        {:keys [data]} (jc (useLoaderData))
+
         fields-data (:fields loader-data)
 
         ;; Transform fields data to form structure
@@ -67,7 +68,7 @@
 
         form (useForm #js {:resolver (zodResolver (fields-to-zod/fields-to-zod-schema fields-data))
                            :defaultValues (if is-edit
-                                            (fn [] (core/prepare-default-values model))
+                                            (fn [] (core/prepare-default-values data))
                                             (or dynamic-defaults default-values))})
 
         get-values (.. form -getValues)
@@ -83,10 +84,105 @@
         handle-submit (.. form -handleSubmit)
         handle-delete (fn [] (go))
 
-        on-submit (fn [data event]
+        on-submit (fn [submit-data event]
                     (go
-                      (js/console.debug "Submitting data:" data)
-                      (.-preventDefault event)))]
+                      (let [attachments (if is-create
+                                          (:attachments (jc submit-data))
+                                          (filter (fn [el] (= (:id el) nil))
+                                                  (:attachments (jc submit-data))))
+
+                            attachments-to-delete (if is-edit
+                                                    (->> (:attachments data)
+                                                         (map :id)
+                                                         (remove (set (map :id (:attachments (jc submit-data))))))
+                                                    nil)
+
+                            item-data (into {} (dissoc (jc submit-data) :attachments))
+
+                            pool-id (aget params "pool-id")
+
+                            item-res (if is-create
+                                       (<p! (-> http-client
+                                                (.post (str "/inventory/" pool-id "/models/")
+                                                       (js/JSON.stringify (cj item-data))
+                                                       (cj {:cache
+                                                            {:update {:models "delete"
+                                                                      :compatible-models "delete"
+                                                                      :manufacturers "delete"}}}))
+
+                                                (.then (fn [res]
+                                                         {:status (.. res -status)
+                                                          :statusText (.. res -statusText)
+                                                          :id (.. res -data -id)}))
+                                                (.catch (fn [err]
+                                                          {:status (.. err -response -status)
+                                                           :statusText (.. err -response -statusText)}))))
+
+                                       (<p! (let [item-id (aget params "model-id")]
+                                              (-> http-client
+                                                  (.patch (str "/inventory/" pool-id "/models/" item-id)
+                                                          (js/JSON.stringify (cj item-data))
+                                                          (cj {:cache
+                                                               {:update {:models "delete"
+                                                                         (keyword item-id) "delete"
+                                                                         :compatible-models "delete"
+                                                                         :manufacturers "delete"}}}))
+                                                  (.then (fn [res]
+                                                           {:status (.. res -status)
+                                                            :statusText (.. res -statusText)
+                                                            :id (.. res -data -id)}))
+                                                  (.catch (fn [err]
+                                                            {:status (.. err -response -status)
+                                                             :statusText (.. err -response -statusText)}))))))
+
+                            item-id (when (not= (:status item-res) "200") (:id item-res))]
+
+                        (.. event (preventDefault))
+
+                        (when attachments-to-delete
+                          (doseq [attachment-id attachments-to-delete]
+                            ;; delete attachments that are not in the new model
+                            (<p! (-> http-client
+                                     (.delete (str "/inventory/" pool-id "/models/" item-id "/attachments/" attachment-id))
+                                     (.then #(.-data %))))))
+
+                        (if (not= (:status item-res) 200)
+                          (.. toast (error (t (str "pool.model.create." (:status item-res)))))
+
+                          (do
+                            ;; upload attachments sequentially
+                            (doseq [attachment attachments]
+                              (let [file (:file attachment)
+                                    binary-data (<p! (.. file (arrayBuffer)))
+                                    type (.. file -type)
+                                    name (.. file -name)]
+
+                                (<p! (-> http-client
+                                         (.post (str "/inventory/" pool-id "/models/" item-id "/attachments/")
+                                                binary-data
+                                                (cj {:headers {"Content-Type" type
+                                                               "X-Filename" name}}))))))
+
+                            (if is-create
+                              (.. toast (success (t "pool.model.create.success")))
+                              (.. toast (success (t "pool.model.edit.success"))))
+
+                              ;; state needs to be forwarded for back navigation
+                            (let [submit-type (aget event "nativeEvent" "submitter" "value")]
+                              (if (= submit-type "save-add-item")
+                                (navigate "/inventory/" pool-id "/models/" item-id "/items/create"
+                                          #js {:state state
+                                               :viewTransition true})
+
+                                (if is-create
+                                  (navigate "/inventory/" pool-id "/list?")
+                                  #js {:state state
+                                       :viewTransition true})
+
+                                (navigate (str "/inventory/" pool-id "/list"
+                                               (some-> state .-searchParams))
+                                          #js {:state state
+                                               :viewTransition true}))))))))]
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
