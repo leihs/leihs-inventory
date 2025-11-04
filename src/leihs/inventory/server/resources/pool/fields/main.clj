@@ -112,9 +112,8 @@
                       [:= :disabled_fields.inventory_pool_id pool-id]])
       (sql/where [:= :fields.active true])
       (sql/where [:= :disabled_fields.id nil])
-    (cond-> (not (= ttype "acvanced_search"))
-      (sql/where (target-type-expr ttype))
-      )
+    (cond-> (not (= ttype "advanced_search"))
+      (sql/where (target-type-expr ttype)))
       (sql/where (min-req-role-expr (keyword role)))))
 
 (defn transform-field-data [field & {:keys [tx pool user-id resource-id]}]
@@ -191,7 +190,10 @@
           fields-with-defaults
           (if item-data
             (map (partial merge-item-defaults tx item-data) transformed-fields)
-            transformed-fields)]
+            transformed-fields)
+
+          p (println ">o> abc.fields.count" (count fields-with-defaults))
+          ]
       (response {:fields (vec fields-with-defaults)}))
     (catch Exception e
       (log-by-severity ERROR_GET e)
