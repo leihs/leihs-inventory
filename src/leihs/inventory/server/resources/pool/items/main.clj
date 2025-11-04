@@ -229,52 +229,39 @@
   ([request]
    (try
 
-   (let [{:keys [pool_id item_id]} (path-params request)
-         {:keys [filters]} (query-params request)
+     (let [{:keys [pool_id item_id]} (path-params request)
+           {:keys [filters]} (query-params request)
 
+           p (println ">o> abc.filter" filters)
+           filters (parse-json-param filters)
 
-         p (println ">o> abc.filter" filters)
-
-         filters (parse-json-param filters)
-
-         val-res (validate-filters filters whitelist-keys)
-         p (println ">o> abc.val-res" val-res)
-
-         ]
-
-   (if (not-empty (:invalid val-res))
-     (throw (ex-info "Invalid filter parameter!" {:status 400}))
-
-     ;(throw (ex-info "Model not found" {:status 404}))
-
-
-     (let [
-
-           ;; Build HoneySQL WHERE clause
-           ;where-clause (filters->honeysql filters)
-           p (println ">o> abc.filters" filters)
-
-           base-query (-> (sql/select :i.*)
-                        (sql/from [:items :i])
-
-
-                        (cond-> (seq filters)
-                          (add-filter-groups filters)
-                          )
-
-                        (sql/limit 10)
-                        )
-           p (println ">o> abc.base-query" (-> base-query sql-format))
-
+           val-res (validate-filters filters whitelist-keys)
+           p (println ">o> abc.val-res" val-res)
            ]
 
-       (response (create-pagination-response request base-query nil)))
+       (if (not-empty (:invalid val-res))
+         (throw (ex-info "Invalid filter parameter!" {:status 400}))
+
+         (let [
+               p (println ">o> abc.filters" filters)
+               base-query (-> (sql/select :i.*)
+                            (sql/from [:items :i])
 
 
-    ))
+                            (cond-> (seq filters)
+                              (add-filter-groups filters)
+                              )
 
-   (catch Exception e
-     (log-by-severity ERROR_ADVANCED_SEARCH e)
-     (exception-handler request ERROR_ADVANCED_SEARCH e)))))
+                            (sql/limit 10)
+                            )
+               p (println ">o> abc.base-query" (-> base-query sql-format))
+               ]
+
+           (response (create-pagination-response request base-query nil)))
+         ))
+
+     (catch Exception e
+       (log-by-severity ERROR_ADVANCED_SEARCH e)
+       (exception-handler request ERROR_ADVANCED_SEARCH e)))))
 
 
