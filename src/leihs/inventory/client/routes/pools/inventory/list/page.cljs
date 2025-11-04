@@ -1,27 +1,26 @@
 (ns leihs.inventory.client.routes.pools.inventory.list.page
   (:require
-   ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
-   ["@@/card" :refer [Card CardContent CardHeader]]
-   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
-                               DropdownMenuItem DropdownMenuTrigger]]
-   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
-                       TableRow]]
-   ["lucide-react" :refer [Download Ellipsis Image ListRestart Tags Tags]]
+   ["@@/card" :refer [Card CardContent CardFooter CardHeader]]
+   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader TableRow]]
+   ["lucide-react" :refer [Download ListRestart]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link]]
-   [goog.functions]
+   ["react-router-dom" :as router]
+   [clojure.string :as str]
    [leihs.inventory.client.components.pagination :as pagination]
-   [leihs.inventory.client.routes.pools.inventory.list.components.before-last-check-filter :refer [BeforeLastCheckFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.borrowable-filter :refer [BorrowableFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.category-filter :refer [CategoryFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.filter-indicator :refer [FilterIndicator]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.inventory-pool-filter :refer [InventoryPoolFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.retired-filter :refer [RetiredFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.search-filter :as search :refer [SearchFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.status-filter :refer [StatusFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.type-filter :refer [TypeFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.with-items-filter :refer [WithItemsFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.export :refer [Export]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.before-last-check-filter :refer [BeforeLastCheckFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.borrowable-filter :refer [BorrowableFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.category-filter :refer [CategoryFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.inventory-pool-filter :refer [InventoryPoolFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.reset :refer [Reset]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.retired-filter :refer [RetiredFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.search-filter :as search :refer [SearchFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.status-filter :refer [StatusFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.type-filter :refer [TypeFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.with-items-filter :refer [WithItemsFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.table.model-row :refer [ModelRow]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.table.skeleton-row :refer [SkeletonRow]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -29,116 +28,82 @@
   (let [{:keys [data]} (router/useLoaderData)
         models (:data data)
         pagination (:pagination data)
+        last-page-rows (let [mod-result (mod (:total_rows pagination) (:size pagination))]
+                         (if (zero? mod-result)
+                           (:size pagination)
+                           mod-result))
+        [to-last-page? set-to-last-page!] (uix/use-state false)
         [t] (useTranslation)
-        location (router/useLocation)
         navigate (router/useNavigate)
+        navigation (router/useNavigation)
+        loading-list? (and (= (.-state navigation) "loading")
+                           (str/includes? (.. navigation -location -pathname) "/list"))
+        [query-params _] (router/useSearchParams)
+        size (js/parseInt (or (.. query-params (get "size"))
+                              "50"))
         handle-reset (fn []
-                       (navigate "?page=1&size=50&with_items=true"))]
+                       (navigate (str "?page=1&size=" size "&with_items=true")))]
+
+    (uix/use-effect
+     (fn []
+       (let [search (or (some-> navigation .-location .-search) nil)
+             params (if search (js/URLSearchParams. search) nil)]
+         (if (and params (= (.. params (get "page"))
+                            (str (:total_pages pagination))))
+           (set-to-last-page! true)
+           (set-to-last-page! false))))
+     [navigation pagination])
 
     ($ Card {:className "my-4"}
-       ($ CardHeader {:className "flex sticky top-12 
-                      bg-white rounded-xl z-10"
+       ($ CardHeader {:className "flex bg-white rounded-xl z-10"
                       :style {:background "linear-gradient(to bottom, white 90%, transparent 100%)"}}
-          ($ :div
-             ($ :div {:className "flex gap-2"}
-                ($ SearchFilter)
-                ($ TypeFilter)
-                ($ StatusFilter)
-                ($ InventoryPoolFilter)
-                ($ CategoryFilter)
-                ($ BeforeLastCheckFilter)
+          ($ :div {:class-name "w-full flex"}
+             ($ :div {:class-name "flex flex-col gap-2"}
+                ($ :div {:className "flex gap-2"}
+                   ($ SearchFilter)
 
-                ($ Button {:variant "outline" :className "ml-auto"}
-                   ($ Download {:className "h-4 w-4 mr-2"}) "Export"))
+                   ($ RetiredFilter)
+                   ($ WithItemsFilter)
+                   ($ BorrowableFilter))
 
-             ($ :div {:className "flex gap-2 mt-2"}
-                ($ RetiredFilter)
-                ($ WithItemsFilter)
-                ($ BorrowableFilter)
-                ($ Button {:size "icon"
-                           :variant "outline"
-                           :class-name "ml-2"
-                           :on-click handle-reset}
-                   ($ ListRestart)))
+                ($ :div {:className "flex gap-2"}
+                   ($ TypeFilter)
+                   ($ StatusFilter)
+                   ($ InventoryPoolFilter)
+                   ($ CategoryFilter)
+                   ($ BeforeLastCheckFilter)
+                   ($ Reset {:on-reset handle-reset})))
 
-             ($ :div {:className "flex space-x-2 mt-2"}
-                ($ FilterIndicator)))
+             ($ Export)))
 
-          ($ pagination/main {:pagination pagination
-                              :class-name "justify-start pt-6"}))
-
-       ($ CardContent
-          ($ :section {:className "rounded-md border"}
-
-             (if (not (seq models))
-               ($ :div {:className "flex p-6 justify-center"}
+       ($ CardContent {:class-name "pb-0"}
+          ($ :div {:class-name "border rounded-md"}
+             (if (empty? models)
+               ($ :div {:class-name "p-4 text-center text-sm text-muted-foreground"}
                   (t "pool.models.list.empty"))
-
-               ($ Table
-                  ($ TableHeader
-                     ($ TableRow
+               ($ Table {:class-name "rounded-md"}
+                  ($ TableHeader {:class-name "bg-white sticky top-16 rounded-t-md z-50"
+                                  :style {:box-shadow "0 0.5px 0 hsl(var(--border))"}}
+                     ($ TableRow {:class-name "rounded-t-md hover:bg-white"}
+                        ($ TableHead {:class-name "rounded-tl-md text-right"}
+                           (t "pool.models.list.header.quantity"))
                         ($ TableHead "")
-                        ($ TableHead (t "pool.models.list.header.amount"))
                         ($ TableHead "")
                         ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
-                        ($ TableHead (t "pool.models.list.header.availability"))
-                        ($ TableHead "")))
+                        ($ TableHead {:className "min-w-40 text-right"} (t "pool.models.list.header.availability"))
+                        ($ TableHead {:class-name "rounded-tr-md"} "")))
+
                   ($ TableBody
+                     (if loading-list?
+                       (doall (for [i (range (if to-last-page?
+                                               last-page-rows
+                                               (:size pagination)))]
+                                ($ SkeletonRow {:key i})))
+                       (for [model models]
+                         ($ ModelRow {:key (:id model)
+                                      :model model}))))))))
 
-                     (for [model models]
-                       ($ TableRow {:key (-> model :id)}
-                          ($ TableCell
-                             ($ Button {:variant "outline"
-                                        :size "icon"} "+"))
-
-                          ($ TableCell (-> model :total str))
-
-                          ($ TableCell
-                             ($ :div {:className "flex gap-2"}
-                                ($ Image)
-                                ($ Badge {:className (case (-> model :type)
-                                                       "Package" "bg-lime-500"
-                                                       "Model" "bg-slate-500"
-                                                       "Option" "bg-emerald-500"
-                                                       "Software" "bg-orange-500")}
-                                   (str (case (-> model :type)
-                                          "Package" (t "pool.models.filters.type.package")
-                                          "Model" (t "pool.models.filters.type.model")
-                                          "Option" (t "pool.models.filters.type.option")
-                                          "Software" (t "pool.models.filters.type.software"))))))
-
-                          ($ TableCell {:className "font-bold"}
-                             (str (:product model) " " (:version model)))
-
-                          ($ TableCell {:className "text-right"}
-                             (str (-> model :available str) " | " (-> model :total str)))
-
-                          ($ TableCell {:className "fit-content"}
-                             ($ :div {:className "flex gap-2"}
-
-                                ($ Button {:variant "outline"
-                                           :asChild true}
-                                   ($ Link {:state #js {:searchParams (.. location -search)}
-                                            :to (case (-> model :type)
-                                                  "Model" (str "../models/" (:id model))
-                                                  "Package" (str "../models/" (:id model))
-                                                  "Option" (str "../options/" (:id model))
-                                                  "Software" (str "../software/" (:id model)))
-                                            :viewTransition true}
-                                      (t "pool.models.list.actions.edit")))
-
-                                ($ DropdownMenu
-                                   ($ DropdownMenuTrigger {:asChild "true"}
-                                      ($ Button {:variant "secondary"
-                                                 :size "icon"}
-                                         ($ Ellipsis {:className "h-4 w-4"})))
-                                   ($ DropdownMenuContent {:align "start"}
-                                      ($ DropdownMenuItem
-                                         ($ Link {:to (str (:id model) "/items/create")
-                                                  :state #js {:searchParams (.. location -search)}
-                                                  :viewTransition true}
-                                            (t "pool.models.list.actions.add_item"))))))))))))))
-
-       ($ pagination/main {:pagination pagination
-                           :class-name "p-6 pt-0"}))))
-
+       ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-b-xl  pt-6"
+                      :style {:background "linear-gradient(to top, white 80%, transparent 100%)"}}
+          ($ pagination/main {:pagination pagination
+                              :class-name "justify-start w-full"})))))

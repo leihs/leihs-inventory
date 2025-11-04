@@ -31,7 +31,7 @@
       }
     },
     "models": {
-      "title": "Inventory List",
+      "title": "Inventory list",
       "filters": {
         "search": {
           "placeholder": "Filter by term"
@@ -95,9 +95,23 @@
         "templates": "Templates"
       },
       "list": {
-        "empty": "No models found",
+        "empty": "No entries found",
+        "package_item": "is part of a package",
+        "shelf": "Shelf",
+        "tooltip": {
+          "in_stock": "in stock",
+          "rentable": "rentable"
+        },
+        "item": {
+          "badge": "I",
+          "available": "Available",
+          "broken": "Broken",
+          "rented": "Rented",
+          "not_borrowable": "Not borrowable",
+          "incomplete": "Incomplete"
+        },
         "header": {
-          "amount": "Amount",
+          "quantity": "Quantity",
           "name": "Name",
           "availability": "Availability"
         },

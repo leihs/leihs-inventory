@@ -30,44 +30,53 @@ const PaginationItem = React.forwardRef(({ className, ...props }, ref) => (
 ))
 PaginationItem.displayName = "PaginationItem"
 
-const PaginationLink = ({ className, isActive, size = "icon", ...props }) => (
-  <Link
-    aria-current={isActive ? "page" : undefined}
-    className={cn(
-      buttonVariants({
-        variant: isActive ? "outline" : "ghost",
-        size,
-      }),
-      className,
-    )}
-    {...props}
-  />
+const PaginationLink = React.forwardRef(
+  ({ className, isActive, size = "icon", ...props }, ref) => (
+    <Link
+      ref={ref}
+      aria-current={isActive ? "page" : undefined}
+      className={cn(
+        buttonVariants({
+          variant: isActive ? "outline" : "ghost",
+          size,
+        }),
+        className,
+      )}
+      {...props}
+    />
+  ),
 )
 PaginationLink.displayName = "PaginationLink"
 
-const PaginationPrevious = ({ className, children, ...props }) => (
-  <PaginationLink
-    aria-label="Go to previous page"
-    size="default"
-    className={cn("gap-1 pl-2.5", className)}
-    {...props}
-  >
-    <ChevronLeft className="h-4 w-4" />
-    {children}
-  </PaginationLink>
+const PaginationPrevious = React.forwardRef(
+  ({ className, children, ...props }, ref) => (
+    <PaginationLink
+      ref={ref}
+      aria-label="Go to previous page"
+      size="default"
+      className={cn("gap-1 pl-2.5", className)}
+      {...props}
+    >
+      <ChevronLeft className="h-4 w-4" />
+      {children}
+    </PaginationLink>
+  ),
 )
 PaginationPrevious.displayName = "PaginationPrevious"
 
-const PaginationNext = ({ className, children, ...props }) => (
-  <PaginationLink
-    aria-label="Go to next page"
-    size="default"
-    className={cn("gap-1 pr-2.5", className)}
-    {...props}
-  >
-    {children}
-    <ChevronRight className="h-4 w-4" />
-  </PaginationLink>
+const PaginationNext = React.forwardRef(
+  ({ className, children, ...props }, ref) => (
+    <PaginationLink
+      ref={ref}
+      aria-label="Go to next page"
+      size="default"
+      className={cn("gap-1 pr-2.5", className)}
+      {...props}
+    >
+      {children}
+      <ChevronRight className="h-4 w-4" />
+    </PaginationLink>
+  ),
 )
 PaginationNext.displayName = "PaginationNext"
 

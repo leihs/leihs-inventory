@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"shadow-cljs -A:frontend watch frontend\" \"npm run tailwind\"",
+    "dev": "rm -rf dev/gen && concurrently \"shadow-cljs -A:frontend watch frontend\" \"npm run tailwind\"",
     "build": "npm run clean && shadow-cljs -A:frontend release frontend && npm run tailwind:release",
     "tailwind": "postcss src/leihs/inventory/client/main.css -o resources/public/inventory/assets/css/style.css --verbose -w",
     "tailwind:release": "NODE_ENV=production postcss src/leihs/inventory/client/main.css -o resources/public/inventory/assets/css/style.css",
@@ -60,7 +60,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.1.3",
     "@radix-ui/react-toast": "^1.2.6",
-    "@radix-ui/react-tooltip": "^1.1.8",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@tanstack/react-query": "^5.21.7",
     "axios": "^1.8.4",
     "axios-cache-interceptor": "^1.8.0",
@@ -73,7 +73,7 @@
     "i18next": "^23.11.3",
     "i18next-browser-languagedetector": "^7.2.1",
     "i18next-http-backend": "^2.5.1",
-    "lucide-react": "^0.511.0",
+    "lucide-react": "^0.552.0",
     "next-themes": "^0.4.6",
     "react": "^18.2.0",
     "react-day-picker": "^8.10.1",

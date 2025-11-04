@@ -127,12 +127,13 @@ feature "Delete model", type: :feature do
     visit "/inventory/#{pool.id}"
     select_value("with_items", "all")
     click_on "Inventory type"
-    click_on "Model"
+    within("[data-test-id='type-filter-dropdown']") do
+      click_on "Model"
+    end
     fill_in "search", with: "#{product} #{version}"
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product} #{version}")
-      expect(find("tr", text: "#{product} #{version}")).to have_content("Model")
     end
 
     within find("tr", text: "#{product} #{version}") do
@@ -153,7 +154,9 @@ feature "Delete model", type: :feature do
     visit "/inventory/#{pool.id}"
     select_value("with_items", "all")
     click_on "Inventory type"
-    click_on "Model"
+    within("[data-test-id='type-filter-dropdown']") do
+      click_on "Model"
+    end
     fill_in "search", with: "#{product} #{version}"
 
     within find("tr", text: "#{product} #{version}") do

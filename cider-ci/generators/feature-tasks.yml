@@ -18,11 +18,21 @@
   environment_variables:
     FEATURE_NAME: "Inventory Page 01"
     FEATURE: './spec/features/inventory-list/main_spec.rb[1:1]'
+'./spec/features/inventory-list/main_spec.rb[1:2]':
+  name: "Inventory Page 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory Page 02"
+    FEATURE: './spec/features/inventory-list/main_spec.rb[1:2]'
 './spec/features/inventory-list/pagination_spec.rb[1:1]':
   name: "Inventory Pagination 01"
   environment_variables:
     FEATURE_NAME: "Inventory Pagination 01"
     FEATURE: './spec/features/inventory-list/pagination_spec.rb[1:1]'
+'./spec/features/inventory-list/pagination_spec.rb[1:2]':
+  name: "Inventory Pagination 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory Pagination 02"
+    FEATURE: './spec/features/inventory-list/pagination_spec.rb[1:2]'
 './spec/features/models/create_spec.rb[1:1]':
   name: "Create model 01"
   environment_variables:

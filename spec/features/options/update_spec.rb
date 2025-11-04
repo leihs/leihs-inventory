@@ -40,7 +40,6 @@ feature "Update option", type: :feature do
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_old} #{version_old}", visible: true)
-      expect(find("tr", text: "#{product_old} #{version_old}")).to have_content("Option")
     end
 
     within find("tr", text: "#{product_old} #{version_old}", visible: true) do
@@ -60,7 +59,6 @@ feature "Update option", type: :feature do
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
-      expect(find("tr", text: "#{product_new} #{version_new}")).to have_content("Option")
     end
 
     within find("tr", text: "#{product_new} #{version_new}", visible: true) do
