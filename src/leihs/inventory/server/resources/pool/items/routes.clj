@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.items.routes
   (:require
    [leihs.inventory.server.resources.pool.items.main :as items]
-   [leihs.inventory.server.resources.pool.items.types :refer [query-params]]
+   [leihs.inventory.server.resources.pool.items.types :refer [query-params query-params-advanced]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -9,7 +9,7 @@
 
 (defn routes []
   ["/items/"
-   {:get {:accept "application/json"
+   ["" {:get {:accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}
@@ -21,6 +21,10 @@
                         ;:body get-items-response} ;; FIXME broken
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
+
+
+
+
 
     :post {:description "Create a new item. Fields starting with 'properties_' are stored in the properties JSONB column, others in their respective item columns."
            :accept "application/json"
@@ -57,4 +61,28 @@
                              :body s/Any}
                         400 {:description "Bad Request"}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}])
+                        500 {:description "Internal Server Error"}}}}]
+
+
+   ["advanced/"
+    {:get {:accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+
+           :describetion "TODO"
+
+           :swagger {:produces ["application/json"]}
+           :parameters {:path {:pool_id s/Uuid}
+                        :query query-params-advanced}
+           :handler items/advanced-index-resources
+           :produces ["application/json"]
+           :responses {200 {:description "OK"
+                            :body s/Any}
+                       ;:body get-items-response} ;; FIXME broken
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}]
+
+   ]
+
+
+
+  )

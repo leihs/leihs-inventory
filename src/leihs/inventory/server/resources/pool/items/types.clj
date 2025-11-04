@@ -9,3 +9,9 @@
                            (s/optional-key :packages) s/Bool
                            (s/optional-key :retired) s/Bool
                            :result_type (s/enum "Min" "Normal" "Distinct")})
+
+(s/defschema query-params-advanced
+                          {(s/optional-key :page) s/Int
+                           (s/optional-key :size) s/Int
+                           (s/optional-key :filters) s/Str
+                           })
