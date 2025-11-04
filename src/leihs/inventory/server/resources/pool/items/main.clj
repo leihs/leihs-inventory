@@ -4,6 +4,9 @@
    [clojure.string :as string]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+
+   [leihs.inventory.server.resources.pool.items.types :as types]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-schema]]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.pool.fields.main :as fields]
    [leihs.inventory.server.resources.pool.items.filter-handler :refer [add-filter-groups parse-json-param validate-filters]]
@@ -45,6 +48,33 @@
       :i.id
       :i.parent_id)))
 
+
+(defn base-select [result_type] (cond
+              (= result_type "Distinct")
+              (sql/select-distinct-on [:m.product]
+                :i.retired :i.parent_id :i.id
+                :m.is_package
+                :i.inventory_code
+                :i.model_id
+                :i.inventory_pool_id
+                :m.product)
+              (= result_type "Min")
+              (sql/select :i.retired
+                :i.parent_id
+                :i.id
+                :i.inventory_code
+                :i.model_id
+                :m.is_package
+                :m.product
+                [:b.name :building_name]
+                [:r.name :room_name]
+                )
+              :else (sql/select :m.is_package
+                      :i.*
+                      [:b.name :building_name]
+                      [:r.name :room_name]))
+
+)
 (defn index-resources
   ([request]
    (let [{:keys [pool_id item_id]} (path-params request)
@@ -54,30 +84,7 @@
                  retired
                  result_type]} (query-params request)
 
-         base-select (cond
-                       (= result_type "Distinct")
-                       (sql/select-distinct-on [:m.product]
-                         :i.retired :i.parent_id :i.id
-                         :m.is_package
-                         :i.inventory_code
-                         :i.model_id
-                         :i.inventory_pool_id
-                         :m.product)
-                       (= result_type "Min")
-                       (sql/select :i.retired
-                         :i.parent_id
-                         :i.id
-                         :i.inventory_code
-                         :i.model_id
-                         :m.is_package
-                         :m.product
-                         [:b.name :building_name]
-                         [:r.name :room_name]
-                         )
-                       :else (sql/select :m.is_package
-                               :i.*
-                               [:b.name :building_name]
-                               [:r.name :room_name]))
+         base-select (base-select result_type)
 
          base-query (-> base-select
                       ((fn [query]
@@ -216,16 +223,6 @@
       (log-by-severity ERROR_UPDATE_ITEM e)
       (exception-handler request ERROR_UPDATE_ITEM e))))
 
-
-(def whitelist-keys
-  [:inventory_code
-   :price
-   :supplier_id
-   :retired
-   ;:properties_maintenance_price
-   :invoice_date])
-
-
 (def whitelist-keys
   ["properties_ampere"
    "is_borrowable"
@@ -255,43 +252,57 @@
    "supplier_id"
    "is_broken"])
 
+
+;(defn filter-valid-keys
+;  "Removes any keys from `data` maps that are not defined in the given `schema-map`."
+;  [schema-map data]
+;  (let [valid-keys (->> (keys schema-map)
+;                     (map (fn [k]
+;                            (if (instance? schema.core.OptionalKey k)
+;                              (:k k) ; extract :k from (s/optional-key :foo)
+;                              k)))
+;                     set)]
+;    (mapv #(select-keys % valid-keys) data)))
+
 (defn advanced-index-resources
-  ([request]
-   (try
+     [request]
+     (try
+       (let [{:keys [pool_id item_id]} (path-params request)
+             {:keys [filters result_type]} (query-params request)
+             parsed-filters (parse-json-param filters)
+             validation-result (validate-filters parsed-filters whitelist-keys)]
 
-     (let [{:keys [pool_id item_id]} (path-params request)
-           {:keys [filters]} (query-params request)
+         (if (not-empty (:invalid validation-result))
+           (throw (ex-info "Invalid filter parameter!" {:status 400}))
+           (let [
 
-           p (println ">o> abc.filter" filters)
-           filters (parse-json-param filters)
-
-           val-res (validate-filters filters whitelist-keys)
-           p (println ">o> abc.val-res" val-res)
-           ]
-
-       (if (not-empty (:invalid val-res))
-         (throw (ex-info "Invalid filter parameter!" {:status 400}))
-
-         (let [
-               p (println ">o> abc.filters" filters)
-               base-query (-> (sql/select :i.*)
-                            (sql/from [:items :i])
+                 base-select (base-select result_type)
+                 base-query (-> base-select
+                                   (base-pool-query  pool_id)
+                              (cond-> (seq parsed-filters)
+                                (add-filter-groups parsed-filters)))
 
 
-                            (cond-> (seq filters)
-                              (add-filter-groups filters)
-                              )
+                 ;base-query (-> (sql/select :i.*)
+                 ;               (sql/from [:items :i])
+                 ;               (cond-> (seq parsed-filters)
+                 ;                 (add-filter-groups parsed-filters)))
 
-                            ;(sql/limit 10)
-                            )
-               p (println ">o> abc.base-query" (-> base-query sql-format))
-               ]
+                 post-fnc (fn [items]
+                            (println ">o> abc.count" (count items))
+                            (println ">o> abc.seq?" (seq items))
+                            (if (seq items)
+                              items
+                                ;(filter-map-by-schema items types/data-response)
 
-           (response (create-pagination-response request base-query nil)))
-         ))
+                              items))
 
-     (catch Exception e
-       (log-by-severity ERROR_ADVANCED_SEARCH e)
-       (exception-handler request ERROR_ADVANCED_SEARCH e)))))
+
+                 ]
+             ;(response (create-pagination-response request base-query nil post-fnc)))))
+             (response (create-pagination-response request base-query nil )))))
+       (catch Exception e
+         (log-by-severity ERROR_ADVANCED_SEARCH e)
+         (exception-handler request ERROR_ADVANCED_SEARCH e))))
 
 
