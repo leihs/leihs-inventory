@@ -252,7 +252,7 @@
                               (add-filter-groups filters)
                               )
 
-                            (sql/limit 10)
+                            ;(sql/limit 10)
                             )
                p (println ">o> abc.base-query" (-> base-query sql-format))
                ]
