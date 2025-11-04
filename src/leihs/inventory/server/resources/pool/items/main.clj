@@ -225,6 +225,36 @@
    ;:properties_maintenance_price
    :invoice_date])
 
+
+(def whitelist-keys
+  ["properties_ampere"
+   "is_borrowable"
+   "inventory_code"
+   "building_id"
+   "room_id"
+   "is_incomplete"
+   "properties_imei_number"
+   "price"
+   "invoice_date"
+   "invoice_number"
+   "last_check"
+   "model_id"
+   "note"
+   "owner_id"
+   "properties_p4u"
+   "properties_reference"
+   "is_inventory_relevant"
+   "inventory_pool_id"
+   "retired"
+   "shelf"
+   "serial_number"
+   "status_note"
+   "user_name"
+   "properties_warranty_expiration"
+   "properties_electrical_power"
+   "supplier_id"
+   "is_broken"])
+
 (defn advanced-index-resources
   ([request]
    (try
