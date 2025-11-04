@@ -6,10 +6,10 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.pool.fields.main :as fields]
+   [leihs.inventory.server.resources.pool.items.filter-handler :refer [add-filter-groups parse-json-param validate-filters]]
    [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool]]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
 
-   [leihs.inventory.server.resources.pool.items.filter-handler :refer [add-filter-groups parse-json-param]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
 
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
@@ -109,6 +109,7 @@
      (response (create-pagination-response request base-query nil)))))
 
 (def ERROR_CREATE_ITEM "Failed to create item")
+(def ERROR_ADVANCED_SEARCH "Failed to search item")
 
 (defn split-item-data [body-params]
   (let [field-keys (keys body-params)
@@ -216,36 +217,64 @@
       (exception-handler request ERROR_UPDATE_ITEM e))))
 
 
-
+(def whitelist-keys
+  [:inventory_code
+   :price
+   :supplier_id
+   :retired
+   ;:properties_maintenance_price
+   :invoice_date])
 
 (defn advanced-index-resources
   ([request]
+   (try
+
    (let [{:keys [pool_id item_id]} (path-params request)
-         {:keys [ filters]} (query-params request)
+         {:keys [filters]} (query-params request)
 
 
          p (println ">o> abc.filter" filters)
 
-
-         ;; Build HoneySQL WHERE clause
-         ;where-clause (filters->honeysql filters)
          filters (parse-json-param filters)
-         p (println ">o> abc.filters" filters)
 
-         base-query (-> (sql/select :i.*)
-                       (sql/from [:items :i])
-
-
-                      (cond-> (seq filters)
-                        (add-filter-groups filters)
-                        )
-
-                       (sql/limit 10  )
-                       )
-         p (println ">o> abc.base-query" (-> base-query sql-format))
-
-
+         val-res (validate-filters filters whitelist-keys)
+         p (println ">o> abc.val-res" val-res)
 
          ]
 
-     (response (create-pagination-response request base-query nil)))))
+   (if (not-empty (:invalid val-res))
+     (throw (ex-info "Invalid filter parameter!" {:status 400}))
+
+     ;(throw (ex-info "Model not found" {:status 404}))
+
+
+     (let [
+
+           ;; Build HoneySQL WHERE clause
+           ;where-clause (filters->honeysql filters)
+           p (println ">o> abc.filters" filters)
+
+           base-query (-> (sql/select :i.*)
+                        (sql/from [:items :i])
+
+
+                        (cond-> (seq filters)
+                          (add-filter-groups filters)
+                          )
+
+                        (sql/limit 10)
+                        )
+           p (println ">o> abc.base-query" (-> base-query sql-format))
+
+           ]
+
+       (response (create-pagination-response request base-query nil)))
+
+
+    ))
+
+   (catch Exception e
+     (log-by-severity ERROR_ADVANCED_SEARCH e)
+     (exception-handler request ERROR_ADVANCED_SEARCH e)))))
+
+

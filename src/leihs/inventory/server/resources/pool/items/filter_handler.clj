@@ -2,6 +2,8 @@
   (:require
    [clojure.data.json :as json]
    [clojure.string :as str]
+   [clojure.set :as set]               ;; ✅ added this
+
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]))
 
@@ -168,3 +170,19 @@
         (cond-> q cond-expr (sql/where [:or cond-expr])))
       base-query
       group-conds)))
+
+(defn validate-filters
+  "Filters out non-whitelisted keys from a vector of filter maps.
+   Returns {:valid [...] :invalid [...]}."
+  [filter-groups whitelist]
+  (let [wl-set (set whitelist)]
+    (reduce
+      (fn [{:keys [valid invalid]} group]
+        (let [group-keys   (set (keys group))
+              allowed-keys (set/intersection wl-set group-keys)
+              denied-keys  (set/difference group-keys wl-set)
+              cleaned      (select-keys group allowed-keys)]
+          {:valid   (conj valid cleaned)
+           :invalid (into invalid denied-keys)}))
+      {:valid [] :invalid []}
+      filter-groups)))
