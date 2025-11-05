@@ -103,7 +103,7 @@
 
                             item-res (if is-create
                                        (<p! (-> http-client
-                                                (.post (str "/inventory/" pool-id "/models/")
+                                                (.post (str "/inventory/" pool-id "/items/")
                                                        (js/JSON.stringify (cj item-data))
                                                        (cj {:cache
                                                             {:update {:models "delete"
@@ -120,7 +120,7 @@
 
                                        (<p! (let [item-id (aget params "model-id")]
                                               (-> http-client
-                                                  (.patch (str "/inventory/" pool-id "/models/" item-id)
+                                                  (.patch (str "/inventory/" pool-id "/items/")
                                                           (js/JSON.stringify (cj item-data))
                                                           (cj {:cache
                                                                {:update {:models "delete"
@@ -175,14 +175,14 @@
                                                :viewTransition true})
 
                                 (if is-create
-                                  (navigate "/inventory/" pool-id "/list?")
-                                  #js {:state state
-                                       :viewTransition true})
+                                  (navigate "/inventory/" pool-id "/list?"
+                                            #js {:state state
+                                                 :viewTransition true})
 
-                                (navigate (str "/inventory/" pool-id "/list"
-                                               (some-> state .-searchParams))
-                                          #js {:state state
-                                               :viewTransition true}))))))))]
+                                  (navigate (str "/inventory/" pool-id "/list"
+                                                 (some-> state .-searchParams))
+                                            #js {:state state
+                                                 :viewTransition true})))))))))]
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
