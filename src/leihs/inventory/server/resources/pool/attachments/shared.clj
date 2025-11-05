@@ -1,9 +1,9 @@
-(ns leihs.inventory.server.resources.pool.models.model.attachments.attachment.main
+(ns leihs.inventory.server.resources.pool.attachments.shared
   (:require
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.constants :refer [CONTENT_DISPOSITION_INLINE_FORMATS]]
+   [leihs.inventory.server.resources.pool.attachments.constants :refer [CONTENT_DISPOSITION_INLINE_FORMATS]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
@@ -19,6 +19,7 @@
     (let [tx (:tx request)
           id (-> request path-params :attachments_id)
           model-id (-> request path-params :model_id)
+          item-id (-> request path-params :item_id)
           accept-header (if (str/includes? (get-in request [:headers "accept"]) "*/*")
                           "*/*"
                           (get-in request [:headers "accept"]))
@@ -27,7 +28,9 @@
           content-disposition (or (-> request :parameters :query :content_disposition) "inline")
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
-                    (cond-> model-id (sql/where [:= :a.model_id model-id]))
+                    (cond->
+                     model-id (sql/where [:= :a.model_id model-id])
+                     item-id (sql/where [:= :a.item_id item-id]))
                     (cond-> id (sql/where [:= :a.id id]))
                     sql-format)
           attachment (jdbc/execute-one! tx query)

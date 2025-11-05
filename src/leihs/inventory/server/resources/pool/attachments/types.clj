@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.models.model.attachments.attachment.types
+(ns leihs.inventory.server.resources.pool.attachments.types
   (:require
    [leihs.inventory.server.resources.pool.models.model.attachments.types :refer [attachment]]
    [schema.core :as s]))

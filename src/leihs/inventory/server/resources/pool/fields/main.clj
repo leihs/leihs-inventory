@@ -5,6 +5,7 @@
    [honey.sql.helpers :as sql]
    [leihs.core.db :as db]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
+   [leihs.inventory.server.resources.pool.attachments.main :as attachments]
    [leihs.inventory.server.resources.pool.buildings.main :as buildings]
    [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
    [leihs.inventory.server.resources.pool.models.main :as models]
@@ -72,14 +73,31 @@
                           (assoc f :values_url
                                  (str "/inventory/" (:id pool) "/software/")))}))
 
-(def defaults-hooks
-  {:building_id buildings/get-by-id
-   :supplier_id suppliers/get-by-id
-   :inventory_pool_id pools/get-by-id
-   :owner_id pools/get-by-id
-   :room_id rooms/get-by-id
-   :model_id models/get-by-id
-   :software_model_id software/get-by-id})
+(defn handle-default [tx field-id value item-id pool-id]
+  (let [hooks {:building_id buildings/get-by-id
+               :supplier_id suppliers/get-by-id
+               :inventory_pool_id pools/get-by-id
+               :owner_id pools/get-by-id
+               :room_id rooms/get-by-id
+               :model_id models/get-by-id
+               :software_model_id software/get-by-id}]
+    (cond
+      (and (uuid? value) (contains? hooks field-id))
+      (let [res ((hooks field-id) tx value)]
+        {:value (:id res), :label (:name res)})
+
+      (= field-id :attachments)
+      (let [as (attachments/get-by-item-id tx item-id)]
+        (when (seq as)
+          (map #(hash-map :content_type (:content_type %)
+                          :filename (:filename %)
+                          :id (:id %)
+                          :url (str "/inventory" pool-id
+                                    "/items/" item-id
+                                    "/attachments/" (:id %)))
+               as)))
+
+      :else value)))
 
 (defn target-type-expr [ttype]
   (if (= ttype "package")
@@ -157,16 +175,12 @@
                 properties)]
     (merge item-without-properties properties-with-prefix)))
 
-(defn merge-item-defaults [tx item-data field]
+(defn merge-item-defaults [tx field item-data pool-id]
   (let [field-id (keyword (:id field))
         value (get item-data field-id)]
     (if (some? value)
-      (assoc field
-             :default
-             (if (uuid? value)
-               (let [res ((defaults-hooks field-id) tx value)]
-                 {:value (:id res), :label (:name res)})
-               value))
+      (assoc field :default
+             (handle-default tx field-id value (:id item-data) pool-id))
       field)))
 
 (defn index-resources
@@ -185,7 +199,7 @@
                                   fields)
           fields-with-defaults
           (if item-data
-            (map (partial merge-item-defaults tx item-data) transformed-fields)
+            (map #(merge-item-defaults tx % item-data pool_id) transformed-fields)
             transformed-fields)]
       (response {:fields (vec fields-with-defaults)}))
     (catch Exception e
