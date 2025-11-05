@@ -107,12 +107,6 @@
                           vec)})
           grouped)))
 
-(defn- get-label [value options]
-  (some (fn [opt]
-          (when (= (:value opt) value)
-            (:label opt)))
-        options))
-
 (defn extract-default-values [fields-response]
   (let [fields (-> fields-response :fields)
         implemented-fields (filter #(implemented-field-types (:type %)) fields)]
@@ -121,7 +115,9 @@
                     field-type (:type field)
                     has-default? (contains? field :default)
                     default-val (if has-default?
-                                  (str (:default field))
+                                  (if (boolean? (:default field))
+                                    (str (:default field))
+                                    (:default field))
                                   ;; Set type-specific defaults when no default provided
                                   (case field-type
                                     "text" ""
@@ -140,15 +136,20 @@
                     ;; Convert default value based on field type
                     converted-val (when default-val
                                     (case field-type
-                                      "checkbox" (str default-val)
+                                      "checkbox"
+                                      (str default-val)
                                       ;; "autocomplete" (if has-default?
                                       ;;                  {:value default-val
                                       ;;                   :label (get-label default-val (:values field))}
                                       ;;                  default-val)
-                                      "date" (if (= default-val "today")
-                                               (js/Date.)
-                                               default-val)
-                                      "attachment" (if (vector? default-val) default-val [])
+                                      "date"
+                                      (if (= default-val "today")
+                                        (js/Date.)
+                                        default-val)
+
+                                      "attachment"
+                                      (if (vector? default-val) default-val [])
+
                                       default-val))]
                 (assoc acc field-id converted-val)))
             {}
