@@ -16,13 +16,13 @@
 
 (defn for-inventory-manager [query user-id]
   (-> query
-      (sql/where {:exists
+      (sql/where [:exists
                   (-> (sql/select true)
                       (sql/from :access_rights)
                       (sql/where [:= :access_rights.inventory_pool_id
                                   :inventory_pools.id])
                       (sql/where [:= :access_rights.user_id user-id])
-                      (sql/where [:= :access_rights.role "inventory_manager"]))})))
+                      (sql/where [:= :access_rights.role "inventory_manager"]))])))
 
 (defn get-by-id [tx id]
   (-> base-query
