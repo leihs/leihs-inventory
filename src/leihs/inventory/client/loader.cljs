@@ -15,12 +15,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn root-layout []
-  (-> http-client
-      (.get "/inventory/profile/" #js {:id "profile"})
-      (.then (fn [res] (jc (.. res -data))))
-      (.catch (fn [error] (js/console.log "error" error) #js {}))))
+  (let [profile (-> http-client
+                    (.get "/inventory/profile/" #js {:id "profile"})
+                    (.then (fn [res] (jc (.. res -data))))
+                    (.catch (fn [error] (js/console.log "error" error) #js {})))
+        settings (-> http-client
+                     (.get "/inventory/settings/")
+                     (.then #(jc (.-data %)))
+                     (.catch (fn [error] (js/console.log "error" error) #js {})))]
+    (.. (js/Promise.all (cond-> [profile settings]))
+        (then (fn [[profile settings]]
+                {:profile profile
+                 :settings settings})))))
 
-(defn models-page [route-data]
+(defn list-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
         search (.-search url)]
     (if (empty? search)

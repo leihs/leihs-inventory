@@ -1,12 +1,13 @@
-(ns leihs.inventory.client.routes.pools.inventory.list.components.search-filter
+(ns leihs.inventory.client.routes.pools.inventory.list.components.filters.search-filter
   (:require
    ["@@/input" :refer [Input]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [ref class-name]}]
-  (let [[search-params set-search-params!] (router/useSearchParams)
+(defui main [{:keys [class-name]}]
+  (let [ref (uix/use-ref nil)
+        [search-params set-search-params!] (router/useSearchParams)
         [t] (useTranslation)
         [search set-search!] (uix/use-state (or (.get search-params "search") ""))
         [interacting set-interacting!] (uix/use-state false)]
@@ -36,10 +37,28 @@
            (fn [] (js/clearTimeout debounce)))))
      [search search-params set-search-params!])
 
+    (uix/use-effect
+     (fn []
+       (let [on-key-down
+             (fn [e]
+               (when (and (= (.. e -code) "KeyF")
+                          (.-altKey e)
+                          (.-shiftKey e)
+                          (not (.-ctrlKey e))
+                          (not (.-metaKey e)))
+                 (.preventDefault e)
+                 (when ref
+                   (when-let [input-element (.-current ref)]
+                     (.focus input-element)))))]
+
+         (js/window.addEventListener "keydown" on-key-down)
+         (fn [] (js/window.removeEventListener "keydown" on-key-down))))
+     [])
+
     ($ Input {:ref ref
               :placeholder (t "pool.models.filters.search.placeholder")
               :name "search"
-              :className (str "w-fit py-0" class-name)
+              :className (str "w-48 py-0" class-name)
               :value search
               :onFocus #(set-interacting! true)
               :onBlur #(set-interacting! false)

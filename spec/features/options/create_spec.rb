@@ -35,7 +35,6 @@ feature "Create option", type: :feature do
 
     fill_in "search", with: "#{product} #{version}"
     expect(page).to have_content "#{product} #{version}"
-    expect(find("tr", text: "#{product} #{version}")).to have_content("Option")
 
     find("a", text: "edit").click
 

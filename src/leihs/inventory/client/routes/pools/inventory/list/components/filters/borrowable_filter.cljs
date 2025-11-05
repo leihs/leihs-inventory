@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.list.components.with-items-filter
+(ns leihs.inventory.client.routes.pools.inventory.list.components.filters.borrowable-filter
   (:require
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
@@ -11,33 +11,32 @@
         type (.. search-params (get "type"))
         [t] (useTranslation)
 
-        with_items (js/JSON.parse (.. search-params (get "with_items")))
-        handle-with-items (fn [value]
+        borrowable (js/JSON.parse (.. search-params (get "borrowable")))
+        handle-borrowable (fn [value]
                             (if (= value nil)
-                              (.delete search-params "with_items")
-                              (.set search-params "with_items" value))
-
+                              (.delete search-params "borrowable")
+                              (.set search-params "borrowable" value))
                             (.set search-params "page" "1")
                             (set-search-params! search-params))]
 
-    ($ Select {:value with_items
+    ($ Select {:value borrowable
                :disabled (= type "option")
-               :onValueChange handle-with-items}
-       ($ SelectTrigger {:name "with_items"
-                         :className (str "w-[260px] " class-name)}
+               :onValueChange handle-borrowable}
+       ($ SelectTrigger {:name "borrowable"
+                         :className (str "w-[260px]" class-name)}
           ($ SelectValue))
        ($ SelectContent
           ($ SelectItem {:data-test-id "all"
                          :value nil}
-             (t "pool.models.filters.with_items.all"))
-          ($ SelectItem {:data-test-id "with_items"
+             (t "pool.models.filters.borrowable.all"))
+          ($ SelectItem {:data-test-id "borrowable"
                          :value true}
-             (t "pool.models.filters.with_items.with_items"))
-          ($ SelectItem {:data-test-id "without_items"
+             (t "pool.models.filters.borrowable.borrowable"))
+          ($ SelectItem {:data-test-id "not_borrowable"
                          :value false}
-             (t "pool.models.filters.with_items.without_items"))))))
+             (t "pool.models.filters.borrowable.not_borrowable"))))))
 
-(def WithItemsFilter
+(def BorrowableFilter
   (uix/as-react
    (fn [props]
      (main props))))

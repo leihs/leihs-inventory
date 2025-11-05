@@ -80,7 +80,7 @@
         }
       },
       "dropdown": {
-        "title": "Inventar Hinzufügen",
+        "title": "Inventar hinzufügen",
         "add_model": "Neues Modell",
         "add_item": "Neuen Gegenstand",
         "add_option": "Neue Option",
@@ -95,9 +95,23 @@
         "templates": "Vorlagen"
       },
       "list": {
-        "empty": "Keine Modelle gefunden",
+        "empty": "Keine Einträge gefunden",
+        "package_item": "ist Bestandteil eines Pakets",
+        "shelf": "Lager",
+        "tooltip": {
+          "in_stock": "an Lager",
+          "rentable": "verleihbar"
+        },
+        "item": {
+          "badge": "G",
+          "available": "Verfügbar",
+          "broken": "Defekt",
+          "rented": "Ausgeliehen",
+          "not_borrowable": "Nicht ausleihbar",
+          "incomplete": "Unvollständig"
+        },
         "header": {
-          "amount": "Menge",
+          "quantity": "Menge",
           "name": "Name",
           "availability": "Verfügbarkeit"
         },
