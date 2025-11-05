@@ -25,6 +25,7 @@
 
 (def excluded-keys #{:active :data :dynamic})
 (def common-data-keys #{:default
+                        :exclude_from_submit
                         :group
                         :label
                         :required

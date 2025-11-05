@@ -9,6 +9,7 @@
    :type s/Str
    (s/optional-key :group) (s/maybe s/Str)
    :required s/Bool
+   (s/optional-key :exclude_from_submit) s/Bool
    (s/optional-key :default) (s/maybe s/Any)
    (s/optional-key :values) (s/conditional vector? [s/Any]
                                            string? s/Str)
