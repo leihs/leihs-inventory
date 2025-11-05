@@ -52,7 +52,8 @@
                              :body {
                                     :ids [s/Uuid]
                                     :data {
-                                           (s/optional-key :ampere) s/Str
+                                           ;(s/optional-key :ampere) s/Str
+                                           (s/optional-key :properties_ampere) s/Str
                                            (s/optional-key :is_borrowable) s/Bool
                                            (s/optional-key :room_id) s/Uuid
                                            (s/optional-key :is_incomplete) s/Bool
@@ -61,9 +62,11 @@
                                            (s/optional-key :price) s/Str
                                            (s/optional-key :inventory_code) s/Str
 
-                                           (s/optional-key :invoice_date) s/Str
+                                           ;(s/optional-key :invoice_date) s/Str
+                                           (s/optional-key :invoice_date) java.time.LocalDate
                                            (s/optional-key :invoice_number) s/Str
-                                           (s/optional-key :last_check) s/Str
+                                           ;(s/optional-key :last_check) s/Str
+                                           (s/optional-key :last_check) java.time.LocalDate
                                            (s/optional-key :model_id) s/Str
                                            (s/optional-key :note) s/Str
                                            (s/optional-key :owner_id) s/Uuid
@@ -71,7 +74,8 @@
                                            (s/optional-key :properties_p4u) s/Str
                                            (s/optional-key :properties_reference) s/Str
                                            (s/optional-key :is_inventory_relevant) s/Bool
-                                           (s/optional-key :responsible) s/Str
+                                           ;(s/optional-key :responsible) s/Str
+                                           (s/optional-key :responsible) (s/maybe s/Str)
 
                                            (s/optional-key :retired) s/Str
                                            (s/optional-key :retired_reason) s/Str
@@ -85,7 +89,7 @@
 
                                            (s/optional-key :properties_electrical_power) s/Str
                                            (s/optional-key :properties_warranty_expiration) s/Str
-                                           (s/optional-key :is_broken) s/Str
+                                           (s/optional-key :is_broken) s/Bool
                                            }
                                     }}
                 :handler items/patch-resource

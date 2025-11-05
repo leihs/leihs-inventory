@@ -1,0 +1,41 @@
+
+
+
+{
+  "ids": [
+    "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+  ],
+  "data": {
+    "properties_electrical_power": "string",
+    "serial_number": "string",
+    "shelf": "string",
+    "properties_imei_number": "string",
+    "is_broken": "string",
+
+    "invoice_date": "string",
+    "last_check": "string",
+
+    "user_name": "string",
+    "room_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "retired_reason": "string",
+    "status_note": "string",
+    "note": "string",
+    "owner_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "ampere": "string",
+
+
+    "is_inventory_relevant": true,
+    "responsible": "string",
+    "properties_p4u": "string",
+    "is_incomplete": true,
+    "invoice_number": "string",
+    "inventory_code": "string",
+    "supplier_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "properties_warranty_expiration": "string",
+    "model_id": "string",
+    "properties_reference": "string",
+    "price": "string",
+    "is_borrowable": true,
+    "retired": "string"
+  }
+}
