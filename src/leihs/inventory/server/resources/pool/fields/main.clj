@@ -62,7 +62,10 @@
                                sql-format
                                (->> (jdbc/query tx)))))
      :inventory_pool_id pools-hook
-     :owner_id pools-hook
+     :owner_id (fn [f & {:keys [pool] :as opts}]
+                 (-> (pools-hook f opts)
+                     (assoc :default {:value (:id pool),
+                                      :label (:name pool)})))
      :room_id (fn [f & {:keys [pool]}]
                 (assoc f :values_url
                        (str "/inventory/" (:id pool) "/rooms/")))
