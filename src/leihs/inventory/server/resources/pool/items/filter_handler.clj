@@ -11,7 +11,8 @@
   (try
     (when (seq s)
       (json/read-str s :key-fn keyword))
-    (catch Exception _ nil)))
+    (catch Exception _
+      (throw (ex-info "Error during json-parse process." {:status 400})))))
 
 ;; detect date-like string (yyyy-mm-dd)
 (defn date-string? [s]

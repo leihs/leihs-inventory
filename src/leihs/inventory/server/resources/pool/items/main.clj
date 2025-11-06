@@ -15,12 +15,7 @@
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
 
       [clojure.string :as str]
-
       [cheshire.core :as json]
-   ;   [clojure.string :as str]
-   ;   [honey.sql :as hsql]
-   ;   [honey.sql.helpers :as sql]
-   ;   [next.jdbc :as jdbc]
 
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
@@ -145,89 +140,26 @@
     {:item-data item-data
      :properties properties}))
 
-(defn validate-field-permissions [request]
-  (let [tx (:tx request)
-        role (:role (:authenticated-entity request))
-        body-params (body-params request)
-        {pool-id :pool_id} (path-params request)
-        item-id (:id body-params)
-        permitted-fields (-> (fields/base-query "item" (keyword role) pool-id)
-                           sql-format
-                           (->> (jdbc-query tx)))
-        permitted-field-ids (->> permitted-fields
-                              (map (comp keyword :id))
-                              set)
-        body-keys (-> body-params (dissoc :id) keys set)
-        unpermitted-fields (set/difference body-keys permitted-field-ids)
-        {:keys [item-data]} (split-item-data body-params)
-        owner-id (:owner_id item-data)]
-    (cond
-      (seq unpermitted-fields)
-      {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
-
-      (or (and item-id (not= (authorized-role-for-pool request owner-id)
-                         "inventory_manager")
-            (not= owner-id pool-id))
-        (and (not item-id) (not= owner-id pool-id)))
-      {:error "Unpermitted owner_id"
-       :provided owner-id
-       :expected pool-id})))
-
-(defn validate-field-permissions2 [request]
-  (let [tx (:tx request)
-        role (:role (:authenticated-entity request))
-        body-params (body-params request)
-        {pool-id :pool_id} (path-params request)
-
-
-        item-id (:id body-params)
-        item-data (:data body-params)
-
-        ;; TODO: modify to handle ids(item-id) and item-data separately
-        permitted-fields (-> (fields/base-query "item" (keyword role) pool-id)
-                           sql-format
-                           (->> (jdbc-query tx)))
-        permitted-field-ids (->> permitted-fields
-                              (map (comp keyword :id))
-                              set)
-        body-keys (-> body-params (dissoc :id) keys set)
-        unpermitted-fields (set/difference body-keys permitted-field-ids)
-        {:keys [item-data]} (split-item-data body-params)
-        owner-id (:owner_id item-data)]
-    (cond
-      (seq unpermitted-fields)
-      {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
-
-      (or (and item-id (not= (authorized-role-for-pool request owner-id)
-                         "inventory_manager")
-            (not= owner-id pool-id))
-        (and (not item-id) (not= owner-id pool-id)))
-      {:error "Unpermitted owner_id"
-       :provided owner-id
-       :expected pool-id})))
-
-
-;(ns app.api.items
-;  (:require
-;   [clojure.set :as set]
-;   [next.jdbc :as jdbc]
-;   [honey.sql :as hsql]
-;   [honey.sql.helpers :as sql]))
-
-(defn validate-field-permissions2
-  "Validates that all items in :ids can be updated by the user's role within the given pool.
-   Returns nil if all checks pass, or
-   {:error \"Permission check failed\" :error-items [...]} listing which items failed."
+(defn validate-field-permissions
+  "Validates that one or more items can be updated by the user's role within the given pool.
+   Handles both single-item (:id) and multi-item (:ids) requests.
+   Returns nil if all checks pass, or an error map with details."
   [request]
   (let [tx (:tx request)
         role (-> request :authenticated-entity :role)
         body-params (body-params request)
         {pool-id :pool_id} (path-params request)
+        ;; Support both single and multiple IDs
+        ids (cond
+              (:ids body-params) (:ids body-params)
+              (:id body-params)  [(:id body-params)]
+              :else nil)
 
-        ids (:ids body-params)
-        data (:data body-params)
+        ;; Data structure depends on single vs multi payload
+        data (or (:data body-params)
+               (dissoc body-params :id))
 
-        ;; 🔍 Query which fields the role can modify
+        ;; Fetch permitted fields for the role & pool
         permitted-fields (-> (fields/base-query "item" (keyword role) pool-id)
                            sql-format
                            (->> (jdbc/execute! tx)))
@@ -235,19 +167,25 @@
                               (map (comp keyword :id))
                               set)
 
-        ;; fields user wants to update
+        ;; Check unpermitted fields
         data-keys (-> data keys set)
         unpermitted-fields (set/difference data-keys permitted-field-ids)]
 
-    ;; ⚙️ Gather items for validation
-    (if (seq ids)
+    (cond
+      (empty? ids)
+      {:error "Missing :id or :ids in request body"}
+
+      (seq unpermitted-fields)
+      {:error "Unpermitted fields"
+       :unpermitted-fields unpermitted-fields}
+
+      :else
       (let [items (jdbc/execute! tx
                     (sql-format
                       {:select [:id :owner_id]
                        :from [:items]
                        :where [:in :id ids]}))
 
-            ;; 1️⃣ Owner check
             unauthorized-items
             (filter (fn [{:keys [id owner_id]}]
                       (and
@@ -256,7 +194,7 @@
                           "inventory_manager")))
               items)
 
-            ;; 2️⃣ Combine errors
+            ;; Build detailed error reports
             error-items
             (concat
               (when (seq unpermitted-fields)
@@ -274,10 +212,7 @@
 
         (when (seq error-items)
           {:error "Permission check failed"
-           :error-items error-items}))
-
-      ;; 🧱 Fallback: no IDs provided
-      {:error "Missing :ids in request body"})))
+           :error-items error-items})))))
 
 
 
@@ -318,16 +253,6 @@
 
 
 ;; TODO: refactor to patch update items
-
-;(ns app.api.items
-;  (:require
-;   [cheshire.core :as json]
-;   [clojure.string :as str]
-;   [honey.sql :as hsql]
-;   [honey.sql.helpers :as sql]
-;   [next.jdbc :as jdbc]
-;   [ring.util.http-response :refer [response bad-request]]))
-
 (defn log-map
   "Logs each key, value, and value type from the given map."
   [m]
@@ -341,10 +266,14 @@
   [{:keys [tx] :as request}]
   (try
     ;; Optional permission validation
-    (if-let [validation-error (validate-field-permissions2 request)]
+    (if-let [validation-error (validate-field-permissions request)]
       (bad-request validation-error)
 
-      (let [{:keys [ids data]} (body-params request)
+      (let [
+
+            p (println ">o> abc.patch-resource1" patch-resource)
+            {:keys [ids data]} (body-params request)
+            p (println ">o> abc.patch-resource.data" data)
 
 
 
@@ -404,8 +333,6 @@
       (log-by-severity ERROR_UPDATE_ITEM e)
       (exception-handler request ERROR_UPDATE_ITEM e))))
 
-
-
 (def whitelist-keys
   ["properties_ampere"
    "is_borrowable"
@@ -435,18 +362,6 @@
    "supplier_id"
    "is_broken"])
 
-
-;(defn filter-valid-keys
-;  "Removes any keys from `data` maps that are not defined in the given `schema-map`."
-;  [schema-map data]
-;  (let [valid-keys (->> (keys schema-map)
-;                     (map (fn [k]
-;                            (if (instance? schema.core.OptionalKey k)
-;                              (:k k) ; extract :k from (s/optional-key :foo)
-;                              k)))
-;                     set)]
-;    (mapv #(select-keys % valid-keys) data)))
-
 (defn advanced-index-resources
      [request]
      (try
@@ -465,12 +380,6 @@
                               (cond-> (seq parsed-filters)
                                 (add-filter-groups parsed-filters)))
 
-
-                 ;base-query (-> (sql/select :i.*)
-                 ;               (sql/from [:items :i])
-                 ;               (cond-> (seq parsed-filters)
-                 ;                 (add-filter-groups parsed-filters)))
-
                  post-fnc (fn [items]
                             (println ">o> abc.count" (count items))
                             (println ">o> abc.seq?" (seq items))
@@ -485,7 +394,6 @@
              ;(response (create-pagination-response request base-query nil post-fnc)))))
              (response (create-pagination-response request base-query nil )))))
        (catch Exception e
+         (println ">o> abc.e" e)
          (log-by-severity ERROR_ADVANCED_SEARCH e)
          (exception-handler request ERROR_ADVANCED_SEARCH e))))
-
-

@@ -8,7 +8,9 @@
    [leihs.inventory.server.utils.response-helper :as rh]
    [reitit.core :as r]
    [ring.middleware.accept]
-   [ring.util.response :refer [content-type response status]]))
+   [ring.util.response :refer [content-type response status]]
+  [ring.util.response :as resp])
+(:import [java.io ByteArrayInputStream InputStream]))
 
 (defn wrap-session-token-authenticate! [handler]
   (fn [request]
@@ -95,18 +97,40 @@
         :else
         (-> (response "") (status resp-status) (content-type "text/html"))))))
 
+(defn slurp-stream [stream]
+  (when stream
+    (let [bytes (.readAllBytes stream)]
+      {:bytes bytes
+       :string (String. bytes)})))
+
 (defn wrap-html-40x
-  "Wraps a handler so that for matching URIs (by regex) with Accept text/html,
-   if the handler returns a 40x, we return SPA-HTML response"
+  "Intercepts 40x or exception-like responses for HTML Accept requests.
+   Handles stream bodies safely, inspects JSON errors, and adjusts status if needed."
   [handler url-patterns]
   (fn [request]
     (let [resp (handler request)
           uri (:uri request)
           accept (some-> (get-in request [:headers "accept"]) str/lower-case)
-          resp-status (:status resp)]
-      (if (and (#{400 404 422} resp-status)
-               (some #(re-matches % uri) url-patterns)
-               (or (str/includes? accept "text/html")
-                   (str/includes? accept "*/*")))
+          body (:body resp)
+          resp-status (:status resp)
+          {:keys [bytes string]} (when (instance? InputStream body)
+                                   (slurp-stream body))
+          parsed-body (when (and string (str/starts-with? (str/trim string) "{"))
+                        (try
+                          (json/parse-string string true)
+                          (catch Exception _ nil)))
+          adjusted-status (if (and (map? parsed-body)
+                                (some-> (:type parsed-body)
+                                  (str/includes? "Exception")))
+                            400
+                            resp-status)
+          resp' (cond-> resp
+                  bytes (assoc :body (ByteArrayInputStream. bytes))
+                  true  (assoc :status adjusted-status))]
+
+      (if (and (#{400 404 422} (:status resp'))
+            (some #(re-matches % uri) url-patterns)
+            (or (str/includes? accept "text/html")
+              (str/includes? accept "*/*")))
         (create-accept-response request 404)
-        resp))))
+        resp'))))

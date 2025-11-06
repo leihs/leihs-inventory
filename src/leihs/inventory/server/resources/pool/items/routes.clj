@@ -115,6 +115,7 @@
                             :body s/Any}
                        ;:body get-items-response} ;; FIXME broken
                        404 {:description "Not Found"}
+                       409 {:description "Conflict"}
                        500 {:description "Internal Server Error"}}}}]
 
    ]

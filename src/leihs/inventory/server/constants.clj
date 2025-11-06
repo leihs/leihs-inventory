@@ -9,7 +9,8 @@
 - csrf-token / test-endpoints
 - session-endpoints
 - token-endpoints
-" true)
+- export csv/excel-endpoint
+" false)
 
 (def INVENTORY_VIEW_PATH "/inventory/")
 
