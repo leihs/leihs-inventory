@@ -71,6 +71,18 @@
       (z/nullish (z/optional base-validator))
       base-validator)))
 
+(defn- convert-string-booleans [obj]
+  (let [entries (js/Object.entries obj)]
+    (reduce (fn [result [k v]]
+              (aset result k
+                    (cond
+                      (= v "true") true
+                      (= v "false") false
+                      :else v))
+              result)
+            (js-obj)
+            entries)))
+
 (defn fields-to-zod-schema [fields-response]
   (let [fields (-> fields-response :fields)
         schema-obj (reduce (fn [acc field]
@@ -78,5 +90,30 @@
                                    validator (field->zod-validator field)]
                                (assoc acc field-id validator)))
                            {}
-                           fields)]
-    (z/object (clj->js schema-obj))))
+                           fields)
+        excluded-fields (set (map :id (filter :exclude_from_submit fields)))
+        base-schema (z/object (clj->js schema-obj))
+
+        ;; 🧩 Add conditional cross-field refinement:
+        refined-schema (.refine
+                        base-schema
+                        (fn [data]
+                          (let [room-id (aget data "room_id")
+                                building-id (aget data "building_id")]
+                            ;; ✅ Rule: If room_id has a value, building_id must not be nullish
+                            (js/console.debug "Refinement check:" data room-id building-id)
+                            (or (not room-id)
+                                (some? building-id))))
+                        (clj->js {:message "Building must be selected before choosing a room"
+                                  :path ["room_id"]}))]
+
+    (.transform refined-schema
+                (fn [data]
+                  (let [converted (convert-string-booleans data)]
+                    (if (seq excluded-fields)
+                      (reduce (fn [obj field-id]
+                                (js-delete obj (name field-id))
+                                obj)
+                              converted
+                              excluded-fields)
+                      converted))))))
