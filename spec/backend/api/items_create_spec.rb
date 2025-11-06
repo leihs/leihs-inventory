@@ -37,23 +37,34 @@ describe "Swagger Inventory Endpoints - Items Create" do
     end
 
     context "POST /inventory/:pool-id/items/" do
-      it "creates an item with only required fields and returns status 200" do
+      it "creates an item and returns status 200" do
+        retired_reason = Faker::Lorem.sentence
+        last_check = "2025-11-06"
+
         item_data = {
           inventory_code: "TEST-#{SecureRandom.hex(4)}",
           model_id: @model.id,
           room_id: @room.id,
           inventory_pool_id: @inventory_pool.id,
-          owner_id: @inventory_pool.id
+          owner_id: @inventory_pool.id,
+          retired: true,
+          retired_reason: retired_reason,
+          last_check: last_check
         }
 
         resp = post_with_headers(client, url, item_data)
 
         expect(resp.status).to eq(200)
+
         expect(resp.body["inventory_code"]).to eq(item_data[:inventory_code])
         expect(resp.body["model_id"]).to eq(@model.id)
         expect(resp.body["room_id"]).to eq(@room.id)
         expect(resp.body["inventory_pool_id"]).to eq(@inventory_pool.id)
         expect(resp.body["owner_id"]).to eq(@inventory_pool.id)
+        expect(resp.body["retired"]).to be true
+        expect(resp.body["retired_reason"]).to eq retired_reason
+        expect(resp.body["last_check"]).to eq last_check
+
         expect(resp.body["id"]).not_to be_nil
       end
 

@@ -10,6 +10,7 @@
    [leihs.inventory.server.resources.pool.items.types :as types]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
    [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool]]
+   [leihs.inventory.server.utils.coercion.core :refer [instant-to-date-string]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
@@ -157,7 +158,7 @@
      (try
        (-> request
            (create-pagination-response query nil post-fnc)
-           (pick-fields fields types/item)
+           (pick-fields fields types/index-item)
            response)
        (catch Exception e
          (log-by-severity ERROR_GET_ITEMS e)
@@ -222,6 +223,19 @@
         item-without-properties (dissoc item :properties)]
     (merge item-without-properties properties-with-prefix)))
 
+(def in-coercions
+  {:retired (fn [v _] (when (true? v) (java.util.Date.)))
+   :inventory_pool_id (fn [v i] (or v (:owner_id i)))})
+
+(def out-coercions
+  {:retired (fn [v _] (some? v))
+   :last_check (fn [v _] (instant-to-date-string v))})
+
+(defn coerce-field-values [item-data c-set]
+  (reduce (fn [m [k c-fn]] (update m k c-fn item-data))
+          item-data
+          c-set))
+
 (defn post-resource [request]
   (try
     (let [tx (:tx request)
@@ -230,8 +244,9 @@
       (if validation-error
         (bad-request validation-error)
         (let [{:keys [item-data properties]} (split-item-data body-params)
+              item-data-coerced (coerce-field-values item-data in-coercions)
               properties-json (or (not-empty properties) {})
-              item-data-with-properties (assoc item-data
+              item-data-with-properties (assoc item-data-coerced
                                                :properties [:lift properties-json])
               sql-query (-> (sql/insert-into :items)
                             (sql/values [item-data-with-properties])
@@ -239,7 +254,9 @@
                             sql-format)
               result (jdbc/execute-one! tx sql-query)]
           (if result
-            (response (flatten-properties result))
+            (response (-> result
+                          flatten-properties
+                          (coerce-field-values out-coercions)))
             (bad-request {:error ERROR_CREATE_ITEM})))))
     (catch Exception e
       (log-by-severity ERROR_CREATE_ITEM e)
@@ -254,8 +271,9 @@
       (let [update-params (body-params request)
             {:keys [item-data properties]} (-> update-params (dissoc :id)
                                                split-item-data)
+            item-data-coerced (coerce-field-values item-data in-coercions)
             properties-json (or (not-empty properties) {})
-            item-data-with-properties (assoc item-data
+            item-data-with-properties (assoc item-data-coerced
                                              :properties [:lift properties-json])
             sql-query (-> (sql/update :items)
                           (sql/set item-data-with-properties)
@@ -264,7 +282,9 @@
                           sql-format)
             result (jdbc/execute-one! tx sql-query)]
         (if result
-          (response (flatten-properties result))
+          (response (-> result
+                        flatten-properties
+                        (coerce-field-values out-coercions)))
           (bad-request {:error ERROR_UPDATE_ITEM}))))
     (catch Exception e
       (log-by-severity ERROR_UPDATE_ITEM e)

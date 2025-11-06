@@ -18,7 +18,7 @@
           :handler items/index-resources
           :produces ["application/json"]
           :responses {200 {:description "OK"
-                           :body s/Any}
+                           :body types/get-items-response}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
@@ -27,15 +27,10 @@
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json"]}
            :parameters {:path {:pool_id s/Uuid}
-                        :body {(s/optional-key :inventory_code) s/Str
-                               (s/optional-key :model_id) s/Uuid
-                               (s/optional-key :room_id) s/Uuid
-                               (s/optional-key :inventory_pool_id) (s/maybe s/Uuid)
-                               (s/optional-key :owner_id) s/Uuid
-                               s/Keyword s/Any}}
+                        :body types/post-item}
            :handler items/post-resource
            :responses {200 {:description "OK"
-                            :body s/Any}
+                            :body types/post-item-response}
                        400 {:description "Bad Request"}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}
