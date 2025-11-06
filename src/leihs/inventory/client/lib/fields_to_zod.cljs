@@ -24,7 +24,13 @@
                            (z/string))
 
                          "date"
-                         (z/date)
+                         (-> (z/date)
+                             (.transform (fn [date]
+                                          (when date
+                                            (let [year (.getFullYear date)
+                                                  month (-> (.getMonth date) inc (str) (.padStart 2 "0"))
+                                                  day (-> (.getDate date) (str) (.padStart 2 "0"))]
+                                              (str year "-" month "-" day))))))
 
                          "select"
                          (if (and is-required (not treat-as-optional))
