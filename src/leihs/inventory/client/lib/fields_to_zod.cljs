@@ -100,12 +100,11 @@
                         (fn [data]
                           (let [room-id (aget data "room_id")
                                 building-id (aget data "building_id")]
-                            ;; ✅ Rule: If room_id has a value, building_id must not be nullish
+                            ;; ✅ Rule: If building_id is selected, room_id must also be selected
                             (js/console.debug "Refinement check:" data room-id building-id)
-                            (or (not room-id)
-                                (some? building-id))))
-                        (clj->js {:message "Building must be selected before choosing a room"
-                                  :path ["room_id"]}))]
+                            (or (not building-id)
+                                (some? room-id))))
+                        (clj->js {:path ["room_id"]}))]
 
     (.transform refined-schema
                 (fn [data]
