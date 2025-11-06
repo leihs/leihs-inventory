@@ -136,8 +136,6 @@
                     ;; Convert default value based on field type
                     converted-val (when default-val
                                     (case field-type
-                                      "checkbox"
-                                      (str default-val)
                                       ;; "autocomplete" (if has-default?
                                       ;;                  {:value default-val
                                       ;;                   :label (get-label default-val (:values field))}
