@@ -94,17 +94,49 @@
         excluded-fields (set (map :id (filter :exclude_from_submit fields)))
         base-schema (z/object (clj->js schema-obj))
 
-        ;; 🧩 Add conditional cross-field refinement:
-        refined-schema (.refine
+        ;; Add conditional cross-field refinements:
+        refined-schema (.superRefine
                         base-schema
-                        (fn [data]
-                          (let [room-id (aget data "room_id")
-                                building-id (aget data "building_id")]
-                            ;; ✅ Rule: If building_id is selected, room_id must also be selected
-                            (js/console.debug "Refinement check:" data room-id building-id)
-                            (or (not building-id)
-                                (some? room-id))))
-                        (clj->js {:path ["room_id"]}))]
+                        (fn [data ^js ctx]
+                          ;; Check all fields with dependencies
+                          (doseq [field fields]
+                            (let [field-id (:id field)
+                                  field-value (aget data field-id)
+                                  is-required (:required field)
+                                  values-dep-id (:values_dependency_field_id field)
+                                  visibility-dep-id (:visibility_dependency_field_id field)
+                                  visibility-dep-value (:visibility_dependency_value field)]
+
+                              ;; Only validate required fields with dependencies
+                              (when is-required
+                                ;; Case 1: values_dependency - field should only validate if dependency field has a value
+                                (when values-dep-id
+                                  (let [dep-value (aget data values-dep-id)]
+                                    (when (and (some? dep-value)
+                                               (not (some? field-value)))
+                                      (.addIssue ctx (clj->js {:code "custom"
+                                                               :message (str (:label field) " must be selected")
+                                                               :path [field-id]})))))
+
+                                ;; Case 2: visibility_dependency - field should only validate if dependency field matches specific value
+                                (when visibility-dep-id
+                                  (let [dep-field-value (aget data visibility-dep-id)
+                                        matches (or (= dep-field-value visibility-dep-value)
+                                                    (= (str dep-field-value) visibility-dep-value)
+                                                    (and (= visibility-dep-value "true") (= dep-field-value true))
+                                                    (and (= visibility-dep-value "false") (= dep-field-value false)))
+
+                                        ;; Check if field is empty (null, undefined, or empty string)
+                                        is-empty (or (nil? field-value)
+                                                     (= field-value "")
+                                                     (= field-value js/undefined))]
+
+                                    ;; Handle both string and boolean comparisons
+                                    (when (and matches is-empty)
+                                      (.addIssue ctx (clj->js {:code "custom"
+                                                               :message (str (:label field) " is required")
+                                                               :path [field-id]})))))))
+                            data)))]
 
     (.transform refined-schema
                 (fn [data]
