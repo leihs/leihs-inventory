@@ -1,17 +1,120 @@
 (ns leihs.inventory.server.resources.pool.items.filter-handler
   (:require
-   [clojure.data.json :as json]
+   ;[clojure.data.json :as json]
+   [cheshire.core :as json]
+   [clojure.edn :as edn]
+   ;[cheshire.core :as json])
+
    [clojure.string :as str]
    [clojure.set :as set]
    [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]))
+   [honey.sql.helpers :as sql])
+  (:import [com.fasterxml.jackson.core JsonParseException]))
 
-(defn parse-json-param [s]
+;(defn parse-json-param [s]
+;  (try
+;    (when (seq s)
+;      (json/read-str s :key-fn keyword))
+;    (catch Exception _
+;      (throw (ex-info "Error during json-parse process." {:status 400})))))
+
+;(defn parse-json-param
+;  "Safely parse a JSON string into Clojure data.
+;   - Returns parsed value if valid JSON
+;   - Returns [] (empty vector) for nil/empty input
+;   - Throws ex-info with {:status 400} on malformed JSON"
+;  [s]
+;  (try
+;    (cond
+;      (nil? s) []
+;      (string? s)
+;      (let [trimmed (str/trim s)]
+;        (if (empty? trimmed)
+;          []
+;          (json/parse-string trimmed true)))
+;      :else s)
+;    (catch JsonParseException e
+;      (throw (ex-info "Malformed JSON input."
+;               {:status 400
+;                :type :json-parse-error
+;                :cause (.getMessage e)})))
+;    (catch Exception e
+;      (throw (ex-info "Error during JSON parse process."
+;               {:status 400
+;                :type :json-parse-error
+;                :cause (.getMessage e)})))))
+
+
+;(defn parse-json-param
+;  "Parses a string into Clojure data.
+;   - Accepts either JSON or EDN.
+;   - Returns [] for nil or empty strings.
+;   - Throws ex-info {:status 400} on malformed input."
+;  [s]
+;  (try
+;    (cond
+;      (nil? s) []
+;      (string? s)
+;      (let [trimmed (str/trim s)]
+;        (cond
+;          (empty? trimmed)
+;          []
+;
+;          :else
+;          (try
+;            ;; Try JSON first
+;            (json/parse-string trimmed true)
+;            (catch JsonParseException _
+;              ;; Fallback to EDN
+;              (edn/read-string trimmed)))))
+;      :else s)
+;    (catch Exception e
+;      (throw (ex-info "Malformed JSON/EDN input."
+;               {:status 400
+;                :type :parse-error
+;                :cause (.getMessage e)})))))
+
+
+(defn parse-json-param
+  "Parses a string into Clojure data.
+   - Accepts either JSON or EDN.
+   - Always returns a vector.
+   - Returns [] for nil or empty strings.
+   - Throws ex-info {:status 400} on malformed input."
+  [s]
   (try
-    (when (seq s)
-      (json/read-str s :key-fn keyword))
-    (catch Exception _
-      (throw (ex-info "Error during json-parse process." {:status 400})))))
+    (let [result
+          (cond
+            (nil? s) []
+            (string? s)
+            (let [trimmed (str/trim s)]
+              (cond
+                (empty? trimmed)
+                []
+
+                :else
+                (try
+                  ;; Try JSON first
+                  (json/parse-string trimmed true)
+                  (catch JsonParseException _
+                    ;; Fallback to EDN
+                    (edn/read-string trimmed)))))
+
+            :else s)]
+
+      ;; Always return a vector
+      (cond
+        (vector? result) result
+        (seq? result) (vec result)
+        (map? result) [result]
+        (nil? result) []
+        :else [result]))
+
+    (catch Exception e
+      (throw (ex-info "Malformed JSON/EDN input."
+               {:status 400
+                :type :parse-error
+                :cause (.getMessage e)})))))
 
 (defn date-string? [s]
   (and (string? s)
@@ -97,7 +200,39 @@
         (let [group-keys   (set (keys group))
               allowed-keys (set/intersection wl-set group-keys)
               denied-keys  (set/difference group-keys wl-set)
+              cleaned      (select-keys group allowed-keys)
+
+
+              p (println ">o> abc.allowed-keys" allowed-keys)
+              p (println ">o> abc.denied-keys" denied-keys)
+              ]
+          {:valid   (conj valid cleaned)
+           :invalid (into invalid denied-keys)}))
+      {:valid [] :invalid []}
+      filter-groups)))
+
+
+
+(defn validate-filters
+  "Validates a vector of filter maps against a whitelist of allowed keys.
+   - Filters out non-whitelisted keys.
+   - Returns {:valid [...], :invalid [...]}.
+   - Logs debug info for each filter group."
+  [filter-groups whitelist]
+  (let [wl-set (set (map keyword whitelist))]
+    (reduce
+      (fn [{:keys [valid invalid]} group]
+        (let [group-keys   (set (keys group))
+              allowed-keys (set/intersection wl-set group-keys)
+              denied-keys  (set/difference group-keys wl-set)
               cleaned      (select-keys group allowed-keys)]
+
+          ;; --- Debug logging ---
+          (println ">o> validate-filters.group" group)
+          (println ">o> allowed-keys:" allowed-keys)
+          (println ">o> denied-keys:" denied-keys)
+          (println ">o> cleaned:" cleaned)
+
           {:valid   (conj valid cleaned)
            :invalid (into invalid denied-keys)}))
       {:valid [] :invalid []}

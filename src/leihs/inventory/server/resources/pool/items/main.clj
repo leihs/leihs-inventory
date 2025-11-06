@@ -25,7 +25,10 @@
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :as timbre :refer [debug spy]]))
+   [taoensso.timbre :as timbre :refer [debug spy]])
+
+  (:import [java.time Instant])
+  )
 
 (defn base-pool-query [query pool-id]
   (-> query
@@ -333,45 +336,200 @@
       (log-by-severity ERROR_UPDATE_ITEM e)
       (exception-handler request ERROR_UPDATE_ITEM e))))
 
+
 (def whitelist-keys
-  ["properties_ampere"
-   "is_borrowable"
-   "inventory_code"
-   "building_id"
-   "room_id"
-   "is_incomplete"
-   "properties_imei_number"
-   "price"
-   "invoice_date"
-   "invoice_number"
+  [
    "last_check"
-   "model_id"
+   "serial_number"
+   "shelf"
+
+   "properties_electrical_power"
+   "properties_imei_number"
+   "properties_ampere"
+   "properties_warranty_expiration"
+   "properties_reference"
+
+   "is_broken"
+   "invoice_date"
+   "user_name"
+   "room_id"
+   "invoice_number"
+   "retired_reason"
+   "status_note"
    "note"
    "owner_id"
-   "properties_p4u"
-   "properties_reference"
    "is_inventory_relevant"
-   "inventory_pool_id"
-   "retired"
-   "shelf"
-   "serial_number"
-   "status_note"
-   "user_name"
-   "properties_warranty_expiration"
-   "properties_electrical_power"
+   "responsible"
+   "properties_p4u"
+   "is_incomplete"
+   "invoice_number"
+   "inventory_code"
    "supplier_id"
-   "is_broken"])
+   "model_id"
+
+   "price"
+   "is_borrowable"
+   "retired"
+   ;
+   ;"building_id"
+   ;"inventory_pool_id"
+   ])
+
+
+(defn prepare-filters [filters]
+  (cond-> filters
+    (contains? filters :retired)
+    (assoc :retired (case (:retired filters)
+                      true  (Instant/now)
+                      false nil
+                      (:retired filters)))))
+
+;(defn prepare-filters
+;  "Normalizes and transforms filter map:
+;   - Adds `properties_` prefix to selected keys
+;   - Converts :retired true → current Instant, false → nil"
+;  [filters]
+;  (let [;; define keys that need prefixing
+;        property-keys #{"electrical_power"
+;                        "imei_number"
+;                        "ampere"
+;                        "warranty_expiration"
+;                        "reference"}
+;
+;        ;; rename keys that match property-keys
+;        with-prefixed
+;        (into {}
+;          (map (fn [[k v]]
+;                 (let [kname (name k)]
+;                   (if (property-keys kname)
+;                     [(keyword (str "properties_" kname)) v]
+;                     [k v]))))
+;          filters)
+;
+;        ;; handle :retired transformation
+;        final
+;        (cond-> with-prefixed
+;          (contains? with-prefixed :retired)
+;          (assoc :retired (case (:retired with-prefixed)
+;                            true  (Instant/now)
+;                            false nil
+;                            (:retired with-prefixed))))]
+;
+;    final))                                                 ;broken
+
+(defn prepare-filters [filters]
+  (let [property-keys #{"electrical_power" "imei_number" "ampere"
+                        "warranty_expiration" "reference"}
+        filters' (into {}
+                   (map (fn [[k v]]
+                          (let [kname (name k)]
+                            (if (property-keys kname)
+                              [(keyword (str "properties_" kname)) v]
+                              [k v]))))
+                   filters)
+        filters'' (cond-> filters'
+                    (contains? filters' :retired)
+                    (assoc :retired (case (:retired filters')
+                                      true  (Instant/now)
+                                      false nil
+                                      (:retired filters'))))]
+    ;; Return as vector for compatibility
+    [filters'']))
+
+
+
+
+
+
+
+
+
+
+
+
+(def property-keys
+  #{"electrical_power" "imei_number" "ampere" "warranty_expiration" "reference"})
+
+(defn ^:private props-key
+  "If k's name is in property-keys, prefix with properties_. Preserve key type.
+   Avoid double-prefixing."
+  [k]
+  (let [kname (name k)]
+    (if (and (property-keys kname)
+          (not (str/starts-with? kname "properties_")))
+      (cond
+        (keyword? k) (keyword (str "properties_" kname))
+        (string?  k) (str "properties_" kname)
+        :else k)
+      k)))
+
+(defn ^:private rename-keys-rec
+  "Recursively rename keys in any nested map/vector/seq using props-key."
+  [x]
+  (cond
+    (map? x)
+    ;; preserve map type (hash-map, array-map, ordered map)
+    (into (empty x)
+      (map (fn [[k v]]
+             [(props-key k) (rename-keys-rec v)]))
+      x)
+
+    (vector? x) (mapv rename-keys-rec x)
+    (sequential? x) (doall (map rename-keys-rec x))
+    :else x))
+
+(defn prepare-filters
+  "Recursively prefixes selected keys with properties_ and normalizes :retired:
+   true -> Instant/now, false -> nil, other -> unchanged."
+  [filters]
+  (let [renamed (rename-keys-rec filters)
+        ;; support both keyword and string key for retired
+        r-val   (cond
+                  (contains? renamed :retired) (:retired renamed)
+                  (contains? renamed "retired") (get renamed "retired")
+                  :else ::absent)
+        renamed (if (contains? renamed "retired")
+                  ;; normalize \"retired\" string key to keyword
+                  (-> renamed (dissoc "retired") (assoc :retired r-val))
+                  renamed)
+        renamed (if (not= r-val ::absent)
+                  (assoc renamed :retired
+                    (case r-val
+                      true  (Instant/now)
+                      false nil
+                      r-val))
+                  renamed)]
+    renamed))
+
+
+
+
+
+
+
 
 (defn advanced-index-resources
      [request]
      (try
        (let [{:keys [pool_id item_id]} (path-params request)
              {:keys [filters result_type]} (query-params request)
+
+             p (println ">o> abc.before, filters" filters)
              parsed-filters (parse-json-param filters)
-             validation-result (validate-filters parsed-filters whitelist-keys)]
+             p (println ">o> abc.after, filters" parsed-filters)
+
+             parsed-filters (prepare-filters parsed-filters)
+
+             p (println ">o> abc.parsed-filters" parsed-filters)
+
+             ;validation-result parsed-filters
+             validation-result (validate-filters parsed-filters whitelist-keys)
+             ]
 
          (if (not-empty (:invalid validation-result))
-           (throw (ex-info "Invalid filter parameter!" {:status 400}))
+           (do
+             (println ">o> abc.invalid-entries" (:invalid validation-result))
+             (throw (ex-info "Invalid filter parameter!" {:status 400})))
            (let [
 
                  base-select (base-select result_type)
