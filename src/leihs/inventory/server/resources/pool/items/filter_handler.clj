@@ -11,70 +11,6 @@
    [honey.sql.helpers :as sql])
   (:import [com.fasterxml.jackson.core JsonParseException]))
 
-;(defn parse-json-param [s]
-;  (try
-;    (when (seq s)
-;      (json/read-str s :key-fn keyword))
-;    (catch Exception _
-;      (throw (ex-info "Error during json-parse process." {:status 400})))))
-
-;(defn parse-json-param
-;  "Safely parse a JSON string into Clojure data.
-;   - Returns parsed value if valid JSON
-;   - Returns [] (empty vector) for nil/empty input
-;   - Throws ex-info with {:status 400} on malformed JSON"
-;  [s]
-;  (try
-;    (cond
-;      (nil? s) []
-;      (string? s)
-;      (let [trimmed (str/trim s)]
-;        (if (empty? trimmed)
-;          []
-;          (json/parse-string trimmed true)))
-;      :else s)
-;    (catch JsonParseException e
-;      (throw (ex-info "Malformed JSON input."
-;               {:status 400
-;                :type :json-parse-error
-;                :cause (.getMessage e)})))
-;    (catch Exception e
-;      (throw (ex-info "Error during JSON parse process."
-;               {:status 400
-;                :type :json-parse-error
-;                :cause (.getMessage e)})))))
-
-
-;(defn parse-json-param
-;  "Parses a string into Clojure data.
-;   - Accepts either JSON or EDN.
-;   - Returns [] for nil or empty strings.
-;   - Throws ex-info {:status 400} on malformed input."
-;  [s]
-;  (try
-;    (cond
-;      (nil? s) []
-;      (string? s)
-;      (let [trimmed (str/trim s)]
-;        (cond
-;          (empty? trimmed)
-;          []
-;
-;          :else
-;          (try
-;            ;; Try JSON first
-;            (json/parse-string trimmed true)
-;            (catch JsonParseException _
-;              ;; Fallback to EDN
-;              (edn/read-string trimmed)))))
-;      :else s)
-;    (catch Exception e
-;      (throw (ex-info "Malformed JSON/EDN input."
-;               {:status 400
-;                :type :parse-error
-;                :cause (.getMessage e)})))))
-
-
 (defn parse-json-param
   "Parses a string into Clojure data.
    - Accepts either JSON or EDN.
@@ -148,28 +84,178 @@
     (uuid-string? v) [:cast v :uuid]
     :else v))
 
+;(defn add-filter
+;  "Add a single condition to the base query with type-sensitive handling."
+;  [query [k v]]
+;  (cond
+;    (= k :retired)
+;    (cond
+;      (= true v)  (sql/where query [:is-not k nil])
+;      (= false v) (sql/where query [:is k nil])
+;      :else       query)
+;
+;    (between-range? v)    (let [[from to] v]
+;      (cond-> query
+;        (and from to) (sql/where [:and [:between k from to]])
+;        (and (nil? from) to) (sql/where [:and [:<= k to]])
+;        (and from (nil? to)) (sql/where [:and [:>= k from]])))
+;
+;    (multi-value? v)    (let [vals (cast-uuid v)]
+;      (cond-> query
+;        (seq vals) (sql/where [:and [:in k vals]])))
+;    :else    (let [val (cast-uuid v)]
+;      (cond-> query
+;        (some? val) (sql/where [:and [:= k val]])))))
+
+
+;(defn add-filter
+;  "Add a single condition to the base query with type-sensitive handling.
+;   Handles both normal DB columns and JSON properties (items.properties->>key)."
+;  [query [k v]]
+;  (let [k-str (name k)
+;        field (if (contains? property-keys k-str)
+;                [:raw (format "items.properties ->> '%s'" k-str)]
+;                k)]
+;    (cond
+;      (= k :retired)
+;      (cond
+;        (= true v)  (sql/where query [:is-not k nil])
+;        (= false v) (sql/where query [:is k nil])
+;        :else       query)
+;
+;      (between-range? v)
+;      (let [[from to] v]
+;        (cond-> query
+;          (and from to) (sql/where [:between field from to])
+;          (and (nil? from) to) (sql/where [:<= field to])
+;          (and from (nil? to)) (sql/where [:>= field from])))
+;
+;      (multi-value? v)
+;      (let [vals (cast-uuid v)]
+;        (cond-> query
+;          (seq vals) (sql/where [:in field vals])))
+;
+;      :else
+;      (let [val (cast-uuid v)]
+;        (cond-> query
+;          (some? val) (sql/where [:= field val]))))))
+
+(def property-keys
+  #{"electrical_power" "imei_number" "ampere" "warranty_expiration" "reference"})
+
 (defn add-filter
-  "Add a single condition to the base query with type-sensitive handling."
+  "Add a single condition to the base query with type-sensitive handling.
+   Handles both normal DB columns and JSON properties (items.properties->>key)."
   [query [k v]]
-  (cond
-    (= k :retired)
+  (let [k-str (name k)
+        field (if (contains? property-keys k-str)
+                [:raw (format "items.properties ->> '%s'" k-str)]
+                k)]
     (cond
-      (= true v)  (sql/where query [:is-not k nil])
-      (= false v) (sql/where query [:is k nil])
-      :else       query)
+      (= k :retired)
+      (cond
+        (= true v)  (sql/where query [:is-not k nil])
+        (= false v) (sql/where query [:is k nil])
+        :else       query)
 
-    (between-range? v)    (let [[from to] v]
-      (cond-> query
-        (and from to) (sql/where [:and [:between k from to]])
-        (and (nil? from) to) (sql/where [:and [:<= k to]])
-        (and from (nil? to)) (sql/where [:and [:>= k from]])))
+      (between-range? v)
+      (let [[from to] v]
+        (cond-> query
+          (and from to) (sql/where [:between field from to])
+          (and (nil? from) to) (sql/where [:<= field to])
+          (and from (nil? to)) (sql/where [:>= field from])))
 
-    (multi-value? v)    (let [vals (cast-uuid v)]
-      (cond-> query
-        (seq vals) (sql/where [:and [:in k vals]])))
-    :else    (let [val (cast-uuid v)]
-      (cond-> query
-        (some? val) (sql/where [:and [:= k val]])))))
+      (multi-value? v)
+      (let [vals (cast-uuid v)]
+        (cond-> query
+          (seq vals) (sql/where [:in field vals])))
+
+      :else
+      (let [val (cast-uuid v)]
+        (cond-> query
+          (some? val) (sql/where [:= field val]))))))
+
+
+(defn add-filter
+  "Add a single condition to the base query with type-sensitive handling.
+   - Supports JSON property keys (items.properties->>'key')
+   - Adds substring (ILIKE) matching for string values
+   - Handles ranges, multi-values, and UUID casting"
+  [query [k v]]
+  (let [k-str (name k)
+        field (if (contains? property-keys k-str)
+                [:raw (format "items.properties ->> '%s'" k-str)]
+                k)]
+    (cond
+      ;; retired handling
+      (= k :retired)
+      (cond
+        (= true v)  (sql/where query [:is-not k nil])
+        (= false v) (sql/where query [:is k nil])
+        :else       query)
+
+      ;; range
+      (between-range? v)
+      (let [[from to] v]
+        (cond-> query
+          (and from to) (sql/where [:between field from to])
+          (and (nil? from) to) (sql/where [:<= field to])
+          (and from (nil? to)) (sql/where [:>= field from])))
+
+      ;; multi-value (IN)
+      (multi-value? v)
+      (let [vals (cast-uuid v)]
+        (cond-> query
+          (seq vals) (sql/where [:in field vals])))
+
+      ;; --- NEW: substring match for strings ---
+      (string? v)
+      (let [pattern (str "%" v "%")]
+        (sql/where query [:ilike field pattern]))
+
+      ;; fallback equality
+      :else
+      (let [val (cast-uuid v)]
+        (cond-> query
+          (some? val) (sql/where [:= field val]))))))
+
+
+
+(defn add-filter
+  [query [k v]]
+  (let [k-str (name k)
+        ;; use the correct alias used in your main FROM clause
+        field (if (contains? property-keys k-str)
+                [:raw (format "i.properties ->> '%s'" k-str)]
+                k)]
+    (cond
+      (= k :retired)
+      (cond
+        (= true v)  (sql/where query [:is-not k nil])
+        (= false v) (sql/where query [:is k nil])
+        :else query)
+
+      (between-range? v)
+      (let [[from to] v]
+        (cond-> query
+          (and from to) (sql/where [:between field from to])
+          (and (nil? from) to) (sql/where [:<= field to])
+          (and from (nil? to)) (sql/where [:>= field from])))
+
+      (multi-value? v)
+      (let [vals (cast-uuid v)]
+        (cond-> query
+          (seq vals) (sql/where [:in field vals])))
+
+      (string? v)
+      (let [pattern (str "%" v "%")]
+        (sql/where query [:ilike field pattern]))
+
+      :else
+      (let [val (cast-uuid v)]
+        (cond-> query
+          (some? val) (sql/where [:= field val]))))))
+
 
 
 (defn add-subfilter-group
@@ -189,28 +275,6 @@
         (cond-> q cond-expr (sql/where [:or cond-expr])))
       base-query
       group-conds)))
-
-(defn validate-filters
-  "Filters out non-whitelisted keys from a vector of filter maps.
-   Returns {:valid [...] :invalid [...]}."
-  [filter-groups whitelist]
-  (let [wl-set (set whitelist)]
-    (reduce
-      (fn [{:keys [valid invalid]} group]
-        (let [group-keys   (set (keys group))
-              allowed-keys (set/intersection wl-set group-keys)
-              denied-keys  (set/difference group-keys wl-set)
-              cleaned      (select-keys group allowed-keys)
-
-
-              p (println ">o> abc.allowed-keys" allowed-keys)
-              p (println ">o> abc.denied-keys" denied-keys)
-              ]
-          {:valid   (conj valid cleaned)
-           :invalid (into invalid denied-keys)}))
-      {:valid [] :invalid []}
-      filter-groups)))
-
 
 
 (defn validate-filters

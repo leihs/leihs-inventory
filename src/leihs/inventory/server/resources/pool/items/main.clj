@@ -337,17 +337,23 @@
       (exception-handler request ERROR_UPDATE_ITEM e))))
 
 
-(def whitelist-keys
+(def WHITELIST-ITEM-FILTER
   [
    "last_check"
    "serial_number"
    "shelf"
 
-   "properties_electrical_power"
-   "properties_imei_number"
-   "properties_ampere"
-   "properties_warranty_expiration"
-   "properties_reference"
+   ;"properties_electrical_power"
+   ;"properties_imei_number"
+   ;"properties_ampere"
+   ;"properties_warranty_expiration"
+   ;"properties_reference"
+
+   "electrical_power"
+   "imei_number"
+   "ampere"
+   "warranty_expiration"
+   "reference"
 
    "is_broken"
    "invoice_date"
@@ -503,7 +509,13 @@
 
 
 
-
+(defn prepare-filters [filters]
+  (cond-> filters
+    (contains? filters :retired)
+    (assoc :retired (case (:retired filters)
+                      true  (Instant/now)
+                      false nil
+                      (:retired filters)))))
 
 
 
@@ -523,7 +535,7 @@
              p (println ">o> abc.parsed-filters" parsed-filters)
 
              ;validation-result parsed-filters
-             validation-result (validate-filters parsed-filters whitelist-keys)
+             validation-result (validate-filters parsed-filters WHITELIST-ITEM-FILTER)
              ]
 
          (if (not-empty (:invalid validation-result))
@@ -537,6 +549,10 @@
                                    (base-pool-query  pool_id)
                               (cond-> (seq parsed-filters)
                                 (add-filter-groups parsed-filters)))
+
+
+                 p (println ">o> abc.query" (-> base-query sql-format))
+
 
                  post-fnc (fn [items]
                             (println ">o> abc.count" (count items))
