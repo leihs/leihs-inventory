@@ -136,11 +136,6 @@
 
 
 
-(defn add-subfilter-group
-  "Apply AND inside a single sub-filter group."
-  [base-query subfilter raw-filter-keys]
-  (reduce add-filter base-query subfilter raw-filter-keys))
-
 
 (defn add-subfilter-group
   "Apply AND inside a single sub-filter group."
@@ -149,6 +144,20 @@
             (add-filter q pair raw-filter-keys))
     base-query
     subfilter))
+
+;(defn add-subfilter-group
+;  "Apply OR inside a single sub-filter group."
+;  [base-query subfilter raw-filter-keys]
+;  (let [conditions
+;        (for [[k v] subfilter]
+;          (let [tmp-q (add-filter (sql/select) [k v] raw-filter-keys)]
+;            (:where tmp-q)))]
+;    (reduce
+;      (fn [q cond-expr]
+;        (cond-> q cond-expr (sql/where [:or cond-expr])))
+;      base-query
+;      conditions)))
+
 
 
 (defn add-filter-groups
@@ -163,6 +172,20 @@
         (cond-> q cond-expr (sql/where [:or cond-expr])))
       base-query
       group-conds)))
+
+
+(defn add-filter-groups
+  "Combine multiple subfilter maps with OR between groups."
+  [base-query filter-groups raw-filter-keys]
+  (let [group-conds
+        (for [group filter-groups]
+          (let [tmp-q (add-subfilter-group (sql/select) group raw-filter-keys)]
+            (:where tmp-q)))]
+    (if (seq group-conds)
+      (sql/where base-query
+        (cons :or group-conds))
+      base-query)))
+
 
 
 (defn validate-filters
