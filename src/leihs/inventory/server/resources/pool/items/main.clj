@@ -385,77 +385,6 @@
    ])
 
 
-(defn prepare-filters [filters]
-  (cond-> filters
-    (contains? filters :retired)
-    (assoc :retired (case (:retired filters)
-                      true  (Instant/now)
-                      false nil
-                      (:retired filters)))))
-
-;(defn prepare-filters
-;  "Normalizes and transforms filter map:
-;   - Adds `properties_` prefix to selected keys
-;   - Converts :retired true → current Instant, false → nil"
-;  [filters]
-;  (let [;; define keys that need prefixing
-;        property-keys #{"electrical_power"
-;                        "imei_number"
-;                        "ampere"
-;                        "warranty_expiration"
-;                        "reference"}
-;
-;        ;; rename keys that match property-keys
-;        with-prefixed
-;        (into {}
-;          (map (fn [[k v]]
-;                 (let [kname (name k)]
-;                   (if (property-keys kname)
-;                     [(keyword (str "properties_" kname)) v]
-;                     [k v]))))
-;          filters)
-;
-;        ;; handle :retired transformation
-;        final
-;        (cond-> with-prefixed
-;          (contains? with-prefixed :retired)
-;          (assoc :retired (case (:retired with-prefixed)
-;                            true  (Instant/now)
-;                            false nil
-;                            (:retired with-prefixed))))]
-;
-;    final))                                                 ;broken
-
-(defn prepare-filters [filters]
-  (let [property-keys #{"electrical_power" "imei_number" "ampere"
-                        "warranty_expiration" "reference"}
-        filters' (into {}
-                   (map (fn [[k v]]
-                          (let [kname (name k)]
-                            (if (property-keys kname)
-                              [(keyword (str "properties_" kname)) v]
-                              [k v]))))
-                   filters)
-        filters'' (cond-> filters'
-                    (contains? filters' :retired)
-                    (assoc :retired (case (:retired filters')
-                                      true  (Instant/now)
-                                      false nil
-                                      (:retired filters'))))]
-    ;; Return as vector for compatibility
-    [filters'']))
-
-
-
-
-
-
-
-
-
-
-
-
 (def property-keys
   #{"electrical_power" "imei_number" "ampere" "warranty_expiration" "reference"})
 
@@ -487,29 +416,6 @@
     (sequential? x) (doall (map rename-keys-rec x))
     :else x))
 
-(defn prepare-filters
-  "Recursively prefixes selected keys with properties_ and normalizes :retired:
-   true -> Instant/now, false -> nil, other -> unchanged."
-  [filters]
-  (let [renamed (rename-keys-rec filters)
-        ;; support both keyword and string key for retired
-        r-val   (cond
-                  (contains? renamed :retired) (:retired renamed)
-                  (contains? renamed "retired") (get renamed "retired")
-                  :else ::absent)
-        renamed (if (contains? renamed "retired")
-                  ;; normalize \"retired\" string key to keyword
-                  (-> renamed (dissoc "retired") (assoc :retired r-val))
-                  renamed)
-        renamed (if (not= r-val ::absent)
-                  (assoc renamed :retired
-                    (case r-val
-                      true  (Instant/now)
-                      false nil
-                      r-val))
-                  renamed)]
-    renamed))
-
 
 
 (defn prepare-filters [filters]
@@ -521,72 +427,6 @@
                       (:retired filters)))))
 
 
-;(defn extract-ids [data]
-;  (->> data
-;    (map :id)
-;    (remove nil?)   ;; optional: drop entries without :id
-;    vec))
-;
-;(defn extract-ids [data]
-;  (->> data
-;    (map :id)
-;    (remove nil?)   ;; optional: drop entries without :id
-;    vec))
-;
-
-(defn extract-ids
-  "Accepts either a vector of field maps or {:fields [...] }.
-   Returns a vector of id *strings*."
-  [data]
-  (println ">o> abc.type" (type data))
-  ;(let [fields (if (map? data) (:fields data) data)]
-  (let [
-        ;fields (if (map? data) (:fields data) data)
-        fields data
-        ]
-    (->> fields
-      (keep :id)
-      (map (fn [v]
-             (cond
-               (keyword? v) (name v)
-               (symbol?  v) (name v)
-               :else        (str v))))
-      vec)))
-
-(defn extract-ids [fields]
-  (vec (map :id fields)))
-
-(defn extract-ids
-  "Extracts all :id values from a vector of maps.
-   If `prefix-to-remove` is provided, removes that prefix from each id."
-  [fields prefix-to-remove]
-  (->> fields
-    (keep :id)
-    (map (fn [id]
-           (let [id-str (name id)]
-             (-> id-str
-               (str/replace (re-pattern (str "^" (java.util.regex.Pattern/quote prefix-to-remove))) "")
-               keyword))))
-    vec))
-
-;(ns example.core
-;  (:require [clojure.string :as str]))
-
-(defn extract-ids
-  "Extracts :id values from a vector of maps.
-   Returns {:keys [ids-without-prefix] :properties [original-prefixed-ids]}."
-  [fields prefix-to-remove]
-  (let [ids (keep :id fields)
-        prefixed? #(str/starts-with? (name %) prefix-to-remove)
-        properties (filter prefixed? ids)
-        keys (mapv (fn [id]
-                     (let [id-str (name id)]
-                       (-> id-str
-                         (str/replace (re-pattern (str "^" (java.util.regex.Pattern/quote prefix-to-remove))) "")
-                         keyword)))
-               ids)]
-    {:keys keys
-     :properties (vec properties)}))
 
 (defn extract-ids
   "Extracts :id values from a vector of maps.
@@ -610,8 +450,7 @@
      :properties (vec properties)
      :raw-keys (vec ids)}))
 
-(defn extract-by-keys [data, keys]
-  (vec (map #(select-keys % keys) data)))
+
 
 (defn advanced-index-resources
      [request]
