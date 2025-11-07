@@ -27,10 +27,10 @@
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json"]}
            :parameters {:path {:pool_id s/Uuid}
-                        :body types/post-item}
+                        :body types/post-request}
            :handler items/post-resource
            :responses {200 {:description "OK"
-                            :body types/post-item-response}
+                            :body types/post-response}
                        400 {:description "Bad Request"}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}
@@ -40,16 +40,10 @@
             :coercion reitit.coercion.schema/coercion
             :swagger {:produces ["application/json"]}
             :parameters {:path {:pool_id s/Uuid}
-                         :body {:id s/Uuid
-                                (s/optional-key :inventory_code) s/Str
-                                (s/optional-key :model_id) s/Uuid
-                                (s/optional-key :room_id) s/Uuid
-                                (s/optional-key :inventory_pool_id) (s/maybe s/Uuid)
-                                (s/optional-key :owner_id) s/Uuid
-                                s/Keyword s/Any}}
+                         :body types/patch-request}
             :handler items/patch-resource
             :responses {200 {:description "OK"
-                             :body s/Any}
+                             :body types/patch-response}
                         400 {:description "Bad Request"}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}])

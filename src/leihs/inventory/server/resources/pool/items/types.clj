@@ -25,73 +25,139 @@
                            (s/optional-key :page) s/Int
                            (s/optional-key :size) s/Int})
 
-(def post-optional
-  {(s/optional-key :id) s/Uuid
-   (s/optional-key :insurance_number) (s/maybe s/Str)
-   (s/optional-key :inventory_pool_id) s/Uuid
-   (s/optional-key :invoice_date) (s/maybe Date)
-   (s/optional-key :invoice_number) (s/maybe s/Str)
-   (s/optional-key :is_borrowable) s/Bool
-   (s/optional-key :is_broken) s/Bool
-   (s/optional-key :is_incomplete) s/Bool
-   (s/optional-key :is_inventory_relevant) s/Bool
-   (s/optional-key :item_version) (s/maybe s/Str)
-   (s/optional-key :last_check) (s/maybe Date)
-   (s/optional-key :name) (s/maybe s/Str)
-   (s/optional-key :needs_permission) s/Bool
-   (s/optional-key :note) (s/maybe s/Str)
-   (s/optional-key :parent_id) s/Uuid
-   (s/optional-key :price) (s/maybe s/Num) ; numeric(8,2)
-   (s/optional-key :responsible) (s/maybe s/Str)
-   (s/optional-key :retired_reason) (s/maybe s/Str)
-   (s/optional-key :retired) s/Bool
-   (s/optional-key :serial_number) (s/maybe s/Str)
-   (s/optional-key :shelf) (s/maybe s/Str)
-   (s/optional-key :status_note) (s/maybe s/Str)
-   (s/optional-key :supplier_id) s/Uuid
-   (s/optional-key :user_name) (s/maybe s/Str)
-   (s/constrained s/Keyword #(clj-str/starts-with? (name %) PROPERTIES_PREFIX)) s/Any})
+(def required-columns #{:inventory_code
+                        :model_id
+                        :owner_id
+                        :room_id})
 
-(def post-required
-  {:inventory_code s/Str
-   :model_id s/Uuid
-   :owner_id s/Uuid
-   :room_id s/Uuid})
+(def nullable-columns
+  #{:inventory_pool_id
+    :supplier_id
+    :parent_id
+    :serial_number
+    :invoice_number
+    :invoice_date
+    :last_check
+    :retired
+    :retired_reason
+    :price
+    :is_broken
+    :is_incomplete
+    :is_borrowable
+    :status_note
+    :needs_permission
+    :is_inventory_relevant
+    :responsible
+    :insurance_number
+    :note
+    :name
+    :user_name
+    :shelf
+    :item_version})
 
-(def post-item
-  (merge post-required post-optional))
+(def columns (concat #{:id}
+                     required-columns
+                     nullable-columns))
 
-(def post-item-response
-  (merge post-required
-         {(s/optional-key :id) s/Uuid
-          (s/optional-key :serial_number) (s/maybe s/Str)
+(def properties
+  {(s/constrained s/Keyword
+                  #(clj-str/starts-with? (name %) PROPERTIES_PREFIX)) s/Any})
+
+(def post-request
+  (merge {:inventory_code s/Str
+          :model_id s/Uuid
+          :owner_id s/Uuid
+          :room_id s/Uuid}
+         {(s/optional-key :insurance_number) (s/maybe s/Str)
           (s/optional-key :inventory_pool_id) s/Uuid
-          (s/optional-key :supplier_id) (s/maybe s/Uuid)
-          (s/optional-key :parent_id) (s/maybe s/Uuid)
+          (s/optional-key :invoice_date) (s/maybe Date)
           (s/optional-key :invoice_number) (s/maybe s/Str)
-          (s/optional-key :invoice_date) (s/maybe s/Str)
-          (s/optional-key :last_check) (s/maybe s/Str)
-          (s/optional-key :retired) s/Bool
-          (s/optional-key :retired_reason) (s/maybe s/Str)
-          (s/optional-key :price) (s/maybe s/Num)
+          (s/optional-key :is_borrowable) s/Bool
           (s/optional-key :is_broken) s/Bool
           (s/optional-key :is_incomplete) s/Bool
-          (s/optional-key :is_borrowable) s/Bool
-          (s/optional-key :status_note) (s/maybe s/Str)
-          (s/optional-key :needs_permission) s/Bool
           (s/optional-key :is_inventory_relevant) s/Bool
-          (s/optional-key :responsible) (s/maybe s/Str)
-          (s/optional-key :insurance_number) (s/maybe s/Str)
-          (s/optional-key :note) (s/maybe s/Str)
-          (s/optional-key :name) (s/maybe s/Str)
-          (s/optional-key :user_name) (s/maybe s/Str)
-          (s/optional-key :shelf) (s/maybe s/Str)
           (s/optional-key :item_version) (s/maybe s/Str)
+          (s/optional-key :last_check) (s/maybe Date)
+          (s/optional-key :name) (s/maybe s/Str)
+          (s/optional-key :needs_permission) s/Bool
+          (s/optional-key :note) (s/maybe s/Str)
+          (s/optional-key :parent_id) s/Uuid
+          (s/optional-key :price) (s/maybe s/Num) ; numeric(8,2)
+          (s/optional-key :responsible) (s/maybe s/Str)
+          (s/optional-key :retired_reason) (s/maybe s/Str)
+          (s/optional-key :retired) s/Bool
+          (s/optional-key :serial_number) (s/maybe s/Str)
+          (s/optional-key :shelf) (s/maybe s/Str)
+          (s/optional-key :status_note) (s/maybe s/Str)
+          (s/optional-key :supplier_id) s/Uuid
+          (s/optional-key :user_name) (s/maybe s/Str)}
+         properties))
 
-          (s/constrained s/Keyword #(clj-str/starts-with? (name %) PROPERTIES_PREFIX)) s/Any
+(def post-response
+  (merge {:id s/Uuid
+          :inventory_code s/Str
+          :model_id s/Uuid
+          :owner_id s/Uuid
+          :room_id s/Uuid
+          :insurance_number (s/maybe s/Str)
+          :inventory_pool_id s/Uuid
+          :invoice_date (s/maybe Date)
+          :invoice_number (s/maybe s/Str)
+          :is_borrowable s/Bool
+          :is_broken s/Bool
+          :is_incomplete s/Bool
+          :is_inventory_relevant s/Bool
+          :item_version (s/maybe s/Str)
+          :last_check (s/maybe s/Str)
+          :name (s/maybe s/Str)
+          :needs_permission s/Bool
+          :note (s/maybe s/Str)
+          :parent_id (s/maybe s/Uuid)
+          :price (s/maybe s/Num) ; numeric(8,2)
+          :responsible (s/maybe s/Str)
+          :retired_reason (s/maybe s/Str)
+          :retired s/Bool
+          :serial_number (s/maybe s/Str)
+          :shelf (s/maybe s/Str)
+          :status_note (s/maybe s/Str)
+          :supplier_id (s/maybe s/Uuid)
+          :user_name (s/maybe s/Str)
+          :created_at java.util.Date
+          :updated_at java.util.Date}
+         properties))
 
-          (s/optional-key :created_at) java.util.Date
-          (s/optional-key :updated_at) java.util.Date}))
+(def patch-request
+  (merge {:id s/Uuid
+          (s/optional-key :inventory_code) s/Str
+          (s/optional-key :model_id) s/Uuid
+          (s/optional-key :owner_id) s/Uuid
+          (s/optional-key :room_id) s/Uuid
+          (s/optional-key :insurance_number) (s/maybe s/Str)
+          (s/optional-key :inventory_pool_id) s/Uuid
+          (s/optional-key :invoice_date) (s/maybe Date)
+          (s/optional-key :invoice_number) (s/maybe s/Str)
+          (s/optional-key :is_borrowable) s/Bool
+          (s/optional-key :is_broken) s/Bool
+          (s/optional-key :is_incomplete) s/Bool
+          (s/optional-key :is_inventory_relevant) s/Bool
+          (s/optional-key :item_version) (s/maybe s/Str)
+          (s/optional-key :last_check) (s/maybe Date)
+          (s/optional-key :name) (s/maybe s/Str)
+          (s/optional-key :needs_permission) s/Bool
+          (s/optional-key :note) (s/maybe s/Str)
+          (s/optional-key :parent_id) s/Uuid
+          (s/optional-key :price) (s/maybe s/Num) ; numeric(8,2)
+          (s/optional-key :responsible) (s/maybe s/Str)
+          (s/optional-key :retired_reason) (s/maybe s/Str)
+          (s/optional-key :retired) s/Bool
+          (s/optional-key :serial_number) (s/maybe s/Str)
+          (s/optional-key :shelf) (s/maybe s/Str)
+          (s/optional-key :status_note) (s/maybe s/Str)
+          (s/optional-key :supplier_id) s/Uuid
+          (s/optional-key :user_name) (s/maybe s/Str)}
+         properties))
+
+(def patch-response post-response)
 
 (s/defschema index-item
   {(s/optional-key :building_code) (s/maybe s/Str)

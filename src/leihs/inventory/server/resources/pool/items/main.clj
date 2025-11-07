@@ -25,39 +25,6 @@
 
 (def ERROR_GET_ITEMS "Failed to get items")
 
-(def item-columns
-  [:items.id
-   :items.model_id
-   :items.name
-   :items.inventory_pool_id
-
-   :insurance_number
-   :inventory_code
-   :invoice_date
-   :invoice_number
-   :is_borrowable
-   :is_broken
-   :is_incomplete
-   :is_inventory_relevant
-   :item_version
-   :last_check
-   :needs_permission
-   :note
-   :owner_id
-   :parent_id
-   :price
-   :properties
-   :responsible
-   :retired
-   :retired_reason
-   :room_id
-   :serial_number
-   :shelf
-   :status_note
-   :supplier_id
-   :user_name
-   :m.cover_image_id])
-
 (defn index-resources
   ([request]
    (let [tx (:tx request)
@@ -70,7 +37,8 @@
                  in_stock before_last_check]} (query-params request)
 
          select (apply sql/select
-                       (concat item-columns
+                       (concat (map #(keyword "items" (name %)) types/columns)
+
                                [[:ip.name :inventory_pool_name]
                                 [:r.end_date :reservation_end_date]
                                 [:r.user_id :reservation_user_id]
