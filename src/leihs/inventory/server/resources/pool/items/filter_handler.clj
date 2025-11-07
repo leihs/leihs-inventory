@@ -84,145 +84,13 @@
     (uuid-string? v) [:cast v :uuid]
     :else v))
 
-;(defn add-filter
-;  "Add a single condition to the base query with type-sensitive handling."
-;  [query [k v]]
-;  (cond
-;    (= k :retired)
-;    (cond
-;      (= true v)  (sql/where query [:is-not k nil])
-;      (= false v) (sql/where query [:is k nil])
-;      :else       query)
-;
-;    (between-range? v)    (let [[from to] v]
-;      (cond-> query
-;        (and from to) (sql/where [:and [:between k from to]])
-;        (and (nil? from) to) (sql/where [:and [:<= k to]])
-;        (and from (nil? to)) (sql/where [:and [:>= k from]])))
-;
-;    (multi-value? v)    (let [vals (cast-uuid v)]
-;      (cond-> query
-;        (seq vals) (sql/where [:and [:in k vals]])))
-;    :else    (let [val (cast-uuid v)]
-;      (cond-> query
-;        (some? val) (sql/where [:and [:= k val]])))))
-
-
-;(defn add-filter
-;  "Add a single condition to the base query with type-sensitive handling.
-;   Handles both normal DB columns and JSON properties (items.properties->>key)."
-;  [query [k v]]
-;  (let [k-str (name k)
-;        field (if (contains? property-keys k-str)
-;                [:raw (format "items.properties ->> '%s'" k-str)]
-;                k)]
-;    (cond
-;      (= k :retired)
-;      (cond
-;        (= true v)  (sql/where query [:is-not k nil])
-;        (= false v) (sql/where query [:is k nil])
-;        :else       query)
-;
-;      (between-range? v)
-;      (let [[from to] v]
-;        (cond-> query
-;          (and from to) (sql/where [:between field from to])
-;          (and (nil? from) to) (sql/where [:<= field to])
-;          (and from (nil? to)) (sql/where [:>= field from])))
-;
-;      (multi-value? v)
-;      (let [vals (cast-uuid v)]
-;        (cond-> query
-;          (seq vals) (sql/where [:in field vals])))
-;
-;      :else
-;      (let [val (cast-uuid v)]
-;        (cond-> query
-;          (some? val) (sql/where [:= field val]))))))
 
 (def property-keys
   #{"electrical_power" "imei_number" "ampere" "warranty_expiration" "reference"})
 
-(defn add-filter
-  "Add a single condition to the base query with type-sensitive handling.
-   Handles both normal DB columns and JSON properties (items.properties->>key)."
-  [query [k v]]
-  (let [k-str (name k)
-        field (if (contains? property-keys k-str)
-                [:raw (format "items.properties ->> '%s'" k-str)]
-                k)]
-    (cond
-      (= k :retired)
-      (cond
-        (= true v)  (sql/where query [:is-not k nil])
-        (= false v) (sql/where query [:is k nil])
-        :else       query)
-
-      (between-range? v)
-      (let [[from to] v]
-        (cond-> query
-          (and from to) (sql/where [:between field from to])
-          (and (nil? from) to) (sql/where [:<= field to])
-          (and from (nil? to)) (sql/where [:>= field from])))
-
-      (multi-value? v)
-      (let [vals (cast-uuid v)]
-        (cond-> query
-          (seq vals) (sql/where [:in field vals])))
-
-      :else
-      (let [val (cast-uuid v)]
-        (cond-> query
-          (some? val) (sql/where [:= field val]))))))
-
 
 (defn add-filter
-  "Add a single condition to the base query with type-sensitive handling.
-   - Supports JSON property keys (items.properties->>'key')
-   - Adds substring (ILIKE) matching for string values
-   - Handles ranges, multi-values, and UUID casting"
-  [query [k v]]
-  (let [k-str (name k)
-        field (if (contains? property-keys k-str)
-                [:raw (format "items.properties ->> '%s'" k-str)]
-                k)]
-    (cond
-      ;; retired handling
-      (= k :retired)
-      (cond
-        (= true v)  (sql/where query [:is-not k nil])
-        (= false v) (sql/where query [:is k nil])
-        :else       query)
-
-      ;; range
-      (between-range? v)
-      (let [[from to] v]
-        (cond-> query
-          (and from to) (sql/where [:between field from to])
-          (and (nil? from) to) (sql/where [:<= field to])
-          (and from (nil? to)) (sql/where [:>= field from])))
-
-      ;; multi-value (IN)
-      (multi-value? v)
-      (let [vals (cast-uuid v)]
-        (cond-> query
-          (seq vals) (sql/where [:in field vals])))
-
-      ;; --- NEW: substring match for strings ---
-      (string? v)
-      (let [pattern (str "%" v "%")]
-        (sql/where query [:ilike field pattern]))
-
-      ;; fallback equality
-      :else
-      (let [val (cast-uuid v)]
-        (cond-> query
-          (some? val) (sql/where [:= field val]))))))
-
-
-
-(defn add-filter
-  [query [k v]]
+  [query [k v] raw-filter-keys]
   (let [k-str (name k)
         ;; use the correct alias used in your main FROM clause
         field (if (contains? property-keys k-str)
@@ -256,19 +124,58 @@
         (cond-> query
           (some? val) (sql/where [:= field val]))))))
 
+(defn add-filter
+  [query [k v] raw-filter-keys]
+  (let [k-str (name k)
+        ;; check if prefixed version of key exists in raw-filter-keys
+        property-key (keyword (str "properties_" k-str))
+        is-property? (some #{property-key} raw-filter-keys)
+        ;; choose SQL field accordingly
+        field (if is-property?
+                [:raw (format "i.properties ->> '%s'" k-str)]
+                k)]
+    (cond
+      (= k :retired)
+      (cond
+        (= true v)  (sql/where query [:is-not k nil])
+        (= false v) (sql/where query [:is k nil])
+        :else query)
+
+      (between-range? v)
+      (let [[from to] v]
+        (cond-> query
+          (and from to) (sql/where [:between field from to])
+          (and (nil? from) to) (sql/where [:<= field to])
+          (and from (nil? to)) (sql/where [:>= field from])))
+
+      (multi-value? v)
+      (let [vals (cast-uuid v)]
+        (cond-> query
+          (seq vals) (sql/where [:in field vals])))
+
+      (string? v)
+      (let [pattern (str "%" v "%")]
+        (sql/where query [:ilike field pattern]))
+
+      :else
+      (let [val (cast-uuid v)]
+        (cond-> query
+          (some? val) (sql/where [:= field val]))))))
+
+
 
 
 (defn add-subfilter-group
   "Apply AND inside a single sub-filter group."
-  [base-query subfilter]
-  (reduce add-filter base-query subfilter))
+  [base-query subfilter raw-filter-keys]
+  (reduce add-filter base-query subfilter raw-filter-keys))
 
 (defn add-filter-groups
   "Combine multiple subfilter maps with OR between groups."
-  [base-query filter-groups]
+  [base-query filter-groups raw-filter-keys]
   (let [group-conds
         (for [group filter-groups]
-          (let [tmp-q (add-subfilter-group (sql/select) group)]
+          (let [tmp-q (add-subfilter-group (sql/select) group raw-filter-keys)]
             (:where tmp-q)))]
     (reduce
       (fn [q cond-expr]

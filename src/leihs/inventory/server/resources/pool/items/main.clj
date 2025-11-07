@@ -14,6 +14,9 @@
 
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
 
+
+   [leihs.inventory.server.resources.pool.fields.main :refer [fetch-properties-fields]]
+
       [clojure.string :as str]
       [cheshire.core :as json]
 
@@ -518,7 +521,97 @@
                       (:retired filters)))))
 
 
+;(defn extract-ids [data]
+;  (->> data
+;    (map :id)
+;    (remove nil?)   ;; optional: drop entries without :id
+;    vec))
+;
+;(defn extract-ids [data]
+;  (->> data
+;    (map :id)
+;    (remove nil?)   ;; optional: drop entries without :id
+;    vec))
+;
 
+(defn extract-ids
+  "Accepts either a vector of field maps or {:fields [...] }.
+   Returns a vector of id *strings*."
+  [data]
+  (println ">o> abc.type" (type data))
+  ;(let [fields (if (map? data) (:fields data) data)]
+  (let [
+        ;fields (if (map? data) (:fields data) data)
+        fields data
+        ]
+    (->> fields
+      (keep :id)
+      (map (fn [v]
+             (cond
+               (keyword? v) (name v)
+               (symbol?  v) (name v)
+               :else        (str v))))
+      vec)))
+
+(defn extract-ids [fields]
+  (vec (map :id fields)))
+
+(defn extract-ids
+  "Extracts all :id values from a vector of maps.
+   If `prefix-to-remove` is provided, removes that prefix from each id."
+  [fields prefix-to-remove]
+  (->> fields
+    (keep :id)
+    (map (fn [id]
+           (let [id-str (name id)]
+             (-> id-str
+               (str/replace (re-pattern (str "^" (java.util.regex.Pattern/quote prefix-to-remove))) "")
+               keyword))))
+    vec))
+
+;(ns example.core
+;  (:require [clojure.string :as str]))
+
+(defn extract-ids
+  "Extracts :id values from a vector of maps.
+   Returns {:keys [ids-without-prefix] :properties [original-prefixed-ids]}."
+  [fields prefix-to-remove]
+  (let [ids (keep :id fields)
+        prefixed? #(str/starts-with? (name %) prefix-to-remove)
+        properties (filter prefixed? ids)
+        keys (mapv (fn [id]
+                     (let [id-str (name id)]
+                       (-> id-str
+                         (str/replace (re-pattern (str "^" (java.util.regex.Pattern/quote prefix-to-remove))) "")
+                         keyword)))
+               ids)]
+    {:keys keys
+     :properties (vec properties)}))
+
+(defn extract-ids
+  "Extracts :id values from a vector of maps.
+   Returns:
+   {:keys       [ids-without-prefix]
+    :properties [original-prefixed-ids]
+    :raw-keys   [all-original-ids]}"
+  [fields prefix-to-remove]
+  (let [ids (keep :id fields)
+        prefixed? #(str/starts-with? (name %) prefix-to-remove)
+        properties (filter prefixed? ids)
+        keys (mapv (fn [id]
+                     (let [id-str (name id)]
+                       (-> id-str
+                         (str/replace
+                           (re-pattern (str "^" (java.util.regex.Pattern/quote prefix-to-remove)))
+                           "")
+                         keyword)))
+               ids)]
+    {:keys keys
+     :properties (vec properties)
+     :raw-keys (vec ids)}))
+
+(defn extract-by-keys [data, keys]
+  (vec (map #(select-keys % keys) data)))
 
 (defn advanced-index-resources
      [request]
@@ -529,6 +622,32 @@
              p (println ">o> abc.before, filters" filters)
              parsed-filters (parse-json-param filters)
              p (println ">o> abc.after, filters" parsed-filters)
+
+             ;
+             ;whitelist (defn extract-ids [data]
+             ;            (vec (map :id (:fields data))))
+
+             properties-fields (fetch-properties-fields request)
+             p (println ">o> abc.properties-fields.type??" (type properties-fields))
+             p (println ">o> abc.properties-fields.count" (first properties-fields))
+
+             {:keys [keys properties raw-keys]} (extract-ids properties-fields "properties_")
+             WHITELIST-ITEM-FILTER keys
+             p (println ">o> abc.WHITELIST-ITEM-FILTER2" WHITELIST-ITEM-FILTER)
+
+
+             ;fields-id-type (extract-by-keys properties-fields [:id :type])
+             ;p (println ">o> abc.fields-id-type" fields-id-type)
+
+
+
+
+
+
+             ;;
+
+
+
 
              parsed-filters (prepare-filters parsed-filters)
 
@@ -548,7 +667,7 @@
                  base-query (-> base-select
                                    (base-pool-query  pool_id)
                               (cond-> (seq parsed-filters)
-                                (add-filter-groups parsed-filters)))
+                                (add-filter-groups parsed-filters raw-keys)))
 
 
                  p (println ">o> abc.query" (-> base-query sql-format))

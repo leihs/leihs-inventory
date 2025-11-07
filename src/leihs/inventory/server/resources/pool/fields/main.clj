@@ -170,31 +170,64 @@
                value))
       field)))
 
+
+(defn fetch-properties-fields [{:keys [tx] {:keys [role] user-id :id} :authenticated-entity :as request}]
+  (let [{:keys [target_type resource_id]} (query-params request)
+        {:keys [pool_id]} (path-params request)
+
+        p (println ">o> abc.target_type" target_type)
+
+        pool (pools/get-by-id tx pool_id)
+        query (base-query target_type role pool_id)
+        fields (jdbc/query tx (sql-format query))
+        item-data (get-item-data tx pool_id resource_id)
+        transformed-fields (map #(transform-field-data % :tx tx
+                                   :pool pool
+                                   :user-id user-id
+                                   :resource-id resource_id)
+                             fields)
+        fields-with-defaults           (if item-data
+                                         (map (partial merge-item-defaults tx item-data) transformed-fields)
+                                         transformed-fields)
+
+        p (println ">o> abc.fields.count" (count fields-with-defaults))
+        ]
+    (vec fields-with-defaults))  )
+    ;fields-with-defaults)  )
+
+;(defn index-resources
+;  [{:keys [tx] {:keys [role] user-id :id} :authenticated-entity :as request}]
+;  (try
+;    (let [{:keys [target_type resource_id]} (query-params request)
+;          {:keys [pool_id]} (path-params request)
+;
+;          p (println ">o> abc.target_type" target_type)
+;
+;          pool (pools/get-by-id tx pool_id)
+;          query (base-query target_type role pool_id)
+;          fields (jdbc/query tx (sql-format query))
+;          item-data (get-item-data tx pool_id resource_id)
+;          transformed-fields (map #(transform-field-data % :tx tx
+;                                                         :pool pool
+;                                                         :user-id user-id
+;                                                         :resource-id resource_id)
+;                                  fields)
+;          fields-with-defaults           (if item-data
+;            (map (partial merge-item-defaults tx item-data) transformed-fields)
+;            transformed-fields)
+;
+;          p (println ">o> abc.fields.count" (count fields-with-defaults))
+;          ]
+;      (response {:fields (vec fields-with-defaults)}))
+;    (catch Exception e
+;      (log-by-severity ERROR_GET e)
+;      (exception-handler request ERROR_GET e))))
+
+
 (defn index-resources
-  [{:keys [tx] {:keys [role] user-id :id} :authenticated-entity :as request}]
+  [request]
   (try
-    (let [{:keys [target_type resource_id]} (query-params request)
-          {:keys [pool_id]} (path-params request)
-
-          p (println ">o> abc.target_type" target_type)
-
-          pool (pools/get-by-id tx pool_id)
-          query (base-query target_type role pool_id)
-          fields (jdbc/query tx (sql-format query))
-          item-data (get-item-data tx pool_id resource_id)
-          transformed-fields (map #(transform-field-data % :tx tx
-                                                         :pool pool
-                                                         :user-id user-id
-                                                         :resource-id resource_id)
-                                  fields)
-          fields-with-defaults
-          (if item-data
-            (map (partial merge-item-defaults tx item-data) transformed-fields)
-            transformed-fields)
-
-          p (println ">o> abc.fields.count" (count fields-with-defaults))
-          ]
-      (response {:fields (vec fields-with-defaults)}))
+      (response {:fields (fetch-properties-fields request)})
     (catch Exception e
       (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))
