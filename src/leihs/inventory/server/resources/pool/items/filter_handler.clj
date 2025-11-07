@@ -98,8 +98,7 @@
 
     (let [;; choose SQL field accordingly
           field (if is-property?
-                  [:raw (format "i.properties ->> '%s'" property-key-str)]
-                  ;[:raw (format "i.properties ->> '%s'" k-str)]
+                  [:raw (format "items.properties ->> '%s'" property-key-str)]
                   k)]
       (cond
         ;; retired flag

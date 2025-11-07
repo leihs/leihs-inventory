@@ -446,9 +446,9 @@
                            "")
                          keyword)))
                ids)]
-    {:keys keys
+    {:filter-keys keys
      :properties (vec properties)
-     :raw-keys (vec ids)}))
+     :raw-filter-keys (vec ids)}))
 
 
 
@@ -462,37 +462,16 @@
              parsed-filters (parse-json-param filters)
              p (println ">o> abc.after, filters" parsed-filters)
 
-             ;
-             ;whitelist (defn extract-ids [data]
-             ;            (vec (map :id (:fields data))))
-
              properties-fields (fetch-properties-fields request)
              p (println ">o> abc.properties-fields.type??" (type properties-fields))
              p (println ">o> abc.properties-fields.count" (first properties-fields))
 
-             {:keys [keys properties raw-keys]} (extract-ids properties-fields "properties_")
+             {:keys [filter-keys properties raw-filter-keys]} (extract-ids properties-fields "properties_")
              WHITELIST-ITEM-FILTER keys
              p (println ">o> abc.WHITELIST-ITEM-FILTER2" WHITELIST-ITEM-FILTER)
 
-
-             ;fields-id-type (extract-by-keys properties-fields [:id :type])
-             ;p (println ">o> abc.fields-id-type" fields-id-type)
-
-
-
-
-
-
-             ;;
-
-
-
-
              parsed-filters (prepare-filters parsed-filters)
-
              p (println ">o> abc.parsed-filters" parsed-filters)
-
-             ;validation-result parsed-filters
              validation-result (validate-filters parsed-filters WHITELIST-ITEM-FILTER)
              ]
 
@@ -505,8 +484,11 @@
                  base-select (base-select result_type)
                  base-query (-> base-select
                                    (base-pool-query  pool_id)
+
                               (cond-> (seq parsed-filters)
-                                (add-filter-groups parsed-filters raw-keys)))
+                                (add-filter-groups parsed-filters raw-filter-keys))
+
+                              )
 
 
                  p (println ">o> abc.query" (-> base-query sql-format))
