@@ -2,11 +2,8 @@
   (:require
    [clojure.set]
    [clojure.string :refer [capitalize]]
-   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [hugsql.core :as hugsql]
-   [leihs.inventory.server.resources.pool.items.filter-handler :as filter]
-
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
 (defn base-inventory-query [pool-id]
@@ -46,26 +43,7 @@
 (defn with-items [query pool-id
                   & {:keys [retired borrowable incomplete broken
                             inventory_pool_id owned
-                            ;in_stock before_last_check filters]}]
-                            in_stock before_last_check  filters]}]
-
-  (println ">o> abc.with-items ???")
-
-  (let [{:keys [parsed-filters raw-filter-keys]} filters
-
-
-        p (println ">o> 1abc.parsed-filters" parsed-filters)
-        p (println ">o> 1abc.parsed-filters" (->
-
-                                               (filter/add-filter-groups parsed-filters raw-filter-keys)
-                                               sql-format
-                                               ))
-
-        ]
-    ;; Function body here
-
-
-
+                            in_stock before_last_check]}]
   (sql/where
    query
    [:exists (-> (sql/select 1)
@@ -79,11 +57,6 @@
                     :else
                     (sql/where % (owner-or-responsible-cond pool-id))))
                 (cond-> (boolean? in_stock) (in-stock in_stock))
-
-
-              ;(cond-> (seq parsed-filters)
-              ;  (filter/add-filter-groups parsed-filters raw-filter-keys))
-
                 (cond-> before_last_check
                   (sql/where [:<= :items.last_check before_last_check]))
                 (cond-> (boolean? retired)
@@ -93,7 +66,7 @@
                 (cond-> (boolean? broken)
                   (sql/where [:= :items.is_broken broken]))
                 (cond-> (boolean? incomplete)
-                  (sql/where [:= :items.is_incomplete incomplete])))])    ))
+                  (sql/where [:= :items.is_incomplete incomplete])))]))
 
 (defn without-items [query pool-id]
   (-> query

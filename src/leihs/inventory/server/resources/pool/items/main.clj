@@ -340,51 +340,6 @@
       (exception-handler request ERROR_UPDATE_ITEM e))))
 
 
-(def WHITELIST-ITEM-FILTER
-  [
-   "last_check"
-   "serial_number"
-   "shelf"
-
-   ;"properties_electrical_power"
-   ;"properties_imei_number"
-   ;"properties_ampere"
-   ;"properties_warranty_expiration"
-   ;"properties_reference"
-
-   "electrical_power"
-   "imei_number"
-   "ampere"
-   "warranty_expiration"
-   "reference"
-
-   "is_broken"
-   "invoice_date"
-   "user_name"
-   "room_id"
-   "invoice_number"
-   "retired_reason"
-   "status_note"
-   "note"
-   "owner_id"
-   "is_inventory_relevant"
-   "responsible"
-   "properties_p4u"
-   "is_incomplete"
-   "invoice_number"
-   "inventory_code"
-   "supplier_id"
-   "model_id"
-
-   "price"
-   "is_borrowable"
-   "retired"
-   ;
-   ;"building_id"
-   ;"inventory_pool_id"
-   ])
-
-
 (def property-keys
   #{"electrical_power" "imei_number" "ampere" "warranty_expiration" "reference"})
 
@@ -416,8 +371,6 @@
     (sequential? x) (doall (map rename-keys-rec x))
     :else x))
 
-
-
 (defn prepare-filters [filters]
   (cond-> filters
     (contains? filters :retired)
@@ -425,8 +378,6 @@
                       true  (Instant/now)
                       false nil
                       (:retired filters)))))
-
-
 
 (defn extract-ids
   "Extracts :id values from a vector of maps.
@@ -449,65 +400,3 @@
     {:filter-keys keys
      :properties (vec properties)
      :raw-filter-keys (vec ids)}))
-
-
-
-(defn advanced-index-resources
-     [request]
-     (try
-       (let [{:keys [pool_id item_id]} (path-params request)
-             {:keys [filters result_type]} (query-params request)
-
-             p (println ">o> abc.before, filters" filters)
-             parsed-filters (parse-json-param filters)
-             p (println ">o> abc.after, filters" parsed-filters)
-
-             properties-fields (fetch-properties-fields request)
-             p (println ">o> abc.properties-fields.type??" (type properties-fields))
-             p (println ">o> abc.properties-fields.count" (first properties-fields))
-
-             {:keys [filter-keys properties raw-filter-keys]} (extract-ids properties-fields "properties_")
-             WHITELIST-ITEM-FILTER keys
-             p (println ">o> abc.WHITELIST-ITEM-FILTER2" WHITELIST-ITEM-FILTER)
-
-             parsed-filters (prepare-filters parsed-filters)
-             p (println ">o> abc.parsed-filters" parsed-filters)
-             validation-result (validate-filters parsed-filters WHITELIST-ITEM-FILTER)
-             ]
-
-         (if (not-empty (:invalid validation-result))
-           (do
-             (println ">o> abc.invalid-entries" (:invalid validation-result))
-             (throw (ex-info "Invalid filter parameter!" {:status 400})))
-           (let [
-
-                 base-select (base-select result_type)
-                 base-query (-> base-select
-                                   (base-pool-query  pool_id)
-
-                              (cond-> (seq parsed-filters)
-                                (add-filter-groups parsed-filters raw-filter-keys))
-
-                              )
-
-
-                 p (println ">o> abc.query" (-> base-query sql-format))
-
-
-                 post-fnc (fn [items]
-                            (println ">o> abc.count" (count items))
-                            (println ">o> abc.seq?" (seq items))
-                            (if (seq items)
-                              items
-                                ;(filter-map-by-schema items types/data-response)
-
-                              items))
-
-
-                 ]
-             ;(response (create-pagination-response request base-query nil post-fnc)))))
-             (response (create-pagination-response request base-query nil )))))
-       (catch Exception e
-         (println ">o> abc.e" e)
-         (log-by-severity ERROR_ADVANCED_SEARCH e)
-         (exception-handler request ERROR_ADVANCED_SEARCH e))))

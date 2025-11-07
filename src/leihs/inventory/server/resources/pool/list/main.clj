@@ -25,19 +25,10 @@
    [ring.util.response :refer [response]]
    [taoensso.timbre :refer [debug]]))
 
-;(defn base-pool-query [query pool-id]
-(defn base-pool-query [query ]
+(defn items-sub-query [query ]
   (-> query
     (sql/select :items.properties)
-    (sql/right-join :items [:= :items.model_id :inventory.id])
-    ;(sql/join [:rooms :r] [:= :r.id :i.room_id])
-    ;(sql/join [:models :m] [:= :m.id :i.model_id])
-    ;(sql/join [:buildings :b] [:= :b.id :r.building_id])
-    ;(cond->
-    ;  pool-id (sql/join [:inventory_pools :ip] [:= :ip.id :i.inventory_pool_id])
-    ;  pool-id (sql/where [:= :ip.id [:cast pool-id :uuid]]))
-    ) )
-
+    (sql/right-join :items [:= :items.model_id :inventory.id])  ) )
 
 (defn index-resources
   ([request]
@@ -66,11 +57,6 @@
          p (println ">o> abc.parsed-filters" parsed-filters)
          validation-result (filter/validate-filters parsed-filters WHITELIST-ITEM-FILTER)
 
-
-
-
-
-
          query (-> (base-inventory-query pool-id)
                    (cond-> type (filter-by-type type))
                    (cond->
@@ -85,10 +71,6 @@
                                   :inventory_pool_id inventory_pool_id
                                   :owned owned
                                   :in_stock in_stock
-
-                                  ;:filters {:parsed-filters parsed-filters
-                                  ;          :raw-filter-keys raw-filter-keys
-                                  ;          }
                                   }
                            (not= type :software)
                            (assoc :before_last_check before_last_check)))
@@ -96,11 +78,8 @@
                        (without-items pool-id)))
 
                  (cond-> (seq parsed-filters)
-
-                   (-> base-pool-query
-                   (filter/add-filter-groups parsed-filters raw-filter-keys)
-                   )
-                   )
+                   (-> items-sub-query
+                   (filter/add-filter-groups parsed-filters raw-filter-keys)))
 
                    (cond-> (and pool-id (presence search))
                      (with-search search))
