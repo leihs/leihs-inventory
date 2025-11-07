@@ -168,6 +168,26 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.status).to eq(200)
         expect(resp.body["properties_mac_address"]).to eq("00:1B:44:11:3A:B7")
       end
+
+      it "rejects creating items for Software models and returns status 400" do
+        software_model = FactoryBot.create(:leihs_model,
+          product: "Test Software",
+          type: "Software")
+
+        item_data = {
+          inventory_code: "TEST-#{SecureRandom.hex(4)}",
+          model_id: software_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["error"]).to eq("Model type 'Software' is not allowed for items")
+        expect(resp.body["model_id"]).to eq(software_model.id)
+      end
     end
   end
 

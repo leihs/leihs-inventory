@@ -168,10 +168,22 @@
         body-keys (-> body-params (dissoc :id) keys set)
         unpermitted-fields (set/difference body-keys permitted-field-ids)
         {:keys [item-data]} (split-item-data body-params)
-        owner-id (:owner_id item-data)]
+        owner-id (:owner_id item-data)
+        model-id (:model_id item-data)
+        model-data (when model-id
+                     (-> (sql/select :type)
+                         (sql/from :models)
+                         (sql/where [:= :id model-id])
+                         sql-format
+                         (->> (jdbc/execute-one! tx))))
+        model-type (:type model-data)]
     (cond
       (seq unpermitted-fields)
       {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
+
+      (= model-type "Software")
+      {:error "Model type 'Software' is not allowed for items"
+       :model_id model-id}
 
       (or (and item-id (not= (authorized-role-for-pool request owner-id)
                              "inventory_manager")
