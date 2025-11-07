@@ -122,7 +122,7 @@
    (s/optional-key :parent_id) (s/maybe s/Uuid)
    (s/optional-key :price) (s/maybe s/Num) ; numeric(8,2)
    (s/optional-key :properties) {s/Keyword s/Any} ; jsonb
-   (s/optional-key :reservation_contract_id) (s/maybe s/Str)
+   (s/optional-key :reservation_contract_id) (s/maybe s/Uuid)
    (s/optional-key :reservation_end_date) (s/maybe java.util.Date)
    (s/optional-key :reservation_user_id) (s/maybe s/Uuid)
    (s/optional-key :reservation_user_name) (s/maybe s/Str)
