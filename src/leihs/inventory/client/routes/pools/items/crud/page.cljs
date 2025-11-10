@@ -8,11 +8,11 @@
                               AlertDialogFooter AlertDialogHeader
                               AlertDialogTitle]]
    ["@@/button" :refer [Button]]
-   ["@@/button-group" :refer [ButtonGroup]]
+   ["@@/button-group" :refer [ButtonGroup ButtonGroupSeparator]]
    ["@@/card" :refer [Card CardContent]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuTrigger
                                DropdownMenuContent DropdownMenuItem
-                               DropdownMenuSeparator]]
+                               DropdownMenuSeparator DropdownMenuGroup]]
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
@@ -238,6 +238,7 @@
                         (if is-create
                           (t "pool.model.create.submit")
                           (t "pool.model.submit")))
+                     ($ ButtonGroupSeparator)
                      ($ DropdownMenu
                         ($ DropdownMenuTrigger {:asChild true}
                            ($ Button {:className "self-center !px-2"}
@@ -245,24 +246,44 @@
 
                         ($ DropdownMenuContent {:align "end"
                                                 :class-name "[--radius:1rem]"}
-                           ($ DropdownMenuItem
-                              {:asChild true}
-                              ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
-                                                (some-> state .-searchParams))
-                                       :viewTransition true}
-                                 (if is-create
-                                   (t "pool.model.create.cancel")
-                                   (t "pool.model.cancel"))))
+                           ($ DropdownMenuGroup
+                              ($ DropdownMenuItem
+                                 {:asChild true}
+                                 ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
+                                                   (some-> state .-searchParams))
+                                          :viewTransition true}
+                                    (if is-create
+                                      (t "pool.model.create.cancel")
+                                      (t "pool.model.cancel")))))
 
                            ($ DropdownMenuSeparator)
 
-                           (when (not is-create)
-                             ($ DropdownMenuItem {:asChild true
-                                                  :variant "destructive"}
-                                ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
-                                         :state state}
-                                   "Delete"))))))
+                           ($ DropdownMenuGroup
+                              (when (not is-create)
+                                ($ DropdownMenuItem {:variant "destructive"
+                                                     :asChild true}
+                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
+                                            :state state}
+                                      "Delete")))))))
 
+                  (when (not is-create)
+                    ($ AlertDialog {:open is-delete}
+                       ($ AlertDialogContent
+
+                          ($ AlertDialogHeader
+                             ($ AlertDialogTitle (t "pool.model.delete.title"))
+                             ($ AlertDialogDescription (t "pool.model.delete.description")))
+
+                          ($ AlertDialogFooter
+                             ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
+                                                    hover:bg-destructive hover:text-destructive-foreground"
+                                                   :onClick handle-delete}
+                                (t "pool.model.delete.confirm"))
+                             ($ AlertDialogCancel
+                                ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id" params)
+                                         :state state}
+
+                                   (t "pool.model.delete.cancel")))))))
                   #_($ :div {:className "h-max flex space-x-6 sticky bottom-0 pt-12 lg:top-[43vh] ml-auto"}
 
                        ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
