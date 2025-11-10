@@ -7,22 +7,12 @@
    [dk.ative.docjure.spreadsheet :as ss]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-
    [leihs.inventory.server.utils.helper :refer [now-yyyyMMdd-HHmmss]]
-
-   ;[java.time Instant]
-   ;[java.time.format DateTimeFormatter]
-   ;[java.time.ZoneOffset :as ZoneOffset]
-   ;[java.time.LocalDateTime :as LocalDateTime]
-
    [leihs.inventory.server.resources.pool.items.filter-handler :as filter]
    [leihs.inventory.server.resources.pool.items.main :as helper]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [taoensso.timbre :refer [debug]])
-
-
-  (:import [java.time Instant])
-  )
+  (:import [java.time Instant]) )
 
 (defn generate-excel-from-map
   "Generates an Excel file from a map and returns a Java File object."
@@ -49,19 +39,12 @@
   (try
     (let [excel-file (generate-excel-from-map data)]
       {:status 200
-
-       ;:headers {"Content-Type" "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-       ;          "x-rows" (str (count data))
-       ;          "Content-Disposition" "attachment; filename=export.xlsx"}
-
        :headers {"Content-Type" "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                  "x-rows" (str (count data))
                  "Content-Disposition"
                  (format "attachment; filename=\"export-%s.xlsx\"; x-generated-at=\"%s\""
-                   now-yyyyMMdd-HHmmss
+                   (now-yyyyMMdd-HHmmss)
                    (str (Instant/now)))}
-
-
        :body (io/input-stream excel-file)})
     (catch IllegalArgumentException e
       (log-by-severity "Invalid input to Excel handler" e)
