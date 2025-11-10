@@ -20,6 +20,9 @@
 
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
 
+   [leihs.inventory.server.resources.pool.list.export-csv :as export-csv]
+   [leihs.inventory.server.resources.pool.list.export-excel :as export-excel]
+
 
    [clojure.data.csv :as csv]
    [clojure.java.io :as io]
@@ -43,62 +46,6 @@
     (sql/right-join :items [:= :items.model_id :inventory.id])  ) )
 
 
-(defn to-csv "Handler that generates an CSV file from a given map."
-  [data]
-  (let [
-        ;data [{:name "Alice" :age 30}
-        ;      {:name "Bob" :age 25}]
-        output-stream (java.io.ByteArrayOutputStream.)
-        csv-data (maps-to-csv data)]
-    (with-open [writer (io/writer output-stream)]
-      (csv/write-csv writer csv-data))
-    {:status 200
-     :headers {"Content-Type" "text/csv"
-               "Content-Disposition" "attachment; filename=output.csv"}
-     :body (java.io.ByteArrayInputStream. (.toByteArray output-stream))}))
-
-
-
-(defn generate-excel-from-map
-  "Generates an Excel file from a map and returns a Java File object."
-  [data-map]
-  (try
-    (when (empty? data-map)
-      (throw (IllegalArgumentException. "Data map cannot be empty")))
-    (let [workbook (ss/create-workbook "Sheet1" [(map name (keys (first data-map)))])
-          sheet (ss/select-sheet "Sheet1" workbook)]
-      (doseq [row data-map]
-        (let [row-values (map #(if (or (string? %) (number? %)) % (str %)) (vals row))]
-          (ss/add-row! sheet row-values)))
-      (let [temp-file (doto (java.io.File/createTempFile "export" ".xlsx") (.deleteOnExit))]
-        (with-open [output-stream (io/output-stream temp-file)]
-          (ss/save-workbook! output-stream workbook))
-        temp-file))
-    (catch Exception e
-      (log-by-severity "Failed to generate Excel from map" e)
-      (throw e))))
-
-(defn to-excel
-  "Handler that generates an Excel file from a given map."
-  [data]
-  (try
-    (let [
-          ;data [{:name "Alice" :age 30 :city "New York"}
-          ;      {:name "Bob" :age 25 :city "San Francisco"}
-          ;      {:name "Charlie" :age 35 :city "Boston"}]
-          excel-file (generate-excel-from-map data)]
-      {:status 200
-       :headers {"Content-Type" "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                 "Content-Disposition" "attachment; filename=export.xlsx"}
-       :body (io/input-stream excel-file)})
-    (catch IllegalArgumentException e
-      (log-by-severity "Invalid input to Excel handler" e)
-      {:status 400
-       :body "Invalid input to generate Excel file."})
-    (catch Exception e
-      (log-by-severity "Internal Server Error in Excel handler" e)
-      {:status 500
-       :body "Internal Server Error."})))
 
 
 (defn index-resources
@@ -111,11 +58,8 @@
                  category_id
                  search before_last_check filters]} (query-params request)
 
-
-
          accept-type (-> request :accept :mime)
          p (println ">o> abc.accept-type2" accept-type)
-
 
          p (println ">o> abc.before, filters" filters)
          parsed-filters (filter/parse-json-param filters)
@@ -167,20 +111,11 @@
                          (fetch-thumbnails-for-ids tx)
                          (map (model->enrich-with-image-attr pool-id))))]
      (debug (sql-format query :inline true))
-     ;(response (create-pagination-response request query nil post-fnc))
-
 
      (cond
-       ;accept-type
-       ;(response (create-pagination-response request query nil post-fnc))
-       ;(response (to-csv (create-pagination-response request query false post-fnc)))
-
-       (= accept-type :csv) (to-csv (create-pagination-response request query false post-fnc))
-       (= accept-type :excel) (to-excel (create-pagination-response request query false post-fnc))
-        :else (response (create-pagination-response request query nil post-fnc))
-       )
-
-
+       (= accept-type :csv) (export-csv/convert (create-pagination-response request query false post-fnc))
+       (= accept-type :excel) (export-excel/convert (create-pagination-response request query false post-fnc))
+        :else (response (create-pagination-response request query nil post-fnc))     )
      )))
 
 
