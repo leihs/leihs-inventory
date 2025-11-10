@@ -2,7 +2,19 @@
   (:require
    [clojure.string :as str]
    [clojure.walk :as walk]
-   [taoensso.timbre :refer [error debug]]))
+   ;[java.time Instant LocalDateTime ZoneOffset]
+   ;[java.time.format DateTimeFormatter]
+   [taoensso.timbre :refer [error debug]])
+
+  (:import
+   (java.time Instant LocalDateTime ZoneOffset)
+   (java.time.format DateTimeFormatter))
+  )
+
+
+(defn now-yyyyMMdd-HHmmss []
+  (.format (DateTimeFormatter/ofPattern "yyyyMMdd-HHmmss")
+    (LocalDateTime/now ZoneOffset/UTC)))
 
 (defn- ->snake-case
   "Converts a string `s` to snake_case."
