@@ -13,13 +13,14 @@
 (def ERROR_GET_BUILDINGS "Failed to get buildings")
 
 (def base-query
-  (-> (sql/select :*)
+  (-> (sql/select :buildings.*)
       (sql/from :buildings)
-      (sql/order-by :name)))
+      (sql/order-by :buildings.name)))
 
-(defn get-by-id [tx id]
+(defn get-by-room-id [tx room-id]
   (-> base-query
-      (sql/where [:= :buildings.id id])
+      (sql/join :rooms [:= :rooms.building_id :buildings.id])
+      (sql/where [:= :rooms.id room-id])
       sql-format
       (->> (jdbc/query tx))
       first))

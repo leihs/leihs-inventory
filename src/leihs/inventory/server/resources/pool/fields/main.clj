@@ -77,14 +77,14 @@
                           (assoc f :values_url
                                  (str "/inventory/" (:id pool) "/software/")))}))
 
-(defn handle-default [tx field-id value item-id pool-id]
-  (let [hooks {:building_id buildings/get-by-id
-               :supplier_id suppliers/get-by-id
+(defn handle-default [tx field-id value item-data pool-id]
+  (let [hooks {:supplier_id suppliers/get-by-id
                :inventory_pool_id pools/get-by-id
                :owner_id pools/get-by-id
                :room_id rooms/get-by-id
                :model_id models/get-by-id
-               :software_model_id software/get-by-id}]
+               :software_model_id software/get-by-id}
+        item-id (:id item-data)]
     (cond
       (and (uuid? value) (contains? hooks field-id))
       (let [res ((hooks field-id) tx value)]
@@ -96,12 +96,15 @@
           (map #(hash-map :content_type (:content_type %)
                           :filename (:filename %)
                           :id (:id %)
-                          :url (str "/inventory" pool-id
+                          :url (str "/inventory/" pool-id
                                     "/items/" item-id
                                     "/attachments/" (:id %)))
                as)))
 
-      :else value)))
+      (= field-id :building_id)
+      (let [room-id (:room_id item-data)
+            building (buildings/get-by-room-id tx room-id)]
+        {:value (:id building), :label (:name building)}))))
 
 (defn target-type-expr [ttype]
   (if (= ttype "package")
@@ -179,13 +182,11 @@
                 properties)]
     (merge item-without-properties properties-with-prefix)))
 
-(defn merge-item-defaults [tx field item-data pool-id]
+(defn handle-item-defaults [tx field item-data pool-id]
   (let [field-id (keyword (:id field))
         value (get item-data field-id)]
-    (if (some? value)
-      (assoc field :default
-             (handle-default tx field-id value (:id item-data) pool-id))
-      field)))
+    (assoc field :default
+           (handle-default tx field-id value item-data pool-id))))
 
 (defn index-resources
   [{:keys [tx] {:keys [role] user-id :id} :authenticated-entity :as request}]
@@ -203,7 +204,7 @@
                                   fields)
           fields-with-defaults
           (if item-data
-            (map #(merge-item-defaults tx % item-data pool_id) transformed-fields)
+            (map #(handle-item-defaults tx % item-data pool_id) transformed-fields)
             transformed-fields)]
       (response {:fields (vec fields-with-defaults)}))
     (catch Exception e
