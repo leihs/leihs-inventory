@@ -15,60 +15,49 @@ require_relative "../_common"
       let(:pool_id) { @inventory_pool.id }
       let(:model_id) { @models.first.id }
 
-      describe "fetching filters" do
+      # describe "fetching filters" do
 
-        let :fields do
-          resp = client.get("/inventory/#{pool_id}/fields/?target_type=advanced_search")
+      let :fields do
+        resp = client.get("/inventory/#{pool_id}/fields/?target_type=advanced_search")
 
+        expect(resp.status).to eq(200)
+        expect(resp.body["fields"].count).to eq(46)
+
+        puts "FIELDS: #{resp.body["fields"].keys}"
+        resp.body["fields"]
+      end
+
+      describe "fetch data by using different filters" do
+        let :filter_set1 do
+          [{ "inventory_code" => "INV" }]
+        end
+
+        let :filter_set2 do
+          [{ "note" => "test", "inventory_code" => "INV" }, { "inventory_code" => "ABC" }]
+        end
+
+        it "returns all models used by model-selection" do
+          [filter_set1, filter_set2].each do |filter_set|
+            resp = client.get "/inventory/#{pool_id}/list/?filters=#{filter_set.to_json}"
+            expect(resp.status).to eq(200)
+            # expect(resp.body.count).to eq(12)
+          end
+        end
+
+        it "fetch data as csv" do
+          resp = client.get "/inventory/#{pool_id}/list/?filters=#{filter_set1.to_json}" do |req|
+            req.headers["Accept"] = "text/csv"
+          end
           expect(resp.status).to eq(200)
-          expect(resp.body["fields"].count).to eq(46)
-
-          puts "FIELDS: #{resp.body["fields"].keys}"
-
-          resp.body["fields"]
         end
 
-        describe "fetch data by using various filters" do
-
-          let :filter_set1 do
-            [{ "inventory_code" => "INV" }]
+        it "fetch data as excel" do
+          # FIXME: resp = client.get "/inventory/#{pool_id}/list/?filters=#{filter_set1.to_json}" do |req|
+          resp = client.get "/inventory/#{pool_id}/list/" do |req|
+            req.headers["Accept"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           end
-
-          let :filter_set2 do
-            [{ "note" => "test", "inventory_code" => "INV" }, { "inventory_code" => "ABC" }]
-          end
-
-          it "returns all models used by model-selection" do
-            [filter_set1, filter_set2].each do |filter_set|
-              resp = client.get "/inventory/#{pool_id}/list/?filters=#{filter_set.to_json}"
-              expect(resp.status).to eq(200)
-              # expect(resp.body.count).to eq(12)
-            end
-          end
-
-          it "fetch data as csv" do
-            resp = client.get "/inventory/#{pool_id}/list/?filters=#{filter_set1.to_json}" do |req|
-              req.headers["Accept"] = "text/csv"
-            end
-            expect(resp.status).to eq(200)
-          end
-
-          it "fetch data as excel" do
-            # FIXME: resp = client.get "/inventory/#{pool_id}/list/?filters=#{filter_set1.to_json}" do |req|
-            resp = client.get "/inventory/#{pool_id}/list/" do |req|
-              req.headers["Accept"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            end
-            expect(resp.status).to eq(200)
-          end
+          expect(resp.status).to eq(200)
         end
-
-        # it "paginates results" do
-        #   resp = client.get "/inventory/#{pool_id}/templates/?size=5&page=2"
-        #
-        #   expect(resp.status).to eq(200)
-        #   expect(resp.body["data"].count).to eq(5)
-        #   expect(resp.body["pagination"]["total_rows"]).to eq(22)
-        # end
       end
 
       # describe "validation" do
