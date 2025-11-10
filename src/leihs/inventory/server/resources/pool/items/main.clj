@@ -162,13 +162,20 @@
         permitted-fields (-> (fields/base-query "item" (keyword role) pool-id)
                            sql-format
                            (->> (jdbc/execute! tx)))
+        p (println ">o> abc.permitted-fields.q" (-> (fields/base-query "item" (keyword role) pool-id)
+                                                sql-format))
+
         permitted-field-ids (->> permitted-fields
                               (map (comp keyword :id))
                               set)
+        p (println ">o> abc.permitted-field-ids" permitted-field-ids)
 
         ;; Check unpermitted fields
         data-keys (-> data keys set)
-        unpermitted-fields (set/difference data-keys permitted-field-ids)]
+        p (println ">o> abc.data-keys" data-keys)
+        unpermitted-fields (set/difference data-keys permitted-field-ids)
+        p (println ">o> abc.unpermitted-fields" unpermitted-fields)
+        ]
 
     (cond
       (empty? ids)
@@ -264,11 +271,13 @@
 (defn patch-resource
   [{:keys [tx] :as request}]
   (try
+             (println ">o> abc.patch-resource0" )
     ;; Optional permission validation
     (if-let [validation-error (validate-field-permissions request)]
       (bad-request validation-error)
 
-      (let [     p (println ">o> abc.patch-resource1" patch-resource)
+      (let [
+            p (println ">o> abc.patch-resource1" patch-resource)
             {:keys [ids data]} (body-params request)
             p (println ">o> abc.patch-resource.data" data)
             ids (set ids)
