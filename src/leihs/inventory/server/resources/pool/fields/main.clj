@@ -42,15 +42,18 @@
    :composite #{:data_dependency_field_id}})
 
 (def keys-hooks
-  (let [pools-hook (fn [f & {:keys [tx resource-id user-id]}]
-                     (assoc f :values
-                            (-> pools/base-query (dissoc :select)
-                                (sql/select [:id :value] [:name :label] :is_active)
-                                (cond-> resource-id
-                                  (pools/for-inventory-manager user-id))
-                                (sql/order-by [:is_active :desc] :name)
-                                sql-format
-                                (->> (jdbc/query tx)))))]
+  (let [pools-hook (fn [f & {:keys [tx resource-id user-id pool]}]
+                     (-> f
+                         (assoc :values
+                                (-> pools/base-query (dissoc :select)
+                                    (sql/select [:id :value] [:name :label] :is_active)
+                                    (cond-> resource-id
+                                      (pools/for-inventory-manager user-id))
+                                    (sql/order-by [:is_active :desc] :name)
+                                    sql-format
+                                    (->> (jdbc/query tx))))
+                         (assoc :default {:value (:id pool),
+                                          :label (:name pool)})))]
     {:building_id (fn [f & {:keys [tx]}]
                     (assoc f :values
                            (-> buildings/base-query (dissoc :select)
@@ -63,10 +66,7 @@
                                sql-format
                                (->> (jdbc/query tx)))))
      :inventory_pool_id pools-hook
-     :owner_id (fn [f & {:keys [pool] :as opts}]
-                 (-> (pools-hook f opts)
-                     (assoc :default {:value (:id pool),
-                                      :label (:name pool)})))
+     :owner_id pools-hook
      :room_id (fn [f & {:keys [pool]}]
                 (assoc f :values_url
                        (str "/inventory/" (:id pool) "/rooms/")))
