@@ -2,15 +2,10 @@
   (:require
    [clojure.string :as str]
    [clojure.walk :as walk]
-   ;[java.time Instant LocalDateTime ZoneOffset]
-   ;[java.time.format DateTimeFormatter]
    [taoensso.timbre :refer [error debug]])
-
   (:import
    (java.time Instant LocalDateTime ZoneOffset)
-   (java.time.format DateTimeFormatter))
-  )
-
+   (java.time.format DateTimeFormatter))  )
 
 (defn now-yyyyMMdd-HHmmss []
   (.format (DateTimeFormatter/ofPattern "yyyyMMdd-HHmmss")

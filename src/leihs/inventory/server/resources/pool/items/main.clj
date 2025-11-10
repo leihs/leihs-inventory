@@ -11,15 +11,10 @@
    [leihs.inventory.server.resources.pool.fields.main :as fields]
    [leihs.inventory.server.resources.pool.items.filter-handler :refer [add-filter-groups parse-json-param validate-filters]]
    [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool]]
-
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
-
-
    [leihs.inventory.server.resources.pool.fields.main :refer [fetch-properties-fields]]
-
       [clojure.string :as str]
       [cheshire.core :as json]
-
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [body-params path-params
@@ -29,9 +24,7 @@
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :as timbre :refer [debug spy]])
-
-  (:import [java.time Instant])
-  )
+  (:import [java.time Instant])  )
 
 (defn base-pool-query [query pool-id]
   (-> query
@@ -275,14 +268,9 @@
     (if-let [validation-error (validate-field-permissions request)]
       (bad-request validation-error)
 
-      (let [
-
-            p (println ">o> abc.patch-resource1" patch-resource)
+      (let [     p (println ">o> abc.patch-resource1" patch-resource)
             {:keys [ids data]} (body-params request)
             p (println ">o> abc.patch-resource.data" data)
-
-
-
             ids (set ids)
 
             ;; Split :properties_* fields into JSON props vs normal DB fields
