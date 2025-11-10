@@ -17,7 +17,7 @@
 (defn convert "Handler that generates an CSV file from a given map."
   [data]
   (let [output-stream (java.io.ByteArrayOutputStream.)
-        csv-data (maps-to-csv data)  ]
+        csv-data (maps-to-csv (or data []))  ]
     (with-open [writer (io/writer output-stream)]
       (csv/write-csv writer csv-data))
     {:status 200

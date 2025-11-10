@@ -84,56 +84,123 @@
     (uuid-string? v) [:cast v :uuid]
     :else v))
 
+;(defn add-filter
+;  [query [k v] raw-filter-keys]
+;  (let [k-str (name k)
+;        ;; normalize all raw-filter-keys to strings for comparison
+;        raw-filter-strs (set (map #(name (keyword %)) raw-filter-keys))
+;        property-key-str (str "properties_" k-str)
+;        is-property? (contains? raw-filter-strs property-key-str)]
+;
+;    (println ">o> abc.raw-filter-keys" raw-filter-strs)
+;    (println ">o> abc.property-key" property-key-str)
+;    (println ">o> abc.is-property?" is-property?)
+;
+;    (let [;; choose SQL field accordingly
+;          field (if is-property?
+;                  [:raw (format "items.properties ->> '%s'" property-key-str)]
+;                  k)]
+;      (cond
+;        ;; retired flag
+;        (= k :retired)
+;        (cond
+;          (= true v)  (sql/where query [:is-not k nil])
+;          (= false v) (sql/where query [:is k nil])
+;          :else query)
+;
+;        ;; between range (dates, numbers)
+;        (between-range? v)
+;        (let [[from to] v]
+;          (cond-> query
+;            (and from to) (sql/where [:between field from to])
+;            (and (nil? from) to) (sql/where [:<= field to])
+;            (and from (nil? to)) (sql/where [:>= field from])))
+;
+;        ;; multi-value (arrays, sets)
+;        (multi-value? v)
+;        (let [vals (cast-uuid v)]
+;          (cond-> query
+;            (seq vals) (sql/where [:in field vals])))
+;
+;        ;; string-based search
+;        (string? v)
+;        (let [pattern (str "%" v "%")]
+;          (sql/where query [:ilike field pattern]))
+;
+;        ;; default case
+;        :else
+;        (let [val (cast-uuid v)]
+;          (cond-> query
+;            (some? val) (sql/where [:= field val])))))))
+
+
+(defn pr
+  ([str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
+  ([str str2 fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str str2)
+  fnc
+  )
+)
+
+
 (defn add-filter
   [query [k v] raw-filter-keys]
   (let [k-str (name k)
         ;; normalize all raw-filter-keys to strings for comparison
         raw-filter-strs (set (map #(name (keyword %)) raw-filter-keys))
         property-key-str (str "properties_" k-str)
-        is-property? (contains? raw-filter-strs property-key-str)]
+        is-property? (contains? raw-filter-strs property-key-str)
 
-    (println ">o> abc.raw-filter-keys" raw-filter-strs)
-    (println ">o> abc.property-key" property-key-str)
-    (println ">o> abc.is-property?" is-property?)
+        ;; choose SQL field accordingly
+        field (if is-property?
+                [:raw (format "items.properties ->> '%s'" property-key-str)]
+                ;; prefix non-property columns with "items."
+                (keyword (str "items." k-str)))]
 
-    (let [;; choose SQL field accordingly
-          field (if is-property?
-                  [:raw (format "items.properties ->> '%s'" property-key-str)]
-                  k)]
-      (cond
-        ;; retired flag
-        (= k :retired)
-        (cond
-          (= true v)  (sql/where query [:is-not k nil])
-          (= false v) (sql/where query [:is k nil])
-          :else query)
+    ;(println ">o> abc.raw-filter-keys" raw-filter-strs)
+    ;(println ">o> abc.property-key" property-key-str)
+    ;(println ">o> abc.is-property?" is-property?)
+    (println ">o> abc.field" field)
+    (println ">o> abc.value" v)
 
-        ;; between range (dates, numbers)
-        (between-range? v)
-        (let [[from to] v]
-          (cond-> query
-            (and from to) (sql/where [:between field from to])
-            (and (nil? from) to) (sql/where [:<= field to])
-            (and from (nil? to)) (sql/where [:>= field from])))
+    (cond
+      ;; retired flag
+      (= k :retired)
+      (pr ">o>" "1" (cond
+        (= true v)  (sql/where query [:is-not field nil])
+        (= false v) (sql/where query [:is field nil])
+        :else query))
 
-        ;; multi-value (arrays, sets)
-        (multi-value? v)
-        (let [vals (cast-uuid v)]
-          (cond-> query
-            (seq vals) (sql/where [:in field vals])))
+      ;; between range (dates, numbers)
+      (between-range? v)
+      (pr ">o>" "2" (let [[from to] v]
+        (cond-> query
+          (and from to) (sql/where [:between field from to])
+          (and (nil? from) to) (sql/where [:<= field to])
+          (and from (nil? to)) (sql/where [:>= field from]))))
 
-        ;; string-based search
-        (string? v)
-        (let [pattern (str "%" v "%")]
-          (sql/where query [:ilike field pattern]))
+      ;; multi-value (arrays, sets)
+      (multi-value? v)
+      (pr ">o>" "3" (let [vals (cast-uuid v)]
+        (cond-> query
+          (seq vals) (sql/where [:in field vals]))))
 
-        ;; default case
-        :else
-        (let [val (cast-uuid v)]
-          (cond-> query
-            (some? val) (sql/where [:= field val])))))))
+      ;; string-based search
+      (string? v)
+      (pr ">o>" "4" (let [pattern (str "%" v "%")]
+        (sql/where query [:ilike field pattern])))
 
-
+      ;; default case
+      :else
+        (pr ">o>" "5" (let [val (cast-uuid v)]
+        (cond-> query
+          (some? val) (sql/where [:= field val])))))))
 
 
 (defn add-subfilter-group

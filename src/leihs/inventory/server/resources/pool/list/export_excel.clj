@@ -37,7 +37,7 @@
   "Handler that generates an Excel file from a given map."
   [data]
   (try
-    (let [excel-file (generate-excel-from-map data)]
+    (let [excel-file (generate-excel-from-map (or data []))]
       {:status 200
        :headers {"Content-Type" "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                  "x-rows" (str (count data))

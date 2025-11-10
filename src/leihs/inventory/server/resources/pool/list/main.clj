@@ -31,7 +31,10 @@
 
 (defn items-sub-query [query]
   (-> query
-    (sql/select :items.properties)
+    (sql/select :items.properties [:items.inventory_code :iinventory_code]
+      [:items.id :item_id]
+      [:items.is_broken :is_broken]
+      )
     (sql/right-join :items [:= :items.model_id :inventory.id])))
 
 (defn index-resources
@@ -95,7 +98,7 @@
                     (->> models
                       (fetch-thumbnails-for-ids tx)
                       (map (model->enrich-with-image-attr pool-id))))]
-     (debug (sql-format query :inline true))
+     (println ">o> ???" (sql-format query :inline true))
 
      (cond
        (= accept-type :csv) (export-csv/convert (create-pagination-response request query false post-fnc))
