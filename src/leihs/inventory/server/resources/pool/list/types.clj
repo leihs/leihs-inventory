@@ -29,7 +29,7 @@
 (def get-models-response-payload
   (merge get-model-scheme {s/Keyword s/Any}))
 
-(def get-response (s/->Either [{:data [get-models-response-payload] :pagination pagination} [get-models-response-payload]]))
+(def get-response (s/->Either [{:data [get-models-response-payload] :pagination pagination} [get-models-response-payload] s/Any]))
 
 (sa/def :software/properties (sa/or
                               :single (sa/or :coll (sa/coll-of ::sp/property)
