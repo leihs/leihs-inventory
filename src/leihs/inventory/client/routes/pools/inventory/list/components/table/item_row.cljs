@@ -60,7 +60,7 @@
              ($ Button {:variant "outline"
                         :asChild true}
                 ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (str (:id item) "/edit")
+                         :to (str "../items/" (:id item))
                          :viewTransition true}
                    (t "pool.models.list.actions.edit")))
 

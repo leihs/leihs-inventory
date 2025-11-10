@@ -8,11 +8,15 @@
                               AlertDialogFooter AlertDialogHeader
                               AlertDialogTitle]]
    ["@@/button" :refer [Button]]
+   ["@@/button-group" :refer [ButtonGroup]]
    ["@@/card" :refer [Card CardContent]]
+   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuTrigger
+                               DropdownMenuContent DropdownMenuItem
+                               DropdownMenuSeparator]]
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
-   ["lucide-react" :refer [Trash]]
+   ["lucide-react" :refer [Trash ChevronDownIcon]]
    ["react" :as react]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
@@ -34,14 +38,14 @@
   (.. toast (error "Invalid Data"))
   (js/console.debug "is invalid: " data))
 
-(def default-values (cj {:number-items 1
-                         :inventory-code ""
-                         :retired "yes"
-                         :retire-reason ""
-                         :working "ok"
-                         :availability "ok"
-                         :lendable "ok"
-                         :models {:id "" :name ""}}))
+;; (def default-values (cj {:number-items 1
+;;                          :inventory-code ""
+;;                          :retired "yes"
+;;                          :retire-reason ""
+;;                          :working "ok"
+;;                          :availability "ok"
+;;                          :lendable "ok"
+;;                          :models {:id "" :name ""}}))
 
 (defui page []
   (let [[t] (useTranslation)
@@ -54,22 +58,17 @@
 
         is-edit (not (or is-create is-delete))
 
-        loader-data (jc (router/useLoaderData))
         {:keys [data]} (jc (useLoaderData))
 
-        fields-data (:fields loader-data)
-
         ;; Transform fields data to form structure
-        form-structure (fields-to-form/transform-fields-to-structure fields-data)
+        structure (fields-to-form/transform-fields-to-structure data)
 
         ;; Extract default values from fields
-        dynamic-defaults (when fields-data
-                           (cj (fields-to-form/extract-default-values fields-data)))
+        defaults (when data
+                   (cj (fields-to-form/extract-default-values data)))
 
-        form (useForm #js {:resolver (zodResolver (fields-to-zod/fields-to-zod-schema fields-data))
-                           :defaultValues (if is-edit
-                                            (fn [] (core/prepare-default-values data))
-                                            (or dynamic-defaults default-values))})
+        form (useForm #js {:resolver (zodResolver (fields-to-zod/fields-to-zod-schema data))
+                           :defaultValues defaults})
 
         get-values (.. form -getValues)
         ;; reactive values
@@ -118,7 +117,7 @@
                                                           {:status (.. err -response -status)
                                                            :statusText (.. err -response -statusText)}))))
 
-                                       (<p! (let [item-id (aget params "model-id")]
+                                       (<p! (let [item-id (aget params "item-id")]
                                               (-> http-client
                                                   (.patch (str "/inventory/" pool-id "/items/")
                                                           (js/JSON.stringify (cj item-data))
@@ -184,6 +183,13 @@
                                             #js {:state state
                                                  :viewTransition true})))))))))]
 
+    (uix/use-effect
+     (fn []
+       (when (and is-create (not is-loading))
+         (let [owner (.. js/document (querySelector "[name='owner_id']"))]
+           (set! (.. owner -disabled) true))))
+     [is-create is-loading])
+
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
          ($ Spinner))
@@ -210,7 +216,7 @@
                                :className "space-y-12 w-full lg:w-3/5"
                                :on-submit (handle-submit on-submit on-invalid)}
 
-                        (for [section form-structure]
+                        (for [section structure]
                           ($ ScrollspyItem {:className "scroll-mt-[10vh]"
                                             :key (:title section)
                                             :id (:title section)
@@ -225,49 +231,81 @@
                                                      :form form
                                                      :block block}))))))
 
-                  ($ :div {:className "h-max flex space-x-6 sticky bottom-0 pt-12 lg:top-[43vh] ml-auto"}
-
-                     ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
-                                       (some-> state .-searchParams))
-                              :className "self-center hover:underline"
-                              :viewTransition true}
-                        (if is-create
-                          (t "pool.model.create.cancel")
-                          (t "pool.model.cancel")))
-
+                  ($ ButtonGroup
                      ($ Button {:type "submit"
                                 :form "create-model"
                                 :className "self-center"}
                         (if is-create
                           (t "pool.model.create.submit")
                           (t "pool.model.submit")))
+                     ($ DropdownMenu
+                        ($ DropdownMenuTrigger {:asChild true}
+                           ($ Button {:className "self-center !px-2"}
+                              ($ ChevronDownIcon)))
 
-                     (when (not is-create)
-                       ($ Button {:asChild true
-                                  :variant "destructive"
-                                  :size "icon"
+                        ($ DropdownMenuContent {:align "end"
+                                                :class-name "[--radius:1rem]"}
+                           ($ DropdownMenuItem
+                              {:asChild true}
+                              ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
+                                                (some-> state .-searchParams))
+                                       :viewTransition true}
+                                 (if is-create
+                                   (t "pool.model.create.cancel")
+                                   (t "pool.model.cancel"))))
+
+                           ($ DropdownMenuSeparator)
+
+                           (when (not is-create)
+                             ($ DropdownMenuItem {:asChild true
+                                                  :variant "destructive"}
+                                ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
+                                         :state state}
+                                   "Delete"))))))
+
+                  #_($ :div {:className "h-max flex space-x-6 sticky bottom-0 pt-12 lg:top-[43vh] ml-auto"}
+
+                       ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
+                                         (some-> state .-searchParams))
+                                :className "self-center hover:underline"
+                                :viewTransition true}
+                          (if is-create
+                            (t "pool.model.create.cancel")
+                            (t "pool.model.cancel")))
+
+                       ($ Button {:type "submit"
+                                  :form "create-model"
                                   :className "self-center"}
-                          ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id/delete" params)
-                                   :state state}
-                             ($ Trash {:className "w-4 h-4"}))))
+                          (if is-create
+                            (t "pool.model.create.submit")
+                            (t "pool.model.submit")))
+
+                       (when (not is-create)
+                         ($ Button {:asChild true
+                                    :variant "destructive"
+                                    :size "icon"
+                                    :className "self-center"}
+                            ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
+                                     :state state}
+                               ($ Trash {:className "w-4 h-4"}))))
 
                    ;; Dialog when deleting a model
-                     (when (not is-create)
-                       ($ AlertDialog {:open is-delete}
-                          ($ AlertDialogContent
+                       (when (not is-create)
+                         ($ AlertDialog {:open is-delete}
+                            ($ AlertDialogContent
 
-                             ($ AlertDialogHeader
-                                ($ AlertDialogTitle (t "pool.model.delete.title"))
-                                ($ AlertDialogDescription (t "pool.model.delete.description")))
+                               ($ AlertDialogHeader
+                                  ($ AlertDialogTitle (t "pool.model.delete.title"))
+                                  ($ AlertDialogDescription (t "pool.model.delete.description")))
 
-                             ($ AlertDialogFooter
-                                ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
+                               ($ AlertDialogFooter
+                                  ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
                                                     hover:bg-destructive hover:text-destructive-foreground"
-                                                      :onClick handle-delete}
-                                   (t "pool.model.delete.confirm"))
-                                ($ AlertDialogCancel
-                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id" params)
-                                            :state state}
+                                                        :onClick handle-delete}
+                                     (t "pool.model.delete.confirm"))
+                                  ($ AlertDialogCancel
+                                     ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id" params)
+                                              :state state}
 
-                                      (t "pool.model.delete.cancel")))))))))))))))
+                                        (t "pool.model.delete.cancel")))))))))))))))
 

@@ -6,6 +6,7 @@
   (let [field-type (:type field)
         is-required (:required field)
         ;; Fields with dependencies should be treated as optional in base validation
+        ;; so that we can add custom refinements later
         has-dependency (or (:visibility_dependency_field_id field)
                            (:values_dependency_field_id field))
         treat-as-optional (and is-required has-dependency)
@@ -24,13 +25,14 @@
                            (z/string))
 
                          "date"
-                         (-> (z/date)
+                         (-> (.. z -coerce (date))
+                             ;; transform to "YYYY-MM-DD" format
                              (.transform (fn [date]
-                                          (when date
-                                            (let [year (.getFullYear date)
-                                                  month (-> (.getMonth date) inc (str) (.padStart 2 "0"))
-                                                  day (-> (.getDate date) (str) (.padStart 2 "0"))]
-                                              (str year "-" month "-" day))))))
+                                           (when date
+                                             (let [year (.getFullYear date)
+                                                   month (-> (.getMonth date) inc (str) (.padStart 2 "0"))
+                                                   day (-> (.getDate date) (str) (.padStart 2 "0"))]
+                                               (str year "-" month "-" day))))))
 
                          "select"
                          (if (and is-required (not treat-as-optional))
@@ -84,6 +86,7 @@
                     (cond
                       (= v "true") true
                       (= v "false") false
+                      (= v "") nil
                       :else v))
               result)
             (js-obj)
@@ -144,6 +147,7 @@
                                                                :path [field-id]})))))))
                             data)))]
 
+    ;; convert string "true"/"false" to boolean, and remove excluded fields
     (.transform refined-schema
                 (fn [data]
                   (let [converted (convert-string-booleans data)]

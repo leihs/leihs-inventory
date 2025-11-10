@@ -85,11 +85,14 @@
                    (.then #(jc (.-data %))))
 
         item-path (when item-id
-                    (str "/inventory/" pool-id "/items/" item-id))
+                    (str "/inventory/" pool-id "/items/"))
 
-        data (when item-path
+        data (if item-path
                (-> http-client
-                   (.get item-path #js {:id item-id})
+                   (.get (str "/inventory/" pool-id "/fields/?resource_id=" item-id "&target_type=item"))
+                   (.then #(jc (.-data %))))
+               (-> http-client
+                   (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
                    (.then #(jc (.-data %)))))]
 
     (.. (js/Promise.all (cond-> [fields]

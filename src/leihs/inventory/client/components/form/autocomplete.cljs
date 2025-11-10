@@ -100,6 +100,7 @@
                        ($ PopoverTrigger {:as-child true}
                           ($ Button {:ref buttonRef
                                      :variant "outline"
+                                     :name name
                                      :role "combobox"
                                      :class-name "w-full justify-between"}
                              (or (get-values (str name ".label"))
