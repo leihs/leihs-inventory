@@ -7,14 +7,13 @@
    [honey.sql.helpers :as sql])
   (:import [com.fasterxml.jackson.core JsonParseException]))
 
-
 (defn uuid-string?
   "True if v is a UUID-formatted string."
   [v]
   (and (string? v)
-    (re-matches
-      #"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
-      v)))
+       (re-matches
+        #"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+        v)))
 
 (defn cast-uuid
   "Casts UUID strings to [:cast v :uuid] for HoneySQL.
@@ -32,7 +31,6 @@
     ;; default passthrough
     :else
     v))
-
 
 ;; ------------------------------------------------------------
 ;; Parse compact JSON: always a vector of maps (more tolerant)
@@ -64,13 +62,13 @@
         (if (and (vector? v) (every? map? v))
           v
           (throw (ex-info "Invalid filter format: must be a vector of maps"
-                   {:status 400 :type :invalid-structure})))))
+                          {:status 400 :type :invalid-structure})))))
     (catch Exception e
       (println ">>>>> parse-json-param final exception:" (.getMessage e))
       (throw (ex-info "Malformed or invalid filter input."
-               {:status 400
-                :type :parse-error
-                :cause (.getMessage e)})))))
+                      {:status 400
+                       :type :parse-error
+                       :cause (.getMessage e)})))))
 
 ;(ns leihs.inventory.server.resources.pool.list.filter-handler
 ;  (:require [clojure.string :as str]))
@@ -100,7 +98,7 @@
 (defn parse-equality [s]
   (println ">>> parse-equality" s)
   (cond
-    (str/starts-with? s "=")  {:op := :val (parse-num (subs s 1))}
+    (str/starts-with? s "=") {:op := :val (parse-num (subs s 1))}
     (str/starts-with? s "!=") {:op :<> :val (parse-num (subs s 2))}))
 
 (defn parse-comparison [s]
@@ -108,20 +106,20 @@
   (cond
     (str/starts-with? s ">=") {:op :>= :val (parse-num (subs s 2))}
     (str/starts-with? s "<=") {:op :<= :val (parse-num (subs s 2))}
-    (str/starts-with? s ">")  {:op :>  :val (parse-num (subs s 1))}
-    (str/starts-with? s "<")  {:op :<  :val (parse-num (subs s 1))}))
+    (str/starts-with? s ">") {:op :> :val (parse-num (subs s 1))}
+    (str/starts-with? s "<") {:op :< :val (parse-num (subs s 1))}))
 
 (defn parse-like [s low]
   (println ">>> parse-like" s)
   (cond
     (str/starts-with? low "not ilike") {:op :not-ilike :val (subs s 9)}
-    (str/starts-with? low "ilike")     {:op :ilike     :val (subs s 5)}
-    (str/starts-with? low "not like")  {:op :not-like  :val (subs s 8)}
-    (str/starts-with? low "like")      {:op :like      :val (subs s 4)}))
+    (str/starts-with? low "ilike") {:op :ilike :val (subs s 5)}
+    (str/starts-with? low "not like") {:op :not-like :val (subs s 8)}
+    (str/starts-with? low "like") {:op :like :val (subs s 4)}))
 
 (defn parse-in [s low]
   (println ">>> parse-in start, raw s:" s "type:" (type s)
-    "| low:" low "type:" (type low))
+           "| low:" low "type:" (type low))
   (try
     (cond
       (re-matches #"^not +in\[.*\]$" low)
@@ -129,12 +127,12 @@
         (println ">>> parse-in not-in inner:" inner "type:" (type inner))
         (let [split-result (clojure.string/split inner #",")]
           (println ">>> parse-in not-in split-result:" split-result
-            "type:" (type split-result)
-            "first elem type:" (some-> split-result first type))
+                   "type:" (type split-result)
+                   "first elem type:" (some-> split-result first type))
           (let [vals (mapv clojure.string/trim split-result)]
             (println ">>> parse-in not-in vals parsed:" vals
-              "| type:" (type vals)
-              "| element types:" (mapv type vals))
+                     "| type:" (type vals)
+                     "| element types:" (mapv type vals))
             {:op :not-in :val vals})))
 
       (re-matches #"^in\[.*\]$" low)
@@ -142,23 +140,22 @@
         (println ">>> parse-in in inner:" inner "type:" (type inner))
         (let [split-result (clojure.string/split inner #",")]
           (println ">>> parse-in in split-result:" split-result
-            "type:" (type split-result)
-            "first elem type:" (some-> split-result first type))
+                   "type:" (type split-result)
+                   "first elem type:" (some-> split-result first type))
           (let [vals (mapv clojure.string/trim split-result)]
             (println ">>> parse-in in vals parsed:" vals
-              "| type:" (type vals)
-              "| element types:" (mapv type vals))
+                     "| type:" (type vals)
+                     "| element types:" (mapv type vals))
             {:op :in :val vals}))))
     (catch Exception e
       (println ">>> parse-in exception:" (.getMessage e))
       (println ">>> parse-in exception class:" (type e))
       (throw e))))
 
-
 (defn parse-null [low]
   (println ">>> parse-null" low)
   (cond
-    (= low "isnull")     {:op :isnull}
+    (= low "isnull") {:op :isnull}
     (= low "not isnull") {:op :not-isnull}))
 
 ;; ------------------------------------------------------------
@@ -176,18 +173,15 @@
             low (str/lower-case s)]
         (println ">>> parse-op-value trimmed:" s)
         (or
-          (parse-equality s)
-          (parse-comparison s)
-          (parse-like s low)
-          (parse-in s low)
-          (parse-null low)
-          {:op := :val (parse-num s)})))
+         (parse-equality s)
+         (parse-comparison s)
+         (parse-like s low)
+         (parse-in s low)
+         (parse-null low)
+         {:op := :val (parse-num s)})))
     (catch Exception e
       (println ">>> parse-op-value exception:" (.getMessage e))
       (throw e))))
-
-
-
 
 ;; ------------------------------------------------------------
 ;; SQL builder
@@ -198,22 +192,21 @@
         {:keys [op val]} (parse-op-value v)
         val (cast-uuid val)]
     (case op
-      :isnull       (sql/where query [:is field nil])
-      :not-isnull   (sql/where query [:is-not field nil])
-      :in           (sql/where query [:in field val])
-      :not-in       (sql/where query [:not-in field val])
-      :like         (sql/where query [:like field val])
-      :not-like     (sql/where query [:not [:like field val]])
-      :ilike        (sql/where query [:ilike field val])
-      :not-ilike    (sql/where query [:not [:ilike field val]])
-      :<>           (sql/where query [:<> field val])
-      :=            (sql/where query [:= field val])
-      :>            (sql/where query [:> field val])
-      :<            (sql/where query [:< field val])
-      :>=           (sql/where query [:>= field val])
-      :<=           (sql/where query [:<= field val])
+      :isnull (sql/where query [:is field nil])
+      :not-isnull (sql/where query [:is-not field nil])
+      :in (sql/where query [:in field val])
+      :not-in (sql/where query [:not-in field val])
+      :like (sql/where query [:like field val])
+      :not-like (sql/where query [:not [:like field val]])
+      :ilike (sql/where query [:ilike field val])
+      :not-ilike (sql/where query [:not [:ilike field val]])
+      :<> (sql/where query [:<> field val])
+      := (sql/where query [:= field val])
+      :> (sql/where query [:> field val])
+      :< (sql/where query [:< field val])
+      :>= (sql/where query [:>= field val])
+      :<= (sql/where query [:<= field val])
       query)))
-
 
 (defn add-filter
   [query [k v] raw-filter-keys]
@@ -234,27 +227,26 @@
     (println ">>> add-filter field:" field "value:" v "is-property?:" is-property? "op:" op)
 
     (case op
-      :isnull       (sql/where query [:is field nil])
-      :not-isnull   (sql/where query [:is-not field nil])
-      :in           (sql/where query [:in field val])
-      :not-in       (sql/where query [:not-in field val])
-      :like         (sql/where query [:like field val])
-      :not-like     (sql/where query [:not [:like field val]])
-      :ilike        (sql/where query [:ilike field val])
-      :not-ilike    (sql/where query [:not [:ilike field val]])
-      :<>           (sql/where query [:<> field val])
-      :=            (sql/where query [:= field val])
-      :>            (sql/where query [:> field val])
-      :<            (sql/where query [:< field val])
-      :>=           (sql/where query [:>= field val])
-      :<=           (sql/where query [:<= field val])
+      :isnull (sql/where query [:is field nil])
+      :not-isnull (sql/where query [:is-not field nil])
+      :in (sql/where query [:in field val])
+      :not-in (sql/where query [:not-in field val])
+      :like (sql/where query [:like field val])
+      :not-like (sql/where query [:not [:like field val]])
+      :ilike (sql/where query [:ilike field val])
+      :not-ilike (sql/where query [:not [:ilike field val]])
+      :<> (sql/where query [:<> field val])
+      := (sql/where query [:= field val])
+      :> (sql/where query [:> field val])
+      :< (sql/where query [:< field val])
+      :>= (sql/where query [:>= field val])
+      :<= (sql/where query [:<= field val])
       query)))
-
 
 (defn add-and-group [base-query subfilter]
   (reduce (fn [q pair] (add-filter q pair))
-    base-query
-    subfilter))
+          base-query
+          subfilter))
 
 (defn add-filter-groups
   "Adds all filter groups (vector of maps). The optional third argument
@@ -265,11 +257,10 @@
    (let [group-conds
          (for [group groups]
            (-> (add-and-group (sql/select) group)
-             :where))]
+               :where))]
      (if (seq group-conds)
        (sql/where base-query (cons :or group-conds))
        base-query))))
-
 
 (defn add-filter-groups
   ([base-query groups]
@@ -278,16 +269,14 @@
    (let [group-conds
          (for [group groups]
            (-> (reduce
-                 (fn [q pair]
-                   (add-filter q pair raw-filter-keys))
-                 (sql/select)
-                 group)
-             :where))]
+                (fn [q pair]
+                  (add-filter q pair raw-filter-keys))
+                (sql/select)
+                group)
+               :where))]
      (if (seq group-conds)
        (sql/where base-query (cons :or group-conds))
        base-query))))
-
-
 
 ;; ------------------------------------------------------------
 ;; Whitelist validation
@@ -297,10 +286,10 @@
   (println ">o> filters" filter-groups)
   (let [wl-set (set (map keyword whitelist))]
     (reduce
-      (fn [{:keys [valid invalid]} group]
-        (let [allowed (set/intersection wl-set (set (keys group)))
-              denied  (set/difference (set (keys group)) wl-set)]
-          {:valid (conj valid (select-keys group allowed))
-           :invalid (into invalid denied)}))
-      {:valid [] :invalid []}
-      filter-groups)))
+     (fn [{:keys [valid invalid]} group]
+       (let [allowed (set/intersection wl-set (set (keys group)))
+             denied (set/difference (set (keys group)) wl-set)]
+         {:valid (conj valid (select-keys group allowed))
+          :invalid (into invalid denied)}))
+     {:valid [] :invalid []}
+     filter-groups)))
