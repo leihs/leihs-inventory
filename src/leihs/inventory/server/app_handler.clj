@@ -33,9 +33,7 @@
    [ring.middleware.params :refer [wrap-params]]))
 
 (def middlewares [debug-mw/wrap-debug
-                  #(wrap-html-40x % [#"/inventory/.+/images/.+"
-                                     #"/inventory/.+/images/.+/thumbnail"
-                                     #"/inventory/.+/attachments/.+"])
+                  #(wrap-html-40x % [#"/inventory/.+"])
                   muuntaja/format-response-middleware
                   wrap-exception
 
@@ -92,7 +90,8 @@
         app (ring/routes (swagger/init)
                          (ring/ring-handler router
                                             (ring/create-default-handler
-                                             {:not-found custom-not-found-handler})))
+                                             {:not-found custom-not-found-handler
+                                              :method-not-allowed custom-not-found-handler})))
         app (wrap-router app router)]
     (-> app
         (cache-buster2/wrap-resource "public" cache-bust-options)
