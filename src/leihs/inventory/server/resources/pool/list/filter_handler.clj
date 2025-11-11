@@ -11,115 +11,6 @@
 ;; Parse compact JSON: always a vector of maps (more tolerant)
 ;; ------------------------------------------------------------
 
-;(defn parse-json-param [s]
-;  (println ">o> filter.s" s)
-;  (try
-;    (let [trimmed (str/trim (str s))
-;          parsed (try
-;                   ;; first try JSON
-;                   (json/parse-string trimmed true)
-;                   (catch JsonParseException _
-;                     ;; fallback: EDN (for raw Clojure-style vectors)
-;                     (edn/read-string trimmed)))]
-;      (cond
-;        (and (vector? parsed) (every? map? parsed))
-;        parsed
-;
-;        (map? parsed)
-;        [parsed] ;; allow single map
-;
-;        :else
-;        (throw (ex-info "Invalid filter format: must be a vector of maps"
-;                 {:status 400 :type :invalid-structure}))))
-;    (catch Exception e
-;      (throw (ex-info "Malformed or invalid filter input."
-;               {:status 400
-;                :type :parse-error
-;                :cause (.getMessage e)})))))
-;
-;(defn parse-json-param [s]
-;  (println ">o> filter.s" s)
-;  (try
-;    (let [trimmed (-> s str str/trim)
-;          ;; Handle when middleware already decoded JSON to EDN (vector/map)
-;          parsed (cond
-;                   (vector? s) s
-;                   (map? s) [s]
-;
-;                   ;; Try strict JSON
-;                   :else (try
-;                           (json/parse-string trimmed true)
-;                           (catch Exception _
-;                             ;; fallback: tolerate EDN or missing quotes
-;                             (edn/read-string trimmed))))]
-;      (cond
-;        ;; ✅ valid vector of maps
-;        (and (vector? parsed) (every? map? parsed))
-;        parsed
-;
-;        ;; ✅ single map: wrap
-;        (map? parsed)
-;        [parsed]
-;
-;        :else
-;        (throw (ex-info "Invalid filter format: must be a vector of maps"
-;                 {:status 400 :type :invalid-structure}))))
-;    (catch Exception e
-;      (println ">x> filter parse error:" (.getMessage e))
-;      (throw (ex-info "Malformed or invalid filter input."
-;               {:status 400
-;                :type :parse-error
-;                :cause (.getMessage e)})))))
-
-(defn parse-json-param [s]
-  (println ">>>>> parse-json-param: raw input type:" (type s))
-  (println ">>>>> parse-json-param: raw input value:" s)
-  (try
-    (let [trimmed (-> s str str/trim)]
-      (println ">>>>> trimmed:" trimmed)
-      (let [parsed
-            (cond
-              ;; already a Clojure value (Ring or middleware decoded JSON)
-              (vector? s) (do (println ">>>>> detected vector input") s)
-              (map? s)    (do (println ">>>>> detected map input") [s])
-
-              :else
-              (do
-                (println ">>>>> trying JSON parse")
-                (try
-                  (let [res (json/parse-string trimmed true)]
-                    (println ">>>>> JSON parsed OK:" (pr-str res))
-                    res)
-                  (catch Exception e-json
-                    (println ">>>>> JSON parse failed:" (.getMessage e-json))
-                    (println ">>>>> trying EDN parse fallback")
-                    (try
-                      (let [res (edn/read-string trimmed)]
-                        (println ">>>>> EDN parsed OK:" (pr-str res))
-                        res)
-                      (catch Exception e-edn
-                        (println ">>>>> EDN parse failed:" (.getMessage e-edn))
-                        (throw e-edn)))))))]
-        (println ">>>>> final parsed value:" (pr-str parsed))
-        (cond
-          (and (vector? parsed) (every? map? parsed))
-          parsed
-
-          (map? parsed)
-          [parsed]
-
-          :else
-          (throw (ex-info "Invalid filter format: must be a vector of maps"
-                   {:status 400 :type :invalid-structure})))))
-    (catch Exception e
-      (println ">>>>> parse-json-param final exception:" (.getMessage e))
-      (throw (ex-info "Malformed or invalid filter input."
-               {:status 400
-                :type :parse-error
-                :cause (.getMessage e)})))))
-
-
-
 (defn parse-json-param [s]
   (println ">>>>> parse-json-param: raw input type:" (type s))
   (println ">>>>> parse-json-param: raw input value:" s)
@@ -227,19 +118,47 @@
       :<=           (sql/where query [:<= field val])
       query)))
 
+
+(defn add-filter
+  [query [k v] raw-filter-keys]
+  (let [k-str (name k)
+        ;; normalize all raw-filter-keys to strings for comparison
+        raw-filter-strs (set (map #(name (keyword %)) raw-filter-keys))
+        property-key-str (str "properties_" k-str)
+        is-property? (contains? raw-filter-strs property-key-str)
+
+        ;; choose SQL field accordingly
+        field (if is-property?
+                [:raw (format "items.properties ->> '%s'" property-key-str)]
+                (keyword (str "items." k-str)))
+
+        {:keys [op val]} (parse-op-value v)
+        val (cast-uuid val)]
+
+    (println ">>> add-filter field:" field "value:" v "is-property?:" is-property? "op:" op)
+
+    (case op
+      :isnull       (sql/where query [:is field nil])
+      :not-isnull   (sql/where query [:is-not field nil])
+      :in           (sql/where query [:in field val])
+      :not-in       (sql/where query [:not-in field val])
+      :like         (sql/where query [:like field val])
+      :not-like     (sql/where query [:not [:like field val]])
+      :ilike        (sql/where query [:ilike field val])
+      :not-ilike    (sql/where query [:not [:ilike field val]])
+      :<>           (sql/where query [:<> field val])
+      :=            (sql/where query [:= field val])
+      :>            (sql/where query [:> field val])
+      :<            (sql/where query [:< field val])
+      :>=           (sql/where query [:>= field val])
+      :<=           (sql/where query [:<= field val])
+      query)))
+
+
 (defn add-and-group [base-query subfilter]
   (reduce (fn [q pair] (add-filter q pair))
     base-query
     subfilter))
-
-;(defn add-filter-groups [base-query groups]
-;  (let [group-conds
-;        (for [group groups]
-;          (-> (add-and-group (sql/select) group)
-;            :where))]
-;    (if (seq group-conds)
-;      (sql/where base-query (cons :or group-conds))
-;      base-query)))
 
 (defn add-filter-groups
   "Adds all filter groups (vector of maps). The optional third argument
@@ -254,6 +173,24 @@
      (if (seq group-conds)
        (sql/where base-query (cons :or group-conds))
        base-query))))
+
+
+(defn add-filter-groups
+  ([base-query groups]
+   (add-filter-groups base-query groups nil))
+  ([base-query groups raw-filter-keys]
+   (let [group-conds
+         (for [group groups]
+           (-> (reduce
+                 (fn [q pair]
+                   (add-filter q pair raw-filter-keys))
+                 (sql/select)
+                 group)
+             :where))]
+     (if (seq group-conds)
+       (sql/where base-query (cons :or group-conds))
+       base-query))))
+
 
 
 ;; ------------------------------------------------------------
