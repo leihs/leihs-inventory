@@ -3,7 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.core.db :as db]
+   ;[leihs.core.db :as db]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.pool.buildings.main :as buildings]
    [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
@@ -18,7 +18,8 @@
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [response]]
-   [taoensso.timbre :as timbre :refer [debug spy]]))
+   ;[taoensso.timbre :as timbre :refer [debug spy]]
+   ))
 
 (def ERROR_GET "Failed to get fields")
 
@@ -88,13 +89,6 @@
       [:or
        [:is-null ttype-expr]
        [:= ttype-expr ttype]])))
-
-(defn req-owner?-expr [true-or-false]
-  [:in
-   [:raw "fields.data->'permissions'->>'owner'"]
-   (case true-or-false
-     true ["true" "false"]
-     false ["false"])])
 
 (defn min-req-role-expr [min-req-role]
   [:in
@@ -175,7 +169,7 @@
   (let [{:keys [target_type resource_id]} (query-params request)
         {:keys [pool_id]} (path-params request)
 
-        p (println ">o> abc.target_type" target_type)
+        _ (println ">o> abc.target_type" target_type)
 
         pool (pools/get-by-id tx pool_id)
         query (base-query target_type role pool_id)
@@ -190,7 +184,7 @@
                                          (map (partial merge-item-defaults tx item-data) transformed-fields)
                                          transformed-fields)
 
-        p (println ">o> abc.fields.count" (count fields-with-defaults))
+        _ (println ">o> abc.fields.count" (count fields-with-defaults))
         ]
     (vec fields-with-defaults))  )
 

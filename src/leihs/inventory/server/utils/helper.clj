@@ -1,10 +1,9 @@
 (ns leihs.inventory.server.utils.helper
   (:require
    [clojure.string :as str]
-   [clojure.walk :as walk]
-   [taoensso.timbre :refer [error debug]])
+   [clojure.walk :as walk] )
   (:import
-   (java.time Instant LocalDateTime ZoneOffset)
+   (java.time  LocalDateTime ZoneOffset)
    (java.time.format DateTimeFormatter))  )
 
 (defn now-yyyyMMdd-HHmmss []

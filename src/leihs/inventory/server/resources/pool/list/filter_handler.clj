@@ -3,6 +3,7 @@
    [cheshire.core :as json]
    [clojure.edn :as edn]
    [clojure.string :as str]
+   [honey.sql.helpers :as sql]
    [clojure.set :as set])
   (:import [com.fasterxml.jackson.core JsonParseException]))
 

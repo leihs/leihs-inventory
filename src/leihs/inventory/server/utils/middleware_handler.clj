@@ -8,8 +8,7 @@
    [leihs.inventory.server.utils.response-helper :as rh]
    [reitit.core :as r]
    [ring.middleware.accept]
-   [ring.util.response :refer [content-type response status]]
-  [ring.util.response :as resp])
+   [ring.util.response :refer [content-type response status]])
 (:import [java.io ByteArrayInputStream InputStream]))
 
 (defn wrap-session-token-authenticate! [handler]

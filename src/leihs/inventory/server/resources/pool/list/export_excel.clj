@@ -1,17 +1,10 @@
 (ns leihs.inventory.server.resources.pool.list.export-excel
   (:require
-   [clojure.data.csv :as csv]
    [clojure.java.io :as io]
    [clojure.set]
-   [clojure.string :as str]
    [dk.ative.docjure.spreadsheet :as ss]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.helper :refer [now-yyyyMMdd-HHmmss]]
-   ;[leihs.inventory.server.resources.pool.items.filter-handler :as filter]
-   ;[leihs.inventory.server.resources.pool.items.main :as helper]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
-   [taoensso.timbre :refer [debug]])
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]] )
   (:import [java.time Instant]) )
 
 (defn generate-excel-from-map
