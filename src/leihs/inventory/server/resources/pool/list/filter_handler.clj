@@ -7,6 +7,33 @@
    [honey.sql.helpers :as sql])
   (:import [com.fasterxml.jackson.core JsonParseException]))
 
+
+(defn uuid-string?
+  "True if v is a UUID-formatted string."
+  [v]
+  (and (string? v)
+    (re-matches
+      #"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+      v)))
+
+(defn cast-uuid
+  "Casts UUID strings to [:cast v :uuid] for HoneySQL.
+   Works on scalars and collections."
+  [v]
+  (cond
+    ;; multiple values (e.g. IN filters)
+    (sequential? v)
+    (mapv #(if (uuid-string? %) [:cast % :uuid] %) v)
+
+    ;; single UUID
+    (uuid-string? v)
+    [:cast v :uuid]
+
+    ;; default passthrough
+    :else
+    v))
+
+
 ;; ------------------------------------------------------------
 ;; Parse compact JSON: always a vector of maps (more tolerant)
 ;; ------------------------------------------------------------
@@ -45,53 +72,198 @@
                 :type :parse-error
                 :cause (.getMessage e)})))))
 
+;(ns leihs.inventory.server.resources.pool.list.filter-handler
+;  (:require [clojure.string :as str]))
 
 ;; ------------------------------------------------------------
 ;; Helpers
 ;; ------------------------------------------------------------
 
-(defn uuid-string? [v]
-  (and (string? v)
-    (re-matches
-      #"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
-      v)))
+(defn numeric-string?
+  [s]
+  (boolean (re-matches #"^-?\d+(\.\d+)?$" (str s))))
 
-(defn cast-uuid [v]
-  (if (uuid-string? v) [:cast v :uuid] v))
+(defn parse-num [s]
+  (if (numeric-string? s)
+    (bigdec s)
+    s))
+
+(defn safe-trim [s]
+  (if (string? s)
+    (str/trim s)
+    s))
 
 ;; ------------------------------------------------------------
-;; Operator parser
+;; Operator-specific helpers (all with logs)
+;; ------------------------------------------------------------
+
+(defn parse-equality [s]
+  (println ">>> parse-equality" s)
+  (cond
+    (str/starts-with? s "=")  {:op := :val (parse-num (subs s 1))}
+    (str/starts-with? s "!=") {:op :<> :val (parse-num (subs s 2))}))
+
+(defn parse-comparison [s]
+  (println ">>> parse-comparison" s)
+  (cond
+    (str/starts-with? s ">=") {:op :>= :val (parse-num (subs s 2))}
+    (str/starts-with? s "<=") {:op :<= :val (parse-num (subs s 2))}
+    (str/starts-with? s ">")  {:op :>  :val (parse-num (subs s 1))}
+    (str/starts-with? s "<")  {:op :<  :val (parse-num (subs s 1))}))
+
+(defn parse-like [s low]
+  (println ">>> parse-like" s)
+  (cond
+    (str/starts-with? low "not ilike") {:op :not-ilike :val (subs s 9)}
+    (str/starts-with? low "ilike")     {:op :ilike     :val (subs s 5)}
+    (str/starts-with? low "not like")  {:op :not-like  :val (subs s 8)}
+    (str/starts-with? low "like")      {:op :like      :val (subs s 4)}))
+
+;(defn parse-in [s low]
+;  (println ">>> parse-in start" s)
+;  (try
+;    (cond
+;      (re-matches #"^not +in\[.*\]$" low)
+;      (let [inner (subs s 7 (dec (count s)))]
+;        (println ">>> parse-in not-in inner:" inner)
+;        (let [vals (-> inner
+;                     (str/split #",")
+;                     (mapv str/trim))]
+;          (println ">>> parse-in not-in vals parsed:" vals)
+;          {:op :not-in :val vals}))
+;
+;      (re-matches #"^in\[.*\]$" low)
+;      (let [inner (subs s 3 (dec (count s)))]
+;        (println ">>> parse-in in inner:" inner)
+;        (let [vals (-> inner
+;                     (str/split #",")
+;                     (mapv str/trim))]
+;          (println ">>> parse-in in vals parsed:" vals)
+;          {:op :in :val vals})))
+;    (catch Exception e
+;      (println ">>> parse-in exception:" (.getMessage e))
+;      (throw e))))
+;
+;(defn parse-in [s low]
+;  (println ">>> parse-in start" s)
+;  (try
+;    (cond
+;      (re-matches #"^not +in\[.*\]$" low)
+;      (let [inner (subs s 7 (dec (count s)))]
+;        (println ">>> parse-in not-in inner:" inner)
+;        (let [vals (-> inner
+;                     (clojure.string/split #",")
+;                     (mapv clojure.string/trim))]
+;          (println ">>> parse-in not-in vals parsed:" vals)
+;          {:op :not-in :val vals}))
+;
+;      (re-matches #"^in\[.*\]$" low)
+;      (let [inner (subs s 3 (dec (count s)))]
+;        (println ">>> parse-in in inner:" inner)
+;        (let [vals (-> inner
+;                     (clojure.string/split #",")
+;                     (mapv clojure.string/trim))]
+;          (println ">>> parse-in in vals parsed:" vals)
+;          {:op :in :val vals})))
+;    (catch Exception e
+;      (println ">>> parse-in exception:" (.getMessage e))
+;      (throw e))))
+
+
+(defn parse-in [s low]
+  (println ">>> parse-in start" s)
+  (try
+    (cond
+      (re-matches #"^not +in\[.*\]$" low)
+      (let [inner (subs s 7 (dec (count s)))]
+        (println ">>> parse-in not-in inner:" inner)
+        (let [vals (-> inner
+                     (clojure.string/split #",")
+                     (mapv clojure.string/trim))]
+          (println ">>> parse-in not-in vals parsed:" vals)
+          {:op :not-in :val vals}))
+
+      (re-matches #"^in\[.*\]$" low)
+      (let [inner (subs s 3 (dec (count s)))]
+        (println ">>> parse-in in inner:" inner)
+        (let [vals (-> inner
+                     (clojure.string/split #",")
+                     (mapv clojure.string/trim))]
+          (println ">>> parse-in in vals parsed:" vals)
+          {:op :in :val vals})))
+    (catch Exception e
+      (println ">>> parse-in exception:" (.getMessage e))
+      (throw e))))
+
+(defn parse-in [s low]
+  (println ">>> parse-in start, raw s:" s "type:" (type s)
+    "| low:" low "type:" (type low))
+  (try
+    (cond
+      (re-matches #"^not +in\[.*\]$" low)
+      (let [inner (subs s 7 (dec (count s)))]
+        (println ">>> parse-in not-in inner:" inner "type:" (type inner))
+        (let [split-result (clojure.string/split inner #",")]
+          (println ">>> parse-in not-in split-result:" split-result
+            "type:" (type split-result)
+            "first elem type:" (some-> split-result first type))
+          (let [vals (mapv clojure.string/trim split-result)]
+            (println ">>> parse-in not-in vals parsed:" vals
+              "| type:" (type vals)
+              "| element types:" (mapv type vals))
+            {:op :not-in :val vals})))
+
+      (re-matches #"^in\[.*\]$" low)
+      (let [inner (subs s 3 (dec (count s)))]
+        (println ">>> parse-in in inner:" inner "type:" (type inner))
+        (let [split-result (clojure.string/split inner #",")]
+          (println ">>> parse-in in split-result:" split-result
+            "type:" (type split-result)
+            "first elem type:" (some-> split-result first type))
+          (let [vals (mapv clojure.string/trim split-result)]
+            (println ">>> parse-in in vals parsed:" vals
+              "| type:" (type vals)
+              "| element types:" (mapv type vals))
+            {:op :in :val vals}))))
+    (catch Exception e
+      (println ">>> parse-in exception:" (.getMessage e))
+      (println ">>> parse-in exception class:" (type e))
+      (throw e))))
+
+
+(defn parse-null [low]
+  (println ">>> parse-null" low)
+  (cond
+    (= low "isnull")     {:op :isnull}
+    (= low "not isnull") {:op :not-isnull}))
+
+;; ------------------------------------------------------------
+;; Main dispatcher
 ;; ------------------------------------------------------------
 
 (defn parse-op-value [v]
-  (if-not (string? v)
-    {:op := :val v}
-    (let [s (str/trim v)
-          low (str/lower-case s)]
-      (cond
-        (str/starts-with? s "=")  {:op := :val (subs s 1)}
-        (str/starts-with? s "!=") {:op :<> :val (subs s 2)}
-        (str/starts-with? s ">=") {:op :>= :val (subs s 2)}
-        (str/starts-with? s "<=") {:op :<= :val (subs s 2)}
-        (str/starts-with? s ">")  {:op :>  :val (subs s 1)}
-        (str/starts-with? s "<")  {:op :<  :val (subs s 1)}
+  (println ">>> parse-op-value called with:" (pr-str v) "type:" (type v))
+  (try
+    (if (not (string? v))
+      (do
+        (println ">>> parse-op-value non-string, default :=")
+        {:op := :val v})
+      (let [s (safe-trim v)
+            low (str/lower-case s)]
+        (println ">>> parse-op-value trimmed:" s)
+        (or
+          (parse-equality s)
+          (parse-comparison s)
+          (parse-like s low)
+          (parse-in s low)
+          (parse-null low)
+          {:op := :val (parse-num s)})))
+    (catch Exception e
+      (println ">>> parse-op-value exception:" (.getMessage e))
+      (throw e))))
 
-        (str/starts-with? low "not ilike") {:op :not-ilike :val (subs s 9)}
-        (str/starts-with? low "ilike")     {:op :ilike     :val (subs s 5)}
-        (str/starts-with? low "not like")  {:op :not-like  :val (subs s 8)}
-        (str/starts-with? low "like")      {:op :like      :val (subs s 4)}
 
-        (re-matches #"^not +in\[.*\]$" low)
-        (let [vals (-> s (subs 7 (dec (count s))) (str/split #",") (map str/trim))]
-          {:op :not-in :val vals})
-        (re-matches #"^in\[.*\]$" low)
-        (let [vals (-> s (subs 3 (dec (count s))) (str/split #",") (map str/trim))]
-          {:op :in :val vals})
 
-        (= low "isnull")     {:op :isnull}
-        (= low "not isnull") {:op :not-isnull}
-
-        :else {:op := :val s}))))
 
 ;; ------------------------------------------------------------
 ;; SQL builder
