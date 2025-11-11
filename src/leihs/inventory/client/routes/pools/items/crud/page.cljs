@@ -119,13 +119,11 @@
 
                                        (<p! (let [item-id (aget params "item-id")]
                                               (-> http-client
-                                                  (.patch (str "/inventory/" pool-id "/items/")
+                                                  (.patch (str "/inventory/" pool-id "/items/" item-id)
                                                           (js/JSON.stringify (cj item-data))
                                                           (cj {:cache
                                                                {:update {:models "delete"
-                                                                         (keyword item-id) "delete"
-                                                                         :compatible-models "delete"
-                                                                         :manufacturers "delete"}}}))
+                                                                         (keyword item-id) "delete"}}}))
                                                   (.then (fn [res]
                                                            {:status (.. res -status)
                                                             :statusText (.. res -statusText)
