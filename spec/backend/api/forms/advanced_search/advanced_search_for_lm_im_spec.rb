@@ -40,19 +40,19 @@ require_relative "../_common"
       let(:filter_isnull) { [{"room_id" => "isnull"}] }
       let(:filter_not_isnull) { [{"room_id" => "not isnull"}] }
 
-      # let(:filter_mixed_group) do
-      #   [{
-      #      "inventory_code" => "ilikeINV",
-      #      "product" => "not ilikeTest"
-      #    },{
-      #        "price" => ">50",
-      #        "manufacturer" => "in[Sony,Zoom]"
-      #     }]
-      # end
-
       let(:filter_mixed_group) do
-        [{"inventory_code" => "ilikeINV", "price" => ">50"}]
+        [{
+           "inventory_code" => "ilikeINV",
+           "product" => "not ilikeTest"
+         },{
+             "price" => ">50",
+             "manufacturer" => "in[Sony,Zoom]"
+          }]
       end
+
+      # let(:filter_mixed_group) do
+      #   [{"inventory_code" => "ilikeINV", "price" => ">50"}]
+      # end
 
       # -------------------------------------------------------
       # Basic filter tests
@@ -60,17 +60,16 @@ require_relative "../_common"
       describe "fetch data by using different filters" do
         it "accepts various valid filters" do
           [
-            # filter_eq,
-            filter_ilike
-
-            # filter_not_ilike,
-            # filter_in,
-            # filter_not_in,
-            # filter_gt,
-            # filter_lt,
-            # filter_isnull,
-            # filter_not_isnull,
-            # filter_mixed_group
+            filter_eq,
+            filter_ilike,
+            filter_not_ilike,
+            filter_in,
+            filter_not_in,
+            filter_gt,
+            filter_lt,
+            filter_isnull,
+            filter_not_isnull,
+            filter_mixed_group
           ].each do |filter_set|
             puts ">>> Testing filter-set: #{filter_set.to_json}"
             resp = client.get "/inventory/#{pool_id}/list/?filters=#{filter_set.to_json}"
