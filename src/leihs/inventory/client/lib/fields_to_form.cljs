@@ -134,12 +134,23 @@
                                     nil))
 
                     ;; Convert default value based on field type
-                    converted-val (when default-val
+                    converted-val (when (or (some? default-val)
+                                            (contains? #{"text" "textarea"} field-type))
                                     (case field-type
                                       ;; "autocomplete" (if has-default?
                                       ;;                  {:value default-val
                                       ;;                   :label (get-label default-val (:values field))}
                                       ;;                  default-val)
+                                      "text"
+                                      (if (nil? default-val)
+                                        ""
+                                        default-val)
+
+                                      "textarea"
+                                      (if (nil? default-val)
+                                        ""
+                                        default-val)
+
                                       "date"
                                       (if (= default-val "today")
                                         (js/Date.)
