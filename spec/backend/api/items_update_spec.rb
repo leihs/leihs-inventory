@@ -32,7 +32,6 @@ describe "Swagger Inventory Endpoints - Items Update" do
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
     let(:inventory_pool_id) { @inventory_pool.id }
-    let(:url) { "/inventory/#{inventory_pool_id}/items/" }
 
     def patch_with_headers(client, url, data)
       client.patch url do |req|
@@ -43,10 +42,10 @@ describe "Swagger Inventory Endpoints - Items Update" do
       end
     end
 
-    context "PATCH /inventory/:pool-id/items/" do
+    context "PATCH /inventory/:pool-id/items/:item-id" do
       it "updates an item with basic fields and returns status 200" do
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
         update_data = {
-          id: @item.id,
           inventory_code: "TEST-UPDATED",
           model_id: @model.id,
           room_id: @room.id,
@@ -63,8 +62,8 @@ describe "Swagger Inventory Endpoints - Items Update" do
       end
 
       it "updates an item with properties fields and returns status 200" do
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
         update_data = {
-          id: @item.id,
           inventory_code: @item.inventory_code,
           model_id: @model.id,
           room_id: @room.id,
@@ -90,8 +89,8 @@ describe "Swagger Inventory Endpoints - Items Update" do
           user_id: @user.id,
           role: "inventory_manager")
 
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
         update_data = {
-          id: @item.id,
           inventory_code: @item.inventory_code,
           model_id: @model.id,
           room_id: @room.id,
@@ -109,8 +108,8 @@ describe "Swagger Inventory Endpoints - Items Update" do
         # Create another inventory pool that the user does NOT have access to
         unauthorized_pool = FactoryBot.create(:inventory_pool, name: "Unauthorized Pool")
 
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
         update_data = {
-          id: @item.id,
           inventory_code: @item.inventory_code,
           model_id: @model.id,
           room_id: @room.id,
@@ -129,8 +128,8 @@ describe "Swagger Inventory Endpoints - Items Update" do
           field_id: "properties_mac_address",
           inventory_pool_id: @inventory_pool.id)
 
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
         update_data = {
-          id: @item.id,
           inventory_code: @item.inventory_code,
           model_id: @model.id,
           room_id: @room.id,
@@ -152,8 +151,8 @@ describe "Swagger Inventory Endpoints - Items Update" do
           field_id: "properties_mac_address",
           inventory_pool_id: other_pool.id)
 
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
         update_data = {
-          id: @item.id,
           inventory_code: @item.inventory_code,
           model_id: @model.id,
           room_id: @room.id,
@@ -173,8 +172,8 @@ describe "Swagger Inventory Endpoints - Items Update" do
           product: "Test Software",
           type: "Software")
 
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
         update_data = {
-          id: @item.id,
           inventory_code: @item.inventory_code,
           model_id: software_model.id,
           room_id: @room.id,

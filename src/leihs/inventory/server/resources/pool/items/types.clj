@@ -127,8 +127,7 @@
          properties))
 
 (def patch-request
-  (merge {:id s/Uuid
-          (s/optional-key :inventory_code) s/Str
+  (merge {(s/optional-key :inventory_code) s/Str
           (s/optional-key :model_id) s/Uuid
           (s/optional-key :owner_id) s/Uuid
           (s/optional-key :room_id) s/Uuid

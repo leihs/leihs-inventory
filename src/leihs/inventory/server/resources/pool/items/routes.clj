@@ -8,42 +8,45 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/items/"
-   {:get {:accept "application/json"
-          :coercion reitit.coercion.schema/coercion
-          :swagger {:produces ["application/json"]}
-          :summary "Returns all items/packages of a pool filtered by query parameters"
-          :parameters {:path types/path-params
-                       :query types/query-params}
-          :handler items/index-resources
-          :produces ["application/json"]
-          :responses {200 {:description "OK"
-                           :body types/get-items-response}
-                      404 {:description "Not Found"}
-                      500 {:description "Internal Server Error"}}}
-
-    :post {:description "Create a new item. Fields starting with 'properties_' are stored in the properties JSONB column, others in their respective item columns."
-           :accept "application/json"
+  ["/items"
+   ["/"
+    {:get {:accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json"]}
-           :parameters {:path {:pool_id s/Uuid}
-                        :body types/post-request}
-           :handler items/post-resource
+           :summary "Returns all items/packages of a pool filtered by query parameters"
+           :parameters {:path types/path-params
+                        :query types/query-params}
+           :handler items/index-resources
+           :produces ["application/json"]
            :responses {200 {:description "OK"
-                            :body types/post-response}
-                       400 {:description "Bad Request"}
+                            :body types/get-items-response}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}
 
-    :patch {:description "Update a single item. Fields starting with 'properties_' are stored in the properties JSONB column, others in their respective item columns."
+     :post {:description "Create a new item. Fields starting with 'properties_' are stored in the properties JSONB column, others in their respective item columns."
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :swagger {:produces ["application/json"]}
             :parameters {:path {:pool_id s/Uuid}
-                         :body types/patch-request}
-            :handler items/patch-resource
+                         :body types/post-request}
+            :handler items/post-resource
             :responses {200 {:description "OK"
-                             :body types/patch-response}
+                             :body types/post-response}
                         400 {:description "Bad Request"}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}])
+                        500 {:description "Internal Server Error"}}}}]
+
+   ["/:item_id"
+    {:patch {:description "Update a single item. Fields starting with 'properties_' are stored in the properties JSONB column, others in their respective item columns."
+             :accept "application/json"
+             :coercion reitit.coercion.schema/coercion
+             :swagger {:produces ["application/json"]}
+             :parameters {:path {:pool_id s/Uuid
+                                 :item_id s/Uuid}
+                          :body types/patch-request}
+             :handler items/patch-resource
+             :responses {200 {:description "OK"
+                              :body types/patch-response}
+                         400 {:description "Bad Request"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]])

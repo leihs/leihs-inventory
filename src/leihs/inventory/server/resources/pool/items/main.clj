@@ -157,8 +157,7 @@
   (let [tx (:tx request)
         role (:role (:authenticated-entity request))
         body-params (body-params request)
-        {pool-id :pool_id} (path-params request)
-        item-id (:id body-params)
+        {pool-id :pool_id item_id :item_id} (path-params request)
         permitted-fields (-> (fields/base-query "item" (keyword role) pool-id)
                              sql-format
                              (->> (jdbc-query tx)))
@@ -185,10 +184,10 @@
       {:error "Model type 'Software' is not allowed for items"
        :model_id model-id}
 
-      (or (and item-id (not= (authorized-role-for-pool request owner-id)
+      (or (and item_id (not= (authorized-role-for-pool request owner-id)
                              "inventory_manager")
                (not= owner-id pool-id))
-          (and (not item-id) (not= owner-id pool-id)))
+          (and (not item_id) (not= owner-id pool-id)))
       {:error "Unpermitted owner_id"
        :provided owner-id
        :expected pool-id})))
@@ -249,6 +248,7 @@
     (if-let [validation-error (validate-field-permissions request)]
       (bad-request validation-error)
       (let [update-params (body-params request)
+            {:keys [item_id]} (path-params request)
             {:keys [item-data properties]} (-> update-params (dissoc :id)
                                                split-item-data)
             item-data-coerced (coerce-field-values item-data in-coercions)
@@ -257,7 +257,7 @@
                                              :properties [:lift properties-json])
             sql-query (-> (sql/update :items)
                           (sql/set item-data-with-properties)
-                          (sql/where [:= :id (:id update-params)])
+                          (sql/where [:= :id item_id])
                           (sql/returning :*)
                           sql-format)
             result (jdbc/execute-one! tx sql-query)]
