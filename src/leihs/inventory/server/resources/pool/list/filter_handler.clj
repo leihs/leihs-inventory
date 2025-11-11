@@ -287,3 +287,35 @@
            :invalid (into invalid denied)}))
       {:valid [] :invalid []}
       filter-groups)))
+
+
+
+
+(defn normalize-key [k wl-set]
+  (let [kname (name k)
+        prefixed (keyword (str "properties_" kname))]
+    (cond
+      ;; exact key allowed — keep as-is
+      (contains? wl-set k) k
+      ;; prefixed variant allowed — use that
+      (contains? wl-set prefixed) prefixed
+      ;; otherwise leave unchanged (will be caught as invalid later)
+      :else k)))
+
+(defn normalize-group [group wl-set]
+  (into {}
+    (map (fn [[k v]]
+           [(normalize-key k wl-set) v])
+      group)))
+
+(defn validate-filters [filter-groups whitelist]
+  (let [wl-set (set (map keyword whitelist))]
+    (reduce
+      (fn [{:keys [valid invalid]} group]
+        (let [normalized (normalize-group group wl-set)
+              allowed (set/intersection wl-set (set (keys normalized)))
+              denied (set/difference (set (keys normalized)) wl-set)]
+          {:valid (conj valid (select-keys normalized allowed))
+           :invalid (into invalid denied)}))
+      {:valid [] :invalid []}
+      filter-groups)))
