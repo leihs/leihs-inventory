@@ -10,8 +10,8 @@
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.fields.main :refer [fetch-properties-fields]]
-   [leihs.inventory.server.resources.pool.items.filter-handler :as filter]
-   [leihs.inventory.server.resources.pool.items.main :as helper]
+   [leihs.inventory.server.resources.pool.list.filter-handler :as filter]
+   [leihs.inventory.server.resources.pool.list.helper :as helper]
    [leihs.inventory.server.resources.pool.list.export-csv :as export-csv]
    [leihs.inventory.server.resources.pool.list.export-excel :as export-excel]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
