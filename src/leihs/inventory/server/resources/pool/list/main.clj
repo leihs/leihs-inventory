@@ -1,12 +1,12 @@
 (ns leihs.inventory.server.resources.pool.list.main
   (:require
-   [clojure.data.csv :as csv]
-   [clojure.java.io :as io]
+   ;[clojure.data.csv :as csv]
+   ;[clojure.java.io :as io]
    [clojure.set]
-   [clojure.string :as str]
-   [dk.ative.docjure.spreadsheet :as ss]
-   [honey.sql :refer [format] :as sq :rename {format sql-format}]
-   [honey.sql :refer [format] :rename {format sql-format}]
+   ;[clojure.string :as str]
+   ;[dk.ative.docjure.spreadsheet :as ss]
+   ;[honey.sql :refer [format] :as sq :rename {format sql-format}]
+   ;[honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.fields.main :refer [fetch-properties-fields]]
@@ -29,7 +29,8 @@
                                                        query-params]]
    [ring.middleware.accept]
    [ring.util.response :refer [response]]
-   [taoensso.timbre :refer [debug]]))
+   ;[taoensso.timbre :refer [debug]]
+   ))
 
 (defn items-sub-query [query]
   (-> query
@@ -53,10 +54,16 @@
          accept-type (-> request :accept :mime)
          parsed-filters (parse-json-param filters)
          properties-fields (fetch-properties-fields request)
-         {:keys [filter-keys properties raw-filter-keys]} (extract-ids properties-fields "properties_")
+         {:keys [filter-keys  raw-filter-keys]} (extract-ids properties-fields "properties_")
          WHITELIST-ITEM-FILTER filter-keys
          parsed-filters (prepare-filters parsed-filters)
          validation-result (validate-filters parsed-filters WHITELIST-ITEM-FILTER)
+
+         _ (println ">o> abc.validation-result" validation-result)
+         _ (when-not (empty? (:invalid validation-result))
+             (throw (ex-info "Invalid filter keys"
+                      {:type :invalid-filters
+                       :invalid-keys (:invalid-keys validation-result)})))
 
          query (-> (base-inventory-query pool-id)
                  (cond-> type (filter-by-type type))

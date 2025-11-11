@@ -3,9 +3,7 @@
    [cheshire.core :as json]
    [clojure.edn :as edn]
    [clojure.string :as str]
-   [clojure.set :as set]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql])
+   [clojure.set :as set])
   (:import [com.fasterxml.jackson.core JsonParseException]))
 
 (defn parse-json-param [s]

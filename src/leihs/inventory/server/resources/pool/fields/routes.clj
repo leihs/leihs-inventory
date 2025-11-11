@@ -10,8 +10,7 @@
 
 (defn routes []
   ["/fields/"
-   {:get {:description
-          (str "resource_id: item.id of types: item, license, package(-item)")
+   {:get {:description "resource_id: item.id of types: item, license, package(-item)"
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}

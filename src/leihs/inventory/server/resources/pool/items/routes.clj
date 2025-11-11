@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.items.routes
   (:require
    [leihs.inventory.server.resources.pool.items.main :as items]
-   [leihs.inventory.server.resources.pool.items.types :refer [query-params query-params-advanced]]
+   [leihs.inventory.server.resources.pool.items.types :refer [query-params ]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
