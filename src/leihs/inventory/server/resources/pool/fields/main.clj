@@ -75,7 +75,8 @@
                         (str "/inventory/" (:id pool) "/models/?type=model")))
      :software_model_id (fn [f & {:keys [pool]}]
                           (assoc f :values_url
-                                 (str "/inventory/" (:id pool) "/software/")))}))
+                                 (str "/inventory/" (:id pool) "/software/")))
+     :retired (fn [f & _] (assoc f :default false))}))
 
 (defn handle-default [tx field-id value item-data pool-id]
   (let [hooks {:supplier_id suppliers/get-by-id
@@ -85,28 +86,24 @@
                :model_id models/get-by-id
                :software_model_id software/get-by-id}
         item-id (:id item-data)]
-    (cond
-      (and (uuid? value) (contains? hooks field-id))
+    (if (and (uuid? value) (contains? hooks field-id))
       (let [res ((hooks field-id) tx value)]
         {:value (:id res), :label (:name res)})
-
-      (= field-id :attachments)
-      (let [as (attachments/get-by-item-id tx item-id)]
-        (when (seq as)
-          (map #(hash-map :content_type (:content_type %)
-                          :filename (:filename %)
-                          :id (:id %)
-                          :url (str "/inventory/" pool-id
-                                    "/items/" item-id
-                                    "/attachments/" (:id %)))
-               as)))
-
-      (= field-id :building_id)
-      (let [room-id (:room_id item-data)
-            building (buildings/get-by-room-id tx room-id)]
-        {:value (:id building), :label (:name building)})
-
-      :else value)))
+      (case field-id
+        :attachments (let [as (attachments/get-by-item-id tx item-id)]
+                       (when (seq as)
+                         (map #(hash-map :content_type (:content_type %)
+                                         :filename (:filename %)
+                                         :id (:id %)
+                                         :url (str "/inventory/" pool-id
+                                                   "/items/" item-id
+                                                   "/attachments/" (:id %)))
+                              as)))
+        :building_id (let [room-id (:room_id item-data)
+                           building (buildings/get-by-room-id tx room-id)]
+                       {:value (:id building), :label (:name building)})
+        :retired (some? value)
+        value))))
 
 (defn target-type-expr [ttype]
   (if (= ttype "package")
