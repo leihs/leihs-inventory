@@ -30,15 +30,15 @@ require_relative "../_common"
       #
       # resp = client.get "/inventory/#{pool_id}/list/?filters=[{}]"
       # -------------------------------------------------------
-      let(:filter_eq) { [{ "inventory_code" => "=INV" }] }
-      let(:filter_ilike) { [{ "product" => "ilikeZoom" }] }
-      let(:filter_not_ilike) { [{ "product" => "not ilikeCanon" }] }
-      let(:filter_in) { [{ "manufacturer" => "in[Zoom,Sony]" }] }
-      let(:filter_not_in) { [{ "manufacturer" => "not in[Sony]" }] }
-      let(:filter_gt) { [{ "price" => ">100" }] }
-      let(:filter_lt) { [{ "price" => "<500" }] }
-      let(:filter_isnull) { [{ "room_id" => "isnull" }] }
-      let(:filter_not_isnull) { [{ "room_id" => "not isnull" }] }
+      let(:filter_eq) { [{"inventory_code" => "=INV"}] }
+      let(:filter_ilike) { [{"product" => "ilikeZoom"}] }
+      let(:filter_not_ilike) { [{"product" => "not ilikeCanon"}] }
+      let(:filter_in) { [{"manufacturer" => "in[Zoom,Sony]"}] }
+      let(:filter_not_in) { [{"manufacturer" => "not in[Sony]"}] }
+      let(:filter_gt) { [{"price" => ">100"}] }
+      let(:filter_lt) { [{"price" => "<500"}] }
+      let(:filter_isnull) { [{"room_id" => "isnull"}] }
+      let(:filter_not_isnull) { [{"room_id" => "not isnull"}] }
 
       # let(:filter_mixed_group) do
       #   [{
@@ -51,7 +51,7 @@ require_relative "../_common"
       # end
 
       let(:filter_mixed_group) do
-        [{ "inventory_code" => "ilikeINV", "price" => ">50" }]
+        [{"inventory_code" => "ilikeINV", "price" => ">50"}]
       end
 
       # -------------------------------------------------------
@@ -104,30 +104,30 @@ require_relative "../_common"
         before :each do
           @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
           FactoryBot.create(:access_right,
-                            inventory_pool_id: @inventory_pool.id,
-                            user_id: @user.id,
-                            role: "inventory_manager")
+            inventory_pool_id: @inventory_pool.id,
+            user_id: @user.id,
+            role: "inventory_manager")
 
           @model = FactoryBot.create(:leihs_model,
-                                     product: "Test Product",
-                                     is_package: false)
+            product: "Test Product",
+            is_package: false)
 
           @building = FactoryBot.create(:building, name: "Test Building")
           @room = FactoryBot.create(:room,
-                                    name: "Test Room",
-                                    building_id: @building.id)
+            name: "Test Room",
+            building_id: @building.id)
 
           @item = FactoryBot.create(:item,
-                                    inventory_code: "TEST-ORIGINAL",
-                                    model_id: @model.id,
-                                    room_id: @room.id,
-                                    properties: {
-                                      warranty_expiration: "2022-01-01",
-                                      electrical_power: "10",
-                                      ampere: "16"
-                                    },
-                                    inventory_pool_id: @inventory_pool.id,
-                                    owner_id: @inventory_pool.id)
+            inventory_code: "TEST-ORIGINAL",
+            model_id: @model.id,
+            room_id: @room.id,
+            properties: {
+              warranty_expiration: "2022-01-01",
+              electrical_power: "10",
+              ampere: "16"
+            },
+            inventory_pool_id: @inventory_pool.id,
+            owner_id: @inventory_pool.id)
         end
 
         it "bulk update of assigned items" do
