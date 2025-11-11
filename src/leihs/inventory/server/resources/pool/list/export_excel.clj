@@ -3,9 +3,9 @@
    [clojure.java.io :as io]
    [clojure.set]
    [dk.ative.docjure.spreadsheet :as ss]
-   [leihs.inventory.server.utils.helper :refer [now-yyyyMMdd-HHmmss]]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]] )
-  (:import [java.time Instant]) )
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
+   [leihs.inventory.server.utils.helper :refer [now-yyyyMMdd-HHmmss]])
+  (:import [java.time Instant]))
 
 (defn generate-excel-from-map
   "Generates an Excel file from a map and returns a Java File object."
@@ -36,8 +36,8 @@
                  "x-rows" (str (count data))
                  "Content-Disposition"
                  (format "attachment; filename=\"export-%s.xlsx\"; x-generated-at=\"%s\""
-                   (now-yyyyMMdd-HHmmss)
-                   (str (Instant/now)))}
+                         (now-yyyyMMdd-HHmmss)
+                         (str (Instant/now)))}
        :body (io/input-stream excel-file)})
     (catch IllegalArgumentException e
       (log-by-severity "Invalid input to Excel handler" e)

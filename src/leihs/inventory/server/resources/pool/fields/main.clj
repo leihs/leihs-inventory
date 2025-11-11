@@ -17,9 +17,7 @@
                                                        query-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [response]]
-   ;[taoensso.timbre :as timbre :refer [debug spy]]
-   ))
+   [ring.util.response :refer [response]]))
 
 (def ERROR_GET "Failed to get fields")
 
@@ -106,8 +104,8 @@
                       [:= :disabled_fields.inventory_pool_id pool-id]])
       (sql/where [:= :fields.active true])
       (sql/where [:= :disabled_fields.id nil])
-    (cond-> (not (= ttype "advanced_search"))
-      (sql/where (target-type-expr ttype)))
+      (cond-> (not (= ttype "advanced_search"))
+        (sql/where (target-type-expr ttype)))
       (sql/where (min-req-role-expr (keyword role)))))
 
 (defn transform-field-data [field & {:keys [tx pool user-id resource-id]}]
@@ -164,7 +162,6 @@
                value))
       field)))
 
-
 (defn fetch-properties-fields [{:keys [tx] {:keys [role] user-id :id} :authenticated-entity :as request}]
   (let [{:keys [target_type resource_id]} (query-params request)
         {:keys [pool_id]} (path-params request)
@@ -176,23 +173,21 @@
         fields (jdbc/query tx (sql-format query))
         item-data (get-item-data tx pool_id resource_id)
         transformed-fields (map #(transform-field-data % :tx tx
-                                   :pool pool
-                                   :user-id user-id
-                                   :resource-id resource_id)
-                             fields)
-        fields-with-defaults           (if item-data
-                                         (map (partial merge-item-defaults tx item-data) transformed-fields)
-                                         transformed-fields)
+                                                       :pool pool
+                                                       :user-id user-id
+                                                       :resource-id resource_id)
+                                fields)
+        fields-with-defaults (if item-data
+                               (map (partial merge-item-defaults tx item-data) transformed-fields)
+                               transformed-fields)
 
-        _ (println ">o> abc.fields.count" (count fields-with-defaults))
-        ]
-    (vec fields-with-defaults))  )
-
+        _ (println ">o> abc.fields.count" (count fields-with-defaults))]
+    (vec fields-with-defaults)))
 
 (defn index-resources
   [request]
   (try
-      (response {:fields (fetch-properties-fields request)})
+    (response {:fields (fetch-properties-fields request)})
     (catch Exception e
       (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))

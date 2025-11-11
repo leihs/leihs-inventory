@@ -11,7 +11,7 @@
   ([message e]
    (if (nil? message)
      (error (.getMessage e))
-     (error (str message ": " (.getMessage e)) ))
+     (error (str message ": " (.getMessage e))))
    (debug e)))
 
 (defn wrap-debug [handler]

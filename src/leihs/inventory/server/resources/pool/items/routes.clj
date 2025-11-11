@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.items.routes
   (:require
    [leihs.inventory.server.resources.pool.items.main :as items]
-   [leihs.inventory.server.resources.pool.items.types :refer [query-params ]]
+   [leihs.inventory.server.resources.pool.items.types :refer [query-params]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -45,10 +45,8 @@
                 :coercion reitit.coercion.schema/coercion
                 :swagger {:produces ["application/json"]}
                 :parameters {:path {:pool_id s/Uuid}
-                             :body {
-                                    :ids [s/Uuid]
-                                    :data {
-                                           (s/optional-key :properties_ampere) s/Str
+                             :body {:ids [s/Uuid]
+                                    :data {(s/optional-key :properties_ampere) s/Str
                                            (s/optional-key :is_borrowable) s/Bool
                                            (s/optional-key :room_id) s/Uuid
                                            (s/optional-key :is_incomplete) s/Bool
@@ -81,13 +79,11 @@
 
                                            (s/optional-key :properties_electrical_power) s/Str
                                            (s/optional-key :properties_warranty_expiration) s/Str
-                                           (s/optional-key :is_broken) s/Bool
-                                           }
-                                    }}
+                                           (s/optional-key :is_broken) s/Bool}}}
+
                 :handler items/patch-resource
                 :responses {200 {:description "OK"
                                  :body s/Any}
                             400 {:description "Bad Request"}
                             404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]
-   ])
+                            500 {:description "Internal Server Error"}}}}]])

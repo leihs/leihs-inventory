@@ -9,7 +9,7 @@
    [reitit.core :as r]
    [ring.middleware.accept]
    [ring.util.response :refer [content-type response status]])
-(:import [java.io ByteArrayInputStream InputStream]))
+  (:import [java.io ByteArrayInputStream InputStream]))
 
 (defn wrap-session-token-authenticate! [handler]
   (fn [request]
@@ -119,17 +119,17 @@
                           (json/parse-string string true)
                           (catch Exception _ nil)))
           adjusted-status (if (and (map? parsed-body)
-                                (some-> (:type parsed-body)
-                                  (str/includes? "Exception")))
+                                   (some-> (:type parsed-body)
+                                           (str/includes? "Exception")))
                             400
                             resp-status)
           resp' (cond-> resp
                   bytes (assoc :body (ByteArrayInputStream. bytes))
-                  true  (assoc :status adjusted-status))]
+                  true (assoc :status adjusted-status))]
 
       (if (and (#{400 404 422} (:status resp'))
-            (some #(re-matches % uri) url-patterns)
-            (or (str/includes? accept "text/html")
-              (str/includes? accept "*/*")))
+               (some #(re-matches % uri) url-patterns)
+               (or (str/includes? accept "text/html")
+                   (str/includes? accept "*/*")))
         (create-accept-response request 404)
         resp'))))

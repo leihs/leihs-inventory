@@ -1,14 +1,14 @@
 (ns leihs.inventory.server.utils.helper
   (:require
    [clojure.string :as str]
-   [clojure.walk :as walk] )
+   [clojure.walk :as walk])
   (:import
-   (java.time  LocalDateTime ZoneOffset)
-   (java.time.format DateTimeFormatter))  )
+   (java.time LocalDateTime ZoneOffset)
+   (java.time.format DateTimeFormatter)))
 
 (defn now-yyyyMMdd-HHmmss []
   (.format (DateTimeFormatter/ofPattern "yyyyMMdd-HHmmss")
-    (LocalDateTime/now ZoneOffset/UTC)))
+           (LocalDateTime/now ZoneOffset/UTC)))
 
 (defn- ->snake-case
   "Converts a string `s` to snake_case."

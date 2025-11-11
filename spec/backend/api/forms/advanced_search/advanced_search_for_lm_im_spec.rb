@@ -27,11 +27,11 @@ require_relative "../_common"
 
       describe "fetch data by using different filters" do
         let :filter_set1 do
-          [{ "inventory_code" => "INV" }]
+          [{"inventory_code" => "INV"}]
         end
 
         let :filter_set2 do
-          [{ "note" => "test", "inventory_code" => "INV" }, { "inventory_code" => "ABC" }]
+          [{"note" => "test", "inventory_code" => "INV"}, {"inventory_code" => "ABC"}]
         end
 
         it "returns all models used by model-selection" do
@@ -59,29 +59,28 @@ require_relative "../_common"
       end
 
       describe "validation" do
-
         before :each do
           @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
           FactoryBot.create(:access_right,
-                            inventory_pool_id: @inventory_pool.id,
-                            user_id: @user.id,
-                            role: "inventory_manager")
+            inventory_pool_id: @inventory_pool.id,
+            user_id: @user.id,
+            role: "inventory_manager")
 
           @model = FactoryBot.create(:leihs_model,
-                                     product: "Test Product",
-                                     is_package: false)
+            product: "Test Product",
+            is_package: false)
 
           @building = FactoryBot.create(:building, name: "Test Building")
           @room = FactoryBot.create(:room,
-                                    name: "Test Room",
-                                    building_id: @building.id)
+            name: "Test Room",
+            building_id: @building.id)
 
           @item = FactoryBot.create(:item,
-                                    inventory_code: "TEST-ORIGINAL",
-                                    model_id: @model.id,
-                                    room_id: @room.id,
-                                    inventory_pool_id: @inventory_pool.id,
-                                    owner_id: @inventory_pool.id)
+            inventory_code: "TEST-ORIGINAL",
+            model_id: @model.id,
+            room_id: @room.id,
+            inventory_pool_id: @inventory_pool.id,
+            owner_id: @inventory_pool.id)
         end
 
         it "bulk update of assigned items" do
@@ -90,7 +89,7 @@ require_relative "../_common"
             "data" => {
               "note" => "Updated note",
               "status_note" => "Updated status note",
-              "properties_warranty_expiration" => "2020-02-02",
+              "properties_warranty_expiration" => "2020-02-02"
               # FIXME
               # "properties_electrical_power" => "5",
               # "properties_ampere" => "5"
@@ -106,7 +105,6 @@ require_relative "../_common"
           expect(resp.status).to eq(200)
         end
       end
-
     end
   end
 end
