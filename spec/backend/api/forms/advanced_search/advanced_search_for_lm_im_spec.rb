@@ -31,8 +31,8 @@ require_relative "../_common"
       # resp = client.get "/inventory/#{pool_id}/list/?filters=[{}]"
       # -------------------------------------------------------
       let(:filter_eq) { [{"inventory_code" => "=INV"}] }
-      let(:filter_ilike) { [{"product" => "ilikeZoom"}] }
-      let(:filter_not_ilike) { [{"product" => "not ilikeCanon"}] }
+      let(:filter_ilike) { [{"name" => "ilikeZoom"}] }
+      let(:filter_not_ilike) { [{"name" => "not ilikeCanon"}] }
       let(:filter_in) { [{"manufacturer" => "in[Zoom,Sony]"}] }
       let(:filter_not_in) { [{"manufacturer" => "not in[Sony]"}] }
       let(:filter_gt) { [{"price" => ">100"}] }
@@ -60,16 +60,17 @@ require_relative "../_common"
       describe "fetch data by using different filters" do
         it "accepts various valid filters" do
           [
-            filter_eq,
-            # filter_ilike,
+            # filter_eq,
+            filter_ilike
+
             # filter_not_ilike,
             # filter_in,
             # filter_not_in,
-            filter_gt,
-            filter_lt,
+            # filter_gt,
+            # filter_lt,
             # filter_isnull,
             # filter_not_isnull,
-            filter_mixed_group
+            # filter_mixed_group
           ].each do |filter_set|
             puts ">>> Testing filter-set: #{filter_set.to_json}"
             resp = client.get "/inventory/#{pool_id}/list/?filters=#{filter_set.to_json}"

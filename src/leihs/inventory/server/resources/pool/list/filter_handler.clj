@@ -187,27 +187,6 @@
 ;; SQL builder
 ;; ------------------------------------------------------------
 
-(defn add-filter [query [k v]]
-  (let [field (keyword (str "items." (name k)))
-        {:keys [op val]} (parse-op-value v)
-        val (cast-uuid val)]
-    (case op
-      :isnull (sql/where query [:is field nil])
-      :not-isnull (sql/where query [:is-not field nil])
-      :in (sql/where query [:in field val])
-      :not-in (sql/where query [:not-in field val])
-      :like (sql/where query [:like field val])
-      :not-like (sql/where query [:not [:like field val]])
-      :ilike (sql/where query [:ilike field val])
-      :not-ilike (sql/where query [:not [:ilike field val]])
-      :<> (sql/where query [:<> field val])
-      := (sql/where query [:= field val])
-      :> (sql/where query [:> field val])
-      :< (sql/where query [:< field val])
-      :>= (sql/where query [:>= field val])
-      :<= (sql/where query [:<= field val])
-      query)))
-
 (defn add-filter
   [query [k v] raw-filter-keys]
   (let [k-str (name k)
@@ -248,19 +227,6 @@
           base-query
           subfilter))
 
-(defn add-filter-groups
-  "Adds all filter groups (vector of maps). The optional third argument
-   raw-filter-keys is ignored for now, but kept for call compatibility."
-  ([base-query groups]
-   (add-filter-groups base-query groups nil))
-  ([base-query groups _raw-filter-keys]
-   (let [group-conds
-         (for [group groups]
-           (-> (add-and-group (sql/select) group)
-               :where))]
-     (if (seq group-conds)
-       (sql/where base-query (cons :or group-conds))
-       base-query))))
 
 (defn add-filter-groups
   ([base-query groups]
@@ -284,6 +250,7 @@
 
 (defn validate-filters [filter-groups whitelist]
   (println ">o> filters" filter-groups)
+  (println ">o> whitelist" whitelist)
   (let [wl-set (set (map keyword whitelist))]
     (reduce
      (fn [{:keys [valid invalid]} group]
@@ -293,3 +260,30 @@
           :invalid (into invalid denied)}))
      {:valid [] :invalid []}
      filter-groups)))
+
+
+
+(defn normalize-key [k]
+  ;; Ensure keywords like :my_date become :properties_my_date
+  (if (and (keyword? k)
+        (not (clojure.string/starts-with? (name k) "properties_")))
+    (keyword (str "properties_" (name k)))
+    k))
+
+(defn normalize-group [group]
+  (into {}
+    (map (fn [[k v]]
+           [(normalize-key k) v])
+      group)))
+
+(defn validate-filters [filter-groups whitelist]
+  (let [wl-set (set (map keyword whitelist))]
+    (reduce
+      (fn [{:keys [valid invalid]} group]
+        (let [normalized (normalize-group group)
+              allowed (set/intersection wl-set (set (keys normalized)))
+              denied (set/difference (set (keys normalized)) wl-set)]
+          {:valid (conj valid (select-keys normalized allowed))
+           :invalid (into invalid denied)}))
+      {:valid [] :invalid []}
+      filter-groups)))

@@ -141,8 +141,15 @@
                  sql-format
                  (->> (jdbc/query tx))
                  first)
+
+
+        ;; fetch all properties
+
+        p (println ">o> abc.item" item)
+
         properties (:properties item)
         item-without-properties (dissoc item :properties)
+        p (println ">o> abc.item-without-properties??" item-without-properties)
         properties-with-prefix
         (reduce (fn [acc [k v]]
                   (assoc acc (keyword (str PROPERTIES_PREFIX (name k))) v))
@@ -181,7 +188,8 @@
                                (map (partial merge-item-defaults tx item-data) transformed-fields)
                                transformed-fields)
 
-        _ (println ">o> abc.fields.count" (count fields-with-defaults))]
+        _ (println ">o> abc.fields.count" (count fields-with-defaults))
+        _ (println ">o> abc.fields.count2" (map :id fields-with-defaults))]
     (vec fields-with-defaults)))
 
 (defn index-resources
