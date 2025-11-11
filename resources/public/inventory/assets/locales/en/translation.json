@@ -7,6 +7,7 @@
   },
   "header": {
     "links": {
+      "global-search": "Global search",
       "inventory": "Inventory",
       "lending": "Lending"
     },
