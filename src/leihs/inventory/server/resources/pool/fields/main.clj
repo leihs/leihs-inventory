@@ -104,7 +104,9 @@
       (= field-id :building_id)
       (let [room-id (:room_id item-data)
             building (buildings/get-by-room-id tx room-id)]
-        {:value (:id building), :label (:name building)}))))
+        {:value (:id building), :label (:name building)})
+      
+      :else value)))
 
 (defn target-type-expr [ttype]
   (if (= ttype "package")
@@ -164,23 +166,23 @@
              (into {})))))
 
 (defn get-item-data [tx pool-id item-id]
-  (let [item (-> (sql/select :*)
-                 (sql/from :items)
-                 (sql/where [:= :id item-id])
-                 (sql/where [:or
-                             [:= :owner_id pool-id]
-                             [:= :inventory_pool_id pool-id]])
-                 sql-format
-                 (->> (jdbc/query tx))
-                 first)
-        properties (:properties item)
-        item-without-properties (dissoc item :properties)
-        properties-with-prefix
-        (reduce (fn [acc [k v]]
-                  (assoc acc (keyword (str PROPERTIES_PREFIX (name k))) v))
-                {}
-                properties)]
-    (merge item-without-properties properties-with-prefix)))
+  (when-let [item (-> (sql/select :*)
+                      (sql/from :items)
+                      (sql/where [:= :id item-id])
+                      (sql/where [:or
+                                  [:= :owner_id pool-id]
+                                  [:= :inventory_pool_id pool-id]])
+                      sql-format
+                      (->> (jdbc/query tx))
+                      first)]
+    (let [properties (:properties item)
+          item-without-properties (dissoc item :properties)
+          properties-with-prefix
+          (reduce (fn [acc [k v]]
+                    (assoc acc (keyword (str PROPERTIES_PREFIX (name k))) v))
+                  {}
+                  properties)]
+      (merge item-without-properties properties-with-prefix))))
 
 (defn handle-item-defaults [tx field item-data pool-id]
   (let [field-id (keyword (:id field))
@@ -191,21 +193,21 @@
 (defn index-resources
   [{:keys [tx] {:keys [role] user-id :id} :authenticated-entity :as request}]
   (try
-    (let [{:keys [target_type resource_id]} (query-params request)
-          {:keys [pool_id]} (path-params request)
-          pool (pools/get-by-id tx pool_id)
-          query (base-query target_type role pool_id)
-          fields (jdbc/query tx (sql-format query))
-          item-data (get-item-data tx pool_id resource_id)
-          transformed-fields (map #(transform-field-data % :tx tx
-                                                         :pool pool
-                                                         :user-id user-id
-                                                         :resource-id resource_id)
-                                  fields)
-          fields-with-defaults
-          (if item-data
-            (map #(handle-item-defaults tx % item-data pool_id) transformed-fields)
-            transformed-fields)]
+   (let [{:keys [target_type resource_id]} (query-params request)
+         {:keys [pool_id]} (path-params request)
+         pool (pools/get-by-id tx pool_id)
+         query (base-query target_type role pool_id)
+         fields (jdbc/query tx (sql-format query))
+         transformed-fields (map #(transform-field-data % :tx tx
+                                                        :pool pool
+                                                        :user-id user-id
+                                                        :resource-id resource_id)
+                                 fields)
+         item-data (get-item-data tx pool_id resource_id)
+         fields-with-defaults (if item-data
+                                (map #(handle-item-defaults tx % item-data pool_id)
+                                     transformed-fields)
+                                transformed-fields)]
       (response {:fields (vec fields-with-defaults)}))
     (catch Exception e
       (log-by-severity ERROR_GET e)
