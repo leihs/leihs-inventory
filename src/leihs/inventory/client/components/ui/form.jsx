@@ -104,7 +104,7 @@ FormDescription.displayName = "FormDescription"
 const FormMessage = React.forwardRef(
   ({ className, children, ...props }, ref) => {
     const { error, formMessageId } = useFormField()
-    
+
     // Extract nested error messages from Zod validation
     // For autocomplete fields, errors might be nested like: {value: {message: "..."}}
     let body = children
