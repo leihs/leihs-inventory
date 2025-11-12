@@ -139,7 +139,8 @@
       (sql/where (target-type-expr ttype))
       (sql/where (min-req-role-expr (keyword role)))))
 
-(defn transform-field-data [field & {:keys [tx pool user-id resource-id]}]
+(defn transform-field-data [field & {:keys [tx pool user-id]
+                                     {resource-id :id :as item-data} :item-data}]
   (let [base (reduce (fn [f data-key]
                        (assoc f data-key
                               (-> f
@@ -148,16 +149,28 @@
                      field
                      common-data-keys)]
     (-> base
+
+        ;; Add protected attribute for owner-only fields
+        (#(if (and (get-in % [:data :permissions :owner])
+                   (not= (:owner_id item-data) (:id pool)))
+            (assoc %
+                   :protected true
+                   :protected_reason "editable for owner only")
+            (assoc % :protected false)))
+
         ;; Merge in type-specific data keys
         (merge (select-keys (:data base)
                             (-> base :type keyword type-data-keys)))
+
         ;; Remove excluded keys
         (#(apply dissoc % excluded-keys))
+
         ;; Apply hooks for specific keys
         (#(if-let [hook-fn (keys-hooks (-> % :id keyword))]
             (hook-fn % :tx tx :pool pool
                      :resource-id resource-id :user-id user-id)
             %))
+
         ;; Remove all keys with nil values
         (->> (remove (fn [[_ v]] (nil? v)))
              (into {})))))
@@ -195,12 +208,12 @@
           pool (pools/get-by-id tx pool_id)
           query (base-query target_type role pool_id)
           fields (jdbc/query tx (sql-format query))
+          item-data (get-item-data tx pool_id resource_id)
           transformed-fields (map #(transform-field-data % :tx tx
                                                          :pool pool
                                                          :user-id user-id
-                                                         :resource-id resource_id)
+                                                         :item-data item-data)
                                   fields)
-          item-data (get-item-data tx pool_id resource_id)
           fields-with-defaults (if item-data
                                  (map #(handle-item-defaults tx % item-data pool_id)
                                       transformed-fields)
