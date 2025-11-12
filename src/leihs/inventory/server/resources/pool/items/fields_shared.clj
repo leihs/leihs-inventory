@@ -56,20 +56,20 @@
                          (->> (jdbc/execute-one! tx))))
         model-type (:type model-data)]
     (cond
-     (seq unpermitted-fields)
-     {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
+      (seq unpermitted-fields)
+      {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
 
-     (= model-type "Software")
-     {:error "Model type 'Software' is not allowed for items"
-      :model_id model-id}
+      (= model-type "Software")
+      {:error "Model type 'Software' is not allowed for items"
+       :model_id model-id}
 
-     (or (and item_id (not= (authorized-role-for-pool request owner-id)
-                            "inventory_manager")
-              (not= owner-id pool-id))
-         (and (not item_id) (not= owner-id pool-id)))
-     {:error "Unpermitted owner_id"
-      :provided owner-id
-      :expected pool-id})))
+      (or (and item_id (not= (authorized-role-for-pool request owner-id)
+                             "inventory_manager")
+               (not= owner-id pool-id))
+          (and (not item_id) (not= owner-id pool-id)))
+      {:error "Unpermitted owner_id"
+       :provided owner-id
+       :expected pool-id})))
 
 (defn flatten-properties [item]
   (let [properties (:properties item)

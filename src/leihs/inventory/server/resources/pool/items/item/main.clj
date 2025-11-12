@@ -20,27 +20,27 @@
 
 (defn patch-resource [{:keys [tx] :as request}]
   (try
-   (if-let [validation-error (validate-field-permissions request)]
-     (bad-request validation-error)
-     (let [update-params (body-params request)
-           {:keys [item_id]} (path-params request)
-           {:keys [item-data properties]} (-> update-params (dissoc :id)
-                                              split-item-data)
-           item-data-coerced (coerce-field-values item-data in-coercions)
-           properties-json (or (not-empty properties) {})
-           item-data-with-properties (assoc item-data-coerced
-                                            :properties [:lift properties-json])
-           sql-query (-> (sql/update :items)
-                         (sql/set item-data-with-properties)
-                         (sql/where [:= :id item_id])
-                         (sql/returning :*)
-                         sql-format)
-           result (jdbc/execute-one! tx sql-query)]
-       (if result
-         (response (-> result
-                       flatten-properties
-                       (coerce-field-values out-coercions)))
-         (bad-request {:error ERROR_UPDATE_ITEM}))))
-   (catch Exception e
-     (log-by-severity ERROR_UPDATE_ITEM e)
-     (exception-handler request ERROR_UPDATE_ITEM e))))
+    (if-let [validation-error (validate-field-permissions request)]
+      (bad-request validation-error)
+      (let [update-params (body-params request)
+            {:keys [item_id]} (path-params request)
+            {:keys [item-data properties]} (-> update-params (dissoc :id)
+                                               split-item-data)
+            item-data-coerced (coerce-field-values item-data in-coercions)
+            properties-json (or (not-empty properties) {})
+            item-data-with-properties (assoc item-data-coerced
+                                             :properties [:lift properties-json])
+            sql-query (-> (sql/update :items)
+                          (sql/set item-data-with-properties)
+                          (sql/where [:= :id item_id])
+                          (sql/returning :*)
+                          sql-format)
+            result (jdbc/execute-one! tx sql-query)]
+        (if result
+          (response (-> result
+                        flatten-properties
+                        (coerce-field-values out-coercions)))
+          (bad-request {:error ERROR_UPDATE_ITEM}))))
+    (catch Exception e
+      (log-by-severity ERROR_UPDATE_ITEM e)
+      (exception-handler request ERROR_UPDATE_ITEM e))))
