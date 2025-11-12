@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.pool.models.model.routes
   (:require
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.model.main :as model]
    [leihs.inventory.server.resources.pool.models.model.types :refer [delete-response
                                                                      patch-response

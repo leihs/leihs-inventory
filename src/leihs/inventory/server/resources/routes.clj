@@ -19,11 +19,13 @@
    [leihs.inventory.server.resources.pool.export.excel.routes :as export-excel]
    [leihs.inventory.server.resources.pool.fields.routes :as fields]
    [leihs.inventory.server.resources.pool.inventory-pools.routes :as inventory-pools]
+   [leihs.inventory.server.resources.pool.items.item.attachments.attachment.routes :as i-attachment]
+   [leihs.inventory.server.resources.pool.items.item.attachments.routes :as i-attachments]
    [leihs.inventory.server.resources.pool.items.routes :as items]
    [leihs.inventory.server.resources.pool.list.routes :as list]
    [leihs.inventory.server.resources.pool.manufacturers.routes :as manufacturers]
-   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :as attachment]
-   [leihs.inventory.server.resources.pool.models.model.attachments.routes :as attachments]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :as m-attachment]
+   [leihs.inventory.server.resources.pool.models.model.attachments.routes :as m-attachments]
    [leihs.inventory.server.resources.pool.models.model.images.image.routes :as image]
    [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes :as images-thumbnail]
    [leihs.inventory.server.resources.pool.models.model.images.routes :as images]
@@ -257,9 +259,11 @@
                       (images/routes)
                       (image/routes)
                       (images-thumbnail/routes)
-                      (attachment/routes)
-                      (attachments/routes)
+                      (m-attachment/routes)
+                      (m-attachments/routes)
                       (items/routes)
+                      (i-attachment/routes)
+                      (i-attachments/routes)
                       (templates/routes)
                       (template/routes)
                       (building/routes)

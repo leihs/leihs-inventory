@@ -12,14 +12,14 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/models/:model_id/attachments/:attachments_id"
+  ["/models/:model_id/attachments/:attachment_id"
    {:get {:summary (fe "")
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ACCEPT_TYPES_ATTACHMENT}
           :produces ACCEPT_TYPES_ATTACHMENT
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
-                              :attachments_id s/Uuid}
+                              :attachment_id s/Uuid}
                        :query {(s/optional-key :content_disposition) (s/enum "attachment" "inline")}}
           :handler attachment/get-resource
           :responses {200 {:description "OK"
@@ -34,7 +34,7 @@
              :coercion reitit.coercion.schema/coercion
              :parameters {:path {:pool_id s/Uuid
                                  :model_id s/Uuid
-                                 :attachments_id s/Uuid}}
+                                 :attachment_id s/Uuid}}
              :produces ["application/json"]
              :handler attachment/delete-resource
              :responses {200 {:description "OK"

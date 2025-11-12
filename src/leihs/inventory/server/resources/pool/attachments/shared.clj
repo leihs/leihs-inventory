@@ -1,14 +1,17 @@
 (ns leihs.inventory.server.resources.pool.attachments.shared
   (:require
+   [clojure.java.io :as io]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.attachments.constants :refer [CONTENT_DISPOSITION_INLINE_FORMATS]]
+   [leihs.inventory.server.resources.pool.attachments.constants :refer [config-get CONTENT_DISPOSITION_INLINE_FORMATS]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]])
+   [ring.util.response :as response :refer [bad-request response status]])
   (:import
    [java.util Base64]))
 
@@ -17,7 +20,7 @@
 (defn get-resource [request]
   (try
     (let [tx (:tx request)
-          id (-> request path-params :attachments_id)
+          id (-> request path-params :attachment_id)
           model-id (-> request path-params :model_id)
           item-id (-> request path-params :item_id)
           accept-header (if (str/includes? (get-in request [:headers "accept"]) "*/*")
@@ -61,11 +64,78 @@
       (exception-handler request ERROR_GET_ATTACHMENT e))))
 
 (defn delete-resource [{:keys [tx] :as request}]
-  (let [{:keys [attachments_id]} (path-params request)
+  (let [{:keys [attachment_id]} (path-params request)
         res (jdbc/execute-one! tx
                                (-> (sql/delete-from :attachments)
-                                   (sql/where [:= :id attachments_id])
+                                   (sql/where [:= :id attachment_id])
                                    sql-format))]
     (if (= (:next.jdbc/update-count res) 1)
-      (response {:status "ok" :attachments_id attachments_id})
+      (response {:status "ok" :attachment_id attachment_id})
       (bad-request {:message "Failed to delete attachment"}))))
+
+(def ERROR_UPLOAD_ATTACHMENT "Failed to upload attachment")
+(def ERROR_GET_ATTACHMENTS "Failed to fetch thumbnails")
+
+(defn sanitize-filename [filename]
+  (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
+
+(defn filter-keys [m keys-to-keep]
+  (select-keys m keys-to-keep))
+
+(defn filter-keys-attachments [m]
+  (filter-keys m [:filename :content_type :size :model_id :item_id :content]))
+
+(defn attachment-response-format [s]
+  (sql/returning s :id :filename :content_type :size :model_id :item_id))
+
+(defn post-resource [request]
+  (try
+    (let [{{:keys [item_id model_id]} :path} (:parameters request)
+          body-stream (:body request)
+          max-size-mb (config-get :api :attachments :max-size-mb)
+          upload-path (config-get :api :upload-dir)
+          tx (:tx request)
+          content-type (get-in request [:headers "content-type"])
+          filename-to-save (sanitize-filename (get-in request [:headers "x-filename"]))
+          content-length (some-> (get-in request [:headers "content-length"]) Long/parseLong)
+          file-full-path (str upload-path filename-to-save)
+          entry {:tempfile file-full-path
+                 :filename filename-to-save
+                 :content_type content-type
+                 :size content-length
+                 :model_id model_id
+                 :item_id item_id}]
+
+      (when (> content-length (* max-size-mb 1024 1024))
+        (throw (ex-info "File size exceeds limit" {:status 400 :message "File size exceeds limit"})))
+
+      (io/copy body-stream (io/file file-full-path))
+
+      (let [file-content (file-to-base64 entry)
+            data (-> entry
+                     (assoc :content file-content)
+                     filter-keys-attachments)
+            data (jdbc/execute-one! tx (-> (sql/insert-into :attachments)
+                                           (sql/values [data])
+                                           attachment-response-format
+                                           sql-format))]
+        (status (response data) 200)))
+
+    (catch Exception e
+      (log-by-severity ERROR_UPLOAD_ATTACHMENT e)
+      (exception-handler request ERROR_UPLOAD_ATTACHMENT e))))
+
+(defn index-resources [request]
+  (try
+    (let [item-id (-> request path-params :item_id)
+          model-id (-> request path-params :model_id)
+          query (-> (sql/select :a.*)
+                    (sql/from [:attachments :a])
+                    (cond-> model-id
+                      (sql/where [:and
+                                  [:= :a.model_id model-id]
+                                  [:= :a.item_id item-id]])))]
+      (response (create-pagination-response request query nil)))
+    (catch Exception e
+      (log-by-severity ERROR_GET_ATTACHMENTS e)
+      (exception-handler request ERROR_GET_ATTACHMENTS e))))
