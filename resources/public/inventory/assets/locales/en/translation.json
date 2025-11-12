@@ -47,6 +47,7 @@
         "edit": {
           "title": "Edit Item",
           "description": "Make changes and save afterwards",
+          "submit": "Save Item",
           "delete": "Delete",
           "success": "Item was successfully saved",
           "invalid_one": "Item could not be saved because one field is invalid",

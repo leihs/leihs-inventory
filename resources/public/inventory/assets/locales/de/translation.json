@@ -47,6 +47,7 @@
         "edit": {
           "title": "Gegenstand bearbeiten",
           "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Gegenstand speichern",
           "delete": "Löschen",
           "success": "Gegenstand wurde erfolgreich gespeichert",
           "invalid_one": "Gegenstand konnte nicht gespeichert werden, da ein Feld ungültig ist",

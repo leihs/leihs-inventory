@@ -80,26 +80,21 @@
         pool-id (aget params "pool-id")
         item-id (or (aget params "item-id") nil)
 
-        fields (-> http-client
-                   (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
-                   (.then #(jc (.-data %))))
-
         item-path (when item-id
                     (str "/inventory/" pool-id "/items/"))
 
         data (if item-path
                (-> http-client
-                   (.get (str "/inventory/" pool-id "/fields/?resource_id=" item-id "&target_type=item"))
+                   (.get (str "/inventory/" pool-id "/fields/?resource_id=" item-id "&target_type=item")
+                         #js {:id item-id})
                    (.then #(jc (.-data %))))
                (-> http-client
                    (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
                    (.then #(jc (.-data %)))))]
 
-    (.. (js/Promise.all (cond-> [fields]
-                          data (conj data)))
-        (then (fn [[fields & [data]]]
-                {:fields fields
-                 :data (if data data nil)})))))
+    (.. (js/Promise.all [data])
+        (then (fn [[data]]
+                {:data data})))))
 
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)
@@ -115,7 +110,8 @@
                        (.then #(jc (.-data %))))
 
         manufacturers (-> http-client
-                          (.get (str "/inventory/" pool-id "/manufacturers/?type=Model") #js {:id "manufacturers"})
+                          (.get (str "/inventory/" pool-id "/manufacturers/?type=Model")
+                                #js {:id "manufacturers"})
                           (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
         model-path (when model-id

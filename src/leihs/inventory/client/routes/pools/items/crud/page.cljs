@@ -103,11 +103,7 @@
                             item-res (if is-create
                                        (<p! (-> http-client
                                                 (.post (str "/inventory/" pool-id "/items/")
-                                                       (js/JSON.stringify (cj item-data))
-                                                       (cj {:cache
-                                                            {:update {:models "delete"
-                                                                      :compatible-models "delete"
-                                                                      :manufacturers "delete"}}}))
+                                                       (js/JSON.stringify (cj item-data)))
 
                                                 (.then (fn [res]
                                                          {:status (.. res -status)
@@ -122,8 +118,8 @@
                                                   (.patch (str "/inventory/" pool-id "/items/" item-id)
                                                           (js/JSON.stringify (cj item-data))
                                                           (cj {:cache
-                                                               {:update {:models "delete"
-                                                                         (keyword item-id) "delete"}}}))
+                                                               {:update {(keyword item-id) "delete"}}}))
+
                                                   (.then (fn [res]
                                                            {:status (.. res -status)
                                                             :statusText (.. res -statusText)
@@ -161,8 +157,8 @@
                                                                "X-Filename" name}}))))))
 
                             (if is-create
-                              (.. toast (success (t "pool.model.create.success")))
-                              (.. toast (success (t "pool.model.edit.success"))))
+                              (.. toast (success (t "pool.items.item.create.success")))
+                              (.. toast (success (t "pool.items.item.edit.success"))))
 
                             ;; state needs to be forwarded for back navigation
                             (if is-create
@@ -191,12 +187,12 @@
          ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
             (if is-create
               (t "pool.items.item.create.title")
-              (t "pool.items.item.title")))
+              (t "pool.items.item.edit.title")))
 
          ($ :h3 {:className "text-sm mb-6 text-gray-500"}
             (if is-create
               (t "pool.items.item.create.description")
-              (t "pool.items.item.description")))
+              (t "pool.items.item.edit.description")))
 
          ($ Card {:className "py-8 mb-12"}
             ($ CardContent
@@ -230,7 +226,7 @@
                                 :className "self-center"}
                         (if is-create
                           (t "pool.items.item.create.submit")
-                          (t "pool.items.item.submit")))
+                          (t "pool.items.item.edit.submit")))
                      ($ ButtonGroupSeparator)
                      ($ DropdownMenu
                         ($ DropdownMenuTrigger {:asChild true}
@@ -247,7 +243,7 @@
                                           :viewTransition true}
                                     (if is-create
                                       (t "pool.items.item.create.cancel")
-                                      (t "pool.items.item.cancel")))))
+                                      (t "pool.items.item.edit.cancel")))))
 
                            ($ DropdownMenuSeparator)
 
