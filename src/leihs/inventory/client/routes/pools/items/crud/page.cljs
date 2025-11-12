@@ -164,22 +164,17 @@
                               (.. toast (success (t "pool.model.create.success")))
                               (.. toast (success (t "pool.model.edit.success"))))
 
-                              ;; state needs to be forwarded for back navigation
-                            (let [submit-type (aget event "nativeEvent" "submitter" "value")]
-                              (if (= submit-type "save-add-item")
-                                (navigate "/inventory/" pool-id "/models/" item-id "/items/create"
-                                          #js {:state state
-                                               :viewTransition true})
+                            ;; state needs to be forwarded for back navigation
+                            (if is-create
+                              (navigate (str "/inventory/" pool-id "/list"
+                                             (some-> state .-searchParams))
+                                        #js {:state state
+                                             :viewTransition true})
 
-                                (if is-create
-                                  (navigate "/inventory/" pool-id "/list?"
-                                            #js {:state state
-                                                 :viewTransition true})
-
-                                  (navigate (str "/inventory/" pool-id "/list"
-                                                 (some-> state .-searchParams))
-                                            #js {:state state
-                                                 :viewTransition true})))))))))]
+                              (navigate (str "/inventory/" pool-id "/list"
+                                             (some-> state .-searchParams))
+                                        #js {:state state
+                                             :viewTransition true})))))))]
 
     (uix/use-effect
      (fn []
@@ -195,13 +190,13 @@
       ($ :article
          ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
             (if is-create
-              (t "pool.model.create.title")
-              (t "pool.model.title")))
+              (t "pool.items.item.create.title")
+              (t "pool.items.item.title")))
 
          ($ :h3 {:className "text-sm mb-6 text-gray-500"}
             (if is-create
-              (t "pool.model.create.description")
-              (t "pool.model.description")))
+              (t "pool.items.item.create.description")
+              (t "pool.items.item.description")))
 
          ($ Card {:className "py-8 mb-12"}
             ($ CardContent
@@ -229,13 +224,13 @@
                                                      :form form
                                                      :block block}))))))
 
-                  ($ ButtonGroup
+                  ($ ButtonGroup {:class-name "h-fit sticky top-[200px]"}
                      ($ Button {:type "submit"
                                 :form "create-model"
                                 :className "self-center"}
                         (if is-create
-                          (t "pool.model.create.submit")
-                          (t "pool.model.submit")))
+                          (t "pool.items.item.create.submit")
+                          (t "pool.items.item.submit")))
                      ($ ButtonGroupSeparator)
                      ($ DropdownMenu
                         ($ DropdownMenuTrigger {:asChild true}
@@ -247,12 +242,12 @@
                            ($ DropdownMenuGroup
                               ($ DropdownMenuItem
                                  {:asChild true}
-                                 ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
+                                 ($ Link {:to (str (router/generatePath "/inventory/:pool-id/list" params)
                                                    (some-> state .-searchParams))
                                           :viewTransition true}
                                     (if is-create
-                                      (t "pool.model.create.cancel")
-                                      (t "pool.model.cancel")))))
+                                      (t "pool.items.item.create.cancel")
+                                      (t "pool.items.item.cancel")))))
 
                            ($ DropdownMenuSeparator)
 
@@ -269,19 +264,19 @@
                        ($ AlertDialogContent
 
                           ($ AlertDialogHeader
-                             ($ AlertDialogTitle (t "pool.model.delete.title"))
-                             ($ AlertDialogDescription (t "pool.model.delete.description")))
+                             ($ AlertDialogTitle (t "pool.items.item.delete.title"))
+                             ($ AlertDialogDescription (t "pool.items.item.delete.description")))
 
                           ($ AlertDialogFooter
                              ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
                                                     hover:bg-destructive hover:text-destructive-foreground"
                                                    :onClick handle-delete}
-                                (t "pool.model.delete.confirm"))
+                                (t "pool.items.item.delete.confirm"))
                              ($ AlertDialogCancel
                                 ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id" params)
                                          :state state}
 
-                                   (t "pool.model.delete.cancel")))))))
+                                   (t "pool.items.item.delete.cancel")))))))
                   #_($ :div {:className "h-max flex space-x-6 sticky bottom-0 pt-12 lg:top-[43vh] ml-auto"}
 
                        ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)

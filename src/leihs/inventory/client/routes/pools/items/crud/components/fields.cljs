@@ -77,6 +77,7 @@
         "attachments"
         ($ Attachments {:form form
                         :label (:label block)
+                        :name (:name block)
                         :props (:props block)})
 
         "autocomplete-search"
@@ -139,7 +140,8 @@
                                           ($ FormItem {:key (:value option)
                                                        :class-name "flex items-center space-x-2 space-y-0"}
                                              ($ FormControl
-                                                ($ RadioGroupItem {:value (:value option)}))
+                                                ($ RadioGroupItem {:data-test-id (str (:name block) "-" (:value option))
+                                                                   :value (:value option)}))
                                              ($ FormLabel {:class-name "font-normal"}
                                                 (:label option)))))))})
 
@@ -151,18 +153,21 @@
                                   ($ FormLabel (:label block)
                                      (when (-> block :props :required) "*"))
 
-                                  ($ Select {:onValueChange (aget % "field" "onChange")
+                                  ($ Select {:name (:name block)
+                                             :onValueChange (aget % "field" "onChange")
                                              :defaultValue (aget % "field" "value")}
 
                                      ($ FormControl
                                         ($ SelectTrigger {:name (:name block)}
                                            ($ SelectValue {:placeholder (:placeholder (:props block))})))
 
-                                     ($ SelectContent
+                                     ($ SelectContent {:data-test-id (str (:name block) "-options")}
                                         (for [option (:options (:props block))]
                                           ($ SelectItem {:key (:value option)
-                                                         :value (:value option)}
-                                             ($ :<> (:label option)))))
+                                                         :value (:value option)
+                                                         :class-name "cursor-pointer"}
+                                             ($ :button {:type "button"}
+                                                (:label option)))))
                                      ($ FormMessage)))})
 
         ;; Calendar field 

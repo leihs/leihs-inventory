@@ -4,7 +4,8 @@
                                       CommandInput CommandItem CommandList]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
-   ["@@/form" :refer [FormField FormItem FormLabel FormMessage]]
+   ["@@/form" :refer [FormField FormItem FormLabel
+                      FormControl FormMessage]]
    ["@@/spinner" :refer [Spinner]]
    ["lucide-react" :refer [Check ChevronsUpDown]]
    ["react-i18next" :refer [useTranslation]]
@@ -98,20 +99,23 @@
                                 :on-open-change handle-open-change}
 
                        ($ PopoverTrigger {:as-child true}
-                          ($ Button {:ref buttonRef
-                                     :variant "outline"
-                                     :name name
-                                     :role "combobox"
-                                     :class-name "w-full justify-between"}
-                             (or (get-values (str name ".label"))
-                                 (t "pool.items.item.fields.autocomplete.select"))
-                             ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
+                          ($ FormControl
+                             ($ Button {:ref buttonRef
+                                        :variant "outline"
+                                        :name name
+                                        :data-test-id name
+                                        :role "combobox"
+                                        :class-name "w-full justify-between"}
+                                (or (get-values (str name ".label"))
+                                    (t "pool.items.item.fields.autocomplete.select"))
+                                ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"}))))
 
                        ($ PopoverContent {:class-name "p-0"
                                           :style {:width (str width "px")}}
 
                           ($ Command {:on-change handle-search}
-                             ($ CommandInput {:placeholder (t "pool.items.item.fields.autocomplete.search")})
+                             ($ CommandInput {:placeholder (t "pool.items.item.fields.autocomplete.search")
+                                              :data-test-id (str name "-input")})
                              ($ CommandList
                                 (if loading?
                                   ($ Spinner {:className "absolute right-0 top-0 m-3"})
@@ -128,7 +132,8 @@
                                                                  (get-values (str name ".value")))
                                                             "visible"
                                                             "invisible"))})
-                                     (:label option)))))))
+                                     ($ :button {:type "button"}
+                                        (:label option))))))))
                     ($ FormMessage))})))
 
 (def Autocomplete
