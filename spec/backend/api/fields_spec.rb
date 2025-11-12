@@ -97,7 +97,7 @@ describe "Swagger Inventory Endpoints - Fields" do
         expect(owner_field.key?("protected_reason")).to be false
       end
 
-      it "marks owner-only fields as protected when no resource_id is provided" do
+      it "does not add protected attribute when no resource_id is provided (creating as owner)" do
         resp = client.get url do |req|
           req.params["target_type"] = "item"
           req.headers["Accept"] = "application/json"
@@ -109,11 +109,10 @@ describe "Swagger Inventory Endpoints - Fields" do
         regular_field = resp.body["fields"].find { |f| f["id"] == @regular_field.id }
 
         expect(owner_field).not_to be_nil
-        expect(owner_field["protected"]).to be true
-        expect(owner_field["protected_reason"]).to eq("editable for owner only")
+        expect(owner_field.key?("protected")).to be false
 
         expect(regular_field).not_to be_nil
-        expect(regular_field["protected"]).to be false
+        expect(regular_field.key?("protected")).to be false
       end
     end
   end
