@@ -151,12 +151,15 @@
     (-> base
 
         ;; Add protected attribute for owner-only fields
-        (#(if (and (get-in % [:data :permissions :owner])
-                   (not= (:owner_id item-data) (:id pool)))
-            (assoc %
-                   :protected true
-                   :protected_reason "editable for owner only")
-            (assoc % :protected false)))
+        (cond-> resource-id
+          (#(if (and (-> %
+                         (get-in [:data :permissions :owner])
+                         true?)
+                     (not= (:owner_id item-data) (:id pool)))
+              (assoc %
+                     :protected true
+                     :protected_reason "editable for owner only")
+              (assoc % :protected false))))
 
         ;; Merge in type-specific data keys
         (merge (select-keys (:data base)

@@ -22,6 +22,7 @@
    [leihs.inventory.server.resources.pool.items.item.attachments.attachment.routes :as i-attachment]
    [leihs.inventory.server.resources.pool.items.item.attachments.routes :as i-attachments]
    [leihs.inventory.server.resources.pool.items.routes :as items]
+   [leihs.inventory.server.resources.pool.items.item.routes :as item]
    [leihs.inventory.server.resources.pool.list.routes :as list]
    [leihs.inventory.server.resources.pool.manufacturers.routes :as manufacturers]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :as m-attachment]
@@ -261,6 +262,7 @@
                       (images-thumbnail/routes)
                       (m-attachment/routes)
                       (m-attachments/routes)
+                      (item/routes)
                       (items/routes)
                       (i-attachment/routes)
                       (i-attachments/routes)
