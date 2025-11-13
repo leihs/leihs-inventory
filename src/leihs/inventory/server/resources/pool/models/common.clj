@@ -54,13 +54,13 @@
                      (debug "using keys:" keys-set)
                      (select-keys m keys-set))]
     (cond
-      (map? m-or-coll)      (filter-one m-or-coll)
+      (map? m-or-coll) (filter-one m-or-coll)
 
-      (vector? m-or-coll)      (mapv filter-one m-or-coll)
+      (vector? m-or-coll) (mapv filter-one m-or-coll)
 
-      :else      (do
-        (debug "⚠️ Expected a map or vector of maps, got:" (type m-or-coll))
-        m-or-coll))))
+      :else (do
+              (debug "⚠️ Expected a map or vector of maps, got:" (type m-or-coll))
+              m-or-coll))))
 
 ;; #####################
 
@@ -79,7 +79,7 @@
       (qualified-keyword? spec)
       #{(keyword (name spec))}
 
-      :else      #{})))
+      :else #{})))
 
 (defn filter-map-by-spec [m spec]
   (let [keys-set (allowed-keys-spec spec)]

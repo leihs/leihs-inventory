@@ -78,34 +78,34 @@
       ;; nil or empty string → nothing to parse
       (or (nil? s)
           (and (string? s)
-               (str/blank? s)))      (do
-        (println ">>>>> parse-json-param: empty or nil input — returning nil")
-        nil)
+               (str/blank? s))) (do
+                                  (println ">>>>> parse-json-param: empty or nil input — returning nil")
+                                  nil)
 
-      (and (vector? s) (every? map? s))       s
+      (and (vector? s) (every? map? s)) s
 
-      (map? s)      [s]
+      (map? s) [s]
 
-      :else       (let [trimmed (str/trim (str s))
-            parsed (try
-                     (json/parse-string trimmed true)
-                     (catch Exception _
-                       (try
-                         (edn/read-string trimmed)
-                         (catch Exception _
-                           trimmed)))) ; fallback to raw string
-            v (cond
-                (vector? parsed) parsed
-                (seq? parsed) (vec parsed)
-                (map? parsed) [parsed]
-                :else nil)]
-        (println ">>>>> parsed raw:" (pr-str parsed))
-        (println ">>>>> normalized to vector:" (pr-str v))
-        (if (and (vector? v) (every? map? v))
-          v
-          (do
-            (println ">>>>> parse-json-param: returning scalar string or nil vector")
-            nil))))
+      :else (let [trimmed (str/trim (str s))
+                  parsed (try
+                           (json/parse-string trimmed true)
+                           (catch Exception _
+                             (try
+                               (edn/read-string trimmed)
+                               (catch Exception _
+                                 trimmed)))) ; fallback to raw string
+                  v (cond
+                      (vector? parsed) parsed
+                      (seq? parsed) (vec parsed)
+                      (map? parsed) [parsed]
+                      :else nil)]
+              (println ">>>>> parsed raw:" (pr-str parsed))
+              (println ">>>>> normalized to vector:" (pr-str v))
+              (if (and (vector? v) (every? map? v))
+                v
+                (do
+                  (println ">>>>> parse-json-param: returning scalar string or nil vector")
+                  nil))))
     (catch Exception e
       (println ">>>>> parse-json-param final exception:" (.getMessage e))
       (throw (ex-info "Malformed or invalid filter input."

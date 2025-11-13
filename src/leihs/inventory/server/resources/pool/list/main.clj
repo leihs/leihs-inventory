@@ -49,7 +49,7 @@
 
          accept-type (-> request :accept :mime)
          parsed-filters (parse-json-param filters)
-           result (-> (sql/select :f.id :f.active :f.dynamic)
+         result (-> (sql/select :f.id :f.active :f.dynamic)
                     (sql/from [:fields :f])
                     (sql/left-join [:disabled_fields :df]
                                    [:and
