@@ -213,7 +213,8 @@
                                                      :form form
                                                      :block block}))))))
 
-                  ($ StickyBottom {:offset "50"}
+                  ($ StickyBottom {:class-name "ml-auto"
+                                   :offset "50px"}
                      ($ ButtonGroup
                         ($ Button {:type "submit"
                                    :form "create-model"
