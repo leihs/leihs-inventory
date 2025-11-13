@@ -113,12 +113,10 @@
        [:is-null ttype-expr]
        [:= ttype-expr ttype]])))
 
-(defn req-owner?-expr [true-or-false]
-  [:in
-   [:raw "fields.data->'permissions'->>'owner'"]
-   (case true-or-false
-     true ["true" "false"]
-     false ["false"])])
+(def not-owner-required
+  [:or
+   [:is-null [:raw "fields.data->'permissions'->>'owner'"]]
+   [:= [:raw "fields.data->'permissions'->>'owner'"] "false"]])
 
 (defn min-req-role-expr [min-req-role]
   [:in

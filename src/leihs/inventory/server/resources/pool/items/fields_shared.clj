@@ -37,7 +37,19 @@
         role (:role (:authenticated-entity request))
         body-params (body-params request)
         {pool-id :pool_id item_id :item_id} (path-params request)
+        {:keys [item-data]} (split-item-data body-params)
+        existing-owner-id (when item_id
+                            (-> (sql/select :owner_id)
+                                (sql/from :items)
+                                (sql/where [:= :id item_id])
+                                sql-format
+                                (->> (jdbc/execute-one! tx))
+                                :owner_id))
         permitted-fields (-> (fields/base-query "item" (keyword role) pool-id)
+                             (cond-> (some-> existing-owner-id
+                                             (or (:owner_id item-data))
+                                             (not= pool-id))
+                               (sql/where fields/not-owner-required))
                              sql-format
                              (->> (jdbc-query tx)))
         permitted-field-ids (->> permitted-fields
@@ -45,7 +57,6 @@
                                  set)
         body-keys (-> body-params (dissoc :id) keys set)
         unpermitted-fields (set/difference body-keys permitted-field-ids)
-        {:keys [item-data]} (split-item-data body-params)
         owner-id (:owner_id item-data)
         model-id (:model_id item-data)
         model-data (when model-id

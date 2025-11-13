@@ -187,6 +187,56 @@ describe "Swagger Inventory Endpoints - Items Update" do
         expect(resp.body["error"]).to eq("Model type 'Software' is not allowed for items")
         expect(resp.body["model_id"]).to eq(software_model.id)
       end
+
+      it "allows updating owner-only fields when user is inventory_manager in the owner pool" do
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {
+          inventory_code: @item.inventory_code,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          serial_number: "SN-12345",
+          properties_mac_address: "00:1B:44:11:3A:B7"
+        }
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["serial_number"]).to eq("SN-12345")
+        expect(resp.body["properties_mac_address"]).to eq("00:1B:44:11:3A:B7")
+      end
+
+      it "rejects owner-only fields when item owner is different from current pool" do
+        # Create another pool as the owner
+        owner_pool = FactoryBot.create(:inventory_pool, name: "Owner Pool")
+
+        # Create item owned by the other pool but managed in current pool
+        other_owned_item = FactoryBot.create(:item,
+          inventory_code: "TEST-OTHER-OWNED",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: owner_pool.id)
+
+        url = "/inventory/#{inventory_pool_id}/items/#{other_owned_item.id}"
+        update_data = {
+          inventory_code: other_owned_item.inventory_code,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: owner_pool.id,
+          serial_number: "SN-12345",
+          properties_mac_address: "00:1B:44:11:3A:B7"
+        }
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["error"]).to eq("Unpermitted fields")
+        expect(resp.body["unpermitted-fields"]).to include("serial_number")
+        expect(resp.body["unpermitted-fields"]).to include("properties_mac_address")
+      end
     end
   end
 end
