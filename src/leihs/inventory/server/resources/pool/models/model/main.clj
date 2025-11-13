@@ -4,7 +4,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
-                                                         is-model-deletable?
+                                                         is-deletable?
                                                          select-entries]]
    [leihs.inventory.server.resources.pool.models.basic-coercion :as co]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
@@ -28,6 +28,9 @@
 (def DELETE_MODEL_ERROR "Failed to delete model")
 (def FETCH_MODEL_ERROR "Failed to fetch model")
 (def UPDATE_MODEL_ERROR "Failed to update model")
+
+(defn is-model-deletable? [tx model-id]
+  (is-deletable? tx :models model-id))
 
 (defn fetch-image-attributes [tx model-id pool-id]
   (let [query (-> (sql/select
@@ -119,7 +122,7 @@
           categories (fetch-categories tx model-id)
           result (if model-result
                    (-> (assoc model-result
-                              :is_deletable (is-model-deletable? tx model-id "Model")
+                              :is_deletable (is-model-deletable? tx model-id)
                               :attachments attachments
                               :accessories accessories
                               :compatibles compatibles
@@ -202,7 +205,7 @@
       (if (empty? models)
         (throw (ex-info "Model not found" {:status 404}))
 
-        (let [is-model-deletable? (is-model-deletable? tx model-id "Model")
+        (let [is-model-deletable? (is-model-deletable? tx model-id)
               attachments (db-operation tx :select :attachments [:= :model_id model-id])
               images (db-operation tx :select :images [:= :target_id model-id])]
 

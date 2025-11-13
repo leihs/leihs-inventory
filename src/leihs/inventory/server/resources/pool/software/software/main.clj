@@ -4,7 +4,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
-                                                         is-model-deletable?
+                                                         is-deletable?
                                                          str-to-bool]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
@@ -23,6 +23,9 @@
 (def ERROR_UPDATE_SOFTWARE "Failed to update software")
 (def ERROR_FETCH_SOFTWARE "Failed to fetch software")
 
+(defn is-model-deletable? [tx model-id]
+  (is-deletable? tx :models model-id))
+
 (defn get-resource [request]
   (try
     (let [tx (get-in request [:tx])
@@ -35,7 +38,7 @@
                           (sql/where [:and [:= :m.id model-id] [:= :m.type "Software"]])
                           sql-format)
           model-result (jdbc/execute-one! tx model-query)
-          result (when model-result (let [model-result (assoc model-result :is_deletable (is-model-deletable? tx model-id "Software"))
+          result (when model-result (let [model-result (assoc model-result :is_deletable (is-model-deletable? tx model-id))
                                           attachments (fetch-attachments tx model-id pool-id)
                                           result (assoc model-result :attachments attachments)] result))]
       (if result
@@ -74,7 +77,7 @@
   (try
     (let [model-id (to-uuid (get-in request [:path-params :model_id]))
           tx (:tx request)
-          is-model-deletable? (is-model-deletable? tx model-id "Software")
+          is-model-deletable? (is-model-deletable? tx model-id)
           where-clause-model [:and [:= :id model-id] [:= :type "Software"]]
           models (db-operation tx :select :models where-clause-model)]
 
