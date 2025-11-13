@@ -5,6 +5,7 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
+   [leihs.inventory.server.resources.pool.cast-helper :refer [parse-to-bigdecimal-or-nil]]
    [leihs.inventory.server.resources.pool.fields.main :as fields]
    [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool]]
    [leihs.inventory.server.utils.coercion.core :refer [instant-to-date-string]]
@@ -94,7 +95,8 @@
 
 (def in-coercions
   {:retired (fn [v _] (when (true? v) (java.util.Date.)))
-   :inventory_pool_id (fn [v i] (or v (:owner_id i)))})
+   :inventory_pool_id (fn [v i] (or v (:owner_id i)))
+   :price (fn [v _] (parse-to-bigdecimal-or-nil v))})
 
 (def out-coercions
   {:retired (fn [v _] (some? v))
