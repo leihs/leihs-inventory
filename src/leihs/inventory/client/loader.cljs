@@ -167,3 +167,17 @@
     (.. (js/Promise.all (cond-> [models]))
         (then (fn [[models]]
                 {:models models})))))
+
+(defn entitlement-groups-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        data (-> http-client
+                 (.get (str "/inventory/" pool-id "/entitlement-groups/"))
+                 (.then (fn [res]
+                          (jc (.. res -data))))
+                 (.catch (fn [error]
+                           (js/console.error "Error fetching templates" error))))]
+
+    (.. (js/Promise.all [data])
+        (then (fn [[data]]
+                {:data data})))))

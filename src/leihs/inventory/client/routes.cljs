@@ -57,6 +57,7 @@
                   :element ($ statistics-page)}
 
                  {:path "entitlement-groups"
+                  :loader loader/entitlement-groups-page
                   :element ($ entitlement-groups-page)}
 
                  {:path "templates"
