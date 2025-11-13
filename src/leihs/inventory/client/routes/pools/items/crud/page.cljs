@@ -29,24 +29,15 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.fields-to-form :as fields-to-form]
    [leihs.inventory.client.lib.fields-to-zod :as fields-to-zod]
+   [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.items.crud.components.fields :as form-fields]
-   [leihs.inventory.client.routes.pools.items.crud.core :as core]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
 (defn- on-invalid [data]
   (.. toast (error "Invalid Data"))
   (js/console.debug "is invalid: " data))
-
-;; (def default-values (cj {:number-items 1
-;;                          :inventory-code ""
-;;                          :retired "yes"
-;;                          :retire-reason ""
-;;                          :working "ok"
-;;                          :availability "ok"
-;;                          :lendable "ok"
-;;                          :models {:id "" :name ""}}))
 
 (defui page []
   (let [[t] (useTranslation)
@@ -65,11 +56,12 @@
         structure (fields-to-form/transform-fields-to-structure data)
 
         ;; Extract default values from fields
-        defaults (when data
-                   (cj (fields-to-form/extract-default-values data)))
+        defaults (fields-to-form/extract-default-values data)
 
-        form (useForm #js {:resolver (zodResolver (fields-to-zod/fields-to-zod-schema data))
-                           :defaultValues defaults})
+        form (useForm (cj {:resolver (zodResolver (fields-to-zod/fields-to-zod-schema data))
+                           :defaultValues (if is-create
+                                            (cj defaults)
+                                            (fn [] (form-helper/process-files defaults :attachments)))}))
 
         get-values (.. form -getValues)
         ;; reactive values
@@ -92,7 +84,7 @@
                                                   (:attachments (jc submit-data))))
 
                             attachments-to-delete (if is-edit
-                                                    (->> (:attachments data)
+                                                    (->> (:attachments defaults)
                                                          (map :id)
                                                          (remove (set (map :id (:attachments (jc submit-data))))))
                                                     nil)
@@ -137,7 +129,7 @@
                           (doseq [attachment-id attachments-to-delete]
                             ;; delete attachments that are not in the new model
                             (<p! (-> http-client
-                                     (.delete (str "/inventory/" pool-id "/models/" item-id "/attachments/" attachment-id))
+                                     (.delete (str "/inventory/" pool-id "/items/" item-id "/attachments/" attachment-id))
                                      (.then #(.-data %))))))
 
                         (if (not= (:status item-res) 200)
@@ -152,7 +144,7 @@
                                     name (.. file -name)]
 
                                 (<p! (-> http-client
-                                         (.post (str "/inventory/" pool-id "/models/" item-id "/attachments/")
+                                         (.post (str "/inventory/" pool-id "/items/" item-id "/attachments/")
                                                 binary-data
                                                 (cj {:headers {"Content-Type" type
                                                                "X-Filename" name}}))))))
