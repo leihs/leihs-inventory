@@ -142,8 +142,7 @@
                  (->> (jdbc/query tx))
                  first)
 
-
-        ;; fetch all properties
+;; fetch all properties
 
         p (println ">o> abc.item" item)
 

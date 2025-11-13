@@ -3,7 +3,6 @@
    ;[clojure.data.csv :as csv]
    ;[clojure.java.io :as io]
    [clojure.set]
-   [next.jdbc :as jdbc]
    ;[clojure.string :as str]
    ;[dk.ative.docjure.spreadsheet :as ss]
    ;[honey.sql :refer [format] :as sq :rename {format sql-format}]
@@ -28,6 +27,7 @@
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
+   [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [response]]))
 
@@ -36,17 +36,15 @@
       (sql/select :items.properties [:items.inventory_code :iinventory_code]
                   [:items.id :item_id]
                   [:items.is_broken :is_broken]
-        [:suppliers.name :supplier_name]
+                  [:suppliers.name :supplier_name]
         ;; TODO: owner-name, model-name, building-name, room-name not yet implemented
-        )
+                  )
       (sql/right-join :items [:= :items.model_id :inventory.id])
       (sql/right-join :suppliers [:= :items.supplier_id :suppliers.id])))
 
-
 (defn test [a]
 
-  (println ">o> abc.a??" (type a ) a)
-  )
+  (println ">o> abc.a??" (type a) a))
 
 (defn index-resources
   ([request]
@@ -62,9 +60,7 @@
          parsed-filters (parse-json-param filters)
          ;properties-fields (fetch-properties-fields request)
 
-
-
-         ;result (->
+;result (->
          ;  (sql/select :f.id :f.active :f.dynamic)
          ;  (sql/from [:fields :f])
          ;  (sql/left-join [:disabled_fields :df] [:= :df.field_id :f.id])
@@ -91,36 +87,30 @@
          ;         sql-format
          ;         (->> (jdbc/execute! tx)))
 
-
-result            (-> (sql/select :f.id :f.active :f.dynamic)
-             (sql/from [:fields :f])
-             (sql/left-join [:disabled_fields :df]
-               [:and
-                [:= :f.id :df.field_id]
+         result (-> (sql/select :f.id :f.active :f.dynamic)
+                    (sql/from [:fields :f])
+                    (sql/left-join [:disabled_fields :df]
+                                   [:and
+                                    [:= :f.id :df.field_id]
                 ;[:= :df.inventory_pool_id "8bd16d45-056d-5590-bc7f-12849f034351"]])
-                [:= :df.inventory_pool_id pool-id]])
-             (sql/where [:= :f.active true])
-             (sql/where [:= :df.field_id nil])
-             sql-format
-             (->> (jdbc/execute! tx)))
-
+                                    [:= :df.inventory_pool_id pool-id]])
+                    (sql/where [:= :f.active true])
+                    (sql/where [:= :df.field_id nil])
+                    sql-format
+                    (->> (jdbc/execute! tx)))
 
          p (println ">o> abc.result" result)
 
                   ;filter-keys     (mapv :id result)
-                  filter-keys     (mapv (comp keyword str :id) result)
+         filter-keys (mapv (comp keyword str :id) result)
 
          p (println ">o> abc.filter-keys1" filter-keys)
 
-
-
-                  ;{:keys [filter-keys raw-filter-keys]} (extract-ids properties-fields "properties_")
+;{:keys [filter-keys raw-filter-keys]} (extract-ids properties-fields "properties_")
          WHITELIST-ITEM-FILTER filter-keys
-
 
          p (println ">o> abc.filter-keys2" parsed-filters)
          parsed-filters (prepare-filters parsed-filters)
-
 
          p (println ">o> abc.?1")
          ;validation-result (validate-filters parsed-filters WHITELIST-ITEM-FILTER)
@@ -150,7 +140,7 @@ result            (-> (sql/select :f.id :f.active :f.dynamic)
                        (and pool-id (false? with_items))
                        (without-items pool-id)))
 
-                 (cond-> (seq parsed-filters)
+                   (cond-> (seq parsed-filters)
                      (-> items-sub-query
                          (add-filter-groups parsed-filters filter-keys)))
                          ;(add-filter-groups parsed-filters raw-filter-keys)))

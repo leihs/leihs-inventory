@@ -47,12 +47,12 @@ require_relative "../_common"
 
       let(:filter_mixed_group) do
         [{
-           "inventory_code" => "ilikeINV",
-           "name" => "not ilikeTest"
-         },{
-             "price" => ">50"          ,
-             "supplier" => "=Zoom"
-          }]
+          "inventory_code" => "ilikeINV",
+          "name" => "not ilikeTest"
+        }, {
+          "price" => ">50",
+          "supplier" => "=Zoom"
+        }]
       end
 
       # let(:filter_mixed_group) do
@@ -128,7 +128,6 @@ require_relative "../_common"
             inventory_code: "TEST-ORIGINAL",
             model_id: @model.id,
             room_id: @room.id,
-            # supplier_id: @supplier.id,
             properties: {
               warranty_expiration: "2022-01-01",
               electrical_power: "10",
@@ -137,9 +136,7 @@ require_relative "../_common"
             inventory_pool_id: @inventory_pool.id,
             owner_id: @inventory_pool.id)
 
-          # binding.pry
-          @item.supplier_id=@supplier.id
-
+          @item.supplier_id = @supplier.id
         end
 
         it "bulk update of assigned items" do

@@ -70,7 +70,6 @@
                        :type :parse-error
                        :cause (.getMessage e)})))))
 
-
 (defn parse-json-param [s]
   (println ">>>>> parse-json-param: raw input type:" (type s))
   (println ">>>>> parse-json-param: raw input value:" s)
@@ -78,8 +77,8 @@
     (cond
       ;; nil or empty string → nothing to parse
       (or (nil? s)
-        (and (string? s)
-          (str/blank? s)))
+          (and (string? s)
+               (str/blank? s)))
       (do
         (println ">>>>> parse-json-param: empty or nil input — returning nil")
         nil)
@@ -116,9 +115,9 @@
     (catch Exception e
       (println ">>>>> parse-json-param final exception:" (.getMessage e))
       (throw (ex-info "Malformed or invalid filter input."
-               {:status 400
-                :type :parse-error
-                :cause (.getMessage e)})))))
+                      {:status 400
+                       :type :parse-error
+                       :cause (.getMessage e)})))))
 
 ;(ns leihs.inventory.server.resources.pool.list.filter-handler
 ;  (:require [clojure.string :as str]))
@@ -249,7 +248,7 @@
         field (cond
                 ;; TODO: special cases for joined tables not yet implemented
                 (= k-str "supplier") (keyword "suppliers.name")
-                is-property?                 [:raw (format "items.properties ->> '%s'" property-key-str)]
+                is-property? [:raw (format "items.properties ->> '%s'" property-key-str)]
                 :else (keyword (str "items." k-str)))
 
         {:keys [op val]} (parse-op-value v)
@@ -278,7 +277,6 @@
   (reduce (fn [q pair] (add-filter q pair))
           base-query
           subfilter))
-
 
 (defn add-filter-groups
   ([base-query groups]
@@ -313,35 +311,30 @@
      {:valid [] :invalid []}
      filter-groups)))
 
-
-
 (defn normalize-key [k]
   ;; Ensure keywords like :my_date become :properties_my_date
   (if (and (keyword? k)
-        (not (clojure.string/starts-with? (name k) "properties_")))
+           (not (clojure.string/starts-with? (name k) "properties_")))
     (keyword (str "properties_" (name k)))
     k))
 
 (defn normalize-group [group]
   (into {}
-    (map (fn [[k v]]
-           [(normalize-key k) v])
-      group)))
+        (map (fn [[k v]]
+               [(normalize-key k) v])
+             group)))
 
 (defn validate-filters [filter-groups whitelist]
   (let [wl-set (set (map keyword whitelist))]
     (reduce
-      (fn [{:keys [valid invalid]} group]
-        (let [normalized (normalize-group group)
-              allowed (set/intersection wl-set (set (keys normalized)))
-              denied (set/difference (set (keys normalized)) wl-set)]
-          {:valid (conj valid (select-keys normalized allowed))
-           :invalid (into invalid denied)}))
-      {:valid [] :invalid []}
-      filter-groups)))
-
-
-
+     (fn [{:keys [valid invalid]} group]
+       (let [normalized (normalize-group group)
+             allowed (set/intersection wl-set (set (keys normalized)))
+             denied (set/difference (set (keys normalized)) wl-set)]
+         {:valid (conj valid (select-keys normalized allowed))
+          :invalid (into invalid denied)}))
+     {:valid [] :invalid []}
+     filter-groups)))
 
 (defn normalize-key [k wl-set]
   (let [kname (name k)
@@ -356,18 +349,18 @@
 
 (defn normalize-group [group wl-set]
   (into {}
-    (map (fn [[k v]]
-           [(normalize-key k wl-set) v])
-      group)))
+        (map (fn [[k v]]
+               [(normalize-key k wl-set) v])
+             group)))
 
 (defn validate-filters [filter-groups whitelist]
   (let [wl-set (set (map keyword whitelist))]
     (reduce
-      (fn [{:keys [valid invalid]} group]
-        (let [normalized (normalize-group group wl-set)
-              allowed (set/intersection wl-set (set (keys normalized)))
-              denied (set/difference (set (keys normalized)) wl-set)]
-          {:valid (conj valid (select-keys normalized allowed))
-           :invalid (into invalid denied)}))
-      {:valid [] :invalid []}
-      filter-groups)))
+     (fn [{:keys [valid invalid]} group]
+       (let [normalized (normalize-group group wl-set)
+             allowed (set/intersection wl-set (set (keys normalized)))
+             denied (set/difference (set (keys normalized)) wl-set)]
+         {:valid (conj valid (select-keys normalized allowed))
+          :invalid (into invalid denied)}))
+     {:valid [] :invalid []}
+     filter-groups)))
