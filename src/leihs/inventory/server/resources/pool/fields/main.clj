@@ -3,7 +3,6 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   ;[leihs.core.db :as db]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.pool.buildings.main :as buildings]
    [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
@@ -137,7 +136,6 @@
                  sql-format
                  (->> (jdbc/query tx))
                  first)
-
         properties (:properties item)
         item-without-properties (dissoc item :properties)
         properties-with-prefix

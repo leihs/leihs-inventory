@@ -1,6 +1,6 @@
 (ns leihs.inventory.server.constants)
 
-(def ACTIVATE-CSRF false)
+(def ACTIVATE-CSRF true)
 (def APPLY_API_ENDPOINTS_NOT_USED_IN_FE true)
 (def APPLY_DEV_ENDPOINTS false)
 (def MAX_REQUEST_BODY_SIZE_MB 100)
@@ -9,8 +9,7 @@
 - csrf-token / test-endpoints
 - session-endpoints
 - token-endpoints
-- export csv/excel-endpoint
-" false)
+" true)
 
 (def INVENTORY_VIEW_PATH "/inventory/")
 
