@@ -82,7 +82,7 @@
           (s/optional-key :needs_permission) s/Bool
           (s/optional-key :note) (s/maybe s/Str)
           (s/optional-key :parent_id) (s/maybe s/Uuid)
-          (s/optional-key :price) (s/maybe s/Num) ; numeric(8,2)
+          (s/optional-key :price) (s/maybe s/Str)
           (s/optional-key :responsible) (s/maybe s/Str)
           (s/optional-key :retired_reason) (s/maybe s/Str)
           (s/optional-key :retired) s/Bool
