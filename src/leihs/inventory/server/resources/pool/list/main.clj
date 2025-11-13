@@ -35,8 +35,11 @@
   (-> query
       (sql/select :items.properties [:items.inventory_code :iinventory_code]
                   [:items.id :item_id]
-                  [:items.is_broken :is_broken])
-      (sql/right-join :items [:= :items.model_id :inventory.id])))
+                  [:items.is_broken :is_broken]
+        [:suppliers.name :supplier_name]
+        )
+      (sql/right-join :items [:= :items.model_id :inventory.id])
+      (sql/right-join :suppliers [:= :items.supplier_id :suppliers.id])))
 
 
 (defn test [a]
@@ -106,7 +109,7 @@ result            (-> (sql/select :f.id :f.active :f.dynamic)
                   ;filter-keys     (mapv :id result)
                   filter-keys     (mapv (comp keyword str :id) result)
 
-         p (println ">o> abc.filter-keys" filter-keys)
+         p (println ">o> abc.filter-keys1" filter-keys)
 
 
 
@@ -114,15 +117,18 @@ result            (-> (sql/select :f.id :f.active :f.dynamic)
          WHITELIST-ITEM-FILTER filter-keys
 
 
-         p (println ">o> abc.filter-keys" filter-keys)
+         p (println ">o> abc.filter-keys2" parsed-filters)
          parsed-filters (prepare-filters parsed-filters)
-         validation-result (validate-filters parsed-filters WHITELIST-ITEM-FILTER)
 
-         _ (println ">o> abc.validation-result" validation-result)
-         _ (when-not (empty? (:invalid validation-result))
-             (throw (ex-info "Invalid filter keys"
-                             {:type :invalid-filters
-                              :invalid-keys (:invalid-keys validation-result)})))
+
+         p (println ">o> abc.?1")
+         ;validation-result (validate-filters parsed-filters WHITELIST-ITEM-FILTER)
+         ;
+         ;_ (println ">o> abc.validation-result" validation-result)
+         ;_ (when-not (empty? (:invalid validation-result))
+         ;    (throw (ex-info "Invalid filter keys"
+         ;                    {:type :invalid-filters
+         ;                     :invalid-keys (:invalid-keys validation-result)})))
 
          query (-> (base-inventory-query pool-id)
                    (cond-> type (filter-by-type type))
@@ -142,10 +148,12 @@ result            (-> (sql/select :f.id :f.active :f.dynamic)
                            (assoc :before_last_check before_last_check)))
                        (and pool-id (false? with_items))
                        (without-items pool-id)))
-                   (cond-> (seq parsed-filters)
+
+                 (cond-> (seq parsed-filters)
                      (-> items-sub-query
                          (add-filter-groups parsed-filters filter-keys)))
                          ;(add-filter-groups parsed-filters raw-filter-keys)))
+
                    (cond-> (and pool-id (presence search))
                      (with-search search))
                    (cond-> (and category_id (not (some #{type} [:option :software])))

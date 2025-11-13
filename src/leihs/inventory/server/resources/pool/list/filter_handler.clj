@@ -246,16 +246,28 @@
         is-property? (contains? raw-filter-strs property-key-str)
 
         ;; choose SQL field accordingly
-        field (if is-property?
-                [:raw (format "items.properties ->> '%s'" property-key-str)]
-                (keyword (str "items." k-str)))
+        ;field (if is-property?
+        ;        [:raw (format "items.properties ->> '%s'" property-key-str)]
+        ;        (keyword (str "items." k-str)))
+
+        p (println ">o> abc.k-str" k-str)
+
+        field (cond
+                (= k-str "supplier") (keyword "suppliers.name")
+                is-property?                 [:raw (format "items.properties ->> '%s'" property-key-str)]
+                :else (keyword (str "items." k-str)))
 
         {:keys [op val]} (parse-op-value v)
         val (cast-uuid val)]
 
     (println ">>> add-filter field:" field "value:" v "is-property?:" is-property? "op:" op)
 
+
+
+
+
     (case op
+
       :isnull (sql/where query [:is field nil])
       :not-isnull (sql/where query [:is-not field nil])
       :in (sql/where query [:in field val])
