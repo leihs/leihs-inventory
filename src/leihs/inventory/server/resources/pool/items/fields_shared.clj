@@ -100,7 +100,8 @@
 
 (def out-coercions
   {:retired (fn [v _] (some? v))
-   :last_check (fn [v _] (instant-to-date-string v))})
+   :last_check (fn [v _] (instant-to-date-string v))
+   :invoice_date (fn [v _] (instant-to-date-string v))})
 
 (defn coerce-field-values [item-data c-set]
   (reduce (fn [m [k c-fn]] (update m k c-fn item-data))

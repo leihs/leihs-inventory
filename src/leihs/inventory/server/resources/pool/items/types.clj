@@ -101,7 +101,7 @@
           :room_id s/Uuid
           :insurance_number (s/maybe s/Str)
           :inventory_pool_id s/Uuid
-          :invoice_date (s/maybe Date)
+          :invoice_date (s/maybe s/Str)
           :invoice_number (s/maybe s/Str)
           :is_borrowable s/Bool
           :is_broken s/Bool
