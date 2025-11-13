@@ -25,6 +25,7 @@
    ["zod" :as z]
    [cljs.core.async :as async :refer [go <!]]
    [cljs.core.async.interop :refer-macros [<p!]]
+   [leihs.inventory.client.components.sticky-bottom :refer [StickyBottom]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.fields-to-form :as fields-to-form]
    [leihs.inventory.client.lib.fields-to-zod :as fields-to-zod]
@@ -220,40 +221,75 @@
                                                      :form form
                                                      :block block}))))))
 
-                  ($ ButtonGroup {:class-name "h-fit sticky top-[200px]"}
-                     ($ Button {:type "submit"
-                                :form "create-model"
-                                :className "self-center"}
-                        (if is-create
-                          (t "pool.items.item.create.submit")
-                          (t "pool.items.item.edit.submit")))
-                     ($ ButtonGroupSeparator)
-                     ($ DropdownMenu
-                        ($ DropdownMenuTrigger {:asChild true}
-                           ($ Button {:className "self-center !px-2"}
-                              ($ ChevronDownIcon)))
+                  ($ StickyBottom {:offset "50"}
+                     ($ ButtonGroup
+                        ($ Button {:type "submit"
+                                   :form "create-model"
+                                   :className "self-center"}
+                           (if is-create
+                             (t "pool.items.item.create.submit")
+                             (t "pool.items.item.edit.submit")))
+                        ($ ButtonGroupSeparator)
+                        ($ DropdownMenu
+                           ($ DropdownMenuTrigger {:asChild true}
+                              ($ Button {:className "self-center !px-2"}
+                                 ($ ChevronDownIcon)))
 
-                        ($ DropdownMenuContent {:align "end"
-                                                :class-name "[--radius:1rem]"}
-                           ($ DropdownMenuGroup
-                              ($ DropdownMenuItem
-                                 {:asChild true}
-                                 ($ Link {:to (str (router/generatePath "/inventory/:pool-id/list" params)
-                                                   (some-> state .-searchParams))
-                                          :viewTransition true}
-                                    (if is-create
-                                      (t "pool.items.item.create.cancel")
-                                      (t "pool.items.item.edit.cancel")))))
+                           ($ DropdownMenuContent {:align "end"
+                                                   :class-name "[--radius:1rem]"}
+                              ($ DropdownMenuGroup
+                                 ($ DropdownMenuItem
+                                    {:asChild true}
+                                    ($ Link {:to (str (router/generatePath "/inventory/:pool-id/list" params)
+                                                      (some-> state .-searchParams))
+                                             :viewTransition true}
+                                       (if is-create
+                                         (t "pool.items.item.create.cancel")
+                                         (t "pool.items.item.edit.cancel")))))
 
-                           ($ DropdownMenuSeparator)
+                              ($ DropdownMenuSeparator)
 
-                           ($ DropdownMenuGroup
-                              (when (not is-create)
-                                ($ DropdownMenuItem {:variant "destructive"
-                                                     :asChild true}
-                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
-                                            :state state}
-                                      "Delete")))))))
+                              ($ DropdownMenuGroup
+                                 (when (not is-create)
+                                   ($ DropdownMenuItem {:variant "destructive"
+                                                        :asChild true}
+                                      ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
+                                               :state state}
+                                         "Delete"))))))))
+                  #_($ ButtonGroup {:class-name "h-fit sticky top-[200px]"}
+                       ($ Button {:type "submit"
+                                  :form "create-model"
+                                  :className "self-center"}
+                          (if is-create
+                            (t "pool.items.item.create.submit")
+                            (t "pool.items.item.edit.submit")))
+                       ($ ButtonGroupSeparator)
+                       ($ DropdownMenu
+                          ($ DropdownMenuTrigger {:asChild true}
+                             ($ Button {:className "self-center !px-2"}
+                                ($ ChevronDownIcon)))
+
+                          ($ DropdownMenuContent {:align "end"
+                                                  :class-name "[--radius:1rem]"}
+                             ($ DropdownMenuGroup
+                                ($ DropdownMenuItem
+                                   {:asChild true}
+                                   ($ Link {:to (str (router/generatePath "/inventory/:pool-id/list" params)
+                                                     (some-> state .-searchParams))
+                                            :viewTransition true}
+                                      (if is-create
+                                        (t "pool.items.item.create.cancel")
+                                        (t "pool.items.item.edit.cancel")))))
+
+                             ($ DropdownMenuSeparator)
+
+                             ($ DropdownMenuGroup
+                                (when (not is-create)
+                                  ($ DropdownMenuItem {:variant "destructive"
+                                                       :asChild true}
+                                     ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
+                                              :state state}
+                                        "Delete")))))))
 
                   (when (not is-create)
                     ($ AlertDialog {:open is-delete}
