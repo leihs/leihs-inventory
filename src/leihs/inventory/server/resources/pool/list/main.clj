@@ -9,8 +9,7 @@
    [leihs.inventory.server.resources.pool.list.filter-handler :as filter :refer [parse-json-param
                                                                                  ;validate-filters
                                                                                  add-filter-groups]]
-   [leihs.inventory.server.resources.pool.list.helper :as helper :refer [
-                                                                         ;extract-ids
+   [leihs.inventory.server.resources.pool.list.helper :as helper :refer [;extract-ids
                                                                          prepare-filters]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 model->enrich-with-image-attr]]
