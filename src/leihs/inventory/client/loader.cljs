@@ -40,7 +40,7 @@
                            (.then #(jc (.-data %))))
 
             responsible-pools (-> http-client
-                                  (.get (str "/inventory/" pool-id "/responsible-inventory-pools/"))
+                                  (.get (str "/inventory/" pool-id "/inventory-pools/?responsible=true"))
                                   (.then #(jc (.-data %))))
 
             data (-> http-client
@@ -73,6 +73,32 @@
                           data (conj data)))
         (then (fn [[manufacturers & [data]]]
                 {:manufacturers manufacturers
+                 :data (if data data nil)})))))
+
+(defn items-crud-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        item-id (or (aget params "item-id") nil)
+
+        fields (-> http-client
+                   (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
+                   (.then #(jc (.-data %))))
+
+        item-path (when item-id
+                    (str "/inventory/" pool-id "/items/"))
+
+        data (if item-path
+               (-> http-client
+                   (.get (str "/inventory/" pool-id "/fields/?resource_id=" item-id "&target_type=item"))
+                   (.then #(jc (.-data %))))
+               (-> http-client
+                   (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
+                   (.then #(jc (.-data %)))))]
+
+    (.. (js/Promise.all (cond-> [fields]
+                          data (conj data)))
+        (then (fn [[fields & [data]]]
+                {:fields fields
                  :data (if data data nil)})))))
 
 (defn models-crud-page [route-data]
@@ -163,12 +189,3 @@
 
     (.. (js/Promise.all (cond-> [] data (conj data)))
         (then (fn [[& [data]]] {:data (if data data nil)})))))
-
-(defn items-crud-page [route-data]
-  (let [models (-> http-client
-                   (.get "/inventory/models-compatibles")
-                   (.then #(jc (.-data %))))]
-
-    (.. (js/Promise.all (cond-> [models]))
-        (then (fn [[models]]
-                {:models models})))))

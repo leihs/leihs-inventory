@@ -2,11 +2,11 @@
   (:require
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.main :refer [index-resources
-                                                                                post-resource]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.types :refer [attachment-response
-                                                                                 get-attachments-response]]
-   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
+   [leihs.inventory.server.resources.pool.attachments.constants :refer [config-get]]
+   [leihs.inventory.server.resources.pool.attachments.shared :refer [index-resources
+                                                                     post-resource]]
+   [leihs.inventory.server.resources.pool.attachments.types :refer [attachment-response
+                                                                    get-attachments-response]]
    [reitit.coercion.schema]
    [ring.middleware.accept]
    [schema.core :as s]))

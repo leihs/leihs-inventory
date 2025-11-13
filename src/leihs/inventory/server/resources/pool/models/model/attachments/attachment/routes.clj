@@ -2,24 +2,24 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.constants :refer [ACCEPT_TYPES_ATTACHMENT]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.main :as attachment]
-   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [error-attachment-not-found
-                                                                                            get-attachment-response]]
+   [leihs.inventory.server.resources.pool.attachments.constants :refer [ACCEPT_TYPES_ATTACHMENT]]
+   [leihs.inventory.server.resources.pool.attachments.shared :as attachment]
+   [leihs.inventory.server.resources.pool.attachments.types :refer [error-attachment-not-found
+                                                                    get-attachment-response]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn routes []
-  ["/models/:model_id/attachments/:attachments_id"
+  ["/models/:model_id/attachments/:attachment_id"
    {:get {:summary (fe "")
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ACCEPT_TYPES_ATTACHMENT}
           :produces ACCEPT_TYPES_ATTACHMENT
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
-                              :attachments_id s/Uuid}
+                              :attachment_id s/Uuid}
                        :query {(s/optional-key :content_disposition) (s/enum "attachment" "inline")}}
           :handler attachment/get-resource
           :responses {200 {:description "OK"
@@ -34,7 +34,7 @@
              :coercion reitit.coercion.schema/coercion
              :parameters {:path {:pool_id s/Uuid
                                  :model_id s/Uuid
-                                 :attachments_id s/Uuid}}
+                                 :attachment_id s/Uuid}}
              :produces ["application/json"]
              :handler attachment/delete-resource
              :responses {200 {:description "OK"

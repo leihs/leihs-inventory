@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.responsible-inventory-pools.types
+(ns leihs.inventory.server.resources.pool.inventory-pools.types
   (:require
    [schema.core :as s]))
 

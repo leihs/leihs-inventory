@@ -1,58 +1,28 @@
 (ns leihs.inventory.server.resources.pool.items.main
   (:require
-   [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.items.fields-shared :refer [coerce-field-values
+                                                                      in-coercions
+                                                                      out-coercions
+                                                                      flatten-properties
+                                                                      split-item-data
+                                                                      validate-field-permissions]]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
    [leihs.inventory.server.resources.pool.items.types :as types]
-   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
-                                                                filter-map-by-spec
-                                                                model->enrich-with-image-attr]]
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.pick-fields :refer [pick-fields]]
-
-   [leihs.inventory.server.utils.request-utils :refer [path-params
+   [leihs.inventory.server.utils.request-utils :refer [body-params path-params
                                                        query-params]]
+   [next.jdbc :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [response]]
+   [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [debug]]))
 
 (def ERROR_GET_ITEMS "Failed to get items")
-
-(def item-columns
-  [:items.id
-   :items.model_id
-   :items.name
-   :items.inventory_pool_id
-
-   :insurance_number
-   :inventory_code
-   :invoice_date
-   :invoice_number
-   :is_borrowable
-   :is_broken
-   :is_incomplete
-   :is_inventory_relevant
-   :item_version
-   :last_check
-   :needs_permission
-   :note
-   :owner_id
-   :parent_id
-   :price
-   :properties
-   :responsible
-   :retired
-   :retired_reason
-   :room_id
-   :serial_number
-   :shelf
-   :status_note
-   :supplier_id
-   :user_name
-   :m.cover_image_id])
 
 (defn index-resources
   ([request]
@@ -66,7 +36,8 @@
                  in_stock before_last_check]} (query-params request)
 
          select (apply sql/select
-                       (concat item-columns
+                       (concat (map #(keyword "items" (name %)) types/columns)
+
                                [[:ip.name :inventory_pool_name]
                                 [:r.end_date :reservation_end_date]
                                 [:r.user_id :reservation_user_id]
@@ -154,8 +125,36 @@
      (try
        (-> request
            (create-pagination-response query nil post-fnc)
-           (pick-fields fields types/item)
+           (pick-fields fields types/index-item)
            response)
        (catch Exception e
          (log-by-severity ERROR_GET_ITEMS e)
          (exception-handler request ERROR_GET_ITEMS e))))))
+
+(def ERROR_CREATE_ITEM "Failed to create item")
+
+(defn post-resource [request]
+  (try
+    (let [tx (:tx request)
+          body-params (body-params request)
+          validation-error (validate-field-permissions request)]
+      (if validation-error
+        (bad-request validation-error)
+        (let [{:keys [item-data properties]} (split-item-data body-params)
+              item-data-coerced (coerce-field-values item-data in-coercions)
+              properties-json (or (not-empty properties) {})
+              item-data-with-properties (assoc item-data-coerced
+                                               :properties [:lift properties-json])
+              sql-query (-> (sql/insert-into :items)
+                            (sql/values [item-data-with-properties])
+                            (sql/returning :*)
+                            sql-format)
+              result (jdbc/execute-one! tx sql-query)]
+          (if result
+            (response (-> result
+                          flatten-properties
+                          (coerce-field-values out-coercions)))
+            (bad-request {:error ERROR_CREATE_ITEM})))))
+    (catch Exception e
+      (log-by-severity ERROR_CREATE_ITEM e)
+      (exception-handler request ERROR_CREATE_ITEM e))))

@@ -17,4 +17,5 @@
 (defn query-params [request]
   (-> request :parameters :query))
 
-
+(defn body-params [request]
+  (-> request :parameters :body))

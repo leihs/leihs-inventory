@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.utils.auth.session
+(ns leihs.inventory.server.utils.authenticate.session
   (:require
    [clojure.walk :refer [keywordize-keys]]
    [next.jdbc :as jdbc]))
