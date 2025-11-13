@@ -37,6 +37,7 @@
                   [:items.id :item_id]
                   [:items.is_broken :is_broken]
         [:suppliers.name :supplier_name]
+        ;; TODO: owner-name, model-name, building-name, room-name not yet implemented
         )
       (sql/right-join :items [:= :items.model_id :inventory.id])
       (sql/right-join :suppliers [:= :items.supplier_id :suppliers.id])))

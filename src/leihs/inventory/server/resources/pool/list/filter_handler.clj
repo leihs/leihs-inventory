@@ -240,19 +240,14 @@
 (defn add-filter
   [query [k v] raw-filter-keys]
   (let [k-str (name k)
-        ;; normalize all raw-filter-keys to strings for comparison
         raw-filter-strs (set (map #(name (keyword %)) raw-filter-keys))
         property-key-str (str "properties_" k-str)
         is-property? (contains? raw-filter-strs property-key-str)
 
-        ;; choose SQL field accordingly
-        ;field (if is-property?
-        ;        [:raw (format "items.properties ->> '%s'" property-key-str)]
-        ;        (keyword (str "items." k-str)))
-
         p (println ">o> abc.k-str" k-str)
 
         field (cond
+                ;; TODO: special cases for joined tables not yet implemented
                 (= k-str "supplier") (keyword "suppliers.name")
                 is-property?                 [:raw (format "items.properties ->> '%s'" property-key-str)]
                 :else (keyword (str "items." k-str)))
@@ -262,12 +257,7 @@
 
     (println ">>> add-filter field:" field "value:" v "is-property?:" is-property? "op:" op)
 
-
-
-
-
     (case op
-
       :isnull (sql/where query [:is field nil])
       :not-isnull (sql/where query [:is-not field nil])
       :in (sql/where query [:in field val])

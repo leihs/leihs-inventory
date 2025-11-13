@@ -34,8 +34,11 @@ require_relative "../_common"
       let(:filter_ilike) { [{"name" => "ilikeZoom"}] }
       let(:filter_not_ilike) { [{"name" => "not ilikeCanon"}] }
 
-      let(:filter_in) { [{"manufacturer" => "in[Zoom,Sony]"}] }
-      let(:filter_not_in) { [{"manufacturer" => "not in[Sony]"}] }
+      # FIXME
+      # let(:filter_in) { [{"supplier" => "ilike%Zoom%]"}] }
+      # let(:filter_not_in) { [{"supplier" => "not ilike%Zoom%"}] }
+      let(:filter_in) { [{"supplier" => "=Zoom]"}] }
+      let(:filter_not_in) { [{"supplier" => "not =Zoom"}] }
 
       let(:filter_gt) { [{"price" => ">100"}] }
       let(:filter_lt) { [{"price" => "<500"}] }
@@ -47,9 +50,8 @@ require_relative "../_common"
            "inventory_code" => "ilikeINV",
            "name" => "not ilikeTest"
          },{
-             "price" => ">50"
-          # ,
-          #    "manufacturer" => "in[Sony,Zoom]"
+             "price" => ">50"          ,
+             "supplier" => "=Zoom"
           }]
       end
 
@@ -66,8 +68,8 @@ require_relative "../_common"
             filter_eq,
             filter_ilike,
             filter_not_ilike,
-            # filter_in,
-            # filter_not_in,
+            filter_in,
+            filter_not_in,
             filter_gt,
             filter_lt,
             filter_isnull,
@@ -120,10 +122,13 @@ require_relative "../_common"
             name: "Test Room",
             building_id: @building.id)
 
+          @supplier = FactoryBot.create(:supplier, name: "Test-Supplier")
+
           @item = FactoryBot.create(:item,
             inventory_code: "TEST-ORIGINAL",
             model_id: @model.id,
             room_id: @room.id,
+            # supplier_id: @supplier.id,
             properties: {
               warranty_expiration: "2022-01-01",
               electrical_power: "10",
@@ -131,6 +136,10 @@ require_relative "../_common"
             },
             inventory_pool_id: @inventory_pool.id,
             owner_id: @inventory_pool.id)
+
+          # binding.pry
+          @item.supplier_id=@supplier.id
+
         end
 
         it "bulk update of assigned items" do
