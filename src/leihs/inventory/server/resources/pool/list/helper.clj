@@ -8,4 +8,3 @@
                       true (Instant/now)
                       false nil
                       (:retired filters)))))
-

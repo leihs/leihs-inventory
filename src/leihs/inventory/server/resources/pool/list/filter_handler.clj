@@ -18,25 +18,18 @@
    Works on scalars and collections."
   [v]
   (cond
-    ;; multiple values (e.g. IN filters)
     (sequential? v)
     (mapv #(if (uuid-string? %) [:cast % :uuid] %) v)
 
-    ;; single UUID
-    (uuid-string? v)
-    [:cast v :uuid]
+    (uuid-string? v) [:cast v :uuid]
 
-    ;; default passthrough
-    :else
-    v))
+    :else v))
 
 ;; ------------------------------------------------------------
 ;; Parse compact JSON: always a vector of maps (more tolerant)
 ;; ------------------------------------------------------------
 
 (defn parse-json-param [s]
-  (println ">>>>> parse-json-param: raw input type:" (type s))
-  (println ">>>>> parse-json-param: raw input value:" s)
   (try
     (cond
       (or (nil? s)
