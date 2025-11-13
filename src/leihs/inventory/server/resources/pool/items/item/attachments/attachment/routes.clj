@@ -30,7 +30,7 @@
     :delete {:accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :parameters {:path {:pool_id s/Uuid
-                                 :model_id s/Uuid
+                                 :item_id s/Uuid
                                  :attachments_id s/Uuid}}
              :produces ["application/json"]
              :handler attachment/delete-resource
