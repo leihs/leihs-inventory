@@ -31,7 +31,7 @@
              :coercion reitit.coercion.schema/coercion
              :parameters {:path {:pool_id s/Uuid
                                  :item_id s/Uuid
-                                 :attachments_id s/Uuid}}
+                                 :attachment_id s/Uuid}}
              :produces ["application/json"]
              :handler attachment/delete-resource
              :responses {200 {:description "OK"
