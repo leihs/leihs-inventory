@@ -3,25 +3,18 @@
    [cheshire.core :as json]
    [clojure.set :as set]
    [clojure.string :as str]
-   [clojure.string :as string]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.pool.fields.main :as fields]
-   [leihs.inventory.server.resources.pool.fields.main :refer [fetch-properties-fields]]
-   [leihs.inventory.server.resources.pool.items.types :as types]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-schema]]
    [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [body-params path-params query-params]]
    [next.jdbc :as jdbc]
-   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :as timbre :refer [debug spy]])
-  (:import [java.time Instant]))
+   [ring.util.response :refer [bad-request response]]))
 
 (defn base-pool-query [query pool-id]
   (-> query
@@ -103,13 +96,13 @@
 (def ERROR_CREATE_ITEM "Failed to create item")
 (defn split-item-data [body-params]
   (let [field-keys (keys body-params)
-        properties-keys (filter #(string/starts-with? (name %) PROPERTIES_PREFIX) field-keys)
-        item-keys (remove #(string/starts-with? (name %) PROPERTIES_PREFIX) field-keys)
+        properties-keys (filter #(str/starts-with? (name %) PROPERTIES_PREFIX) field-keys)
+        item-keys (remove #(str/starts-with? (name %) PROPERTIES_PREFIX) field-keys)
         properties (->> properties-keys
                         (map (fn [k]
                                [(-> k
                                     name
-                                    (string/replace (re-pattern (str "^" PROPERTIES_PREFIX)) "")
+                                    (str/replace (re-pattern (str "^" PROPERTIES_PREFIX)) "")
                                     keyword)
                                 (get body-params k)]))
                         (into {}))
@@ -240,26 +233,3 @@
     (catch Exception e
       (log-by-severity ERROR_UPDATE_ITEM e)
       (exception-handler request ERROR_UPDATE_ITEM e))))
-
-(def property-keys
-  #{"electrical_power" "imei_number" "ampere" "warranty_expiration" "reference"})
-
-(defn ^:private props-key [k]
-  (let [kname (name k)]
-    (if (and (property-keys kname)
-             (not (str/starts-with? kname "properties_")))
-      (cond
-        (keyword? k) (keyword (str "properties_" kname))
-        (string? k) (str "properties_" kname)
-        :else k)
-      k)))
-
-(defn ^:private rename-keys-rec [x]
-  (cond
-    (map? x)
-    (into (empty x)
-          (map (fn [[k v]] [(props-key k) (rename-keys-rec v)]))
-          x)
-    (vector? x) (mapv rename-keys-rec x)
-    (sequential? x) (doall (map rename-keys-rec x))
-    :else x))

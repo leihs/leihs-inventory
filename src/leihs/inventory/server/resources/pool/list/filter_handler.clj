@@ -2,10 +2,8 @@
   (:require
    [cheshire.core :as json]
    [clojure.edn :as edn]
-   [clojure.set :as set]
    [clojure.string :as str]
-   [honey.sql.helpers :as sql])
-  (:import [com.fasterxml.jackson.core JsonParseException]))
+   [honey.sql.helpers :as sql]))
 
 (defn uuid-string?
   "True if v is a UUID-formatted string."
@@ -40,42 +38,7 @@
   (println ">>>>> parse-json-param: raw input type:" (type s))
   (println ">>>>> parse-json-param: raw input value:" s)
   (try
-    (let [trimmed (-> s str str/trim)
-          parsed (cond
-                   ;; already decoded EDN/JSON
-                   (vector? s) s
-                   (map? s) [s]
-
-                   :else
-                   (try
-                     (json/parse-string trimmed true)
-                     (catch Exception e-json
-                       (println ">>>>> JSON parse failed:" (.getMessage e-json))
-                       (edn/read-string trimmed))))]
-      (println ">>>>> parsed raw:" (pr-str parsed))
-      (let [v (cond
-                (vector? parsed) parsed
-                (seq? parsed) (vec parsed)
-                (map? parsed) [parsed]
-                :else nil)]
-        (println ">>>>> normalized to vector:" (pr-str v))
-        (if (and (vector? v) (every? map? v))
-          v
-          (throw (ex-info "Invalid filter format: must be a vector of maps"
-                          {:status 400 :type :invalid-structure})))))
-    (catch Exception e
-      (println ">>>>> parse-json-param final exception:" (.getMessage e))
-      (throw (ex-info "Malformed or invalid filter input."
-                      {:status 400
-                       :type :parse-error
-                       :cause (.getMessage e)})))))
-
-(defn parse-json-param [s]
-  (println ">>>>> parse-json-param: raw input type:" (type s))
-  (println ">>>>> parse-json-param: raw input value:" s)
-  (try
     (cond
-      ;; nil or empty string → nothing to parse
       (or (nil? s)
           (and (string? s)
                (str/blank? s))) (do
@@ -279,33 +242,3 @@
      (if (seq group-conds)
        (sql/where base-query (cons :or group-conds))
        base-query))))
-
-;; ------------------------------------------------------------
-;; Whitelist validation
-;; ------------------------------------------------------------
-
-(defn normalize-key [k wl-set]
-  (let [kname (name k)
-        prefixed (keyword (str "properties_" kname))]
-    (cond
-      (contains? wl-set k) k
-      (contains? wl-set prefixed) prefixed
-      :else k)))
-
-(defn normalize-group [group wl-set]
-  (into {}
-        (map (fn [[k v]]
-               [(normalize-key k wl-set) v])
-             group)))
-
-(defn validate-filters [filter-groups whitelist]
-  (let [wl-set (set (map keyword whitelist))]
-    (reduce
-     (fn [{:keys [valid invalid]} group]
-       (let [normalized (normalize-group group wl-set)
-             allowed (set/intersection wl-set (set (keys normalized)))
-             denied (set/difference (set (keys normalized)) wl-set)]
-         {:valid (conj valid (select-keys normalized allowed))
-          :invalid (into invalid denied)}))
-     {:valid [] :invalid []}
-     filter-groups)))

@@ -117,17 +117,13 @@
                      field
                      common-data-keys)]
     (-> base
-        ;; Merge in type-specific data keys
         (merge (select-keys (:data base)
                             (-> base :type keyword type-data-keys)))
-        ;; Remove excluded keys
         (#(apply dissoc % excluded-keys))
-        ;; Apply hooks for specific keys
         (#(if-let [hook-fn (keys-hooks (-> % :id keyword))]
             (hook-fn % :tx tx :pool pool
                      :resource-id resource-id :user-id user-id)
             %))
-        ;; Remove all keys with nil values
         (->> (remove (fn [[_ v]] (nil? v)))
              (into {})))))
 
@@ -142,13 +138,8 @@
                  (->> (jdbc/query tx))
                  first)
 
-;; fetch all properties
-
-        p (println ">o> abc.item" item)
-
         properties (:properties item)
         item-without-properties (dissoc item :properties)
-        p (println ">o> abc.item-without-properties??" item-without-properties)
         properties-with-prefix
         (reduce (fn [acc [k v]]
                   (assoc acc (keyword (str PROPERTIES_PREFIX (name k))) v))
@@ -172,8 +163,6 @@
   (let [{:keys [target_type resource_id]} (query-params request)
         {:keys [pool_id]} (path-params request)
 
-        _ (println ">o> abc.target_type" target_type)
-
         pool (pools/get-by-id tx pool_id)
         query (base-query target_type role pool_id)
         fields (jdbc/query tx (sql-format query))
@@ -185,10 +174,7 @@
                                 fields)
         fields-with-defaults (if item-data
                                (map (partial merge-item-defaults tx item-data) transformed-fields)
-                               transformed-fields)
-
-        _ (println ">o> abc.fields.count" (count fields-with-defaults))
-        _ (println ">o> abc.fields.count2" (map :id fields-with-defaults))]
+                               transformed-fields)]
     (vec fields-with-defaults)))
 
 (defn index-resources

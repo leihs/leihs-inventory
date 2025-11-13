@@ -4,13 +4,14 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.fields.main :refer [fetch-properties-fields]]
    [leihs.inventory.server.resources.pool.list.export-csv :as export-csv]
    [leihs.inventory.server.resources.pool.list.export-excel :as export-excel]
    [leihs.inventory.server.resources.pool.list.filter-handler :as filter :refer [parse-json-param
-                                                                                 validate-filters
+                                                                                 ;validate-filters
                                                                                  add-filter-groups]]
-   [leihs.inventory.server.resources.pool.list.helper :as helper :refer [extract-ids prepare-filters]]
+   [leihs.inventory.server.resources.pool.list.helper :as helper :refer [
+                                                                         ;extract-ids
+                                                                         prepare-filters]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 model->enrich-with-image-attr]]
    [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
@@ -61,10 +62,10 @@
                     (->> (jdbc/execute! tx)))
 
          filter-keys (mapv (comp keyword str :id) result)
-         WHITELIST-ITEM-FILTER filter-keys
          parsed-filters (prepare-filters parsed-filters)
 
          ;; TODO: reactivate validation
+         ;WHITELIST-ITEM-FILTER filter-keys
          ;validation-result (validate-filters parsed-filters WHITELIST-ITEM-FILTER)
          ;
          ;_ (println ">o> abc.validation-result" validation-result)
