@@ -45,12 +45,6 @@
            :else k))
        (keys schema-map)))
 
-;(defn filter-map-by-schema [m spec]
-;  (let [keys-set (allowed-keys-schema spec)]
-;    (debug "selecting keys from:" m)
-;    (debug "using keys:" keys-set)
-;    (select-keys m keys-set)))
-
 (defn filter-map-by-schema
   "Filters one or many maps (in a vector) to only include keys defined in the given schema spec."
   [m-or-coll spec]
@@ -60,14 +54,11 @@
                      (debug "using keys:" keys-set)
                      (select-keys m keys-set))]
     (cond
-      (map? m-or-coll)
-      (filter-one m-or-coll)
+      (map? m-or-coll)      (filter-one m-or-coll)
 
-      (vector? m-or-coll)
-      (mapv filter-one m-or-coll)
+      (vector? m-or-coll)      (mapv filter-one m-or-coll)
 
-      :else
-      (do
+      :else      (do
         (debug "⚠️ Expected a map or vector of maps, got:" (type m-or-coll))
         m-or-coll))))
 
@@ -88,8 +79,7 @@
       (qualified-keyword? spec)
       #{(keyword (name spec))}
 
-      :else
-      #{})))
+      :else      #{})))
 
 (defn filter-map-by-spec [m spec]
   (let [keys-set (allowed-keys-spec spec)]

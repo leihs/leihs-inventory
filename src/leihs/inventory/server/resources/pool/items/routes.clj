@@ -80,7 +80,6 @@
                                            (s/optional-key :properties_electrical_power) s/Str
                                            (s/optional-key :properties_warranty_expiration) s/Str
                                            (s/optional-key :is_broken) s/Bool}}}
-
                 :handler items/patch-resource
                 :responses {200 {:description "OK"
                                  :body s/Any}

@@ -11,7 +11,6 @@
    [leihs.inventory.server.resources.pool.fields.main :refer [fetch-properties-fields]]
    [leihs.inventory.server.resources.pool.items.types :as types]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-schema]]
-   ;[leihs.inventory.server.resources.pool.items.filter-handler :refer [add-filter-groups parse-json-param validate-filters]]
    [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]

@@ -1,11 +1,6 @@
 (ns leihs.inventory.server.resources.pool.list.main
   (:require
-   ;[clojure.data.csv :as csv]
-   ;[clojure.java.io :as io]
    [clojure.set]
-   ;[clojure.string :as str]
-   ;[dk.ative.docjure.spreadsheet :as ss]
-   ;[honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
@@ -42,10 +37,6 @@
       (sql/right-join :items [:= :items.model_id :inventory.id])
       (sql/right-join :suppliers [:= :items.supplier_id :suppliers.id])))
 
-(defn test [a]
-
-  (println ">o> abc.a??" (type a) a))
-
 (defn index-resources
   ([request]
    (let [tx (:tx request)
@@ -58,61 +49,22 @@
 
          accept-type (-> request :accept :mime)
          parsed-filters (parse-json-param filters)
-         ;properties-fields (fetch-properties-fields request)
-
-;result (->
-         ;  (sql/select :f.id :f.active :f.dynamic)
-         ;  (sql/from [:fields :f])
-         ;  (sql/left-join [:disabled_fields :df] [:= :df.field_id :f.id])
-         ;   (sql/where [:= :f.active true])
-         ;   (sql/where [:not-in :f.id [select id from disabled_fields where inventory_pool_id={pool-id}]])
-         ;   ;(sql/where [:and [:= :df.inventory_pool_id pool-id] [:= :f.active true]])
-         ;  sql-format
-         ;  ;(->> (jdbc/query tx)
-         ;  (->> (jdbc/execute! tx)
-         ;  ))
-
-         _ (test pool-id)
-         ;p (println ">o> abc.pool-id" )
-
-         ;result (->
-         ;         (sql/select :f.id :f.active :f.dynamic)
-         ;         (sql/from [:fields :f])
-         ;         (sql/left-join [:disabled_fields :df] [:= :df.field_id :f.id])
-         ;         (sql/where [:= :f.active true])
-         ;         (sql/where [:not-in :f.id
-         ;                     (-> (sql/select :inventory_pool_id)
-         ;                       (sql/from :disabled_fields)
-         ;                       (sql/where [:= :inventory_pool_id pool-id ]))])
-         ;         sql-format
-         ;         (->> (jdbc/execute! tx)))
-
-         result (-> (sql/select :f.id :f.active :f.dynamic)
+           result (-> (sql/select :f.id :f.active :f.dynamic)
                     (sql/from [:fields :f])
                     (sql/left-join [:disabled_fields :df]
                                    [:and
                                     [:= :f.id :df.field_id]
-                ;[:= :df.inventory_pool_id "8bd16d45-056d-5590-bc7f-12849f034351"]])
                                     [:= :df.inventory_pool_id pool-id]])
                     (sql/where [:= :f.active true])
                     (sql/where [:= :df.field_id nil])
                     sql-format
                     (->> (jdbc/execute! tx)))
 
-         p (println ">o> abc.result" result)
-
-                  ;filter-keys     (mapv :id result)
          filter-keys (mapv (comp keyword str :id) result)
-
-         p (println ">o> abc.filter-keys1" filter-keys)
-
-;{:keys [filter-keys raw-filter-keys]} (extract-ids properties-fields "properties_")
          WHITELIST-ITEM-FILTER filter-keys
-
-         p (println ">o> abc.filter-keys2" parsed-filters)
          parsed-filters (prepare-filters parsed-filters)
 
-         p (println ">o> abc.?1")
+         ;; TODO: reactivate validation
          ;validation-result (validate-filters parsed-filters WHITELIST-ITEM-FILTER)
          ;
          ;_ (println ">o> abc.validation-result" validation-result)

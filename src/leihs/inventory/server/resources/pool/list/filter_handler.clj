@@ -78,21 +78,15 @@
       ;; nil or empty string → nothing to parse
       (or (nil? s)
           (and (string? s)
-               (str/blank? s)))
-      (do
+               (str/blank? s)))      (do
         (println ">>>>> parse-json-param: empty or nil input — returning nil")
         nil)
 
-      ;; already a vector of maps
-      (and (vector? s) (every? map? s))
-      s
+      (and (vector? s) (every? map? s))       s
 
-      ;; single map
-      (map? s)
-      [s]
+      (map? s)      [s]
 
-      :else
-      (let [trimmed (str/trim (str s))
+      :else       (let [trimmed (str/trim (str s))
             parsed (try
                      (json/parse-string trimmed true)
                      (catch Exception _
@@ -118,9 +112,6 @@
                       {:status 400
                        :type :parse-error
                        :cause (.getMessage e)})))))
-
-;(ns leihs.inventory.server.resources.pool.list.filter-handler
-;  (:require [clojure.string :as str]))
 
 ;; ------------------------------------------------------------
 ;; Helpers
@@ -243,7 +234,7 @@
         property-key-str (str "properties_" k-str)
         is-property? (contains? raw-filter-strs property-key-str)
 
-        p (println ">o> abc.k-str" k-str)
+        _ (println ">o> abc.k-str" k-str)
 
         field (cond
                 ;; TODO: special cases for joined tables not yet implemented
@@ -273,11 +264,6 @@
       :<= (sql/where query [:<= field val])
       query)))
 
-(defn add-and-group [base-query subfilter]
-  (reduce (fn [q pair] (add-filter q pair))
-          base-query
-          subfilter))
-
 (defn add-filter-groups
   ([base-query groups]
    (add-filter-groups base-query groups nil))
@@ -298,53 +284,12 @@
 ;; Whitelist validation
 ;; ------------------------------------------------------------
 
-(defn validate-filters [filter-groups whitelist]
-  (println ">o> filters" filter-groups)
-  (println ">o> whitelist" whitelist)
-  (let [wl-set (set (map keyword whitelist))]
-    (reduce
-     (fn [{:keys [valid invalid]} group]
-       (let [allowed (set/intersection wl-set (set (keys group)))
-             denied (set/difference (set (keys group)) wl-set)]
-         {:valid (conj valid (select-keys group allowed))
-          :invalid (into invalid denied)}))
-     {:valid [] :invalid []}
-     filter-groups)))
-
-(defn normalize-key [k]
-  ;; Ensure keywords like :my_date become :properties_my_date
-  (if (and (keyword? k)
-           (not (clojure.string/starts-with? (name k) "properties_")))
-    (keyword (str "properties_" (name k)))
-    k))
-
-(defn normalize-group [group]
-  (into {}
-        (map (fn [[k v]]
-               [(normalize-key k) v])
-             group)))
-
-(defn validate-filters [filter-groups whitelist]
-  (let [wl-set (set (map keyword whitelist))]
-    (reduce
-     (fn [{:keys [valid invalid]} group]
-       (let [normalized (normalize-group group)
-             allowed (set/intersection wl-set (set (keys normalized)))
-             denied (set/difference (set (keys normalized)) wl-set)]
-         {:valid (conj valid (select-keys normalized allowed))
-          :invalid (into invalid denied)}))
-     {:valid [] :invalid []}
-     filter-groups)))
-
 (defn normalize-key [k wl-set]
   (let [kname (name k)
         prefixed (keyword (str "properties_" kname))]
     (cond
-      ;; exact key allowed — keep as-is
       (contains? wl-set k) k
-      ;; prefixed variant allowed — use that
       (contains? wl-set prefixed) prefixed
-      ;; otherwise leave unchanged (will be caught as invalid later)
       :else k)))
 
 (defn normalize-group [group wl-set]
