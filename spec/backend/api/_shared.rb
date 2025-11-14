@@ -405,6 +405,7 @@ shared_context :setup_access_rights do
     # -------------------------
 
     @category = FactoryBot.create(:category, direct_models: [@models.first])
+    @image = FactoryBot.create(:image, :for_category, target: @category)
 
     @manager = FactoryBot.create :user
     @group = FactoryBot.create(:group, name: "Group 1")
@@ -419,14 +420,13 @@ shared_context :setup_access_rights do
     FactoryBot.create(:room, building: b)
 
     @model = FactoryBot.create(:leihs_model)
-    @image = FactoryBot.create(:image, :for_category)
     @filename = @image.filename
 
     @thumbnail = FactoryBot.create(:image, :for_leihs_model,
-      thumbnail: true)
+      thumbnail: true, target: @model)
 
     @image = FactoryBot.create(:image, :for_leihs_model,
-      thumbnails: [@thumbnail])
+      thumbnails: [@thumbnail], target: @model)
 
     @filename = @image.filename
   end

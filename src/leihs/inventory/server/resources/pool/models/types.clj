@@ -57,15 +57,15 @@
 
 (def post-response :model-optional-response/inventory-model)
 
-(def comppatible {:id s/Uuid
-                  :product (s/maybe s/Str)
-                  :version (s/maybe s/Str)
-                  :cover_image_id (s/maybe s/Uuid)
-                  :available (s/maybe s/Int)
+(def compatible {:id s/Uuid
+                 :product (s/maybe s/Str)
+                 :version (s/maybe s/Str)
+                 :cover_image_id (s/maybe s/Uuid)
+                 :available (s/maybe s/Int)
 
-                  (s/optional-key :url) (s/maybe s/Str)
-                  (s/optional-key :content_type) (s/maybe s/Str)
-                  (s/optional-key :image_id) (s/maybe s/Uuid)})
+                 (s/optional-key :url) (s/maybe s/Str)
+                 (s/optional-key :content_type) (s/maybe s/Str)
+                 (s/optional-key :image_id) (s/maybe s/Uuid)})
 
 (def get-compatible-response
-  (s/->Either [[comppatible] {:data [comppatible] :pagination pagination}]))
+  (s/->Either [[compatible] {:data [compatible] :pagination pagination}]))

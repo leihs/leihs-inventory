@@ -13,4 +13,7 @@
 
 (def INVENTORY_VIEW_PATH "/inventory/")
 
+;; nil sets "no cache"-control
+(def IMAGE_RESPONSE_CACHE_CONTROL "public, max-age=2592000, immutable") ;30days
+
 (defn fe [s] (if false (str "[fe] | " s) s))

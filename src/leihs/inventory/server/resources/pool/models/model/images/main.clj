@@ -94,8 +94,10 @@
 
 (defn index-resources [request]
   (try
-    (let [base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail :i.content_type)
-                         (sql/from [:images :i]))]
+    (let [{{:keys [model_id]} :path} (:parameters request)
+          base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail :i.content_type)
+                         (sql/from [:images :i])
+                         (sql/where [:or [:= :i.parent_id model_id] [:= :i.target_id model_id]]))]
       (response (create-pagination-response request base-query nil)))
     (catch Exception e
       (log-by-severity "Failed to retrieve image:" e)
