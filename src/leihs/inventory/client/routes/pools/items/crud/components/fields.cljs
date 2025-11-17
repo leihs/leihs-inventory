@@ -185,7 +185,7 @@
                                                         :variant "outline"
                                                         :class-name "w-[240px] pl-3 text-left font-normal"}
                                                 (if field-value
-                                                  (format field-value "PPP")
+                                                  (format field-value "yyyy-MM-dd")
                                                   ($ :span {:class-name "text-muted-foreground"}
                                                      "Select date"))
                                                 ($ CalendarIcon {:class-name "ml-auto h-4 w-4 opacity-50"}))))

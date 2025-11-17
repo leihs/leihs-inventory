@@ -13,10 +13,16 @@
 
         base-validator (case field-type
                          "text"
-                         (if (and is-required (not treat-as-optional))
-                           (-> (z/string)
-                               (.min 1))
-                           (z/string))
+                         (let [base-string (if (and is-required (not treat-as-optional))
+                                             (-> (z/string)
+                                                 (.min 1))
+                                             (z/string))]
+                           (.transform base-string
+                                       (fn [val]
+                                         (when val
+                                           (if (re-matches #"^\d+[,]\d+$" val)
+                                             (.replace val "," ".")
+                                             val)))))
 
                          "textarea"
                          (if (and is-required (not treat-as-optional))

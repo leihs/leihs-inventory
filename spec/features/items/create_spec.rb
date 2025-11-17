@@ -14,7 +14,7 @@ feature "Create item", type: :feature do
   let(:name) { Faker::Device.model_name }
   let(:note) { Faker::Lorem.paragraph }
   let(:invoice_number) { Faker::Number.number(digits: 10).to_s }
-  let(:price) { Faker::Commerce.price(range: 100..5000).to_s }
+  let(:price) { format("%.2f", Faker::Commerce.price(range: 100..5000)) }
   let(:user_name) { Faker::Name.name }
   let(:reason_for_retirement) { Faker::Lorem.sentence }
   let(:typical_usage) { Faker::Lorem.sentence }
@@ -123,7 +123,14 @@ feature "Create item", type: :feature do
     expect(page).to have_content "Inventory List"
 
     fill_in "search", with: model.product
-    click_on "expand-row"
+
+    within find('[data-row="model"]', text: model.product) do
+      click_on "expand-button"
+    end
+
+    within find('[data-row="item"]', text: inventory_code) do
+      click_on "edit"
+    end
 
     assert_field "Inventory Code", inventory_code
     expect(find('button[data-test-id="model_id"]')).to have_text(model.product)
@@ -134,17 +141,41 @@ feature "Create item", type: :feature do
     assert_field "Name", name
     assert_field "Note", note
 
-    assert_field("accessories.0.name", first_accessory_name)
-
+    expect(page).to have_content(attachment_name_1)
+    expect(find('button[name="retired"]')).to have_text("Yes")
     assert_field "Reason for Retirement", reason_for_retirement
+
+    assert_checked(find('button[data-test-id="is_broken-true"]'))
+    assert_checked(find('button[data-test-id="is_incomplete-true"]'))
+    assert_checked(find('button[data-test-id="is_borrowable-true"]'))
+
     assert_field "Status note", status_note
+
+    expect(find('button[name="is_inventory_relevant"]')).to have_text("No")
+
+    expect(find('button[data-test-id="owner_id"]')).to have_text(pool.name)
+    expect(find('button[name="last_check"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
+
     assert_field "Responsible person", user_name
     assert_field "User/Typical usage", typical_usage
+
+    assert_checked(find('button[data-test-id="properties_reference-investment"]'))
+
     assert_field "Project Number*", project_number
     assert_field "Invoice Number", invoice_number
+
+    expect(find('button[name="invoice_date"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
+
+    binding.pry
     assert_field "Initial Price", price
 
-    # assert_field "Supplier", supplier.name
+    expect(find('button[data-test-id="supplier_id"]')).to have_text(supplier.name)
+
+    expect(find('button[name="properties_warranty_expiration"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
+    expect(find('button[name="properties_contract_expiration"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
+
+    expect(find('button[data-test-id="building_id"]')).to have_text("general building")
+    expect(find('button[data-test-id="room_id"]')).to have_text("general room")
 
     assert_field "Shelf", shelf
   end
