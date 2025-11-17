@@ -14,7 +14,11 @@ feature "Create item", type: :feature do
   let(:name) { Faker::Device.model_name }
   let(:note) { Faker::Lorem.paragraph }
   let(:invoice_number) { Faker::Number.number(digits: 10).to_s }
-  let(:price) { format("%.2f", Faker::Commerce.price(range: 100..5000)) }
+  let(:price) do
+    base_price = Faker::Commerce.price(range: 100..5000).floor
+    decimals = [*1..9].sample(2).join # Ensures two different non-zero digits
+    format("%.2f", "#{base_price}.#{decimals}".to_f)
+  end
   let(:user_name) { Faker::Name.name }
   let(:reason_for_retirement) { Faker::Lorem.sentence }
   let(:typical_usage) { Faker::Lorem.sentence }
@@ -166,7 +170,6 @@ feature "Create item", type: :feature do
 
     expect(find('button[name="invoice_date"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
 
-    binding.pry
     assert_field "Initial Price", price
 
     expect(find('button[data-test-id="supplier_id"]')).to have_text(supplier.name)
