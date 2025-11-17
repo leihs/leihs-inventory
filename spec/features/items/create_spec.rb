@@ -87,12 +87,10 @@ feature "Create item", type: :feature do
     fill_in "Project Number*", with: project_number
     fill_in "Invoice Number", with: invoice_number
 
-    ## TODO: fix date spec BE
     click_on "Invoice Date"
     click_on day.to_s
 
-    ## TODO: fix price spec (parse as number)
-    # fill_in "Initial Price", with: price
+    fill_in "Initial Price", with: price
 
     click_on "Supplier"
     expect(page).to have_field(placeholder: "Enter search term")
@@ -100,11 +98,9 @@ feature "Create item", type: :feature do
     expect(page).to have_content supplier.name
     click_on supplier.name
 
-    ## TODO: fix date spec BE
     click_on "Warranty expiration"
     click_on day.to_s
 
-    ## TODO: fix date spec BE
     click_on "Contract expiration"
     click_on day.to_s
 
@@ -129,6 +125,27 @@ feature "Create item", type: :feature do
     fill_in "search", with: model.product
     click_on "expand-row"
 
-    expect(page).to have_content inventory_code
+    assert_field "Inventory Code", inventory_code
+    expect(find('button[data-test-id="model_id"]')).to have_text(model.product)
+
+    assert_field "Serial Number", serial_number
+    assert_field "MAC-Address", mac_address
+    assert_field "IMEI-Number", imei_number
+    assert_field "Name", name
+    assert_field "Note", note
+
+    assert_field("accessories.0.name", first_accessory_name)
+
+    assert_field "Reason for Retirement", reason_for_retirement
+    assert_field "Status note", status_note
+    assert_field "Responsible person", user_name
+    assert_field "User/Typical usage", typical_usage
+    assert_field "Project Number*", project_number
+    assert_field "Invoice Number", invoice_number
+    assert_field "Initial Price", price
+
+    # assert_field "Supplier", supplier.name
+
+    assert_field "Shelf", shelf
   end
 end
