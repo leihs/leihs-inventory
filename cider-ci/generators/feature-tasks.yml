@@ -38,6 +38,11 @@
   environment_variables:
     FEATURE_NAME: "Create item 01"
     FEATURE: './spec/features/items/create_spec.rb[1:1]'
+'./spec/features/items/update_spec.rb[1:1]':
+  name: "Update item 01"
+  environment_variables:
+    FEATURE_NAME: "Update item 01"
+    FEATURE: './spec/features/items/update_spec.rb[1:1]'
 './spec/features/models/create_spec.rb[1:1]':
   name: "Create model 01"
   environment_variables:

@@ -59,6 +59,7 @@ feature "Create item", type: :feature do
 
     fill_in "Note", with: note
 
+    expect(page).not_to have_content "Reason for Retirement"
     click_on "Retirement"
     expect(page).to have_content "Yes"
     click_on "Yes"
@@ -75,7 +76,7 @@ feature "Create item", type: :feature do
     expect(page).to have_content "No"
     click_on "No"
 
-    # expect(page).to have_field("Owner", disabled: true)
+    expect(page).to have_button("Owner", disabled: true)
 
     click_on "Last Checked"
 
@@ -87,6 +88,7 @@ feature "Create item", type: :feature do
     fill_in "Responsible person", with: user_name
     fill_in "User/Typical usage", with: typical_usage
 
+    expect(page).not_to have_content "Project Number*"
     click_on "properties_reference-investment"
     fill_in "Project Number*", with: project_number
     fill_in "Invoice Number", with: invoice_number
