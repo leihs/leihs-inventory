@@ -113,7 +113,7 @@
           :needs_permission s/Bool
           :note (s/maybe s/Str)
           :parent_id (s/maybe s/Uuid)
-          :price (s/maybe s/Num) ; numeric(8,2)
+          :price (s/maybe s/Str)
           :responsible (s/maybe s/Str)
           :retired_reason (s/maybe s/Str)
           :retired s/Bool
