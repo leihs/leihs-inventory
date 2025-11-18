@@ -9,15 +9,11 @@
                                                                             link-users-to-entitlement-group]]
    [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [enrich-with-is-quantity-ok]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [body-params path-params]]
    [next.jdbc :as jdbc]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params]]
-   [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [response]]))
 
