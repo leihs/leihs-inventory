@@ -32,7 +32,7 @@ require_relative "../_common"
           expect(resp.status).to eq(200)
           expect(resp.body["models"].first["quantity"]).to eq(1)
 
-          template_id = resp.body["entitlement_group"]["id"]
+          template_id = resp.body["id"]
           model_id = resp.body["models"].first["id"]
 
           resp = json_client_put(
@@ -80,7 +80,7 @@ require_relative "../_common"
           })
           expect(resp.status).to eq(200)
           expect(resp.body["models"].count).to eq(0)
-          template_id = resp.body["entitlement_group"]["id"]
+          template_id = resp.body["id"]
 
           resp = json_client_get(
             "/inventory/#{pool_id}/entitlement-groups/",
@@ -94,7 +94,7 @@ require_relative "../_common"
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
-          expect(resp.body["entitlement_group"]["id"]).to eq(template_id)
+          expect(resp.body["id"]).to eq(template_id)
           expect(resp.body["users"].count).to eq(0)
           expect(resp.body["groups"].count).to eq(0)
           expect(resp.body["models"].count).to eq(0)
@@ -108,7 +108,7 @@ require_relative "../_common"
           expect(resp.status).to eq(200)
           expect(resp.body["models"].first["quantity"]).to eq(1)
 
-          template_id = resp.body["entitlement_group"]["id"]
+          template_id = resp.body["id"]
           resp = json_client_delete(
             "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
             headers: cookie_header
@@ -133,7 +133,7 @@ require_relative "../_common"
           end
 
           it "to one model" do
-            template_id = create_response.body["entitlement_group"]["id"]
+            template_id = create_response.body["id"]
             model_id = create_response.body["models"].first["id"]
 
             resp = json_client_put(
@@ -147,7 +147,7 @@ require_relative "../_common"
               headers: cookie_header
             )
             expect(resp.status).to eq(200)
-            expect(resp.body["entitlement_group"]["name"]).to eq("updated-name")
+            expect(resp.body["name"]).to eq("updated-name")
             expect(resp.body["models"]["updated"].first["quantity"]).to eq(3)
             expect(resp.body["models"]["updated"].count).to eq(1)
             expect(resp.body["models"]["created"].count).to eq(0)
@@ -155,7 +155,7 @@ require_relative "../_common"
           end
 
           it "to one model" do
-            template_id = create_response.body["entitlement_group"]["id"]
+            template_id = create_response.body["id"]
             resp = json_client_put(
               "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
               body: {
@@ -167,7 +167,7 @@ require_relative "../_common"
               headers: cookie_header
             )
             expect(resp.status).to eq(200)
-            expect(resp.body["entitlement_group"]["name"]).to eq("updated-name")
+            expect(resp.body["name"]).to eq("updated-name")
             expect(resp.body["models"]["updated"].count).to eq(0)
             expect(resp.body["models"]["created"].count).to eq(0)
             expect(resp.body["models"]["deleted"].count).to eq(2)

@@ -37,7 +37,7 @@
                                                    :is_verification_required s/Bool}
                                :users [{:user_id s/Uuid}]
                                :groups [{:group_id s/Uuid}]
-                               :models [{:model_id s/Uuid
+                               :models [{:id s/Uuid
                                          :quantity types/PosInt}]}}
            :produces ["application/json"]
            :handler entitlement-groups/post-resource
