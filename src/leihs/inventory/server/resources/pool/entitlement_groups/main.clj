@@ -7,7 +7,7 @@
    [leihs.inventory.server.resources.pool.entitlement-groups.common :refer [create-entitlements
                                                                             link-groups-to-entitlement-group
                                                                             link-users-to-entitlement-group]]
-   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [enrich-with-is-quantity-ok]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [enrich-with-is-quantity-ok fetch-models-of-entitlement-group]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
@@ -74,10 +74,12 @@
   (try
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
-          query (-> (sql/select :g.*)
+          query (-> (sql/select :g.* [[:sum :e.quantity] :number_of_allocations])
                     (sql/from [:entitlement_groups :g])
                     (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
+                    (sql/join [:entitlements :e] [:= :e.entitlement_group_id :g.id])
                     (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
+                    (sql/group-by :g.id)
                     (sql/order-by :g.name))
           post-fnc (fn [models]
                      (if (seq models)
@@ -90,24 +92,33 @@
     (catch Exception e
       (exception-handler request ERROR_GET e))))
 
+(defn rename-key [m old new]
+  (let [old-k (keyword old)
+        old-s (name old)
+        v (or (get m old-k)
+              (get m old-s))]
+    (cond-> m
+      v (-> (assoc new v)
+            (dissoc old-k old-s)))))
+
 (defn post-resource [request]
   (try
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
           data (body-params request)
           models (:models data)
+          models (mapv #(rename-key % :id :model_id) models)
           entitlement_group (create-entitlement-group tx (:entitlement_group data) pool_id)
-
           users (link-users-to-entitlement-group tx (:users data) (:id entitlement_group))
           groups (link-groups-to-entitlement-group tx (:groups data) (:id entitlement_group))
 
           entitlement_group_id (:id entitlement_group)
-          models-with-id (mapv #(assoc % :entitlement_group_id entitlement_group_id) models)
-          created-entitlements (create-entitlements tx models-with-id)]
-      (response {:entitlement_group entitlement_group
-                 :models created-entitlements
-                 :users users
-                 :groups groups}))
+          models-with-id (mapv #(assoc % :entitlement_group_id entitlement_group_id) models)]
+      (create-entitlements tx models-with-id)
+      (let [models-response (fetch-models-of-entitlement-group tx pool_id entitlement_group_id)]
+        (response (merge entitlement_group {:models models-response
+                                            :users users
+                                            :groups groups}))))
     (catch Exception e
       (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))
