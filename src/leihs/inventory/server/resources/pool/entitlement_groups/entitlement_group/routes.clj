@@ -10,9 +10,15 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
+(def get-doc
+  "\n- quantity must be a positive integer
+\n- available_count is computed based on current items in the pool (items_count) minus allocations in other entitlement groups
+\n- items_count is the number of non-retired, borrowable, top-level items in the pool for the model")
+
 (defn routes []
   ["/entitlement-groups/:entitlement_group_id"
    {:get {:summary (fe "a.k.a 'Anspruchsgruppe'")
+          :description get-doc
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :parameters {:path {:pool_id s/Uuid
@@ -37,8 +43,7 @@
                               :users [{(s/optional-key :id) s/Uuid,
                                        :user_id s/Uuid}]
                               :groups [{(s/optional-key :id) s/Uuid, :group_id s/Uuid}]
-                              :models [{(s/optional-key :id) s/Uuid
-                                        :model_id s/Uuid
+                              :models [{:id s/Uuid
                                         :quantity PosInt}]}}
           :produces ["application/json"]
           :handler entitlement-group/put-resource

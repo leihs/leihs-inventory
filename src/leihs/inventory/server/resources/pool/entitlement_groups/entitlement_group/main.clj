@@ -10,11 +10,12 @@
                                                                             link-groups-to-entitlement-group
                                                                             fetch-entitlements]]
    [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [analyze-and-prepare-data
-                                                                                             update-entitlement-groups
+                                                                                             update-entitlement-group
                                                                                              fetch-users-of-entitlement-group
                                                                                              fetch-entitlement-group
                                                                                              fetch-groups-of-entitlement-group
                                                                                              fetch-models-of-entitlement-group]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.request-utils :refer [path-params body-params]]
    [next.jdbc :as jdbc]
@@ -24,8 +25,8 @@
 (def ERROR_GET "Failed to get entitlement-groups")
 
 (defn- verify-unique-entries! [request]
-  (let [models (-> request body-params :mdoels)
-        ids (map :model_id models)
+  (let [models (-> request body-params :models)
+        ids (map :id models)
         duplicates (->> ids
                         frequencies
                         (filter (fn [[_ freq]] (> freq 1)))
@@ -40,13 +41,12 @@
     (let [tx (:tx request)
           entitlement-group-id (-> request path-params :entitlement_group_id)
           entitlement-group (fetch-entitlement-group tx request)
-          users-groups (fetch-users-of-entitlement-group tx entitlement-group-id)
           models (fetch-models-of-entitlement-group tx request)
+          users-groups (fetch-users-of-entitlement-group tx entitlement-group-id)
           groups (fetch-groups-of-entitlement-group tx entitlement-group-id)]
-      (response {:entitlement_group entitlement-group
-                 :users users-groups
-                 :groups groups
-                 :models models}))
+      (response (merge entitlement-group {:users users-groups
+                                          :groups groups
+                                          :models models})))
     (catch Exception e
       (error e "Error fetching entitlement group")
       (exception-handler request ERROR_GET e))))
@@ -56,7 +56,7 @@
     (let [tx (:tx request)
           entitlement-group-id (-> request path-params :entitlement_group_id)
           {:keys [db-model-ids]} (fetch-entitlements tx entitlement-group-id)
-          models (delete-entitlements tx db-model-ids)
+          models (delete-entitlements tx db-model-ids entitlement-group-id)
           result (jdbc/execute-one! tx (-> (sql/delete-from :entitlement_groups)
                                            (sql/where [:= :id entitlement-group-id])
                                            (sql/returning :*)
@@ -80,23 +80,23 @@
           models (:models data)
           users (:users data)
 
+          ;; TODO: fix & test update of users/groups
           users-status (link-users-to-entitlement-group tx users entitlement-group-id)
           groups-status (link-groups-to-entitlement-group tx (:groups data) entitlement-group-id)
-          entitlement-group (update-entitlement-groups tx entitlement-group entitlement-group-id)
+          entitlement-group (update-entitlement-group tx entitlement-group entitlement-group-id)
 
           {:keys [entitlements-to-update entitlements-to-create entitlement-ids-to-delete]}
           (analyze-and-prepare-data tx models entitlement-group-id)
 
-          updated-entitlements (update-entitlements tx entitlements-to-update)
-          created-entitlements (create-entitlements tx entitlements-to-create)
-          deleted-entitlements (delete-entitlements tx entitlement-ids-to-delete)]
+          _ (update-entitlements tx entitlements-to-update entitlement-group-id)
+          _ (create-entitlements tx entitlements-to-create)
+          _ (delete-entitlements tx entitlement-ids-to-delete entitlement-group-id)
 
-      (response {:entitlement_group entitlement-group
-                 :users users-status
-                 :groups groups-status
-                 :models {:updated updated-entitlements
-                          :created created-entitlements
-                          :deleted deleted-entitlements}}))
+          models-response (fetch-models-of-entitlement-group tx request)]
+
+      (response (merge entitlement-group {:users users-status
+                                          :groups groups-status
+                                          :models models-response})))
     (catch Exception e
-      (println e)
+      (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))
