@@ -7,6 +7,7 @@
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.pool.attachments.main :as attachments]
    [leihs.inventory.server.resources.pool.buildings.main :as buildings]
+   [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
    [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
    [leihs.inventory.server.resources.pool.models.main :as models]
    [leihs.inventory.server.resources.pool.rooms.main :as rooms]
@@ -76,7 +77,11 @@
      :software_model_id (fn [f & {:keys [pool]}]
                           (assoc f :values_url
                                  (str "/inventory/" (:id pool) "/software/")))
-     :retired (fn [f & _] (assoc f :default false))}))
+     :retired (fn [f & _] (assoc f :default false))
+     :inventory_code (fn [f & {:keys [tx pool resource-id]}]
+                       (if resource-id
+                         f
+                         (assoc f :default (inv-code/propose tx (:id pool)))))}))
 
 (defn handle-default [tx field-id value item-data pool-id]
   (let [hooks {:supplier_id suppliers/get-by-id

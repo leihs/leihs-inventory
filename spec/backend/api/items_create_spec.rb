@@ -188,6 +188,30 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.body["error"]).to eq("Model type 'Software' is not allowed for items")
         expect(resp.body["model_id"]).to eq(software_model.id)
       end
+
+      it "rejects duplicate inventory_code and returns status 409 with proposed_code" do
+        existing_code = "DUPLICATE-CODE"
+        FactoryBot.create(:item,
+          inventory_code: existing_code,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        item_data = {
+          inventory_code: existing_code,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["error"]).to eq("Inventory code already exists")
+        expect(resp.body["proposed_code"]).to be_a(String)
+      end
     end
   end
 

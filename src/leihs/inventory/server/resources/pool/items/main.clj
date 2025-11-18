@@ -2,6 +2,7 @@
   (:require
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
    [leihs.inventory.server.resources.pool.items.fields-shared :refer [coerce-field-values
                                                                       in-coercions
                                                                       out-coercions
@@ -19,7 +20,7 @@
                                                        query-params]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response]]
+   [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug]]))
 
 (def ERROR_GET_ITEMS "Failed to get items")
@@ -133,28 +134,44 @@
 
 (def ERROR_CREATE_ITEM "Failed to create item")
 
+(defn inventory-code-exists? [tx inventory-code exclude-id]
+  (let [query (-> (sql/select :id)
+                  (sql/from :items)
+                  (sql/where [:= :inventory_code inventory-code])
+                  (cond-> exclude-id
+                    (sql/where [:not= :id exclude-id]))
+                  sql-format)]
+    (-> (jdbc/execute-one! tx query)
+        some?)))
+
 (defn post-resource [request]
   (try
     (let [tx (:tx request)
+          {:keys [pool_id]} (path-params request)
           body-params (body-params request)
           validation-error (validate-field-permissions request)]
       (if validation-error
         (bad-request validation-error)
         (let [{:keys [item-data properties]} (split-item-data body-params)
-              item-data-coerced (coerce-field-values item-data in-coercions)
-              properties-json (or (not-empty properties) {})
-              item-data-with-properties (assoc item-data-coerced
-                                               :properties [:lift properties-json])
-              sql-query (-> (sql/insert-into :items)
-                            (sql/values [item-data-with-properties])
-                            (sql/returning :*)
-                            sql-format)
-              result (jdbc/execute-one! tx sql-query)]
-          (if result
-            (response (-> result
-                          flatten-properties
-                          (coerce-field-values out-coercions)))
-            (bad-request {:error ERROR_CREATE_ITEM})))))
+              inventory-code (:inventory_code item-data)]
+          (if (inventory-code-exists? tx inventory-code nil)
+            (status {:body {:error "Inventory code already exists"
+                            :proposed_code (inv-code/propose tx pool_id)}}
+                    409)
+            (let [item-data-coerced (coerce-field-values item-data in-coercions)
+                  properties-json (or (not-empty properties) {})
+                  item-data-with-properties (assoc item-data-coerced
+                                                   :properties [:lift properties-json])
+                  sql-query (-> (sql/insert-into :items)
+                                (sql/values [item-data-with-properties])
+                                (sql/returning :*)
+                                sql-format)
+                  result (jdbc/execute-one! tx sql-query)]
+              (if result
+                (response (-> result
+                              flatten-properties
+                              (coerce-field-values out-coercions)))
+                (bad-request {:error ERROR_CREATE_ITEM})))))))
     (catch Exception e
       (log-by-severity ERROR_CREATE_ITEM e)
       (exception-handler request ERROR_CREATE_ITEM e))))
