@@ -104,10 +104,10 @@
           entitlement_group_id (:id entitlement_group)
           models-with-id (mapv #(assoc % :entitlement_group_id entitlement_group_id) models)
           created-entitlements (create-entitlements tx models-with-id)]
-      (response {:entitlement_group entitlement_group
+      (response (merge entitlement_group {
                  :models created-entitlements
                  :users users
-                 :groups groups}))
+                 :groups groups})))
     (catch Exception e
       (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))

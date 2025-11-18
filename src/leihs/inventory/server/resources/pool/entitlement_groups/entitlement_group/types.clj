@@ -9,21 +9,22 @@
 (def delete-response-body {:entitlement_groups s/Any
                            :models s/Any})
 
-(def put-response-body {:entitlement_group {:id s/Uuid
-                                            :name s/Str
-                                            :is_verification_required s/Bool
-                                            :inventory_pool_id s/Uuid
-                                            :created_at s/Any
-                                            :updated_at s/Any}
+(def put-response-body {:id s/Uuid
+                        :name s/Str
+                        :is_verification_required s/Bool
+                        :inventory_pool_id s/Uuid
+                        :created_at s/Any
+                        :updated_at s/Any
                         :models {:deleted [model]
                                  :created [model]
                                  :updated [model]}
                         :users s/Any
                         :groups s/Any})
 
-(def get-response-body {:entitlement_group {:id s/Uuid
-                                            :name s/Str
-                                            :is_verification_required s/Bool}
+(def get-response-body {
+                        :id s/Uuid
+                        :name s/Str
+                        :is_verification_required s/Bool
                         :models [get-model]
                         :users s/Any
                         :groups s/Any})

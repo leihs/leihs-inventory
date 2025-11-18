@@ -43,10 +43,10 @@
           users-groups (fetch-users-of-entitlement-group tx entitlement-group-id)
           models (fetch-models-of-entitlement-group tx request)
           groups (fetch-groups-of-entitlement-group tx entitlement-group-id)]
-      (response {:entitlement_group entitlement-group
+      (response (merge entitlement-group {
                  :users users-groups
                  :groups groups
-                 :models models}))
+                 :models models})))
     (catch Exception e
       (error e "Error fetching entitlement group")
       (exception-handler request ERROR_GET e))))
@@ -91,12 +91,12 @@
           created-entitlements (create-entitlements tx entitlements-to-create)
           deleted-entitlements (delete-entitlements tx entitlement-ids-to-delete)]
 
-      (response {:entitlement_group entitlement-group
+      (response (merge entitlement-group {
                  :users users-status
                  :groups groups-status
                  :models {:updated updated-entitlements
                           :created created-entitlements
-                          :deleted deleted-entitlements}}))
+                          :deleted deleted-entitlements}})))
     (catch Exception e
       (println e)
       (exception-handler request ERROR_GET e))))
