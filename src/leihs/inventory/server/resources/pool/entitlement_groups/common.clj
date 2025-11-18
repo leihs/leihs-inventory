@@ -20,14 +20,16 @@
                   (sql/where [:= :e.entitlement_group_id (to-uuid entitlement-group-id)])
                   sql-format)
         db-entitlements (jdbc/execute! tx query)
-        db-entitlement-ids (mapv :id db-entitlements)]
+        db-entitlement-ids (mapv :id db-entitlements)
+        db-model-ids (mapv :model_id db-entitlements)]
     {:db-entitlements db-entitlements
-     :db-entitlement-ids db-entitlement-ids}))
+     :db-entitlement-ids db-entitlement-ids
+     :db-model-ids db-model-ids}))
 
-(defn delete-entitlements [tx entitlement-ids]
-  (if (seq entitlement-ids)
+(defn delete-entitlements [tx model-ids entitlement-group-id]
+  (if (seq model-ids)
     (jdbc/execute! tx (-> (sql/delete-from :entitlements)
-                          (sql/where [:in :id entitlement-ids])
+                          (sql/where [:and [:in :model_id model-ids] [:= :entitlement_group_id entitlement-group-id]])
                           (sql/returning :*)
                           sql-format))
     []))
@@ -40,13 +42,14 @@
                           sql-format))
     []))
 
-(defn update-entitlements [tx entitlements]
+(defn update-entitlements [tx entitlements entitlement-group-id]
   (if (seq entitlements)
     (->> entitlements
          (mapv (fn [entitlement]
                  (jdbc/execute! tx (-> (sql/update :entitlements)
                                        (sql/set (select-keys entitlement [:quantity]))
-                                       (sql/where [:= :id (:id entitlement)])
+                                       (sql/where [:and [:= :model_id (:model_id entitlement)]
+                                                   [:= :entitlement_group_id entitlement-group-id]])
                                        (sql/returning :*)
                                        sql-format))))
          (apply concat)
