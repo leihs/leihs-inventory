@@ -125,7 +125,7 @@ require_relative "../_common"
             models: [{quantity: 20, model_id: @models.first.id}, {quantity: 30, model_id: @models.second.id}]
           })
           expect(resp.status).to eq(200)
-          template_id = resp.body["entitlement_group"]["id"]
+          template_id = resp.body["id"]
 
           resp = json_client_get(
             "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
@@ -151,7 +151,7 @@ require_relative "../_common"
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
-          expect(resp.body["entitlement_group"]["name"]).to eq("updated-name")
+          expect(resp.body["name"]).to eq("updated-name")
 
           ["users", "groups"].each do |key|
             expect(resp.body[key]["created"].count).to eq(0)
@@ -200,7 +200,7 @@ require_relative "../_common"
               models: [{quantity: 20, model_id: @models.first.id}, {quantity: 30, model_id: @models.second.id}]
             })
             expect(resp.status).to eq(200)
-            template_id = resp.body["entitlement_group"]["id"]
+            template_id = resp.body["id"]
 
             resp = json_client_get(
               "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
@@ -214,7 +214,7 @@ require_relative "../_common"
             filter_direct_entitlements(create_resp.body["groups"], [:id, :group_id])
           end
           let(:template_id) do
-            create_resp.body["entitlement_group"]["id"]
+            create_resp.body["id"]
           end
           let(:existing_users) do
             filter_direct_entitlements(create_resp.body["groups"], [:id, :group_id])
