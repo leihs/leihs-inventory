@@ -56,6 +56,7 @@
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
+   [ring.util.codec :as codec]
    [schema.core :as s]
    [taoensso.timbre :refer [debug error]]))
 
@@ -185,10 +186,16 @@
                           (if exists?
                             (rh/index-html-response request 200)
                             (rh/index-html-response request 404))
-                          {:status 302
-                           :headers {"Location" "/sign-in?return-to=%2Finventory/"
-                                     "Content-Type" "text/html"}
-                           :body ""})))}}]])
+                          (let [query-string (:query-string request)
+                                full-url (if query-string
+                                           (str uri "?" query-string)
+                                           uri)
+                                encoded-url (codec/url-encode full-url)
+                                redirect-url (str "/sign-in?return-to=" encoded-url)]
+                            {:status 302
+                             :headers {"Location" redirect-url
+                                       "Content-Type" "text/html"}
+                             :body ""}))))}}]])
 
 (defn settings-endpoint []
   ["/"
