@@ -62,13 +62,16 @@ feature "Update item", type: :feature do
   let!(:model_new) { FactoryBot.create(:leihs_model) }
   let!(:supplier_old) { FactoryBot.create(:supplier) }
   let!(:supplier_new) { FactoryBot.create(:supplier) }
+  let!(:other_pool) { FactoryBot.create(:inventory_pool) }
 
   before(:each) do
     FactoryBot.create(:access_right,
       inventory_pool: pool,
       user: user,
       role: :inventory_manager)
+  end
 
+  scenario "works" do
     yesterday = Date.today - 1
 
     @item = FactoryBot.create(:item,
@@ -103,9 +106,7 @@ feature "Update item", type: :feature do
       shelf: shelf_old)
 
     FactoryBot.create(:attachment, item: @item, real_filename: attachment_name_old)
-  end
 
-  scenario "works" do
     login(user)
     visit "/inventory/#{pool.id}/list"
 
@@ -264,5 +265,31 @@ feature "Update item", type: :feature do
 
     expect(page).not_to have_content(attachment_name_old)
     expect(page).to have_content(attachment_name_new)
+  end
+
+  scenario "protected fields are disabled when not owner" do
+    @item = FactoryBot.create(:item,
+      inventory_code: inventory_code_old,
+      leihs_model: model_old,
+      inventory_pool: pool,
+      owner: other_pool)
+
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+
+    fill_in "search", with: model_old.product
+
+    within find('[data-row="model"]', text: model_old.product) do
+      click_on "expand-button"
+    end
+
+    within find('[data-row="item"]', text: inventory_code_old) do
+      click_on "edit"
+    end
+
+    inventory_code_field = find_field("Inventory Code", disabled: true)
+    expect(inventory_code_field).to be_disabled
+    inventory_code_field.hover
+    expect(page).to have_content("Only the owner can edit this field")
   end
 end
