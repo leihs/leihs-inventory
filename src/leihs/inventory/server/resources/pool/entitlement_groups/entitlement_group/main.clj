@@ -10,7 +10,7 @@
                                                                             link-groups-to-entitlement-group
                                                                             fetch-entitlements]]
    [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [analyze-and-prepare-data
-                                                                                             update-entitlement-groups
+                                                                                             update-entitlement-group
                                                                                              fetch-users-of-entitlement-group
                                                                                              fetch-entitlement-group
                                                                                              fetch-groups-of-entitlement-group
@@ -81,14 +81,18 @@
 
           users-status (link-users-to-entitlement-group tx users entitlement-group-id)
           groups-status (link-groups-to-entitlement-group tx (:groups data) entitlement-group-id)
-          entitlement-group (update-entitlement-groups tx entitlement-group entitlement-group-id)
+          entitlement-group (update-entitlement-group tx entitlement-group entitlement-group-id)
+
+          p (println ">o> abc.1models" models)
+          p (println ">o> abc.2entitlement-group-id" entitlement-group-id)
 
           {:keys [entitlements-to-update entitlements-to-create entitlement-ids-to-delete]}
           (analyze-and-prepare-data tx models entitlement-group-id)
 
-          _ (update-entitlements tx entitlements-to-update)
+          ;_ (update-entitlements tx entitlements-to-update)
+          _ (update-entitlements tx entitlements-to-update entitlement-group-id)
           _ (create-entitlements tx entitlements-to-create)
-          _ (delete-entitlements tx entitlement-ids-to-delete)
+          _ (delete-entitlements tx entitlement-ids-to-delete entitlement-group-id)
 
           models-response (fetch-models-of-entitlement-group tx request)]
 
@@ -98,3 +102,4 @@
     (catch Exception e
       (println e)
       (exception-handler request ERROR_GET e))))
+
