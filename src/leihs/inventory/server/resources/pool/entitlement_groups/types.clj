@@ -42,7 +42,7 @@
                          :is_verification_required s/Bool
                          :created_at s/Any
                          :updated_at s/Any
-                         :models [model]
+                         :models [get-model]
                          :users {:deleted [user]
                                  :created [user]}
                          :groups {:deleted [group]

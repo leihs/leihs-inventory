@@ -7,7 +7,7 @@
    [leihs.inventory.server.resources.pool.entitlement-groups.common :refer [create-entitlements
                                                                             link-groups-to-entitlement-group
                                                                             link-users-to-entitlement-group]]
-   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [enrich-with-is-quantity-ok]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [enrich-with-is-quantity-ok fetch-models-of-entitlement-group]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
@@ -102,11 +102,12 @@
           groups (link-groups-to-entitlement-group tx (:groups data) (:id entitlement_group))
 
           entitlement_group_id (:id entitlement_group)
-          models-with-id (mapv #(assoc % :entitlement_group_id entitlement_group_id) models)
-          created-entitlements (create-entitlements tx models-with-id)]
-      (response (merge entitlement_group {:models created-entitlements
-                                          :users users
-                                          :groups groups})))
+          models-with-id (mapv #(assoc % :entitlement_group_id entitlement_group_id) models)]
+      (create-entitlements tx models-with-id)
+      (let [models-response (fetch-models-of-entitlement-group tx pool_id entitlement_group_id)]
+        (response (merge entitlement_group {:models models-response
+                                            :users users
+                                            :groups groups}))))
     (catch Exception e
       (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))

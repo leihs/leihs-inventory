@@ -15,9 +15,7 @@
                         :inventory_pool_id s/Uuid
                         :created_at s/Any
                         :updated_at s/Any
-                        :models {:deleted [model]
-                                 :created [model]
-                                 :updated [model]}
+                        :models [get-model]
                         :users s/Any
                         :groups s/Any})
 

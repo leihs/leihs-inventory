@@ -24,7 +24,7 @@
 (def ERROR_GET "Failed to get entitlement-groups")
 
 (defn- verify-unique-entries! [request]
-  (let [models (-> request body-params :mdoels)
+  (let [models (-> request body-params :models)
         ids (map :model_id models)
         duplicates (->> ids
                         frequencies
@@ -86,15 +86,15 @@
           {:keys [entitlements-to-update entitlements-to-create entitlement-ids-to-delete]}
           (analyze-and-prepare-data tx models entitlement-group-id)
 
-          updated-entitlements (update-entitlements tx entitlements-to-update)
-          created-entitlements (create-entitlements tx entitlements-to-create)
-          deleted-entitlements (delete-entitlements tx entitlement-ids-to-delete)]
+          _ (update-entitlements tx entitlements-to-update)
+          _ (create-entitlements tx entitlements-to-create)
+          _ (delete-entitlements tx entitlement-ids-to-delete)
+
+          models-response (fetch-models-of-entitlement-group tx request)]
 
       (response (merge entitlement-group {:users users-status
                                           :groups groups-status
-                                          :models {:updated updated-entitlements
-                                                   :created created-entitlements
-                                                   :deleted deleted-entitlements}})))
+                                          :models models-response})))
     (catch Exception e
       (println e)
       (exception-handler request ERROR_GET e))))
