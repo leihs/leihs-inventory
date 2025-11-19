@@ -152,41 +152,29 @@
           (dissoc old-k old-s)))))
 
 
-
 (defn analyze-and-prepare-data [tx models entitlement-group-id]
   (let [{:keys [db-entitlement-ids db-model-ids]} (fetch-entitlements tx entitlement-group-id)
-        ;_ (println ">o> abc.3db-entitlement-ids" db-entitlement-ids)
         _ (println ">o> abc.4db-model-ids" db-model-ids)
 
-        db-id-set (set db-entitlement-ids)
-
-
-        incoming-ids (set (keep :id models))
+        db-model-id-set (set db-model-ids)
+        incoming-model-ids (set (keep :id models))
 
         ;; DELETE = exists in DB but missing in incoming
-        model-ids-to-delete (remove incoming-ids db-model-ids)
+        model-ids-to-delete (remove incoming-model-ids db-model-ids)
 
-        ;; split incoming models into update/create
+        ;; UPDATE = model.id exists in DB model IDs
         entitlements-to-update
-        (filterv #(contains? db-id-set (:id %)) models)
-        entitlements-to-update (mapv #(rename-key % :id :model_id) entitlements-to-update)
+        (mapv #(rename-key % :id :model_id)
+          (filterv #(contains? db-model-id-set (:id %)) models))
 
+        ;; CREATE = model.id does NOT exist in DB model IDs
         entitlements-to-create
-        (mapv #(assoc % :entitlement_group_id entitlement-group-id)
-          (filterv #(not (contains? db-id-set (:id %))) models))
-        entitlements-to-create (mapv #(rename-key % :id :model_id) entitlements-to-create)
+        (mapv #(-> %
+                 (rename-key :id :model_id)
+                 (assoc :entitlement_group_id entitlement-group-id))
+          (filterv #(not (contains? db-model-id-set (:id %))) models))]
 
-
-
-
-
-        ]
-
-
-    (pr ">o> data??"
     {:entitlements-to-update entitlements-to-update
      :entitlements-to-create entitlements-to-create
-     :entitlement-ids-to-delete model-ids-to-delete}
-    )
+     :entitlement-ids-to-delete model-ids-to-delete}))
 
-    ))
