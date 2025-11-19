@@ -21,8 +21,7 @@
                         :users s/Any
                         :groups s/Any})
 
-(def get-response-body {
-                        :id s/Uuid
+(def get-response-body {:id s/Uuid
                         :name s/Str
                         :is_verification_required s/Bool
                         :models [get-model]

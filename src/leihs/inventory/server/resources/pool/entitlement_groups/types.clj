@@ -13,12 +13,18 @@
             :position s/Int})
 
 (def get-model {:id s/Uuid
-                :model_id s/Uuid
-                :name (s/maybe s/Str)
+                :entitlement_id s/Uuid
+                :product (s/maybe s/Str)
+                :version (s/maybe s/Str)
                 :quantity s/Int
                 :available_count s/Int
                 (s/optional-key :items_count) s/Int
-                :is_quantity_ok s/Bool})
+                :is_quantity_ok s/Bool
+
+                (s/optional-key :cover_image_id) (s/maybe s/Uuid)
+                (s/optional-key :url) (s/maybe s/Str)
+                (s/optional-key :content_type) (s/maybe s/Str)
+                (s/optional-key :image_id) (s/maybe s/Uuid)})
 
 (def user {:id s/Uuid
            :user_id s/Uuid

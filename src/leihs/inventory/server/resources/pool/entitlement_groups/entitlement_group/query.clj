@@ -4,6 +4,8 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.entitlement-groups.common :refer [fetch-entitlements]]
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
+                                                                model->enrich-with-image-attr]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]))
@@ -87,9 +89,10 @@
 
   ([tx pool-id entitlement-group-id]
    (let [query (-> (sql/select
-                    [:m.id :model_id]
-                    :m.name
-                    :e.id
+                    :m.id
+                    :m.product
+                    :m.version
+                    [:e.id :entitlement_id]
                     :e.entitlement_group_id
                     :e.quantity)
                    (sql/from [:entitlements :e])
@@ -97,11 +100,16 @@
                    (sql/where [:= :e.entitlement_group_id entitlement-group-id])
                    sql-format)
          models (jdbc/execute! tx query)
-         model-ids (mapv :model_id models)]
+         model-ids (mapv :id models)]
+
      (if (seq model-ids)
-       (let [model-ids (to-uuid model-ids)
+       (let [models (->> models
+                         (fetch-thumbnails-for-ids tx)
+                         (map (model->enrich-with-image-attr pool-id)))
+
+             model-ids (to-uuid model-ids)
              models2 (select-entitlements-with-item-count tx pool-id model-ids entitlement-group-id)
-             models3 (->> (join-by :model_id models models2)
+             models3 (->> (join-by :id models models2)
                           add-allocation-considered-count)]
          models3)
        []))))
