@@ -1,0 +1,14 @@
+{
+  "entitlement_group": {
+    "name": "test-me",
+    "is_verification_required": false
+  },
+  "models": [
+    {
+      "id": "32a7035b-9238-46a1-9a00-e9a99d3b9dc2", (model_id)
+      "quantity": 1
+    }
+  ],
+  "groups": [],
+  "users": []
+}

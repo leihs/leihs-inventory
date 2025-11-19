@@ -90,12 +90,26 @@
     (catch Exception e
       (exception-handler request ERROR_GET e))))
 
+(defn rename-key [m old new]
+  (let [old-k (keyword old)
+        old-s (name old)
+        v     (or (get m old-k)
+                (get m old-s))]
+    (cond-> m
+      v (-> (assoc new v)
+          (dissoc old-k old-s)))))
+
 (defn post-resource [request]
   (try
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
           data (body-params request)
           models (:models data)
+
+          p (println ">o> abc.m1" models)
+          models (mapv #(rename-key % :id :model_id) models)
+          p (println ">o> abc.m2" models)
+
           entitlement_group (create-entitlement-group tx (:entitlement_group data) pool_id)
 
           users (link-users-to-entitlement-group tx (:users data) (:id entitlement_group))

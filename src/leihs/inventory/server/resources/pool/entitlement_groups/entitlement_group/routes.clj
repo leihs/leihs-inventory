@@ -38,8 +38,9 @@
                               :users [{(s/optional-key :id) s/Uuid,
                                        :user_id s/Uuid}]
                               :groups [{(s/optional-key :id) s/Uuid, :group_id s/Uuid}]
-                              :models [{(s/optional-key :id) s/Uuid
-                                        :model_id s/Uuid
+                              :models [{
+                                        ;(s/optional-key :id) s/Uuid
+                                        :id s/Uuid
                                         :quantity PosInt}]}}
           :produces ["application/json"]
           :handler entitlement-group/put-resource
