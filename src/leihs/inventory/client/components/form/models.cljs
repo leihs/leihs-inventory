@@ -182,7 +182,7 @@
                               ($ Image {:class-name "w-10 h-10 scale-[1.2]"})))
 
                          ($ TableCell {:class-name ""}
-                            (str (:product field) " " (:version field)))
+                            (or (:name field) (str (:product field) " " (:version field)))) ;; 🟧 TODO: name wieder weg
 
                          (when children ($ :<> (children update index field)))
 

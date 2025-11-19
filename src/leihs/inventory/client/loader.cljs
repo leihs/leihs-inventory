@@ -15,20 +15,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn root-layout []
-  (let [profile (-> http-client
-                    (.get "/inventory/profile/" #js {:id "profile"})
-                    (.then (fn [res] (jc (.. res -data))))
-                    (.catch (fn [error] (js/console.log "error" error) #js {})))
-        settings (-> http-client
-                     (.get "/inventory/settings/")
-                     (.then #(jc (.-data %)))
-                     (.catch (fn [error] (js/console.log "error" error) #js {})))]
-    (.. (js/Promise.all (cond-> [profile settings]))
-        (then (fn [[profile settings]]
-                {:profile profile
-                 :settings settings})))))
+  (-> http-client
+      (.get "/inventory/profile/")
+      (.then (fn [res]
+               (let [data (jc (.. res -data))]
+                 (.. i18n (changeLanguage (-> data :user_details :language_locale)))
+                 data)))
+      (.catch (fn [error] (js/console.log "error" error) #js {}))))
 
-(defn list-page [route-data]
+(defn models-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
         search (.-search url)]
     (if (empty? search)
@@ -172,3 +167,35 @@
     (.. (js/Promise.all (cond-> [models]))
         (then (fn [[models]]
                 {:models models})))))
+
+(defn entitlement-groups-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        data (-> http-client
+                 (.get (str "/inventory/" pool-id "/entitlement-groups/"))
+                 (.then (fn [res]
+                          (jc (.. res -data))))
+                 (.catch (fn [error]
+                           (js/console.error "Error fetching templates" error))))]
+
+    (.. (js/Promise.all [data])
+        (then (fn [[data]]
+                {:data data})))))
+
+(defn entitlement-group-crud-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        entitlement-group-id (or (aget params "entitlement-group-id") nil)
+
+        entitlement-group-path (when entitlement-group-id
+                                 (str "/inventory/" pool-id "/entitlement-groups/" entitlement-group-id))
+
+        data (when entitlement-group-path
+               (-> http-client
+                   (.get entitlement-group-path #js {:id entitlement-group-id})
+                   (.then #(jc (.-data %)))
+                   (.catch (fn [error]
+                             (js/console.error "Error fetching entitlement group" error)))))]
+
+    (.. (js/Promise.all (cond-> [] data (conj data)))
+        (then (fn [[& [data]]] {:data (if data data nil)})))))

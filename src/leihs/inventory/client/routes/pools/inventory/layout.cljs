@@ -17,9 +17,7 @@
    [uix.dom]))
 
 (defui layout []
-  (let [ref (uix/use-ref nil)
-        [open? set-open!] (uix/use-state false)
-        pool-id (:pool-id (jc (router/useParams)))
+  (let [pool-id (:pool-id (jc (router/useParams)))
         location (router/useLocation)
         last-segment (-> (.-pathname location)
                          (str/split #"/")
@@ -45,26 +43,8 @@
                :search ""
                :label (t "pool.models.tabs.templates")}]
 
-        {:keys [profile]} (router/useRouteLoaderData "root")
+        profile (router/useRouteLoaderData "root")
         pool (->> profile :available_inventory_pools (detect #(= (:id %) pool-id)))]
-
-    (uix/use-effect
-     (fn []
-       (let [on-key-down
-             (fn [e]
-               (when (and (= (.. e -code) "KeyN")
-                          (.-altKey e)
-                          (.-shiftKey e)
-                          (not (.-ctrlKey e))
-                          (not (.-metaKey e)))
-                 (.preventDefault e)
-                 (when ref
-                   (when-let [input-element (.-current ref)]
-                     (.. input-element (click))))))]
-
-         (js/window.addEventListener "keydown" on-key-down)
-         (fn [] (js/window.removeEventListener "keydown" on-key-down))))
-     [])
 
     ($ :section
        ($ Breadcrumb {:className "my-8"}
@@ -117,16 +97,13 @@
              ($ :div {:className "ml-auto"}
                 (case last-segment
                   "list"
-                  ($ DropdownMenu {:open open?
-                                   :on-open-change set-open!}
+                  ($ DropdownMenu
                      ($ DropdownMenuTrigger {:asChild "true"}
-                        ($ Button {:ref ref
-                                   :on-click #(set-open! (not open?))}
-                           ($ CirclePlus {:className "h-4 w-4"})
+                        ($ Button
+                           ($ CirclePlus {:className "mr-2 h-4 w-4"})
                            (t "pool.models.dropdown.title")))
 
-                     ($ DropdownMenuContent {:data-test-id "add-inventory-dropdown"
-                                             :align "start"}
+                     ($ DropdownMenuContent {:align "start"}
 
                         ($ DropdownMenuItem {:asChild true}
                            ($ Link {:state #js {:searchParams (.. location -search)}
@@ -163,10 +140,17 @@
                               :viewTransition true}
                         ($ CirclePlus {:className "mr-2 h-4 w-4"})
                         (t "pool.models.add_template")))
+                  "entitlement-groups"
+                  ($ Button {:asChild true}
+                     ($ Link {:state #js {:searchParams (.. location -search)}
+                              :to (generatePath "/inventory/:pool-id/entitlement-groups/create"
+                                                (cj {:pool-id pool-id}))
+                              :viewTransition true}
+                        ($ CirclePlus {:className "mr-2 h-4 w-4"})
+                        (t "pool.models.add_entitlement_group")))
                   ($ :<>))))
 
-          ($ TabsContent {:forceMount true
-                          :tab-index -1}
+          ($ TabsContent {:forceMount true}
              ($ Outlet))))))
 
 

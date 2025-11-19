@@ -1,7 +1,6 @@
 (ns leihs.inventory.client.routes
   (:require
    ["react-router-dom" :as router]
-   [leihs.inventory.client.actions :as actions]
    [leihs.inventory.client.lib.utils :refer [cj]]
    [leihs.inventory.client.loader :as loader]
    [leihs.inventory.client.routes.debug.page :rename {page debug-page}]
@@ -9,6 +8,7 @@
    [leihs.inventory.client.routes.notfound :rename {page notfound-page}]
    [leihs.inventory.client.routes.page :rename {page home-page}]
    [leihs.inventory.client.routes.pools.inventory.advanced-search.page :rename {page advanced-search-page}]
+   [leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.page :rename {page entitlement-group-crud-page}]
    [leihs.inventory.client.routes.pools.inventory.entitlement-groups.page :rename {page entitlement-groups-page}]
    [leihs.inventory.client.routes.pools.inventory.layout :rename {layout inventory-layout}]
    [leihs.inventory.client.routes.pools.inventory.list.page :rename {page list-page}]
@@ -25,11 +25,7 @@
 (def routes
   (router/createBrowserRouter
    (cj
-    [{:path "/profile"
-      :id "profile"
-      :action actions/profile}
-
-     {:path "/inventory"
+    [{:path "/inventory"
       :id "root"
       :element ($ root-layout)
       ;; :errorElement ($ notfound-page)
@@ -51,7 +47,7 @@
                   :loader #(router/redirect "list?with_items=true&retired=false&page=1&size=50")}
 
                  {:path "list"
-                  :loader loader/list-page
+                  :loader loader/models-page
                   :id "models-page"
                   :element ($ list-page)}
 
@@ -62,6 +58,7 @@
                   :element ($ statistics-page)}
 
                  {:path "entitlement-groups"
+                  :loader loader/entitlement-groups-page
                   :element ($ entitlement-groups-page)}
 
                  {:path "templates"
@@ -103,6 +100,15 @@
               {:path "software/:software-id/delete?"
                :loader loader/software-crud-page
                :element ($ software-crud-page)}
+
+              ;; entitlement group crud
+              {:path "entitlement-groups/create"
+               :loader loader/entitlement-group-crud-page
+               :element ($ entitlement-group-crud-page)}
+
+              {:path "entitlement-groups/:entitlement-group-id/delete?"
+               :loader loader/entitlement-group-crud-page
+               :element ($ entitlement-group-crud-page)}
 
               ;; template crud 
               {:path "templates/create"
