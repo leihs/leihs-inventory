@@ -36,22 +36,25 @@
         "create": {
           "title": "Create New Item",
           "description": "Provide all required information",
-          "submit": "Create Item",
+          "submit": "Create",
           "cancel": "Cancel",
           "success": "Item was successfully created",
           "invalid_one": "Item could not be created because one field is invalid",
           "invalid_other": "Item could not be created because {{count}} fields are invalid",
-          "409": "Item could not be created because an item with the same inventory code already exists",
-          "500": "An error occurred while creating"
+          "conflict": "Inventory code already exists",
+          "error": "An error occurred while creating"
         },
         "edit": {
           "title": "Edit Item",
           "description": "Make changes and save afterwards",
-          "submit": "Save Item",
+          "submit": "Save",
           "delete": "Delete",
+          "cancel": "Cancel",
           "success": "Item was successfully saved",
           "invalid_one": "Item could not be saved because one field is invalid",
-          "invalid_other": "Item could not be saved because {{count}} fields are invalid"
+          "invalid_other": "Item could not be saved because {{count}} fields are invalid",
+          "conflict": "Inventory code already exists",
+          "error": "An error occurred while saving"
         },
         "delete": {
           "title": "Delete Item",

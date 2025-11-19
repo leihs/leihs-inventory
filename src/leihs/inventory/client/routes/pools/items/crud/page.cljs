@@ -9,18 +9,18 @@
    ["@@/button" :refer [Button]]
    ["@@/button-group" :refer [ButtonGroup ButtonGroupSeparator]]
    ["@@/card" :refer [Card CardContent]]
-   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuTrigger
-                               DropdownMenuContent DropdownMenuItem
-                               DropdownMenuSeparator DropdownMenuGroup]]
+   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
+                               DropdownMenuGroup DropdownMenuItem
+                               DropdownMenuSeparator DropdownMenuTrigger]]
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
-   ["lucide-react" :refer [Trash ChevronDownIcon]]
-   ["react-hook-form" :refer [useForm useWatch]]
+   ["lucide-react" :refer [ChevronDownIcon]]
+   ["react-hook-form" :refer [useForm]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
-   [cljs.core.async :as async :refer [go <!]]
+   [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.components.sticky-bottom :refer [StickyBottom]]
    [leihs.inventory.client.lib.client :refer [http-client]]
@@ -61,6 +61,7 @@
                                             (fn [] (form-helper/process-files defaults :attachments)))}))
 
         get-values (.. form -getValues)
+        set-value (.. form -setValue)
         ;; reactive values
         is-retired (get-values "retired")
         ;; reactive values end
@@ -108,6 +109,7 @@
                                                           :id (.. res -data -id)}))
                                                 (.catch (fn [err]
                                                           {:status (.. err -response -status)
+                                                           :data (jc (.. err -response -data))
                                                            :statusText (.. err -response -statusText)}))))
 
                                        (<p! (let [item-id (aget params "item-id")]
@@ -123,6 +125,8 @@
                                                             :id (.. res -data -id)}))
                                                   (.catch (fn [err]
                                                             {:status (.. err -response -status)
+
+                                                             :data (jc (.. err -response -data))
                                                              :statusText (.. err -response -statusText)}))))))
 
                             item-id (when (not= (:status item-res) "200") (:id item-res))]
@@ -136,38 +140,54 @@
                                      (.delete (str "/inventory/" pool-id "/items/" item-id "/attachments/" attachment-id))
                                      (.then #(.-data %))))))
 
-                        (if (not= (:status item-res) 200)
-                          (.. toast (error (t (str "pool.model.create." (:status item-res)))))
+                        (case (:status item-res)
+                          409 (-> toast
+                                  (.error (if is-create
+                                            (t "pool.items.item.create.conflict")
+                                            (t "pool.items.item.edit.conflict"))
+                                          (cj {:duration 20000
+                                               :action
+                                               {:label "Update"
+                                                :onClick (fn []
+                                                           (set-value "inventory_code" (:proposed_code (:data item-res))))}})))
 
-                          (do
-                            ;; upload attachments sequentially
-                            (doseq [attachment attachments]
-                              (let [file (:file attachment)
-                                    binary-data (<p! (.. file (arrayBuffer)))
-                                    type (.. file -type)
-                                    name (.. file -name)]
+                          500 (.. toast (error (if is-create
+                                                 (t "pool.items.item.create.error")
+                                                 (t "pool.items.item.edit.error"))))
 
-                                (<p! (-> http-client
-                                         (.post (str "/inventory/" pool-id "/items/" item-id "/attachments/")
-                                                binary-data
-                                                (cj {:headers {"Content-Type" type
-                                                               "X-Filename" name}}))))))
+                          200 (do
+                                ;; upload attachments sequentially
+                                (doseq [attachment attachments]
+                                  (let [file (:file attachment)
+                                        binary-data (<p! (.. file (arrayBuffer)))
+                                        type (.. file -type)
+                                        name (.. file -name)]
 
-                            (if is-create
-                              (.. toast (success (t "pool.items.item.create.success")))
-                              (.. toast (success (t "pool.items.item.edit.success"))))
+                                    (<p! (-> http-client
+                                             (.post (str "/inventory/" pool-id "/items/" item-id "/attachments/")
+                                                    binary-data
+                                                    (cj {:headers {"Content-Type" type
+                                                                   "X-Filename" name}}))))))
+
+                                (if is-create
+                                  (.. toast (success (if is-create
+                                                       (t "pool.items.item.create.success")
+                                                       (t "pool.items.item.edit.success")))))
 
                             ;; state needs to be forwarded for back navigation
-                            (if is-create
-                              (navigate (str "/inventory/" pool-id "/list"
-                                             (some-> state .-searchParams))
-                                        #js {:state state
-                                             :viewTransition true})
+                                (if is-create
+                                  (navigate (str "/inventory/" pool-id "/list"
+                                                 (some-> state .-searchParams))
+                                            #js {:state state
+                                                 :viewTransition true})
 
-                              (navigate (str "/inventory/" pool-id "/list"
-                                             (some-> state .-searchParams))
-                                        #js {:state state
-                                             :viewTransition true})))))))]
+                                  (navigate (str "/inventory/" pool-id "/list"
+                                                 (some-> state .-searchParams))
+                                            #js {:state state
+                                                 :viewTransition true})))
+
+                          ;; default
+                          (.. toast (error :statusText item-res))))))]
 
     (uix/use-effect
      (fn []
@@ -229,7 +249,8 @@
                         ($ ButtonGroupSeparator)
                         ($ DropdownMenu
                            ($ DropdownMenuTrigger {:asChild true}
-                              ($ Button {:className "self-center !px-2"}
+                              ($ Button {:data-test-id "submit-dropdown"
+                                         :className "self-center !px-2"}
                                  ($ ChevronDownIcon)))
 
                            ($ DropdownMenuContent {:align "end"
@@ -244,111 +265,33 @@
                                          (t "pool.items.item.create.cancel")
                                          (t "pool.items.item.edit.cancel")))))
 
-                              ($ DropdownMenuSeparator)
+                              ;; prepared for "ausmustern"
+                              #_($ DropdownMenuSeparator)
 
-                              ($ DropdownMenuGroup
-                                 (when (not is-create)
-                                   ($ DropdownMenuItem {:variant "destructive"
-                                                        :asChild true}
-                                      ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
-                                               :state state}
-                                         "Delete"))))))))
-                  #_($ ButtonGroup {:class-name "h-fit sticky top-[200px]"}
-                       ($ Button {:type "submit"
-                                  :form "create-model"
-                                  :className "self-center"}
-                          (if is-create
-                            (t "pool.items.item.create.submit")
-                            (t "pool.items.item.edit.submit")))
-                       ($ ButtonGroupSeparator)
-                       ($ DropdownMenu
-                          ($ DropdownMenuTrigger {:asChild true}
-                             ($ Button {:className "self-center !px-2"}
-                                ($ ChevronDownIcon)))
+                              #_($ DropdownMenuGroup
+                                   (when (not is-create)
+                                     ($ DropdownMenuItem {:variant "destructive"
+                                                          :asChild true}
+                                        ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
+                                                 :state state}
+                                           "Delete"))))))))
 
-                          ($ DropdownMenuContent {:align "end"
-                                                  :class-name "[--radius:1rem]"}
-                             ($ DropdownMenuGroup
-                                ($ DropdownMenuItem
-                                   {:asChild true}
-                                   ($ Link {:to (str (router/generatePath "/inventory/:pool-id/list" params)
-                                                     (some-> state .-searchParams))
-                                            :viewTransition true}
-                                      (if is-create
-                                        (t "pool.items.item.create.cancel")
-                                        (t "pool.items.item.edit.cancel")))))
+                  ;; prepared for "ausmustern"
+                  #_(when (not is-create)
+                      ($ AlertDialog {:open is-delete}
+                         ($ AlertDialogContent
 
-                             ($ DropdownMenuSeparator)
+                            ($ AlertDialogHeader
+                               ($ AlertDialogTitle (t "pool.items.item.delete.title"))
+                               ($ AlertDialogDescription (t "pool.items.item.delete.description")))
 
-                             ($ DropdownMenuGroup
-                                (when (not is-create)
-                                  ($ DropdownMenuItem {:variant "destructive"
-                                                       :asChild true}
-                                     ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
-                                              :state state}
-                                        "Delete")))))))
-
-                  (when (not is-create)
-                    ($ AlertDialog {:open is-delete}
-                       ($ AlertDialogContent
-
-                          ($ AlertDialogHeader
-                             ($ AlertDialogTitle (t "pool.items.item.delete.title"))
-                             ($ AlertDialogDescription (t "pool.items.item.delete.description")))
-
-                          ($ AlertDialogFooter
-                             ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
+                            ($ AlertDialogFooter
+                               ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
                                                     hover:bg-destructive hover:text-destructive-foreground"
-                                                   :onClick handle-delete}
-                                (t "pool.items.item.delete.confirm"))
-                             ($ AlertDialogCancel
-                                ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id" params)
-                                         :state state}
+                                                     :onClick handle-delete}
+                                  (t "pool.items.item.delete.confirm"))
+                               ($ AlertDialogCancel
+                                  ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id" params)
+                                           :state state}
 
-                                   (t "pool.items.item.delete.cancel")))))))
-                  #_($ :div {:className "h-max flex space-x-6 sticky bottom-0 pt-12 lg:top-[43vh] ml-auto"}
-
-                       ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
-                                         (some-> state .-searchParams))
-                                :className "self-center hover:underline"
-                                :viewTransition true}
-                          (if is-create
-                            (t "pool.model.create.cancel")
-                            (t "pool.model.cancel")))
-
-                       ($ Button {:type "submit"
-                                  :form "create-model"
-                                  :className "self-center"}
-                          (if is-create
-                            (t "pool.model.create.submit")
-                            (t "pool.model.submit")))
-
-                       (when (not is-create)
-                         ($ Button {:asChild true
-                                    :variant "destructive"
-                                    :size "icon"
-                                    :className "self-center"}
-                            ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
-                                     :state state}
-                               ($ Trash {:className "w-4 h-4"}))))
-
-                   ;; Dialog when deleting a model
-                       (when (not is-create)
-                         ($ AlertDialog {:open is-delete}
-                            ($ AlertDialogContent
-
-                               ($ AlertDialogHeader
-                                  ($ AlertDialogTitle (t "pool.model.delete.title"))
-                                  ($ AlertDialogDescription (t "pool.model.delete.description")))
-
-                               ($ AlertDialogFooter
-                                  ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
-                                                    hover:bg-destructive hover:text-destructive-foreground"
-                                                        :onClick handle-delete}
-                                     (t "pool.model.delete.confirm"))
-                                  ($ AlertDialogCancel
-                                     ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id" params)
-                                              :state state}
-
-                                        (t "pool.model.delete.cancel")))))))))))))))
-
+                                     (t "pool.items.item.delete.cancel"))))))))))))))

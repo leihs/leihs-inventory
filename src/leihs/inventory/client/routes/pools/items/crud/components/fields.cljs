@@ -6,7 +6,6 @@
    ["@@/dropzone" :refer [Dropzone]]
    ["@@/form" :refer [FormControl FormDescription FormField FormItem FormLabel
                       FormMessage]]
-   ["@@/hover-card" :refer [HoverCard HoverCardContent HoverCardTrigger]]
    ["@@/input" :refer [Input]]
    ["@@/radio-group" :refer [RadioGroup RadioGroupItem]]
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger

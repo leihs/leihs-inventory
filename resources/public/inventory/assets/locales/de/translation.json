@@ -36,22 +36,24 @@
         "create": {
           "title": "Neuen Gegenstand erstellen",
           "description": "Geben Sie alle erforderlichen Informationen an",
-          "submit": "Gegenstand erstellen",
+          "submit": "Erstellen",
           "cancel": "Abbrechen",
           "success": "Gegenstand wurde erfolgreich erstellt",
           "invalid_one": "Gegenstand konnte nicht erstellt werden, da ein Feld ungültig ist",
           "invalid_other": "Gegenstand konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
-          "409": "Gegenstand konnte nicht erstellt werden, da ein Gegenstand mit dem gleichen Iventarcode bereits existiert",
-          "500": "Beim Erstellen ist ein Fehler aufgetreten"
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
         },
         "edit": {
           "title": "Gegenstand bearbeiten",
           "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
-          "submit": "Gegenstand speichern",
+          "submit": "Speichern",
           "delete": "Löschen",
           "success": "Gegenstand wurde erfolgreich gespeichert",
           "invalid_one": "Gegenstand konnte nicht gespeichert werden, da ein Feld ungültig ist",
-          "invalid_other": "Gegenstand konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
+          "invalid_other": "Gegenstand konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim speichern ist ein Fehler aufgetreten"
         },
         "delete": {
           "title": "Gegenstand löschen",

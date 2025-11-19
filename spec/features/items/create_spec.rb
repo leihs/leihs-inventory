@@ -126,6 +126,7 @@ feature "Create item", type: :feature do
 
     click_on "Create"
 
+    expect(page.find("body", visible: :all).text).to include("Item was successfully created")
     expect(page).to have_content "Inventory List"
 
     fill_in "search", with: model.product
@@ -183,5 +184,92 @@ feature "Create item", type: :feature do
     expect(find('button[data-test-id="room_id"]')).to have_text("general room")
 
     assert_field "Shelf", shelf
+  end
+
+  scenario "fails with invalid mandatory fields" do
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+    click_on "Add inventory"
+    click_on "New item"
+
+    click_on "Create"
+    expect(page.find("body", visible: :all).text).to include("Item could not be created because 2 fields are invalid")
+
+    click_on "model_id"
+    expect(page).to have_field(placeholder: "Enter search term")
+    fill_in "model_id-input", with: model.product
+    expect(page).to have_content model.product
+    click_on model.product
+
+    click_on "building_id"
+    expect(page).to have_field(placeholder: "Enter search term")
+    click_on "general building"
+
+    click_on "Create"
+    expect(page.find("body", visible: :all).text).to include("Item could not be created because one field is invalid")
+
+    click_on "Room"
+    expect(page).to have_field(placeholder: "Enter search term")
+    click_on "general room"
+
+    click_on "properties_reference-investment"
+
+    click_on "Retirement"
+    expect(page).to have_content "Yes"
+    click_on "Yes"
+
+    click_on "Create"
+    expect(page.find("body", visible: :all).text).to include("Item could not be created because 2 fields are invalid")
+  end
+
+  scenario "fails with conflicting inventory code" do
+    FactoryBot.create(:item, inventory_code: inventory_code, inventory_pool: pool, owner: pool, leihs_model: model)
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+    click_on "Add inventory"
+    click_on "New item"
+
+    fill_in "Inventory Code", with: inventory_code
+
+    click_on "model_id"
+    expect(page).to have_field(placeholder: "Enter search term")
+    fill_in "model_id-input", with: model.product
+    expect(page).to have_content model.product
+    click_on model.product
+
+    click_on "building_id"
+    expect(page).to have_field(placeholder: "Enter search term")
+    click_on "general building"
+
+    click_on "Room"
+    expect(page).to have_field(placeholder: "Enter search term")
+    click_on "general room"
+
+    click_on "Create"
+
+    expect(page.find("body", visible: :all).text).to include("Inventory code already exists")
+    click_on "Update"
+
+    click_on "Create"
+
+    expect(page.find("body", visible: :all).text).to include("Item was successfully created")
+  end
+
+  scenario "cancel works" do
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+    click_on "Add inventory"
+    click_on "New item"
+
+    click_on "model_id"
+    expect(page).to have_field(placeholder: "Enter search term")
+    fill_in "model_id-input", with: model.product
+    expect(page).to have_content model.product
+    click_on model.product
+
+    click_on "submit-dropdown"
+    click_on "Cancel"
+
+    expect(page).to have_content "Inventory List"
   end
 end
