@@ -64,9 +64,10 @@
                     (contains? field :values) (assoc :options (transform-field-values (:values field) field-type))
                     (contains? field :placeholder) (assoc :placeholder (:placeholder field))
                     (contains? field :required) (assoc :required (:required field))
+                    (contains? field :protected) (assoc :disabled (:protected field))
+
                     ;; For autocomplete with values_url, pass the URL
                     (and (= field-type "autocomplete") (:values_url field))
-
                     (assoc :values-url (:values_url field)))
 
             ;; Add visibility dependency if present

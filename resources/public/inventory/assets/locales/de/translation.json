@@ -62,6 +62,7 @@
           "error": "Gegenstand konnte nicht gelöscht werden"
         },
         "fields": {
+          "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
           "autocomplete": {
             "select": "Auswahl treffen",
             "search": "Suchbegriff eingeben",

@@ -109,14 +109,14 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
   const accept =
     props.filetypes && props.filetypes.includes(",")
       ? props.filetypes
-          // create array
-          .split(",")
-          //map filetypes from splitted filetypes
-          .map((type) => filetypes[type])
-          // reduce array of filetypes to a single object
-          .reduce((acc, cur) => ({ ...acc, ...cur }), {})
+        // create array
+        .split(",")
+        //map filetypes from splitted filetypes
+        .map((type) => filetypes[type])
+        // reduce array of filetypes to a single object
+        .reduce((acc, cur) => ({ ...acc, ...cur }), {})
       : // when filteypes is single type without comma
-        props.filetypes
+      props.filetypes
         ? filetypes[props.filetypes]
         : []
 
@@ -133,6 +133,7 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
       {...dropzone.getRootProps()}
       className={cn(
         "flex shadow-sm justify-center items-center w-full h-32 border-dashed border-2 border-gray-200 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all select-none cursor-pointer",
+        props.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent",
         className,
       )}
     >

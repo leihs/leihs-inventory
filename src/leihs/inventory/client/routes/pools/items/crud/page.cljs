@@ -2,7 +2,6 @@
   (:require
    ["@/components/react/scrollspy/scrollspy" :refer [Scrollspy ScrollspyItem
                                                      ScrollspyMenu]]
-   ["@/routes/pools/items/crud/form" :refer [schema structure]]
    ["@@/alert-dialog" :refer [AlertDialog AlertDialogAction AlertDialogCancel
                               AlertDialogContent AlertDialogDescription
                               AlertDialogFooter AlertDialogHeader
@@ -17,12 +16,10 @@
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["lucide-react" :refer [Trash ChevronDownIcon]]
-   ["react" :as react]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
-   ["zod" :as z]
    [cljs.core.async :as async :refer [go <!]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.components.sticky-bottom :refer [StickyBottom]]
@@ -35,9 +32,9 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn- on-invalid [data]
-  (.. toast (error "Invalid Data"))
-  (js/console.debug "is invalid: " data))
+;; (defn- on-invalid [data]
+;;   (.. toast (error "Invalid Data"))
+;;   (js/console.debug "is invalid: " data))
 
 (defui page []
   (let [[t] (useTranslation)
@@ -73,9 +70,16 @@
         control (.. form -control)
         params (router/useParams)
 
-        handle-submit (.. form -handleSubmit)
+        on-invalid (fn [data]
+                     (let [invalid-fields-count (count (jc data))]
+                       (.. toast (error (t "pool.items.item.create.invalid"
+                                           #js {:count invalid-fields-count})))
+
+                       (js/console.debug "is invalid: " data)))
+
         handle-delete (fn [] (go))
 
+        handle-submit (.. form -handleSubmit)
         on-submit (fn [submit-data event]
                     (go
                       (let [attachments (if is-create

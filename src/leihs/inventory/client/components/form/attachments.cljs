@@ -5,7 +5,6 @@
                           Item]]
    ["@@/form" :refer [FormField FormItem FormLabel
                       FormControl FormMessage]]
-   ["@@/label" :refer [Label]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
    ["lucide-react" :refer [Trash Eye]]
@@ -74,7 +73,8 @@
                          ($ FormLabel {:class-name "mt-6"} label))
                        ($ FormControl
                           ($ DropzoneArea (merge
-                                           {:multiple (:multiple props)
+                                           {:disabled true
+                                            :multiple (:multiple props)
                                             ;; :filetypes (:filetypes props)
                                             :onDrop handle-drop})))
 

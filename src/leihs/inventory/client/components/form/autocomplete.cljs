@@ -25,6 +25,7 @@
         instant? (boolean (:instant props))
         values-url (:values-url props)
         remap (if values-url (:remap props) nil)
+        disabled (:disabled props)
 
         set-value (aget form "setValue")
         get-values (aget form "getValues")
@@ -102,6 +103,7 @@
                           ($ FormControl
                              ($ Button {:ref buttonRef
                                         :variant "outline"
+                                        :disabled disabled
                                         :name name
                                         :data-test-id name
                                         :role "combobox"

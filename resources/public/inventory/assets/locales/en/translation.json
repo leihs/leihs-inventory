@@ -62,6 +62,7 @@
           "error": "Item could not be deleted"
         },
         "fields": {
+          "protected": "Only the owner can edit this field",
           "autocomplete": {
             "select": "Make a selection",
             "search": "Enter search term",
