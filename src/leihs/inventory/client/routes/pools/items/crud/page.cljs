@@ -32,10 +32,6 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-;; (defn- on-invalid [data]
-;;   (.. toast (error "Invalid Data"))
-;;   (js/console.debug "is invalid: " data))
-
 (defui page []
   (let [[t] (useTranslation)
         location (router/useLocation)
@@ -60,11 +56,7 @@
                                             (cj defaults)
                                             (fn [] (form-helper/process-files defaults :attachments)))}))
 
-        get-values (.. form -getValues)
         set-value (.. form -setValue)
-        ;; reactive values
-        is-retired (get-values "retired")
-        ;; reactive values end
 
         is-loading (.. form -formState -isLoading)
 
@@ -78,7 +70,7 @@
 
                        (js/console.debug "is invalid: " data)))
 
-        handle-delete (fn [] (go))
+        ;; handle-decommission (fn [] (go))
 
         handle-submit (.. form -handleSubmit)
         on-submit (fn [submit-data event]
