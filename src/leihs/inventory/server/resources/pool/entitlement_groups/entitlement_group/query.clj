@@ -23,7 +23,8 @@
                  [:= :i.is_borrowable true]
                  [:is :i.parent_id nil]]}
         query (-> (sql/select
-                   :e.model_id
+                   ;:e.model_id
+                   [:e.model_id :id]
                    [:e.quantity :allocations_in_other_entitlement_groups]
                    [[subquery] :items_count])
                   (sql/from [:entitlements :e])
@@ -109,6 +110,10 @@
 
              model-ids (to-uuid model-ids)
              models2 (select-entitlements-with-item-count tx pool-id model-ids entitlement-group-id)
+
+             p (println ">o> abc.models" models)
+             p (println ">o> abc.models2" models2)
+
              models3 (->> (join-by :id models models2)
                           add-allocation-considered-count)]
          models3)
