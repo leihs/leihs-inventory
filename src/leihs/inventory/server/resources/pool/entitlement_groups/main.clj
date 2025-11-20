@@ -83,27 +83,11 @@
                                         (sql/order-by :g.name))
           post-fnc (fn [models]
                      (if (seq models)
-(do                             (println ">o> abc.models0a ??" models)
                        (let [ids (to-uuid (mapv :id models))
-                             p (println ">o> abc.models0 ??" models)
                              models1 (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
 
-                             p (println ">o> abc.models1 ??" models1)
-
-                             result (merge-by-id models (enrich-with-stats tx ids))
-                             ;result (merge-by-id models (enrich-with-allocation tx ids))
-                             ;p (println ">o> abc.models" models)
-
-                             p (println ">o> abc.result ??" result)
-
-
-                             ; TODO: remove this
-                             ;result (map #(assoc % :number_of_allocations 99) result)
-
-
-
-                             ]
-                         result))
+                             result (merge-by-id models (enrich-with-stats tx ids)) ]
+                         result)
                        []))]
       (response (create-pagination-response request query nil post-fnc)))
     (catch Exception e
@@ -125,12 +109,8 @@
           data (body-params request)
           models (:models data)
 
-          p (println ">o> abc.m1" models)
           models (mapv #(rename-key % :id :model_id) models)
-          p (println ">o> abc.m2" models)
-
           entitlement_group (create-entitlement-group tx (:entitlement_group data) pool_id)
-
           users (link-users-to-entitlement-group tx (:users data) (:id entitlement_group))
           groups (link-groups-to-entitlement-group tx (:groups data) (:id entitlement_group))
 
