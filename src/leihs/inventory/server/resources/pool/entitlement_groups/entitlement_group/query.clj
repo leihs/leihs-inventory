@@ -90,34 +90,40 @@
 
   ([tx pool-id entitlement-group-id]
    (let [query (-> (sql/select
-                    :m.id
-                    :m.product
-                    :m.version
-                    [:e.id :entitlement_id]
-                    :e.entitlement_group_id
-                    :e.quantity)
-                   (sql/from [:entitlements :e])
-                   (sql/join [:models :m] [:= :e.model_id :m.id])
-                   (sql/where [:= :e.entitlement_group_id entitlement-group-id])
-                   sql-format)
+                     :m.id
+                     :m.product
+                     :m.version
+                     [:e.id :entitlement_id]
+                     :e.entitlement_group_id
+                     :e.quantity)
+                 (sql/from [:entitlements :e])
+                 (sql/join [:models :m] [:= :e.model_id :m.id])
+                 (sql/where [:= :e.entitlement_group_id entitlement-group-id])
+                 sql-format)
          models (jdbc/execute! tx query)
          model-ids (mapv :id models)]
 
      (if (seq model-ids)
-       (let [models (->> models
-                         (fetch-thumbnails-for-ids tx)
-                         (map (model->enrich-with-image-attr pool-id)))
-
+       (let [models-with-images (->> models
+                                  (fetch-thumbnails-for-ids tx)
+                                  (map (model->enrich-with-image-attr pool-id)))
              model-ids (to-uuid model-ids)
-             models2 (select-entitlements-with-item-count tx pool-id model-ids entitlement-group-id)
+             allocation-data (select-entitlements-with-item-count tx pool-id model-ids entitlement-group-id)
 
-             p (println ">o> abc.models" models)
-             p (println ">o> abc.models2" models2)
+             allocation-map (->> allocation-data
+                              (map (juxt :id identity))
+                              (into {}))
 
-             models3 (->> (join-by :id models models2)
-                          add-allocation-considered-count)]
-         models3)
+             models-with-allocation (map (fn [model]
+                                           (let [allocation (get allocation-map (:id model))]
+                                             (merge model
+                                               {:allocations_in_other_entitlement_groups (or (:allocations_in_other_entitlement_groups allocation) 0)
+                                                :items_count (or (:items_count allocation) 0)})))
+                                      models-with-images)]
+
+         (add-allocation-considered-count models-with-allocation))
        []))))
+
 
 (defn enrich-with-is-quantity-ok [tx pool-id entitlement-group-ids]
   (let [res (mapv (fn [eg-id]
