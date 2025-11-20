@@ -57,7 +57,7 @@
                           (:number_of_models entitlement-group))
 
                        ($ TableCell {:className ""}
-                          "...")
+                          (:number_of_allocations entitlement-group))
 
                        ($ TableCell {:className "text-right"}
                           ($ Button {:asChild true

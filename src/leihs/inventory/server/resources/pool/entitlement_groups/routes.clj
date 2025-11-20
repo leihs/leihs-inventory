@@ -25,7 +25,8 @@
           :produces ["application/json"]
           :handler entitlement-groups/index-resources
           :responses {200 {:description "OK"
-                           :body types/get-response-body}
+                           ;:body types/get-response-body}
+                           }
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 

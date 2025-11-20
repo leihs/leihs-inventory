@@ -83,7 +83,16 @@
                      (if (seq models)
                        (let [ids (to-uuid (mapv :id models))
                              models (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
-                             result (merge-by-id models (enrich-with-stats tx ids))]
+                             result (merge-by-id models (enrich-with-stats tx ids))
+
+                             p (println ">o> abc.result" result)
+
+
+                             result (map #(assoc % :number_of_allocations 99) result)
+
+
+
+                             ]
                          result)
                        []))]
       (response (create-pagination-response request query nil post-fnc)))
