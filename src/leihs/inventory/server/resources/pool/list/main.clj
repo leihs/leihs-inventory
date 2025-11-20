@@ -1,7 +1,8 @@
 (ns leihs.inventory.server.resources.pool.list.main
   (:require
    [clojure.set]
-   [honey.sql :refer [format] :as sq :rename {format sql-format}]
+   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.list.queries :refer [base-inventory-query
                                                                filter-by-type
@@ -13,11 +14,16 @@
 
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 model->enrich-with-image-attr]]
+   [leihs.inventory.server.utils.export :refer [csv-response]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
+   [next.jdbc :as jdbc]
    [ring.util.response :refer [response]]
    [taoensso.timbre :refer [debug]]))
+
+(defn- get-accept-header [request]
+  (get-in request [:headers "accept"]))
 
 (defn index-resources
   ([request]
@@ -64,12 +70,21 @@
                    (cond-> (and category_id (not (some #{type} [:option :software])))
                      (#(from-category tx % category_id))))
 
-         post-fnc (fn [models]
-                    (->> models
-                         (fetch-thumbnails-for-ids tx)
-                         (map (model->enrich-with-image-attr pool-id))))]
+         accept-header (get-accept-header request)]
 
      (debug (sql-format query :inline true))
-     (-> request
-         (create-pagination-response query nil post-fnc)
-         response))))
+
+     (if (and accept-header (re-find #"text/csv" accept-header))
+       (let [data (-> query 
+                      (cond-> with_items
+                        (sql/join :items [:= :inventory.id :items.model_id]))
+                      sql-format
+                      (->> (jdbc/execute! tx)))]
+         (csv-response data :filename "inventory-list.csv"))
+       (let [post-fnc (fn [models]
+                        (->> models
+                             (fetch-thumbnails-for-ids tx)
+                             (map (model->enrich-with-image-attr pool-id))))]
+         (-> request
+             (create-pagination-response query nil post-fnc)
+             response))))))
