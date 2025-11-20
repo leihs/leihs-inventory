@@ -57,7 +57,7 @@
     (let [tx (:tx request)
           entitlement-group-id (-> request path-params :entitlement_group_id)
           {:keys [db-model-ids]} (fetch-entitlements tx entitlement-group-id)
-          models (delete-entitlements tx db-model-ids)
+          models (delete-entitlements tx db-model-ids entitlement-group-id)
           result (jdbc/execute-one! tx (-> (sql/delete-from :entitlement_groups)
                                            (sql/where [:= :id entitlement-group-id])
                                            (sql/returning :*)
