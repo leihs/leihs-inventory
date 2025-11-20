@@ -21,12 +21,10 @@
                   sql-format)
         db-entitlements (jdbc/execute! tx query)
         db-entitlement-ids (mapv :id db-entitlements)
-        db-model-ids (mapv :model_id db-entitlements)
-        ]
+        db-model-ids (mapv :model_id db-entitlements)]
     {:db-entitlements db-entitlements
      :db-entitlement-ids db-entitlement-ids
-     :db-model-ids db-model-ids
-     }))
+     :db-model-ids db-model-ids}))
 
 (defn delete-entitlements [tx model-ids entitlement-group-id]
   (println ">o> abc.model-ids" model-ids)
@@ -53,7 +51,7 @@
                  (jdbc/execute! tx (-> (sql/update :entitlements)
                                        (sql/set (select-keys entitlement [:quantity]))
                                        (sql/where [:and [:= :model_id (:model_id entitlement)]
-                                                    [:= :entitlement_group_id entitlement-group-id]])
+                                                   [:= :entitlement_group_id entitlement-group-id]])
                                        (sql/returning :*)
                                        sql-format))))
          (apply concat)

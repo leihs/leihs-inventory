@@ -90,17 +90,17 @@
 
   ([tx pool-id entitlement-group-id]
    (let [query (-> (sql/select
-                     :m.id
-                     :m.product
-                     :m.version
-                     [:e.id :entitlement_id]
-                     :e.entitlement_group_id
-                     :e.quantity)
-                 (sql/from [:entitlements :e])
-                 (sql/join [:models :m] [:= :e.model_id :m.id])
-                 (sql/where [:= :e.entitlement_group_id entitlement-group-id])
-                 (sql/order-by :m.product)
-                 sql-format)
+                    :m.id
+                    :m.product
+                    :m.version
+                    [:e.id :entitlement_id]
+                    :e.entitlement_group_id
+                    :e.quantity)
+                   (sql/from [:entitlements :e])
+                   (sql/join [:models :m] [:= :e.model_id :m.id])
+                   (sql/where [:= :e.entitlement_group_id entitlement-group-id])
+                   (sql/order-by :m.product)
+                   sql-format)
          models (jdbc/execute! tx query)
 
          p (println ">o> abc.models???1" models)
@@ -109,30 +109,26 @@
 
      (if (seq model-ids)
        (let [models-with-images (->> models
-                                  (fetch-thumbnails-for-ids tx)
-                                  (map (model->enrich-with-image-attr pool-id)))
+                                     (fetch-thumbnails-for-ids tx)
+                                     (map (model->enrich-with-image-attr pool-id)))
              model-ids (to-uuid model-ids)
              allocation-data (select-entitlements-with-item-count tx pool-id model-ids entitlement-group-id)
 
              allocation-map (->> allocation-data
-                              (map (juxt :id identity))
-                              (into {}))
+                                 (map (juxt :id identity))
+                                 (into {}))
 
-
-         p (println ">o> abc.models???2" models-with-images)
-
-
+             p (println ">o> abc.models???2" models-with-images)
 
              models-with-allocation (map (fn [model]
                                            (let [allocation (get allocation-map (:id model))]
                                              (merge model
-                                               {:allocations_in_other_entitlement_groups (or (:allocations_in_other_entitlement_groups allocation) 0)
-                                                :items_count (or (:items_count allocation) 0)})))
-                                      models-with-images)]
+                                                    {:allocations_in_other_entitlement_groups (or (:allocations_in_other_entitlement_groups allocation) 0)
+                                                     :items_count (or (:items_count allocation) 0)})))
+                                         models-with-images)]
 
          (add-allocation-considered-count models-with-allocation))
        []))))
-
 
 (defn enrich-with-is-quantity-ok [tx pool-id entitlement-group-ids]
   (let [res (mapv (fn [eg-id]
@@ -161,22 +157,19 @@
         entitlement-group (jdbc/execute-one! tx query)]
     entitlement-group))
 
-
 (defn rename-key [m old new]
   (let [old-k (keyword old)
         old-s (name old)
-        v     (or (get m old-k)
-                (get m old-s))]
+        v (or (get m old-k)
+              (get m old-s))]
     (cond-> m
       v (-> (assoc new v)
-          (dissoc old-k old-s)))))
-
+            (dissoc old-k old-s)))))
 
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
+  fnc)
 
 (defn analyze-and-prepare-data [tx models entitlement-group-id]
   (let [{:keys [db-entitlement-ids db-model-ids]} (fetch-entitlements tx entitlement-group-id)
@@ -193,20 +186,16 @@
         ;; UPDATE = model.id exists in DB model IDs
         entitlements-to-update
         (mapv #(rename-key % :id :model_id)
-          (filterv #(contains? db-model-id-set (:id %)) models))
+              (filterv #(contains? db-model-id-set (:id %)) models))
 
         ;; CREATE = model.id does NOT exist in DB model IDs
         entitlements-to-create
         (mapv #(-> %
-                 (rename-key :id :model_id)
-                 (assoc :entitlement_group_id entitlement-group-id))
-          (filterv #(not (contains? db-model-id-set (:id %))) models))]
+                   (rename-key :id :model_id)
+                   (assoc :entitlement_group_id entitlement-group-id))
+              (filterv #(not (contains? db-model-id-set (:id %))) models))]
 
     (pr ">o>" {:entitlements-to-update entitlements-to-update
-     :entitlements-to-create entitlements-to-create
-     :entitlement-ids-to-delete model-ids-to-delete})
-
-
-
-    ))
+               :entitlements-to-create entitlements-to-create
+               :entitlement-ids-to-delete model-ids-to-delete})))
 

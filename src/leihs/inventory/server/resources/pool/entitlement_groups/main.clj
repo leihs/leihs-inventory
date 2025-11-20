@@ -75,18 +75,18 @@
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
           query (-> (sql/select :g.* [[:sum :e.quantity] :number_of_allocations])
-                                        (sql/from [:entitlement_groups :g])
-                                        (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
-                                        (sql/join [:entitlements :e] [:= :e.entitlement_group_id :g.id])
-                                        (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
-                                        (sql/group-by :g.id)
-                                        (sql/order-by :g.name))
+                    (sql/from [:entitlement_groups :g])
+                    (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
+                    (sql/join [:entitlements :e] [:= :e.entitlement_group_id :g.id])
+                    (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
+                    (sql/group-by :g.id)
+                    (sql/order-by :g.name))
           post-fnc (fn [models]
                      (if (seq models)
                        (let [ids (to-uuid (mapv :id models))
                              models1 (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
 
-                             result (merge-by-id models (enrich-with-stats tx ids)) ]
+                             result (merge-by-id models (enrich-with-stats tx ids))]
                          result)
                        []))]
       (response (create-pagination-response request query nil post-fnc)))
@@ -96,11 +96,11 @@
 (defn rename-key [m old new]
   (let [old-k (keyword old)
         old-s (name old)
-        v     (or (get m old-k)
-                (get m old-s))]
+        v (or (get m old-k)
+              (get m old-s))]
     (cond-> m
       v (-> (assoc new v)
-          (dissoc old-k old-s)))))
+            (dissoc old-k old-s)))))
 
 (defn post-resource [request]
   (try

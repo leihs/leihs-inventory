@@ -30,8 +30,7 @@
                         frequencies
                         (filter (fn [[_ freq]] (> freq 1)))
                         (map first))
-        p (println ">o> abc.duplicates?" duplicates)
-        ]
+        p (println ">o> abc.duplicates?" duplicates)]
     (when (seq duplicates)
       (throw (ex-info "Duplicate model_id(s) detected"
                       {:duplicate-model-ids duplicates
