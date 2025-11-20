@@ -152,15 +152,23 @@
           (dissoc old-k old-s)))))
 
 
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
 (defn analyze-and-prepare-data [tx models entitlement-group-id]
   (let [{:keys [db-entitlement-ids db-model-ids]} (fetch-entitlements tx entitlement-group-id)
         _ (println ">o> abc.4db-model-ids" db-model-ids)
+        _ (println ">o> abc.5models" models)
+        _ (println ">o> abc.6entitlement-group-id" entitlement-group-id)
 
         db-model-id-set (set db-model-ids)
         incoming-model-ids (set (keep :id models))
 
         ;; DELETE = exists in DB but missing in incoming
-        model-ids-to-delete (remove incoming-model-ids db-model-ids)
+        model-ids-to-delete (vec (remove incoming-model-ids db-model-ids))
 
         ;; UPDATE = model.id exists in DB model IDs
         entitlements-to-update
@@ -174,7 +182,11 @@
                  (assoc :entitlement_group_id entitlement-group-id))
           (filterv #(not (contains? db-model-id-set (:id %))) models))]
 
-    {:entitlements-to-update entitlements-to-update
+    (pr ">o>" {:entitlements-to-update entitlements-to-update
      :entitlements-to-create entitlements-to-create
-     :entitlement-ids-to-delete model-ids-to-delete}))
+     :entitlement-ids-to-delete model-ids-to-delete})
+
+
+
+    ))
 
