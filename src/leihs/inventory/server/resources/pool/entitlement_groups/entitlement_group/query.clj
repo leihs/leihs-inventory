@@ -102,6 +102,9 @@
                  (sql/order-by :m.product)
                  sql-format)
          models (jdbc/execute! tx query)
+
+         p (println ">o> abc.models???1" models)
+
          model-ids (mapv :id models)]
 
      (if (seq model-ids)
@@ -114,6 +117,11 @@
              allocation-map (->> allocation-data
                               (map (juxt :id identity))
                               (into {}))
+
+
+         p (println ">o> abc.models???2" models-with-images)
+
+
 
              models-with-allocation (map (fn [model]
                                            (let [allocation (get allocation-map (:id model))]

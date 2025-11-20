@@ -74,27 +74,36 @@
   (try
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
-          query (-> (sql/select :g.*)
-                    (sql/from [:entitlement_groups :g])
-                    (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
-                    (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
-                    (sql/order-by :g.name))
+          query (-> (sql/select :g.* [[:sum :e.quantity] :number_of_allocations])
+                                        (sql/from [:entitlement_groups :g])
+                                        (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
+                                        (sql/join [:entitlements :e] [:= :e.entitlement_group_id :g.id])
+                                        (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
+                                        (sql/group-by :g.id)
+                                        (sql/order-by :g.name))
           post-fnc (fn [models]
                      (if (seq models)
+(do                             (println ">o> abc.models0a ??" models)
                        (let [ids (to-uuid (mapv :id models))
-                             models (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
+                             p (println ">o> abc.models0 ??" models)
+                             models1 (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
+
+                             p (println ">o> abc.models1 ??" models1)
+
                              result (merge-by-id models (enrich-with-stats tx ids))
+                             ;result (merge-by-id models (enrich-with-allocation tx ids))
+                             ;p (println ">o> abc.models" models)
 
-                             p (println ">o> abc.result" result)
+                             p (println ">o> abc.result ??" result)
 
 
-                             ;; TODO: remove this
-                             result (map #(assoc % :number_of_allocations 99) result)
+                             ; TODO: remove this
+                             ;result (map #(assoc % :number_of_allocations 99) result)
 
 
 
                              ]
-                         result)
+                         result))
                        []))]
       (response (create-pagination-response request query nil post-fnc)))
     (catch Exception e
