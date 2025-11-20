@@ -46,9 +46,16 @@
         is-delete (.. location -pathname (includes "delete"))
         is-edit (not (or is-create is-delete))
 
-        data (let [be-data (-> (useLoaderData) :data)]
-               (merge be-data
-                      (-> be-data :entitlement_group)))
+        ;; Ensure models include :available mapped from :available_count for defaults
+        data (let [be-data (-> (useLoaderData) :data)
+                   models (map (fn [m]
+                                 (-> m
+                                     (assoc :available (or (:available m)
+                                                           (:available_count m)))))
+                               (:models be-data))]
+               (-> be-data
+                   (assoc :models (vec models))
+                   (merge (:entitlement_group be-data))))
 
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit

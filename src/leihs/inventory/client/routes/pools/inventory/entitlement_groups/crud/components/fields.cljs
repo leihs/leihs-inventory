@@ -28,19 +28,20 @@
            ;; cells to be inserted into the generic model row component
            ($ :<>
               ($ TableCell {:class-name "w-1/5"}
-                 (cond
-                   (and (:quantity field)
-                        (> (:quantity field)
-                           (:available field)))
-                   ($ :span {:class-name "text-red-500"}
-                      (t "pool.entitlement-groups.entitlement-group.quantity_error"))
+                 (let [avail (or (:available field) (:available_count field))]
+                   (cond
+                     (and (:quantity field)
+                          avail
+                          (> (:quantity field) avail))
+                     ($ :span {:class-name "text-red-500"}
+                        (t "pool.entitlement-groups.entitlement-group.quantity_error"))
 
-                   (and (:quantity field)
-                        (< (:quantity field) 0))
-                   (let [models-err (aget (aget form "formState" "errors") "models")]
-                     (when (and models-err (aget models-err index))
-                       ($ :span {:class-name "text-red-500"}
-                          (aget models-err index "quantity" "message"))))))
+                     (and (:quantity field)
+                          (< (:quantity field) 0))
+                     (let [models-err (aget (aget form "formState" "errors") "models")]
+                       (when (and models-err (aget models-err index))
+                         ($ :span {:class-name "text-red-500"}
+                            (aget models-err index "quantity" "message")))))))
 
               ($ TableCell {:class-name "w-[5rem]"}
                  ($ Input {:class-name "text-right"
@@ -57,11 +58,13 @@
 
               ($ TableCell {:class-name "px-0"} "/")
 
-              ($ TableCell "?" #_(:available_count field))
+              ;; Show availability count (fallback to :available)
+              ($ TableCell (or (:available_count field) (:available field) "?"))
 
               ($ TableCell {:class-name "px-0"} "/")
 
-              ($ TableCell "?" #_(:brutto_available_count field)))))
+              ;; Show items count if present
+              ($ TableCell (or (:items_count field) "?")))))
 
       ;; "default case - this renders a component from the component map"
       (let [comp (get fields-map (:component block))]
