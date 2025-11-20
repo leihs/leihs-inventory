@@ -88,6 +88,7 @@
                              p (println ">o> abc.result" result)
 
 
+                             ;; TODO: remove this
                              result (map #(assoc % :number_of_allocations 99) result)
 
 

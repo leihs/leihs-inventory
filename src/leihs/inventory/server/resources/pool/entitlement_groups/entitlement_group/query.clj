@@ -99,6 +99,7 @@
                  (sql/from [:entitlements :e])
                  (sql/join [:models :m] [:= :e.model_id :m.id])
                  (sql/where [:= :e.entitlement_group_id entitlement-group-id])
+                 (sql/order-by :m.product)
                  sql-format)
          models (jdbc/execute! tx query)
          model-ids (mapv :id models)]
