@@ -320,6 +320,10 @@
                     [:e.id :entitlement_id]
                     :e.entitlement_group_id
                     :e.quantity)
+
+
+
+
                    (sql/from [:entitlements :e])
                    (sql/join [:models :m] [:= :e.model_id :m.id])
                    (sql/where [:= :e.entitlement_group_id entitlement-group-id])
@@ -353,6 +357,16 @@
 
          (add-allocation-considered-count models-with-allocation))
        []))))
+
+
+
+
+
+
+
+
+
+
 
 (defn enrich-with-is-quantity-ok [tx pool-id entitlement-group-ids]
   (let [res (mapv (fn [eg-id]

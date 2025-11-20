@@ -84,8 +84,7 @@
           post-fnc (fn [models]
                      (if (seq models)
                        (let [ids (to-uuid (mapv :id models))
-                             models1 (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
-
+                             models (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
                              result (merge-by-id models (enrich-with-stats tx ids))]
                          result)
                        []))]
