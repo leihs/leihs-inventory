@@ -40,8 +40,8 @@
     (let [tx (:tx request)
           entitlement-group-id (-> request path-params :entitlement_group_id)
           entitlement-group (fetch-entitlement-group tx request)
-          users-groups (fetch-users-of-entitlement-group tx entitlement-group-id)
           models (fetch-models-of-entitlement-group  tx request)
+          users-groups (fetch-users-of-entitlement-group tx entitlement-group-id)
           groups (fetch-groups-of-entitlement-group tx entitlement-group-id)]
       (response (merge entitlement-group {:users users-groups
                                           :groups groups
