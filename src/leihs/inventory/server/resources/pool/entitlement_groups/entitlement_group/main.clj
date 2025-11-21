@@ -15,6 +15,7 @@
                                                                                              fetch-entitlement-group
                                                                                              fetch-groups-of-entitlement-group
                                                                                              fetch-models-of-entitlement-group]]
+   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.request-utils :refer [path-params body-params]]
    [next.jdbc :as jdbc]
@@ -97,5 +98,5 @@
                                           :groups groups-status
                                           :models models-response})))
     (catch Exception e
-      (println e)
+      (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))
