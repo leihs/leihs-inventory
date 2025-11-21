@@ -107,7 +107,6 @@
           pool_id (-> request path-params :pool_id)
           data (body-params request)
           models (:models data)
-
           models (mapv #(rename-key % :id :model_id) models)
           entitlement_group (create-entitlement-group tx (:entitlement_group data) pool_id)
           users (link-users-to-entitlement-group tx (:users data) (:id entitlement_group))
