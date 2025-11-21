@@ -8,7 +8,7 @@
                                                                filter-by-type
                                                                from-category
                                                                with-items
-                                                               all-items
+                                                               select-items-count
                                                                with-search
                                                                without-items]]
 
@@ -55,16 +55,17 @@
                        (without-items pool-id)
 
                        (nil? with_items)
-                       (all-items pool-id
-                                  (cond-> {:retired retired
-                                           :borrowable borrowable
-                                           :incomplete incomplete
-                                           :broken broken
-                                           :inventory_pool_id inventory_pool_id
-                                           :owned owned
-                                           :in_stock in_stock}
-                                    (not= type :software)
-                                    (assoc :before_last_check before_last_check)))))
+                       (select-items-count
+                        pool-id
+                        (cond-> {:retired retired
+                                 :borrowable borrowable
+                                 :incomplete incomplete
+                                 :broken broken
+                                 :inventory_pool_id inventory_pool_id
+                                 :owned owned
+                                 :in_stock in_stock}
+                          (not= type :software)
+                          (assoc :before_last_check before_last_check)))))
                    (cond-> (presence search)
                      (with-search search))
                    (cond-> (and category_id (not (some #{type} [:option :software])))
@@ -75,10 +76,13 @@
      (debug (sql-format query :inline true))
 
      (if (and accept-header (re-find #"text/csv" accept-header))
-       (let [data (-> query 
+       (let [data (-> query
+                      (dissoc :select)
+                      (sql/select :items.inventory_code,
+                                  :inventory.name)
                       (cond-> with_items
                         (sql/join :items [:= :inventory.id :items.model_id]))
-                      sql-format
+                      (sql-format :inline true)
                       (->> (jdbc/execute! tx)))]
          (csv-response data :filename "inventory-list.csv"))
        (let [post-fnc (fn [models]

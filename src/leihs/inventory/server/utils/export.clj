@@ -77,17 +77,17 @@
 
   ;; CSV export - selected columns in specific order
   (csv-response test-data
-                      :keys [:name :age]
-                      :filename "users-simple.csv")
+                :keys [:name :age]
+                :filename "users-simple.csv")
 
   ;; Excel export - all columns
   (excel-response test-data :filename "users.xlsx")
 
   ;; Excel export - selected columns with custom sheet name
   (excel-response test-data
-                        :keys [:name :city]
-                        :sheet-name "Users"
-                        :filename "users-by-city.xlsx")
+                  :keys [:name :city]
+                  :sheet-name "Users"
+                  :filename "users-by-city.xlsx")
 
   ;; Lower level: just get CSV string
   (csv-string test-data [:name :age])
