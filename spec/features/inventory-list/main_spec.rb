@@ -522,18 +522,18 @@ feature "Inventory Page", type: :feature do
       "3 | 3",
       [
         {
-          inventory_code: item_model_2_2.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
-        },
-        {
           inventory_code: item_model_2_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_1.shelf,
           statuses: ["Available"]
+        },
+        {
+          inventory_code: item_model_2_2.inventory_code,
+          building_name: building.name,
+          building_code: building.code,
+          shelf: item_model_2_2.shelf,
+          statuses: ["Not borrowable"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -720,18 +720,18 @@ feature "Inventory Page", type: :feature do
       [
 
         {
-          inventory_code: item_model_2_2.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
-        },
-        {
           inventory_code: item_model_2_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_1.shelf,
           statuses: ["Available"]
+        },
+        {
+          inventory_code: item_model_2_2.inventory_code,
+          building_name: building.name,
+          building_code: building.code,
+          shelf: item_model_2_2.shelf,
+          statuses: ["Not borrowable"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -869,18 +869,18 @@ feature "Inventory Page", type: :feature do
       [
 
         {
-          inventory_code: item_model_2_2.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
-        },
-        {
           inventory_code: item_model_2_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_1.shelf,
           statuses: ["Available"]
+        },
+        {
+          inventory_code: item_model_2_2.inventory_code,
+          building_name: building.name,
+          building_code: building.code,
+          shelf: item_model_2_2.shelf,
+          statuses: ["Not borrowable"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -1245,18 +1245,18 @@ feature "Inventory Page", type: :feature do
       "3 | 3",
       [
         {
-          inventory_code: item_model_2_2.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
-        },
-        {
           inventory_code: item_model_2_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_1.shelf,
           statuses: ["Available"]
+        },
+        {
+          inventory_code: item_model_2_2.inventory_code,
+          building_name: building.name,
+          building_code: building.code,
+          shelf: item_model_2_2.shelf,
+          statuses: ["Not borrowable"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -1290,18 +1290,18 @@ feature "Inventory Page", type: :feature do
       "3 | 3",
       [
         {
-          inventory_code: item_model_2_2.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
-        },
-        {
           inventory_code: item_model_2_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_1.shelf,
           statuses: ["Available"]
+        },
+        {
+          inventory_code: item_model_2_2.inventory_code,
+          building_name: building.name,
+          building_code: building.code,
+          shelf: item_model_2_2.shelf,
+          statuses: ["Not borrowable"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -1391,18 +1391,18 @@ feature "Inventory Page", type: :feature do
       [
 
         {
-          inventory_code: item_model_2_2.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
-        },
-        {
           inventory_code: item_model_2_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_1.shelf,
           statuses: ["Available"]
+        },
+        {
+          inventory_code: item_model_2_2.inventory_code,
+          building_name: building.name,
+          building_code: building.code,
+          shelf: item_model_2_2.shelf,
+          statuses: ["Not borrowable"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
