@@ -110,6 +110,7 @@
 
 (defn fetch-users-of-entitlement-group [tx entitlement-group-id]
   (let [query (-> (sql/select :egu.id :egu.type :egu.user_id :u.firstname :u.lastname :u.email :u.searchable)
+                (sql/select :u.id :u.firstname :u.lastname :u.email :u.searchable)
                   (sql/from [:entitlement_groups_users :egu])
                   (sql/join [:users :u] [:= :egu.user_id :u.id])
                   (sql/where [:= :egu.entitlement_group_id entitlement-group-id])
@@ -170,7 +171,7 @@
     res))
 
 (defn fetch-groups-of-entitlement-group [tx entitlement-group-id]
-  (let [query (-> (sql/select :egg.id :egg.group_id :g.name :g.searchable)
+  (let [query (-> (sql/select :g.id :g.name :g.searchable)
                   (sql/from [:entitlement_groups_groups :egg])
                   (sql/join [:groups :g] [:= :egg.group_id :g.id])
                   (sql/where [:= :egg.entitlement_group_id entitlement-group-id])
@@ -199,24 +200,13 @@
 
 (defn analyze-and-prepare-data [tx models entitlement-group-id]
   (let [{:keys [db-entitlement-ids db-model-ids]} (fetch-entitlements tx entitlement-group-id)
-        _ (println ">o> abc.4db-model-ids" db-model-ids)
-        _ (println ">o> abc.5models" models)
-        _ (println ">o> abc.6entitlement-group-id" entitlement-group-id)
-
         db-model-id-set (set db-model-ids)
         incoming-model-ids (set (keep :id models))
 
-        ;; DELETE = exists in DB but missing in incoming
         model-ids-to-delete (vec (remove incoming-model-ids db-model-ids))
-
-        ;; UPDATE = model.id exists in DB model IDs
-        entitlements-to-update
-        (mapv #(rename-key % :id :model_id)
+        entitlements-to-update        (mapv #(rename-key % :id :model_id)
               (filterv #(contains? db-model-id-set (:id %)) models))
-
-        ;; CREATE = model.id does NOT exist in DB model IDs
-        entitlements-to-create
-        (mapv #(-> %
+        entitlements-to-create        (mapv #(-> %
                    (rename-key :id :model_id)
                    (assoc :entitlement_group_id entitlement-group-id))
               (filterv #(not (contains? db-model-id-set (:id %))) models))]

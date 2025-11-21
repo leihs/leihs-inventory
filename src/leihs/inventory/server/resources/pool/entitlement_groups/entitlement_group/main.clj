@@ -79,6 +79,7 @@
           models (:models data)
           users (:users data)
 
+          ;; TODO: fix & test update of users/groups
           users-status (link-users-to-entitlement-group tx users entitlement-group-id)
           groups-status (link-groups-to-entitlement-group tx (:groups data) entitlement-group-id)
           entitlement-group (update-entitlement-group tx entitlement-group entitlement-group-id)
