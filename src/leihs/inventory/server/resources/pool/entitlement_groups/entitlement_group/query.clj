@@ -73,21 +73,18 @@
              (get-in items-by-id [model-id :items_count] 0)})
           model-ids)))
 
-(defn select-entitlements-with-item-count  [ds inventory-pool-id model-ids exclude-group-id]
+(defn select-entitlements-with-item-count [ds inventory-pool-id model-ids exclude-group-id]
   (let [allocations (select-allocations ds inventory-pool-id model-ids exclude-group-id)
         items-counts (select-items-count ds inventory-pool-id model-ids)]
     (merge-results model-ids allocations items-counts)))
 
-
-(defn- ->long  [v]
+(defn- ->long [v]
   (cond
     (nil? v) 0
     (number? v) (long v)
     (string? v) (try (Long/parseLong v)
                      (catch Exception _ 0))
     :else 0))
-
-
 
 (defn add-allocation-considered-count [entitlements]
   (mapv (fn [e]
@@ -109,7 +106,7 @@
         entitlements))
 
 (defn fetch-users-of-entitlement-group [tx entitlement-group-id]
-  (let [query (->  (sql/select :u.id :u.firstname :u.lastname :u.email :u.searchable)
+  (let [query (-> (sql/select :u.id :u.firstname :u.lastname :u.email :u.searchable)
                   (sql/from [:entitlement_groups_users :egu])
                   (sql/join [:users :u] [:= :egu.user_id :u.id])
                   (sql/where [:= :egu.entitlement_group_id entitlement-group-id])
@@ -198,18 +195,18 @@
             (dissoc old-k old-s)))))
 
 (defn analyze-and-prepare-data [tx models entitlement-group-id]
-  (let [{:keys [db-entitlement-ids db-model-ids]} (fetch-entitlements tx entitlement-group-id)
+  (let [{:keys [db-model-ids]} (fetch-entitlements tx entitlement-group-id)
         db-model-id-set (set db-model-ids)
         incoming-model-ids (set (keep :id models))
 
         model-ids-to-delete (vec (remove incoming-model-ids db-model-ids))
-        entitlements-to-update        (mapv #(rename-key % :id :model_id)
-              (filterv #(contains? db-model-id-set (:id %)) models))
-        entitlements-to-create        (mapv #(-> %
-                   (rename-key :id :model_id)
-                   (assoc :entitlement_group_id entitlement-group-id))
-              (filterv #(not (contains? db-model-id-set (:id %))) models))]
+        entitlements-to-update (mapv #(rename-key % :id :model_id)
+                                     (filterv #(contains? db-model-id-set (:id %)) models))
+        entitlements-to-create (mapv #(-> %
+                                          (rename-key :id :model_id)
+                                          (assoc :entitlement_group_id entitlement-group-id))
+                                     (filterv #(not (contains? db-model-id-set (:id %))) models))]
 
     {:entitlements-to-update entitlements-to-update
-               :entitlements-to-create entitlements-to-create
-               :entitlement-ids-to-delete model-ids-to-delete}))
+     :entitlements-to-create entitlements-to-create
+     :entitlement-ids-to-delete model-ids-to-delete}))

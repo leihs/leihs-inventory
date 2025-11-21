@@ -6,12 +6,6 @@
 (def PosInt
   (s/constrained s/Int pos? 'positive-integer))
 
-(def model {:id s/Uuid
-            :model_id s/Uuid
-            :entitlement_group_id s/Uuid
-            :quantity PosInt
-            :position s/Int})
-
 (def get-model {:id s/Uuid
                 :entitlement_id s/Uuid
                 :product (s/maybe s/Str)

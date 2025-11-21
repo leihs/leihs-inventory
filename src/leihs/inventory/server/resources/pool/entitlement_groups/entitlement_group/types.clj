@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.types
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.entitlement-groups.types :refer [model get-model]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.types :refer [get-model]]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -21,7 +21,6 @@
 
 (def get-response-body {:id s/Uuid
                         :name s/Str
-                        ;:product s/Str
                         :is_verification_required s/Bool
                         :models [get-model]
                         :users s/Any

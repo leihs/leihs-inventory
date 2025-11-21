@@ -27,8 +27,6 @@
      :db-model-ids db-model-ids}))
 
 (defn delete-entitlements [tx model-ids entitlement-group-id]
-  (println ">o> abc.model-ids" model-ids)
-  (println ">o> abc.entitlement-group-id" entitlement-group-id)
   (if (seq model-ids)
     (jdbc/execute! tx (-> (sql/delete-from :entitlements)
                           (sql/where [:and [:in :model_id model-ids] [:= :entitlement_group_id entitlement-group-id]])
