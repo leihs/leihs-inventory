@@ -15,6 +15,7 @@
 (def get-model {:id s/Uuid
                 :entitlement_id s/Uuid
                 :product (s/maybe s/Str)
+                :name (s/maybe s/Str)
                 :version (s/maybe s/Str)
                 :quantity s/Int
                 :available_count s/Int
@@ -58,7 +59,8 @@
                    :number_of_models s/Int
                    :number_of_groups s/Int
                    :number_of_direct_users s/Int
-                   :number_of_users s/Int})
+                   :number_of_users s/Int
+                   :number_of_allocations s/Int})
 
 (def get-response-body
   (s/->Either [[get-response] {:data [get-response] :pagination pagination}]))

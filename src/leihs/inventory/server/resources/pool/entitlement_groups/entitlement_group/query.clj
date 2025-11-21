@@ -10,33 +10,6 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]))
 
-(defn select-entitlements-with-item-count
-  "Selects entitlements with corresponding item counts for given pool and models."
-  [ds inventory-pool-id model-ids exclude-group-id]
-  (let [subquery
-        {:select [[[:count :*] :count]]
-         :from [[:items :i]]
-         :where [:and
-                 [:= :i.model_id :e.model_id]
-                 [:= :i.inventory_pool_id :eg.inventory_pool_id]
-                 [:is :i.retired nil]
-                 [:= :i.is_borrowable true]
-                 [:is :i.parent_id nil]]}
-        query (-> (sql/select
-                   ;:e.model_id
-                   [:e.model_id :id]
-                   [:e.quantity :allocations_in_other_entitlement_groups]
-                   [[subquery] :items_count])
-                  (sql/from [:entitlements :e])
-                  (sql/join [:entitlement_groups :eg]
-                            [:= :eg.id :e.entitlement_group_id])
-                  (sql/where [:and
-                              [:= :eg.inventory_pool_id inventory-pool-id]
-                              [:in :e.model_id model-ids]
-                              [:!= :e.entitlement_group_id exclude-group-id]])
-                  sql-format)]
-    (jdbc/execute! ds query)))
-
 (defn fetch-entitlement-group [tx request]
   (let [pool-id (-> request path-params :pool_id)
         entitlement-group-id (-> request path-params :entitlement_group_id)
@@ -50,42 +23,6 @@
                   (sql/order-by :g.name)
                   sql-format)
         entitlement-group (jdbc/execute-one! tx query)] entitlement-group))
-
-(defn- select-allocations
-  "Selects allocation counts for models in other entitlement groups."
-  [ds inventory-pool-id model-ids exclude-group-id]
-  (let [query
-        (-> (sql/select
-             [:e.model_id :id]
-             [[:coalesce [[:sum :e.quantity] 0]] :allocations_in_other_entitlement_groups])
-            (sql/from [:entitlements :e])
-            (sql/right-join [:entitlement_groups :eg] [:= :eg.id :e.entitlement_group_id])
-            (sql/where [:and
-                        [:= :eg.inventory_pool_id inventory-pool-id]
-                        [:in :e.model_id model-ids]
-                        [:or
-                         [:is :e.entitlement_group_id nil]
-                         [:!= :e.entitlement_group_id exclude-group-id]]])
-            (sql/group-by :e.model_id :eg.inventory_pool_id)
-            sql-format)]
-    (jdbc/execute! ds query)))
-
-(defn- select-allocations
-  "Selects allocation counts for models in other entitlement groups."
-  [ds inventory-pool-id model-ids exclude-group-id]
-  (let [query
-        (-> (sql/select
-             [:e.model_id :id]
-             [[[:cast [[:coalesce [[:sum :e.quantity] 0]] :integer]]] :allocations_in_other_entitlement_groups])
-            (sql/from [:entitlements :e])
-            (sql/join [:entitlement_groups :eg] [:= :eg.id :e.entitlement_group_id])
-            (sql/where [:and
-                        [:= :eg.inventory_pool_id inventory-pool-id]
-                        [:in :e.model_id model-ids]
-                        [:!= :e.entitlement_group_id exclude-group-id]])
-            (sql/group-by :e.model_id)
-            sql-format)]
-    (jdbc/execute! ds query)))
 
 (defn- select-allocations
   "Selects allocation counts for models in other entitlement groups."
@@ -122,21 +59,12 @@
             sql-format)]
     (jdbc/execute! ds query)))
 
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc)
-
 (defn- merge-results
   "Merges allocations and items count results.
    Ensures all model-ids have entries with 0 defaults for missing values."
   [model-ids allocations items-counts]
   (let [allocations-by-id (into {} (map (fn [row] [(:id row) row]) allocations))
-        items-by-id (into {} (map (fn [row] [(:id row) row]) items-counts))
-
-        p (println ">o> abc.allocations-by-id" allocations-by-id)
-        p (println ">o> abc.items-by-id" items-by-id)]
-
+        items-by-id (into {} (map (fn [row] [(:id row) row]) items-counts))]
     (mapv (fn [model-id]
             {:id model-id
              :allocations_in_other_entitlement_groups
@@ -145,63 +73,13 @@
              (get-in items-by-id [model-id :items_count] 0)})
           model-ids)))
 
-(defn select-entitlements-with-item-count
-  "Selects entitlements with corresponding item counts for given pool and models.
-   Returns 0 allocations when no entitlements exist (outside excluded group).
-   Executes two separate queries and merges results in Clojure."
-  [ds inventory-pool-id model-ids exclude-group-id]
+(defn select-entitlements-with-item-count  [ds inventory-pool-id model-ids exclude-group-id]
   (let [allocations (select-allocations ds inventory-pool-id model-ids exclude-group-id)
-
-        p (println ">o> abc.allocations ??" allocations)
-
         items-counts (select-items-count ds inventory-pool-id model-ids)]
     (merge-results model-ids allocations items-counts)))
 
-(defn join-by
-  "Left-join two collections of maps by shared key k.
-   Keeps all maps from coll-a, merging matches from coll-b."
-  [k coll-a coll-b]
-  (let [b-index (into {} (map (juxt k identity)) coll-b)]
-    (mapv #(merge % (get b-index (get % k))) coll-a)))
 
-;java.lang.ClassCastException: class java.lang.String cannot be cast to class java.lang.Number (java.lang.String and java.lang.Number are in module java.base of loader 'bootstrap')
-;
-;
-;(defn add-allocation-considered-count
-;  "Adds computed fields:
-;   :available_count = items_count - allocations_in_other_entitlement_groups
-;   :is_quantity_ok = quantity <= available_count
-;   Also removes some transient keys."
-;  [entitlements]
-;  (mapv (fn [e]
-;          (let [available (- (:items_count e 0)
-;                             (:allocations_in_other_entitlement_groups e 0))
-;                e (assoc e
-;                         :available_count available
-;                         :is_quantity_ok (<= (:quantity e 0) available))]
-;            (dissoc e :entitlement_group_id :allocations_in_other_entitlement_groups)))
-;        entitlements))
-
-;(defn add-allocation-considered-count
-;  "Adds computed fields:
-;   :available_count = items_count - allocations_in_other_entitlement_groups
-;   :is_quantity_ok = quantity <= available_count
-;   Also removes some transient keys."
-;  [entitlements]
-;  (mapv (fn [e]
-;          (let [items-count (or (some-> (:items_count e) int) 0)
-;                allocations (or (some-> (:allocations_in_other_entitlement_groups e) int) 0) ;;errro
-;                quantity (or (some-> (:quantity e) int) 0)
-;                available (- items-count allocations)
-;                e (assoc e
-;                    :available_count available
-;                    :is_quantity_ok (<= quantity available))]
-;            (dissoc e :entitlement_group_id :allocations_in_other_entitlement_groups)))
-;    entitlements))
-
-(defn- ->long
-  "Safely converts value to long, returns 0 if nil or invalid."
-  [v]
+(defn- ->long  [v]
   (cond
     (nil? v) 0
     (number? v) (long v)
@@ -209,62 +87,24 @@
                      (catch Exception _ 0))
     :else 0))
 
-(defn add-allocation-considered-count
-  "Adds computed fields:
-   :available_count = items_count - allocations_in_other_entitlement_groups
-   :is_quantity_ok = quantity <= available_count
-   Also removes some transient keys."
-  [entitlements]
-  (mapv (fn [e]
-          (let [items-count (->long (:items_count e))
-                allocations (->long (:allocations_in_other_entitlement_groups e))
-                quantity (->long (:quantity e))
-                available (- items-count allocations)
 
-                e (assoc e
-                         :available_count available
-                         :is_quantity_ok (<= quantity available))]
-            (dissoc e :entitlement_group_id :allocations_in_other_entitlement_groups)))
-        entitlements))
 
-(defn add-allocation-considered-count
-  "Adds computed fields:
-   :available_count = items_count - allocations_in_other_entitlement_groups
-   :is_quantity_ok = quantity <= available_count
-   Also removes some transient keys."
-  [entitlements]
-  (println "add-allocation-considered-count - entitlements:" entitlements)
+(defn add-allocation-considered-count [entitlements]
   (mapv (fn [e]
-          (println "\n--- Processing entitlement ---")
-          (println "e:" e)
           (let [items-count-raw (:items_count e)
                 allocations-raw (:allocations_in_other_entitlement_groups e)
                 quantity-raw (:quantity e)
 
-                _ (println "items_count (raw):" items-count-raw (type items-count-raw))
-                _ (println "allocations_in_other_entitlement_groups (raw):" allocations-raw (type allocations-raw))
-                _ (println "quantity (raw):" quantity-raw (type quantity-raw))
-
                 items-count (->long items-count-raw)
                 allocations (->long allocations-raw)
                 quantity (->long quantity-raw)
-
-                _ (println "items_count (converted):" items-count)
-                _ (println "allocations (converted):" allocations)
-                _ (println "quantity (converted):" quantity)
-
                 available (- items-count allocations)
-
-                _ (println "available:" available)
-                _ (println "is_quantity_ok:" (<= quantity available))
 
                 e (assoc e
                          :available_count available
                          :is_quantity_ok (<= quantity available))
 
                 result (dissoc e :entitlement_group_id :allocations_in_other_entitlement_groups)]
-
-            (println "result:" result)
             result))
         entitlements))
 
@@ -298,9 +138,6 @@
                    (sql/order-by :m.product)
                    sql-format)
          models (jdbc/execute! tx query)
-
-         p (println ">o> abc.models???1" models)
-
          model-ids (mapv :id models)]
 
      (if (seq model-ids)
@@ -313,8 +150,6 @@
              allocation-map (->> allocation-data
                                  (map (juxt :id identity))
                                  (into {}))
-
-             p (println ">o> abc.models???2" models-with-images)
 
              models-with-allocation (map (fn [model]
                                            (let [allocation (get allocation-map (:id model))]
@@ -362,11 +197,6 @@
       v (-> (assoc new v)
             (dissoc old-k old-s)))))
 
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc)
-
 (defn analyze-and-prepare-data [tx models entitlement-group-id]
   (let [{:keys [db-entitlement-ids db-model-ids]} (fetch-entitlements tx entitlement-group-id)
         _ (println ">o> abc.4db-model-ids" db-model-ids)
@@ -391,7 +221,6 @@
                    (assoc :entitlement_group_id entitlement-group-id))
               (filterv #(not (contains? db-model-id-set (:id %))) models))]
 
-    (pr ">o>" {:entitlements-to-update entitlements-to-update
+    {:entitlements-to-update entitlements-to-update
                :entitlements-to-create entitlements-to-create
-               :entitlement-ids-to-delete model-ids-to-delete})))
-
+               :entitlement-ids-to-delete model-ids-to-delete}))

@@ -29,8 +29,7 @@
         duplicates (->> ids
                         frequencies
                         (filter (fn [[_ freq]] (> freq 1)))
-                        (map first))
-        p (println ">o> abc.duplicates?" duplicates)]
+                        (map first))]
     (when (seq duplicates)
       (throw (ex-info "Duplicate model_id(s) detected"
                       {:duplicate-model-ids duplicates
@@ -74,28 +73,19 @@
   (try
     (verify-unique-entries! request)
     (let [tx (:tx request)
-          p (println ">o> abc.check0")
           entitlement-group-id (-> request path-params :entitlement_group_id)
           data (-> request body-params)
           entitlement-group (:entitlement_group data)
           models (:models data)
           users (:users data)
 
-          p (println ">o> abc.check1")
           users-status (link-users-to-entitlement-group tx users entitlement-group-id)
-          p (println ">o> abc.check2")
           groups-status (link-groups-to-entitlement-group tx (:groups data) entitlement-group-id)
-          p (println ">o> abc.check3")
           entitlement-group (update-entitlement-group tx entitlement-group entitlement-group-id)
-          p (println ">o> abc.check4")
-
-          p (println ">o> abc.1models" models)
-          p (println ">o> abc.2entitlement-group-id" entitlement-group-id)
 
           {:keys [entitlements-to-update entitlements-to-create entitlement-ids-to-delete]}
           (analyze-and-prepare-data tx models entitlement-group-id)
 
-          ;_ (update-entitlements tx entitlements-to-update)
           _ (update-entitlements tx entitlements-to-update entitlement-group-id)
           _ (create-entitlements tx entitlements-to-create)
           _ (delete-entitlements tx entitlement-ids-to-delete entitlement-group-id)
@@ -108,4 +98,3 @@
     (catch Exception e
       (println e)
       (exception-handler request ERROR_GET e))))
-

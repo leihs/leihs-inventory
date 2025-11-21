@@ -21,7 +21,7 @@
 
 (def get-response-body {:id s/Uuid
                         :name s/Str
-                        :product s/Str
+                        ;:product s/Str
                         :is_verification_required s/Bool
                         :models [get-model]
                         :users s/Any
