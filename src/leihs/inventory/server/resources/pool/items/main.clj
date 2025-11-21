@@ -5,9 +5,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
    [leihs.inventory.server.resources.pool.items.types :as types]
-   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
-                                                                filter-map-by-spec
-                                                                model->enrich-with-image-attr]]
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
@@ -54,6 +52,11 @@
    :user_name
    :m.cover_image_id])
 
+(def base-query
+  (-> (apply sql/select item-columns)
+      (sql/from :items)
+      (sql/order-by :items.inventory_code)))
+
 (defn index-resources
   ([request]
    (let [tx (:tx request)
@@ -65,28 +68,26 @@
                  inventory_pool_id
                  in_stock before_last_check]} (query-params request)
 
-         select (apply sql/select
-                       (concat item-columns
-                               [[:ip.name :inventory_pool_name]
-                                [:r.end_date :reservation_end_date]
-                                [:r.user_id :reservation_user_id]
-                                [:r.contract_id :reservation_contract_id]
-                                [:m.is_package :is_package]
-                                [:m.name :model_name]
-                                [:rs.name :room_name]
-                                [:rs.description :room_description]
-                                [:b.name :building_name]
-                                [:b.code :building_code]
+         extra-columns [[:ip.name :inventory_pool_name]
+                        [:r.end_date :reservation_end_date]
+                        [:r.user_id :reservation_user_id]
+                        [:r.contract_id :reservation_contract_id]
+                        [:m.is_package :is_package]
+                        [:m.name :model_name]
+                        [:rs.name :room_name]
+                        [:rs.description :room_description]
+                        [:b.name :building_name]
+                        [:b.code :building_code]
 
-                                [[:nullif [:concat_ws " " :u.firstname :u.lastname] ""] :reservation_user_name]
+                        [[:nullif [:concat_ws " " :u.firstname :u.lastname] ""] :reservation_user_name]
 
-                                [(-> (sql/select :%count.*) ; [[:count :*]]
-                                     (sql/from [:items :i])
-                                     (sql/where [:= :i.parent_id :items.id]))
-                                 :package_items]]))
+                        [(-> (sql/select :%count.*) ; [[:count :*]]
+                             (sql/from [:items :i])
+                             (sql/where [:= :i.parent_id :items.id]))
+                         :package_items]]
 
-         query (-> select
-                   (sql/from :items)
+         query (-> (apply sql/select base-query extra-columns)
+
                    ;; Join inventory pool
                    (sql/join [:inventory_pools :ip]
                              [:= :ip.id :items.inventory_pool_id])
