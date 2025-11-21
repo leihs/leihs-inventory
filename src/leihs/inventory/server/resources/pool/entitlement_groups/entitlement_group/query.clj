@@ -287,11 +287,11 @@
    (let [query (-> (sql/select
                     :m.id
                     :m.product
+                    :m.name
                     :m.version
                     [:e.id :entitlement_id]
                     :e.entitlement_group_id
                     :e.quantity)
-
                    (sql/from [:entitlements :e])
                    (sql/join [:models :m] [:= :e.model_id :m.id])
                    (sql/where [:= :e.entitlement_group_id entitlement-group-id])
