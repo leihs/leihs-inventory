@@ -15,8 +15,6 @@
         current-path (.-pathname location)
         search-params (.-search location)]
 
-    (js/console.debug current-path)
-
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild true}
           ($ Button {:variant "outline"
