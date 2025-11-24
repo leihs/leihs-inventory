@@ -17,7 +17,7 @@
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :summary "Global search for models (-compatibles)"
-          :description "Global search for models-compatibles, includes models of type: 'Model', 'Software' as well"
+          :description "Global search for models-compatibles, includes models of type: 'Model', 'Software'"
           :parameters {:path {:pool_id s/Uuid}
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int

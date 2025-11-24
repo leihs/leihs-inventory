@@ -1,12 +1,10 @@
 (ns leihs.inventory.server.resources.pool.items.routes
   (:require
    [leihs.inventory.server.resources.pool.items.main :as items]
-   [leihs.inventory.server.resources.pool.items.types :as types]
-   [leihs.inventory.server.resources.pool.items.types :refer [query-params]]
+   [leihs.inventory.server.resources.pool.items.types :as types :refer [query-params]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
-   [schema.core :as s]
    [schema.core :as s]))
 
 (defn routes []
