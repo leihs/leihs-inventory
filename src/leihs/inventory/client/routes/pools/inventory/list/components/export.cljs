@@ -1,10 +1,11 @@
 (ns leihs.inventory.client.routes.pools.inventory.list.components.export
   (:require
+   ["@@/Spinner" :refer [Spinner]]
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuTrigger
                                DropdownMenuContent DropdownMenuItem]]
    ["lucide-react" :refer [Download ChevronDown]]
-   ["react-router-dom" :as router :refer [Form]]
+   ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -19,8 +20,12 @@
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild true}
           ($ Button {:variant "outline"
+                     :disabled (= (.-state fetcher) "submitting")
                      :className (str "ml-auto " className)}
-             ($ Download {:className "h-4 w-4 mr-2"})
+
+             (if (= (.-state fetcher) "idle")
+               ($ Download {:className "h-4 w-4 mr-2"})
+               ($ Spinner {:className "h-4 w-4 mr-2"}))
              "Export"
              ($ ChevronDown {:className "h-4 w-4 ml-2"})))
 

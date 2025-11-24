@@ -31,8 +31,6 @@
                           "excel" "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                           "text/csv")]
 
-    (js/console.debug format)
-
     (-> http-client
         (.get url (cj {:headers {:Accept accept-header}
                        :responseType "blob"}))
