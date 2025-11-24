@@ -5,6 +5,7 @@
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
+   [leihs.inventory.server.resources.pool.list.export :refer [select-model-fields]]
    [leihs.inventory.server.resources.pool.list.queries :refer [base-inventory-query
                                                                filter-by-type
                                                                from-category
@@ -19,8 +20,9 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
+   [next.jdbc.result-set :as jdbc-rs]
    [ring.util.response :refer [response]]
-   [taoensso.timbre :refer [debug]]))
+   [taoensso.timbre :refer [debug spy]]))
 
 (defn- get-accept-header [request]
   (get-in request [:headers "accept"]))
@@ -76,17 +78,19 @@
     (if (and accept-header (re-find #"text/csv" accept-header))
       (let [data (-> query
                      (dissoc :select)
-                     (sql/select :items.inventory_code,
-                                 :inventory.name)
+                     (sql/join :models [:= :inventory.id :models.id])
                      (cond-> (true? with_items)
-                       (-> (sql/join :items [:= :inventory.id :items.model_id])
+                       (-> (sql/select :items.inventory_code)
+                           (sql/join :items [:= :inventory.id :items.model_id])
                            (sql/where (items-shared/owner-or-responsible-cond pool-id))
                            (items-shared/item-query-params pool-id inventory_pool_id
                                                            owned in_stock before_last_check
                                                            retired borrowable broken incomplete)
                            (sql/order-by :items.inventory_code)))
+                     (#(apply sql/select % select-model-fields))
                      sql-format
-                     (->> (jdbc/execute! tx)))]
+                     (as-> <> (jdbc/execute! tx <>
+                                             {:builder-fn jdbc-rs/as-unqualified-arrays})))]
         (csv-response data :filename "inventory-list.csv"))
       (let [post-fnc (fn [models]
                        (->> models

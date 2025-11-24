@@ -1,32 +1,26 @@
 (ns leihs.inventory.server.utils.export
   (:require [clojure.data.csv :as csv]
             [clojure.java.io :as io]
-            [dk.ative.docjure.spreadsheet :as xl])
+            [dk.ative.docjure.spreadsheet :as xl]
+            [taoensso.timbre :as timbre :refer [debug spy]])
   (:import [java.io ByteArrayOutputStream]))
 
 (defn csv-string
   "Converts a collection of maps to a CSV string.
    Takes an optional keys sequence to specify column order and selection.
    If no keys provided, uses keys from first map."
-  ([data]
-   (when (seq data)
-     (csv-string data (keys (first data)))))
-  ([data ks]
-   (let [header (map name ks)
-         rows (map (fn [m] (map #(get m %) ks)) data)
-         all-rows (cons header rows)]
-     (with-out-str
-       (csv/write-csv *out* all-rows)))))
+  [[header & rows]]
+  (let [all-rows (cons (map name header) rows)]
+    (with-out-str
+     (csv/write-csv *out* all-rows))))
 
 (defn csv-response
   "Creates a Ring response for CSV download from a collection of maps.
    Options:
    - :keys - sequence of keys to specify column order and selection
    - :filename - optional filename for Content-Disposition header"
-  [data & {:keys [keys filename] :or {filename "export.csv"}}]
-  (let [csv-string (if keys
-                     (csv-string data keys)
-                     (csv-string data))
+  [data & {:keys [filename] :or {filename "export.csv"}}]
+  (let [csv-string (csv-string data)
         headers {"Content-Type" "text/csv; charset=utf-8"
                  "Content-Disposition" (str "attachment; filename=\"" filename "\"")}]
     {:status 200
