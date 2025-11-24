@@ -1,4 +1,57 @@
 {
+  "fields": {
+    "Mandatory data": {
+      "title": "Pflichtangaben",
+      "inventory_code": "Inventarcode",
+      "model_id": "Modell"
+    },
+    "Inventory": {
+      "title": "Inventar",
+      "last_check": "Letzte Inventur",
+      "inventory_pool_id": "Verantwortliche Abteilung",
+      "is_inventory_relevant": "Inventarrelevant",
+      "owner_id": "Besitzer",
+      "user_name": "Benutzer/Verwendung"
+    },
+    "Invoice Information": {
+      "title": "Rechnungsinformationen",
+      "invoice_number": "Rechnungsnummer",
+      "invoice_date": "Rechnungsdatum",
+      "price": "Anschaffungswert",
+      "properties_project_number": "Projektnummer",
+      "supplier_id": "Lieferant",
+      "properties_reference": "Bezug",
+      "properties_warranty_expiration": "Garantieablaufdatum",
+      "properties_p4u": "P4U-Nummer"
+    },
+    "General Information": {
+      "title": "Allgemeine Informationen",
+      "serial_number": "Seriennummer",
+      "properties_imei_number": "IMEI-Nummer",
+      "attachments": "Anhänge",
+      "note": "Notiz"
+    },
+    "Status": {
+      "title": "Zustand",
+      "retired": "Ausmusterung",
+      "retired_reason": "Grund der Ausmusterung",
+      "is_broken": "Zustand",
+      "is_borrowable": "Ausleihbar",
+      "is_incomplete": "Vollständigkeit",
+      "status_note": "Statusnotiz"
+    },
+    "Eigenschaften": {
+      "title": "Eigenschaften",
+      "properties_electrical_power": "Verbrauch in kw/h",
+      "properties_ampere": "Ampère"
+    },
+    "Location": {
+      "title": "Ort",
+      "room_id": "Raum",
+      "building_id": "Gebäude",
+      "shelf": "Gestell"
+    }
+  },
   "pagination": {
     "previous": "Vorherige",
     "next": "Nächste",

@@ -40,10 +40,11 @@
 
 (defn- transform-field [field]
   (let [field-type (:type field)
-        component (field-type->component field-type)]
+        component (field-type->component field-type)
+        group-name (or (:group field) "Mandatory data")]
     (when component
       (let [base-block {:name (:id field)
-                        :label (:label field)
+                        :label (str "fields." group-name "." (:id field))
                         :component component}
             ;; For autocomplete-search, construct proper resource URL with search param
             search-resource (when (= field-type "autocomplete-search")
@@ -88,7 +89,7 @@
 
 (defn- group-fields-by-group [fields]
   (reduce (fn [acc field]
-            (let [group-name (or (:group field) "General Information")]
+            (let [group-name (or (:group field) "Mandatory data")]
               (update acc group-name (fnil conj []) field)))
           {}
           fields))
@@ -100,7 +101,7 @@
         grouped (group-fields-by-group implemented-fields)]
 
     (mapv (fn [[group-name group-fields]]
-            {:title group-name
+            {:title (str "fields." group-name ".title")
              :blocks (->> group-fields
                           (sort-by :position)
                           (map transform-field)

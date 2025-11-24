@@ -71,14 +71,14 @@
                (case (:component block)
                  "attachments"
                  ($ Attachments {:form form
-                                 :label (:label block)
+                                 :label (t (:label block))
                                  :name (:name block)
                                  :props (:props block)})
 
                  "autocomplete-search"
                  ($ Autocomplete {:form form
                                   :name (:name block)
-                                  :label (:label block)
+                                  :label (t (:label block))
                                   :props (merge
                                           {:remap (fn [item] {:value (str (:id item))
                                                               :label (:name item)})}
@@ -87,7 +87,7 @@
                  "autocomplete"
                  ($ Autocomplete {:form form
                                   :name (:name block)
-                                  :label (:label block)
+                                  :label (t (:label block))
                                   :props (if values-dep
                                            (let [values-url (-> block :props :values-url)
                                                  dep (:field values-dep)]
@@ -103,7 +103,7 @@
                                :render #($ FormItem {:class-name "mt-6"
                                                      :title (when (:disabled (:props block))
                                                               "This field is disabled/protected.")}
-                                           ($ FormLabel (:label block)
+                                           ($ FormLabel (t (:label block))
                                               (when (-> block :props :required) " *"))
 
                                            ($ FormControl
@@ -127,7 +127,7 @@
                  ($ FormField {:control (cj control)
                                :name (:name block)
                                :render #($ FormItem {:class-name "mt-6"}
-                                           ($ FormLabel (:label block)
+                                           ($ FormLabel (t (:label block))
                                               (when (-> block :props :required) "*"))
 
                                            ($ Select {:name (:name block)
@@ -153,7 +153,7 @@
                  ($ FormField {:control (cj control)
                                :name (:name block)
                                :render #($ FormItem {:class-name "flex flex-col mt-6"}
-                                           ($ FormLabel (:label block)
+                                           ($ FormLabel (t (:label block))
                                               (when (-> block :props :required) "*"))
                                            (let [field-value (aget % "field" "value")]
                                              ($ Popover
@@ -184,7 +184,7 @@
                      ($ FormField {:control (cj control)
                                    :name (:name block)
                                    :render #($ FormItem {:class-name "mt-6"}
-                                               ($ FormLabel (:label block)
+                                               ($ FormLabel (t (:label block))
                                                   (when (-> block :props :required) "*"))
                                                ($ FormControl
                                                   ($ comp (merge
