@@ -48,10 +48,11 @@
                :children
                (cj
                 [{:index true
-                  :loader #(router/redirect "list?with_items=true&retired=false&page=1&size=50")}
+                  :loader #(router/redirect "list/?with_items=true&retired=false&page=1&size=50")}
 
                  {:path "list"
                   :loader loader/list-page
+                  :action actions/list-page
                   :id "models-page"
                   :element ($ list-page)}
 
