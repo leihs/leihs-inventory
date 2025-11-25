@@ -56,6 +56,8 @@
                                             (cj defaults)
                                             (fn [] (form-helper/process-files defaults :attachments)))}))
 
+        get-field-state (.. form -getFieldState)
+
         set-value (.. form -setValue)
 
         is-loading (.. form -formState -isLoading)
@@ -65,6 +67,8 @@
 
         building (useWatch (cj {:control control
                                 :name "building_id.value"}))
+
+        building-is-dirty? (:isDirty (jc (get-field-state "building_id")))
 
         on-invalid (fn [data]
                      (let [invalid-fields-count (count (jc data))]
@@ -202,9 +206,9 @@
     ;; Clear room_id when building changes
     (uix/use-effect
      (fn []
-       (when (and building (not is-loading))
+       (when (and building (not is-loading) building-is-dirty?)
          (set-value "room_id" nil)))
-     [building is-loading set-value])
+     [building is-loading set-value building-is-dirty?])
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}

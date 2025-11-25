@@ -45,7 +45,8 @@
                         (js/console.debug name)
                         (set-value name #js {:value value
                                              :label (get-label value)}
-                                   #js {:shouldValidate true})
+                                   #js {:shouldDirty true
+                                        :shouldValidate true})
                         (when instant?
                           (set-options! [])))
 
