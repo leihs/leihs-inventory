@@ -153,6 +153,46 @@
     (.. (js/Promise.all (cond-> [] data (conj data)))
         (then (fn [[& [data]]] {:data (if data data nil)})))))
 
+(defn entitlement-groups-page [route-data]
+  (let [url (js/URL. (.. route-data -request -url))
+        search (.-search url)]
+    (if (empty? search)
+      (do
+        (js/console.debug "Redirecting to ?page=1&size=50")
+        (router/redirect "?page=1&size=50"))
+      (let [params (.. ^js route-data -params)
+            search (.-search url)
+            pool-id (aget params "pool-id")
+            data (-> http-client
+                     (.get (str "/inventory/" pool-id "/entitlement-groups/" search)
+                           #js {:cache false})
+                     (.then (fn [res]
+                              (jc (.. res -data))))
+                     (.catch (fn [error]
+                               (js/console.error "Error fetching entitlement groups" error))))]
+
+        (.. (js/Promise.all [data])
+            (then (fn [[data]]
+                    {:data data})))))))
+
+(defn entitlement-group-crud-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        entitlement-group-id (or (aget params "entitlement-group-id") nil)
+
+        entitlement-group-path (when entitlement-group-id
+                                 (str "/inventory/" pool-id "/entitlement-groups/" entitlement-group-id))
+
+        data (when entitlement-group-path
+               (-> http-client
+                   (.get entitlement-group-path #js {:id entitlement-group-id})
+                   (.then #(jc (.-data %)))
+                   (.catch (fn [error]
+                             (js/console.error "Error fetching entitlement group" error)))))]
+
+    (.. (js/Promise.all (cond-> [] data (conj data)))
+        (then (fn [[& [data]]] {:data (if data data nil)})))))
+
 (defn templates-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
         search (.-search url)]

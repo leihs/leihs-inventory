@@ -187,6 +187,7 @@
         "add_option": "New option",
         "add_software": "New software"
       },
+      "add_entitlement_group": "New entitlement group",
       "add_template": "New template",
       "tabs": {
         "inventory_list": "Inventory List",
@@ -219,6 +220,113 @@
         "actions": {
           "edit": "edit",
           "add_item": "Add Item"
+        }
+      }
+    },
+    "entitlement_groups": {
+      "title": "Entitlement Groups",
+      "description": "Edit the entitlement groups and assign the models and their allocations",
+      "add": "Add entitlement group",
+      "list": {
+        "quantity_error": "Quantity exceeds availability",
+        "empty": "No entitlement groups found",
+        "header": {
+          "name": "Name",
+          "is_verification_required": "Verification required",
+          "number_of_users": "Number of users",
+          "number_of_models": "Number of models",
+          "number_of_allocations": "Number of allocations"
+        },
+        "actions": {
+          "edit": "edit"
+        },
+        "misc": {
+          "yes": "Yes",
+          "no": "No"
+        }
+      },
+      "entitlement_group": {
+        "quantity_error": "Quantity exceeds availability",
+        "title": "Entitlement group",
+        "create": {
+          "description": "Provide all required information",
+          "submit": "Create",
+          "cancel": "Cancel",
+          "success": "Entitlement group was successfully created",
+          "invalid_one": "Entitlement group could not be created because one field is invalid",
+          "invalid_other": "Entitlement group could not be created because {{count}} fields are invalid",
+          "conflict": "Entitlement group could not be created because a entitlement group with the same name already exists",
+          "error": "An error occurred while creating"
+        },
+        "edit": {
+          "description": "Make changes and save them afterward",
+          "submit": "Save",
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "success": "Entitlement group was successfully saved",
+          "invalid_one": "Entitlement group could not be saved because one field is invalid",
+          "invalid_other": "Entitlement group could not be saved because {{count}} fields are invalid"
+        },
+        "delete": {
+          "title": "Delete",
+          "description": "Are you sure you want to delete this entitlement group?",
+          "confirm": "Delete",
+          "cancel": "Cancel",
+          "success": "Entitlement group was successfully deleted",
+          "error": "Entitlement group could not be deleted"
+        },
+        "top_section": {
+          "blocks": {
+            "name": {
+              "label": "Entitlement group name"
+            },
+            "is_verification_required": {
+              "label": "Verification required",
+              "yes": "Yes",
+              "no": "No"
+            }
+          }
+        },
+        "models": {
+          "title": "Assignments",
+          "blocks": {
+            "models": {
+              "label": "Select model and assign quantity",
+              "not_found": "Model not found",
+              "select": "Select model",
+              "placeholder": "Search model",
+              "search_empty": "Type at least 2 characters to search",
+              "searching": "Searching...",
+              "available_count_tooltip": "Allocations in other entitlement groups considered - still available quantity of borrowable and not retired items",
+              "items_count_tooltip": "Total quantity of borrowable and not retired items"
+            }
+          }
+        },
+        "users": {
+          "title": "Authorized users",
+          "blocks": {
+            "users": {
+              "label": "Select user",
+              "not_found": "User not found",
+              "select": "Select user",
+              "placeholder": "Search user",
+              "search_empty": "Type at least 2 characters to search",
+              "searching": "Searching..."
+            }
+          }
+        },
+        "groups": {
+          "title": "Authorized groups",
+          "blocks": {
+            "groups": {
+              "label": "Select group",
+              "not_found": "Group not found",
+              "select": "Select group",
+              "placeholder": "Search group",
+              "search_empty": "Type at least 2 characters to search",
+              "searching": "Searching..."
+            }
+          }
         }
       }
     },
@@ -447,8 +555,8 @@
         "blocks": {
           "entitlements": {
             "label": "Allocations (max {{amount}})",
-            "select": "Select Entitlement-Group",
-            "not_found": "Entitlement-Group not found"
+            "select": "Select entitlement group",
+            "not_found": "Entitlement group not found"
           }
         }
       },
@@ -554,7 +662,7 @@
   "models": {
     "title": "Inventory List - Lending Toni Areal Localized",
     "tabs": {
-      "entitlement-groups": "Entitlement Groups"
+      "entitlement-groups": "Entitlement groups"
     }
   },
   "debug": {
