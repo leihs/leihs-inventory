@@ -193,6 +193,7 @@
         "add_option": "Neue Option",
         "add_software": "Neue Software"
       },
+      "add_entitlement_group": "Anspruchsgruppe hinzufügen",
       "add_template": "Vorlage hinzufügen",
       "tabs": {
         "inventory_list": "Inventarliste",
@@ -225,6 +226,110 @@
         "actions": {
           "edit": "editieren",
           "add_item": "Gegenstand hinzufügen"
+        }
+      }
+    },
+    "entitlement_groups": {
+      "title": "Anspruchsgruppen",
+      "description": "Editieren Sie die Anspruchsgruppen und weisen die Modelle und deren Zuteilung zu",
+      "add": "Anspruchsgruppe hinzufügen",
+      "list": {
+        "quantity_error": "Anzahl übersteigt Verfügbarkeit",
+        "empty": "Keine Anspruchsgruppen gefunden",
+        "header": {
+          "name": "Name",
+          "number_of_users": "Anzahl Benutzer",
+          "number_of_models": "Anzahl Modelle",
+          "number_of_allocations": "Anzahl Zuteilungen"
+        },
+        "actions": {
+          "edit": "editieren"
+        },
+        "misc": {
+          "is_verification_required": "Visierungspflichtig"
+        }
+      },
+      "entitlement_group": {
+        "quantity_error": "Anzahl übersteigt Verfügbarkeit",
+        "title": "Anspruchsgruppe",
+        "create": {
+          "description": "Geben Sie alle erforderlichen Informationen an",
+          "submit": "Erstellen",
+          "cancel": "Abbrechen",
+          "success": "Anspruchsgruppe wurde erfolgreich erstellt",
+          "invalid_one": "Anspruchsgruppe konnte nicht erstellt werden, da ein Feld ungültig ist",
+          "invalid_other": "Anspruchsgruppe konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+          "conflict": "Anspruchsgruppe konnte nicht erstellt werden, da eine Anspruchsgruppe mit dem gleichen Namen bereits existiert",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
+        },
+        "edit": {
+          "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Speichern",
+          "delete": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Anspruchsgruppe wurde erfolgreich gespeichert",
+          "invalid_one": "Anspruchsgruppe konnte nicht gespeichert werden, da ein Feld ungültig ist",
+          "invalid_other": "Anspruchsgruppe konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
+        },
+        "delete": {
+          "title": "Löschen",
+          "description": "Sind Sie sicher, dass Sie diese Anspruchsgruppe löschen möchten?",
+          "confirm": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Anspruchsgruppe wurde erfolgreich gelöscht",
+          "error": "Anspruchsgruppe konnte nicht gelöscht werden"
+        },
+        "top_section": {
+          "blocks": {
+            "name": {
+              "label": "Name der Anspruchsgruppe"
+            },
+            "is_verification_required": {
+              "label": "Visierungspflichtig",
+              "yes": "Ja",
+              "no": "Nein"
+            }
+          }
+        },
+        "models": {
+          "title": "Zuteilungen",
+          "blocks": {
+            "models": {
+              "label": "Modell auswählen und Anzahl der Anspruchsguppe zuweisen",
+              "not_found": "Modell nicht gefunden",
+              "select": "Modell auswählen",
+              "placeholder": "Modell suchen",
+              "search_empty": "Geben Sie mindestens 2 Zeichen ein",
+              "searching": "Suche...",
+              "available_count_tooltip": "Zuteilungen in anderen Anspruchsgruppen berücksichtigt - noch verfügbare Anzahl an ausleihbaren, nicht ausgemusterten Gegenständen",
+              "items_count_tooltip": "Totale Anzahl an ausleihbaren, nicht ausgemusterten Gegenständen"
+            }
+          }
+        },
+        "users": {
+          "title": "Berechtigte Benutzer",
+          "blocks": {
+            "users": {
+              "not_found": "Benutzer nicht gefunden",
+              "select": "Benutzer auswählen",
+              "placeholder": "Benutzer suchen",
+              "search_empty": "Geben Sie mindestens 2 Zeichen ein",
+              "searching": "Suche...",
+              "account_disabled": "inaktiv"
+            }
+          }
+        },
+        "groups": {
+          "title": "Berechtigte Gruppen",
+          "blocks": {
+            "groups": {
+              "not_found": "Gruppe nicht gefunden",
+              "select": "Gruppe auswählen",
+              "placeholder": "Gruppe suchen",
+              "search_empty": "Geben Sie mindestens 2 Zeichen ein",
+              "searching": "Suche..."
+            }
+          }
         }
       }
     },
