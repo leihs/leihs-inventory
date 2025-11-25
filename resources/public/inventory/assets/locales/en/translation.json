@@ -88,6 +88,7 @@
         "add_software": "New software"
       },
       "add_template": "New template",
+      "add_entitlement_group": "New entitlement group",
       "tabs": {
         "inventory_list": "Inventory List",
         "advanced_search": "Advanced Search",
@@ -438,6 +439,75 @@
         "cancel": "Cancel",
         "success": "Model successfully deleted",
         "500": "Model could not be deleted"
+      }
+    },
+    "entitlement-groups": {
+      "title": "Entitlement groups",
+      "description": "Edit the entitlement groups and assign the models and their allocations",
+      "add": "Add entitlement group",
+      "list": {
+        "empty": "No entitlement groups found",
+        "header": {
+          "name": "Name",
+          "is_verification_required": "Verification required",
+          "number_of_users": "Number of users",
+          "number_of_models": "Number of models",
+          "number_of_allocations": "Number of allocations"
+        },
+        "actions": {
+          "edit": "edit"
+        }
+      },
+      "entitlement-group": {
+        "quantity_error": "Quantity exceeds availability",
+        "title": "Entitlement group",
+        "create": {
+          "description": "Provide all required information",
+          "submit": "Save entitlement group",
+          "cancel": "Cancel",
+          "success": "Entitlement group was successfully created",
+          "invalid_one": "Entitlement group could not be created because one field is invalid",
+          "invalid_other": "Entitlement group could not be created because {{count}} fields are invalid",
+          "conflict": "Entitlement group could not be created because a entitlement group with the same name already exists",
+          "error": "An error occurred while creating"
+        },
+        "edit": {
+          "description": "Make changes and save them afterward",
+          "submit": "Save entitlement group",
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "success": "Entitlement group was successfully saved",
+          "invalid_one": "Entitlement group could not be saved because one field is invalid",
+          "invalid_other": "Entitlement group could not be saved because {{count}} fields are invalid"
+        },
+        "delete": {
+          "title": "Delete entitlement group",
+          "description": "Are you sure you want to delete this entitlement group?",
+          "confirm": "Delete",
+          "cancel": "Cancel",
+          "success": "Entitlement group was successfully deleted",
+          "error": "Entitlement group could not be deleted"
+        },
+        "name": {
+          "blocks": {
+            "name": {
+              "label": "Entitlement group name"
+            }
+          }
+        },
+        "models": {
+          "title": "Assignments",
+          "blocks": {
+            "models": {
+              "label": "Select model and assign quantity",
+              "not_found": "Model not found",
+              "select": "Select model",
+              "placeholder": "Search model",
+              "search_empty": "Type at least 2 characters to search",
+              "searching": "Searching..."
+            }
+          }
+        }
       }
     }
   },

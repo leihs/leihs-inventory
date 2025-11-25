@@ -88,6 +88,7 @@
         "add_software": "Neue Software"
       },
       "add_template": "Vorlage hinzufügen",
+      "add_entitlement_group": "Anspruchsgruppe hinzufügen",
       "tabs": {
         "inventory_list": "Inventarliste",
         "advanced_search": "Erweiterte Suche",
@@ -440,6 +441,75 @@
         "cancel": "Abbrechen",
         "success": "Modell wurde erfolgreich gelöscht",
         "500": "Modell konnte nicht gelöscht werden"
+      }
+    },
+    "entitlement-groups": {
+      "title": "Anspruchsgruppen",
+      "description": "Editieren Sie die Anspruchsgruppen und weisen die Modelle und deren Zuteilung zu",
+      "add": "Anspruchsgruppe hinzufügen",
+      "list": {
+        "empty": "Keine Anspruchsgruppen gefunden",
+        "header": {
+          "name": "Name",
+          "is_verification_required": "Visierungspflichtig",
+          "number_of_users": "Anzahl Benutzer",
+          "number_of_models": "Anzahl Modelle",
+          "number_of_allocations": "Anzahl Zuteilungen"
+        },
+        "actions": {
+          "edit": "editieren"
+        }
+      },
+      "entitlement-group": {
+        "quantity_error": "Anzahl übersteigt Verfügbarkeit",
+        "title": "Anspruchsgruppe",
+        "create": {
+          "description": "Geben Sie alle erforderlichen Informationen an",
+          "submit": "Anspruchsgruppe speichern",
+          "cancel": "Abbrechen",
+          "success": "Anspruchsgruppe wurde erfolgreich erstellt",
+          "invalid_one": "Anspruchsgruppe konnte nicht erstellt werden, da ein Feld ungültig ist",
+          "invalid_other": "Anspruchsgruppe konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+          "conflict": "Anspruchsgruppe konnte nicht erstellt werden, da eine Anspruchsgruppe mit dem gleichen Namen bereits existiert",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
+        },
+        "edit": {
+          "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Anspruchsgruppe speichern",
+          "delete": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Anspruchsgruppe wurde erfolgreich gespeichert",
+          "invalid_one": "Anspruchsgruppe konnte nicht gespeichert werden, da ein Feld ungültig ist",
+          "invalid_other": "Anspruchsgruppe konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
+        },
+        "delete": {
+          "title": "Anspruchsgruppe löschen",
+          "description": "Sind Sie sicher, dass Sie diese Anspruchsgruppe löschen möchten?",
+          "confirm": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Anspruchsgruppe wurde erfolgreich gelöscht",
+          "error": "Anspruchsgruppe konnte nicht gelöscht werden"
+        },
+        "name": {
+          "blocks": {
+            "name": {
+              "label": "Name der Anspruchsgruppe"
+            }
+          }
+        },
+        "models": {
+          "title": "Zuteilungen",
+          "blocks": {
+            "models": {
+              "label": "Modell auswählen und Anzahl der Anspruchsguppe zuweisen",
+              "not_found": "Modell nicht gefunden",
+              "select": "Modell auswählen",
+              "placeholder": "Modell suchen",
+              "search_empty": "Geben Sie mindestens 2 Zeichen ein",
+              "searching": "Suche..."
+            }
+          }
+        }
       }
     }
   },

@@ -172,3 +172,35 @@
     (.. (js/Promise.all (cond-> [models]))
         (then (fn [[models]]
                 {:models models})))))
+
+(defn entitlement-groups-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        data (-> http-client
+                 (.get (str "/inventory/" pool-id "/entitlement-groups/"))
+                 (.then (fn [res]
+                          (jc (.. res -data))))
+                 (.catch (fn [error]
+                           (js/console.error "Error fetching templates" error))))]
+
+    (.. (js/Promise.all [data])
+        (then (fn [[data]]
+                {:data data})))))
+
+(defn entitlement-group-crud-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        entitlement-group-id (or (aget params "entitlement-group-id") nil)
+
+        entitlement-group-path (when entitlement-group-id
+                                 (str "/inventory/" pool-id "/entitlement-groups/" entitlement-group-id))
+
+        data (when entitlement-group-path
+               (-> http-client
+                   (.get entitlement-group-path #js {:id entitlement-group-id})
+                   (.then #(jc (.-data %)))
+                   (.catch (fn [error]
+                             (js/console.error "Error fetching entitlement group" error)))))]
+
+    (.. (js/Promise.all (cond-> [] data (conj data)))
+        (then (fn [[& [data]]] {:data (if data data nil)})))))
