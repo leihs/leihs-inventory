@@ -84,11 +84,11 @@ feature "Create model", type: :feature do
     fill_in "Internal Description", with: internal_description
     fill_in "Important notes for hand over", with: hand_over_note
 
-    click_on "Select Entitlement-Group"
+    click_on "Select entitlement group"
     click_on entitlement_group_1.name
     fill_in "entitlements.0.quantity", with: 2
 
-    click_on "Select Entitlement-Group"
+    click_on "Select entitlement group"
     click_on entitlement_group_2.name
     fill_in "entitlements.1.quantity", with: 1
 
