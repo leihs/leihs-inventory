@@ -32,13 +32,15 @@
                           "text/csv")]
 
     (-> http-client
-        (.get url (cj {:headers {:Accept accept-header}
+        (.get url (cj {:cache false
+                       :headers {:Accept accept-header}
                        :responseType "blob"}))
         (.then (fn [response]
                  (let [blob (.-data response)
                        url (js/URL.createObjectURL blob)
                        link (.createElement js/document "a")
-                       filename (str "export-" (.now js/Date) "." (if (= format "excel") "xlsx" "csv"))]
+                       content-disposition (.. response -headers (get "content-disposition"))
+                       filename (second (re-find #"filename=\"(.+)\"" content-disposition))]
                    (set! (.-href link) url)
                    (set! (.-download link) filename)
                    (.appendChild (.-body js/document) link)
