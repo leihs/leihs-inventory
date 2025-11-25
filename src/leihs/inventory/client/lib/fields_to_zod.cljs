@@ -5,6 +5,7 @@
 (defn- field->zod-validator [field]
   (let [field-type (:type field)
         is-required (:required field)
+        is-protected (:protected field)
         ;; Fields with dependencies should be treated as optional in base validation
         ;; so that we can add custom refinements later
         has-dependency (or (:visibility_dependency_field_id field)
@@ -81,7 +82,9 @@
 
                          (z/string))]
 
-    (if (or (not is-required) treat-as-optional)
+    (js/console.debug "Field:" field)
+
+    (if (or (not is-required) (not is-protected) treat-as-optional)
       (z/nullish (z/optional base-validator))
       base-validator)))
 

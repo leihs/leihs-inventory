@@ -43,7 +43,7 @@
 
         is-edit (not (or is-create is-delete))
 
-        {:keys [data]} (jc (useLoaderData))
+        {:keys [data model]} (jc (useLoaderData))
 
         ;; Transform fields data to form structure
         structure (fields-to-form/transform-fields-to-structure data)
@@ -183,10 +183,16 @@
 
     (uix/use-effect
      (fn []
+       (when (and is-create model (not is-loading))
+         (let [model-el (.. js/document (querySelector "[name='model_id']"))]
+           (set-value "model_id" (cj {:label (:product model)
+                                      :value (:id model)}))
+           (set! (.. model-el -disabled) true)))
+
        (when (and is-create (not is-loading))
-         (let [owner (.. js/document (querySelector "[name='owner_id']"))]
-           (set! (.. owner -disabled) true))))
-     [is-create is-loading])
+         (let [owner-el (.. js/document (querySelector "[name='owner_id']"))]
+           (set! (.. owner-el -disabled) true))))
+     [is-create is-loading model set-value])
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}

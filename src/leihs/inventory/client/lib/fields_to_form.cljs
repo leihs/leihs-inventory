@@ -39,7 +39,8 @@
           values)))
 
 (defn- transform-field [field]
-  (let [field-type (:type field)
+  (let [id (:id field)
+        field-type (:type field)
         component (field-type->component field-type)
         group-name (or (:group field) "Mandatory data")]
     (when component
@@ -55,7 +56,7 @@
                                 (str base-url separator search-attr "=")))
 
             props (cond-> {}
-                    (= field-type "text") (assoc :type "text"
+                    (= field-type "text") (assoc :type (if (= id "price") "number" "text")
                                                  :autoComplete "off")
                     (= field-type "date") (assoc :mode "single")
                     (= field-type "attachment") (assoc :multiple true)

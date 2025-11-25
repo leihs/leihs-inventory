@@ -158,7 +158,7 @@
                       ($ ChevronDown {:className "w-4 h-4"})))
                 ($ DropdownMenuContent {:align "start"}
                    ($ DropdownMenuItem
-                      ($ Link {:to (str (:id model) "/items/create")
+                      ($ Link {:to (str "../models/" (:id model) "/items/create")
                                :state #js {:searchParams (.. location -search)}
                                :viewTransition true}
                          (t "pool.models.list.actions.add_item"))))))))))

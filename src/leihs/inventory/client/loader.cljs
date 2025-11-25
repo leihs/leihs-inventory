@@ -79,9 +79,15 @@
   (let [params (.. ^js route-data -params)
         pool-id (aget params "pool-id")
         item-id (or (aget params "item-id") nil)
+        model-id (or (aget params "model-id") nil)
 
         item-path (when item-id
                     (str "/inventory/" pool-id "/items/"))
+
+        model (when model-id
+                (-> http-client
+                    (.get (str "/inventory/" pool-id "/models/" model-id))
+                    (.then #(jc (.-data %)))))
 
         data (if item-path
                (-> http-client
@@ -92,9 +98,10 @@
                    (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
                    (.then #(jc (.-data %)))))]
 
-    (.. (js/Promise.all [data])
-        (then (fn [[data]]
-                {:data data})))))
+    (.. (js/Promise.all (cond-> [data] model (conj model)))
+        (then (fn [[data & [model]]]
+                {:data data
+                 :model (if model model nil)})))))
 
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)
