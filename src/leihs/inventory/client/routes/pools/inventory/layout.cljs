@@ -155,14 +155,24 @@
                                                       (cj {:pool-id pool-id}))
                                     :viewTransition true}
                               (t "pool.models.dropdown.add_software")))))
+                  "entitlement-groups"
+                  ($ Button {:asChild true}
+                     ($ Link {:state #js {:searchParams (.. location -search)}
+                              :to (generatePath "/inventory/:pool-id/entitlement-groups/create"
+                                                (cj {:pool-id pool-id}))
+                              :viewTransition true}
+                        ($ CirclePlus {:className "h-4 w-4"})
+                        (t "pool.models.add_entitlement_group")))
+
                   "templates"
                   ($ Button {:asChild true}
                      ($ Link {:state #js {:searchParams (.. location -search)}
                               :to (generatePath "/inventory/:pool-id/templates/create"
                                                 (cj {:pool-id pool-id}))
                               :viewTransition true}
-                        ($ CirclePlus {:className "mr-2 h-4 w-4"})
+                        ($ CirclePlus {:className "h-4 w-4"})
                         (t "pool.models.add_template")))
+
                   ($ :<>))))
 
           ($ TabsContent {:forceMount true

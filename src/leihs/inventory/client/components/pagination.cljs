@@ -180,7 +180,9 @@
 
        ($ :div {:class-name "flex items-center"}
           ($ :span {:data-test-id "pagination-range"
-                    :class-name "text-muted-foreground text-sm mr-2"}
+                    :class-name "text-muted-foreground text-sm mr-2"
+                    ;; random key fixes a strange Safari repaint issue
+                    :key (js/Math.random)}
              (t "pagination.range" #js {:range (str (:start page-range) "-" (:end page-range))
                                         :total total-rows})))
 

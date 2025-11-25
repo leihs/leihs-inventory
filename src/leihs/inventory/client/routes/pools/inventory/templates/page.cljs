@@ -23,6 +23,7 @@
 (defui page []
   (let [{:keys [data]} (router/useLoaderData)
         params (router/useParams)
+        location (router/useLocation)
         templates (:data data)
         pagination (:pagination data)
         [delete-id set-delete-id!] (uix/use-state nil)
@@ -65,7 +66,7 @@
 
                ($ Table
                   ($ TableHeader
-                     ($ TableRow
+                     ($ TableRow {:class-name "hover:bg-white"}
                         ($ TableHead "")
                         ($ TableHead (t "pool.templates.list.header.name"))
                         ($ TableHead "")
@@ -95,7 +96,8 @@
                           ($ TableCell {:className "text-right"}
                              ($ Button {:asChild true
                                         :variant "outline"}
-                                ($ Link {:to (:id template)}
+                                ($ Link {:state #js {:searchParams (.. location -search)}
+                                         :to (:id template)}
                                    (t "pool.templates.list.actions.edit"))))
 
                           ($ TableCell {:className "text-right"}
