@@ -154,7 +154,7 @@ feature "Update model", type: :feature do
     fill_in "Important notes for hand over", with: hand_over_note_new
 
     find("tr", text: entitlement_group_1.name).find("button").click
-    click_on "Select Entitlement-Group"
+    click_on "Select Entitlement group"
     find("[data-value='#{entitlement_group_3.name}']").click
     fill_in "entitlements.1.quantity", with: 1
 
