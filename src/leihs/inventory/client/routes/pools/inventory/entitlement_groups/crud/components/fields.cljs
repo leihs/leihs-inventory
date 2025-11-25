@@ -3,6 +3,7 @@
    ["@@/dropzone" :refer [Dropzone]]
    ["@@/form" :refer [FormField FormItem FormLabel FormControl FormDescription FormMessage]]
    ["@@/input" :refer [Input]]
+   ["@@/radio-group" :refer [RadioGroup RadioGroupItem]]
    ["@@/table" :refer [TableCell]]
    ["@@/textarea" :refer [Textarea]]
    ["react-i18next" :refer [useTranslation]]
@@ -62,6 +63,31 @@
               ($ TableCell {:class-name "px-0"} "/")
 
               ($ TableCell (or (:items_count field) (:available field))))))
+
+      "radio-group"
+      ($ FormField {:control (cj control)
+                    :name (:name block)
+                    :render #($ FormItem {:class-name "mt-6"
+                                          :title (when (:disabled (:props block))
+                                                   "This field is disabled/protected.")}
+                                ($ FormLabel (t (:label block))
+                                   (when (-> block :props :required) " *"))
+
+                                ($ FormControl
+                                   ($ RadioGroup {:onValueChange (aget % "field" "onChange")
+                                                  :defaultValue (aget % "field" "value")
+                                                  :class-name "flex space-x-1"
+                                                  :name (:name block)}
+
+                                      (for [option (:options (:props block))]
+                                        ($ FormItem {:key (:value option)
+                                                     :class-name "flex items-center space-x-2 space-y-0"}
+                                           ($ FormControl
+                                              ($ RadioGroupItem {:data-test-id (str (:name block) "-" (:value option))
+                                                                 :disabled (:disabled (:props block))
+                                                                 :value (:value option)}))
+                                           ($ FormLabel {:class-name "font-normal"}
+                                              (t (:label option))))))))})
 
       ;; "default case - this renders a component from the component map"
       (let [comp (get fields-map (:component block))]

@@ -67,8 +67,9 @@
                        (js/console.debug "is invalid: " data)))
         on-submit (fn [submitted-data event]
                     (go
-                      (let [entitlement-group-data {:entitlement_group {:name (aget submitted-data "name")
-                                                                        :is_verification_required false}
+                      (let [entitlement-group-data {:entitlement_group
+                                                    {:name (aget submitted-data "name")
+                                                     :is_verification_required (aget submitted-data "is_verification_required")}
                                                     :models (jc (aget submitted-data "models"))
                                                     :users []
                                                     :groups []}
@@ -108,7 +109,6 @@
 
                         (case (:status entitlement-group-res)
                           409 (.. toast (error (t "pool.entitlement-groups.entitlement-group.create.conflict")))
-                          422 (.. toast (error "Server says: 422 Unprocessable Entity")) ;; 🟧
                           500 (.. toast (error (t "pool.entitlement-groups.entitlement-group.create.error")))
 
                           200 (do

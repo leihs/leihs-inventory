@@ -177,7 +177,8 @@
   (let [params (.. ^js route-data -params)
         pool-id (aget params "pool-id")
         data (-> http-client
-                 (.get (str "/inventory/" pool-id "/entitlement-groups/"))
+                 (.get (str "/inventory/" pool-id "/entitlement-groups/")
+                       #js {:cache false})
                  (.then (fn [res]
                           (jc (.. res -data))))
                  (.catch (fn [error]

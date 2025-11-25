@@ -492,6 +492,11 @@
           "blocks": {
             "name": {
               "label": "Entitlement group name"
+            },
+            "is_verification_required": {
+              "label": "Verification required",
+              "yes": "Yes",
+              "no": "No"
             }
           }
         },

@@ -2,7 +2,7 @@ import { z } from "zod"
 
 export const schema = z.object({
   name: z.string().trim().min(1).trim(),
-  is_verification_required: z.string(),
+  is_verification_required: z.boolean().default(false),
   models: z
     .array(
       z.object({
@@ -28,12 +28,21 @@ export const structure = [
       },
       {
         name: "is_verification_required",
-        label: "aguga",
+        label:
+          "pool.entitlement-groups.entitlement-group.name.blocks.is_verification_required.label",
         component: "radio-group",
         props: {
           options: [
-            { value: "ok", label: "OK" },
-            { value: "not-ok", label: "Defekt" },
+            {
+              value: true,
+              label:
+                "pool.entitlement-groups.entitlement-group.name.blocks.is_verification_required.yes",
+            },
+            {
+              value: false,
+              label:
+                "pool.entitlement-groups.entitlement-group.name.blocks.is_verification_required.no",
+            },
           ],
         },
       },

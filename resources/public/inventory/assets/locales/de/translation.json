@@ -494,6 +494,11 @@
           "blocks": {
             "name": {
               "label": "Name der Anspruchsgruppe"
+            },
+            "is_verification_required": {
+              "label": "Visierungspflichtig",
+              "yes": "Ja",
+              "no": "Nein"
             }
           }
         },
