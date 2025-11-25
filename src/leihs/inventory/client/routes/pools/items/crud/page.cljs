@@ -16,7 +16,7 @@
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["lucide-react" :refer [ChevronDownIcon]]
-   ["react-hook-form" :refer [useForm]]
+   ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
@@ -63,10 +63,16 @@
         control (.. form -control)
         params (router/useParams)
 
+        building (useWatch (cj {:control control
+                                :name "building_id.value"}))
+
         on-invalid (fn [data]
                      (let [invalid-fields-count (count (jc data))]
-                       (.. toast (error (t "pool.items.item.create.invalid"
-                                           #js {:count invalid-fields-count})))
+                       (.. toast (error (if is-create
+                                          (t "pool.items.item.create.invalid"
+                                             #js {:count invalid-fields-count})
+                                          (t "pool.items.item.edit.invalid"
+                                             #js {:count invalid-fields-count}))))
 
                        (js/console.debug "is invalid: " data)))
 
@@ -133,15 +139,15 @@
                                      (.then #(.-data %))))))
 
                         (case (:status item-res)
-                          409 (-> toast
-                                  (.error (if is-create
-                                            (t "pool.items.item.create.conflict")
-                                            (t "pool.items.item.edit.conflict"))
-                                          (cj {:duration 20000
-                                               :action
-                                               {:label "Update"
-                                                :onClick (fn []
-                                                           (set-value "inventory_code" (:proposed_code (:data item-res))))}})))
+                          409 (.. toast
+                                  (error (if is-create
+                                           (t "pool.items.item.create.conflict")
+                                           (t "pool.items.item.edit.conflict"))
+                                         (cj {:duration 20000
+                                              :action
+                                              {:label "Update"
+                                               :onClick (fn []
+                                                          (set-value "inventory_code" (:proposed_code (:data item-res))))}})))
 
                           500 (.. toast (error (if is-create
                                                  (t "pool.items.item.create.error")
@@ -161,10 +167,9 @@
                                                     (cj {:headers {"Content-Type" type
                                                                    "X-Filename" name}}))))))
 
-                                (if is-create
-                                  (.. toast (success (if is-create
-                                                       (t "pool.items.item.create.success")
-                                                       (t "pool.items.item.edit.success")))))
+                                (.. toast (success (if is-create
+                                                     (t "pool.items.item.create.success")
+                                                     (t "pool.items.item.edit.success"))))
 
                             ;; state needs to be forwarded for back navigation
                                 (if is-create
@@ -193,6 +198,13 @@
          (let [owner-el (.. js/document (querySelector "[name='owner_id']"))]
            (set! (.. owner-el -disabled) true))))
      [is-create is-loading model set-value])
+
+    ;; Clear room_id when building changes
+    (uix/use-effect
+     (fn []
+       (when (and building (not is-loading))
+         (set-value "room_id" nil)))
+     [building is-loading set-value])
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}

@@ -56,7 +56,7 @@
                                 (str base-url separator search-attr "=")))
 
             props (cond-> {}
-                    (= field-type "text") (assoc :type (if (= id "price") "number" "text")
+                    (= field-type "text") (assoc :type "text"
                                                  :autoComplete "off")
                     (= field-type "date") (assoc :mode "single")
                     (= field-type "attachment") (assoc :multiple true)
@@ -143,7 +143,7 @@
                                       "text"
                                       (if (nil? default-val)
                                         ""
-                                        default-val)
+                                        (str default-val))
 
                                       "textarea"
                                       (if (nil? default-val)

@@ -42,8 +42,10 @@
 
         handle-select (fn [value]
                         (set-open! false)
+                        (js/console.debug name)
                         (set-value name #js {:value value
-                                             :label (get-label value)})
+                                             :label (get-label value)}
+                                   #js {:shouldValidate true})
                         (when instant?
                           (set-options! [])))
 

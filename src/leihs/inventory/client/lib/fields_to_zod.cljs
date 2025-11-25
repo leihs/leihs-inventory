@@ -82,8 +82,6 @@
 
                          (z/string))]
 
-    (js/console.debug "Field:" field)
-
     (if (or (not is-required) (not is-protected) treat-as-optional)
       (z/nullish (z/optional base-validator))
       base-validator)))
