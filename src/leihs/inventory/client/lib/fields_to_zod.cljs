@@ -101,21 +101,24 @@
 
 (defn fields-to-zod-schema [fields-response]
   (let [fields (-> fields-response :fields)
+        ;; Filter out protected fields from schema
+        non-protected-fields (filter #(not (:protected %)) fields)
         schema-obj (reduce (fn [acc field]
                              (let [field-id (:id field)
                                    validator (field->zod-validator field)]
                                (assoc acc field-id validator)))
                            {}
-                           fields)
+                           non-protected-fields)
         excluded-fields (set (map :id (filter :exclude_from_submit fields)))
+        protected-fields (set (map :id (filter :protected fields)))
         base-schema (z/object (clj->js schema-obj))
 
         ;; Add conditional cross-field refinements:
         refined-schema (.superRefine
                         base-schema
                         (fn [data ^js ctx]
-                          ;; Check all fields with dependencies
-                          (doseq [field fields]
+                          ;; Check all fields with dependencies (excluding protected)
+                          (doseq [field non-protected-fields]
                             (let [field-id (:id field)
                                   field-value (aget data field-id)
                                   is-required (:required field)
@@ -154,14 +157,15 @@
                                                                :path [field-id]})))))))
                             data)))]
 
-    ;; convert string "true"/"false" to boolean, and remove excluded fields
+    ;; convert string "true"/"false" to boolean, and remove excluded and protected fields
     (.transform refined-schema
                 (fn [data]
-                  (let [converted (convert-string-booleans data)]
-                    (if (seq excluded-fields)
+                  (let [converted (convert-string-booleans data)
+                        fields-to-remove (clojure.set/union excluded-fields protected-fields)]
+                    (if (seq fields-to-remove)
                       (reduce (fn [obj field-id]
                                 (js-delete obj (name field-id))
                                 obj)
                               converted
-                              excluded-fields)
+                              fields-to-remove)
                       converted))))))
