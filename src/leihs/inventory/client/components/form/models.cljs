@@ -105,6 +105,7 @@
                                                :version (:version selected)
                                                :name (:name selected)
                                                :url (:url selected)
+                                               :entitled_in_groups (:entitled_in_groups selected)
                                                :id (:id selected)})
                                        cj))
                           (remove (find-index-from-id (:id selected) fields))))
