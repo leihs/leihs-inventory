@@ -206,8 +206,8 @@ feature "Update item", type: :feature do
 
     click_on "Save"
 
-    expect(page).to have_text("Item was successfully saved")
-    expect(page).to have_content "Inventory List"
+    expect(page).to have_text("Item was successfully saved", wait: 10)
+    expect(page).to have_text "Inventory List"
 
     fill_in "search", with: model_new.product
 

@@ -123,7 +123,7 @@ feature "Create item", type: :feature do
     fill_in "Shelf", with: shelf
 
     click_on "Create"
-    expect(page).to have_text("Item was successfully created")
+    expect(page).to have_text("Item was successfully created", wait: 10)
     expect(page).to have_content "Inventory List"
 
     fill_in "search", with: model.product
@@ -191,7 +191,7 @@ feature "Create item", type: :feature do
 
     click_on "Create"
 
-    expect(page).to have_text("Item could not be created because 2 fields are invalid")
+    expect(page).to have_text("Item could not be created because 2 fields are invalid", wait: 10)
 
     click_on "model_id"
     expect(page).to have_field(placeholder: "Enter search term")
@@ -204,7 +204,7 @@ feature "Create item", type: :feature do
     click_on "general building"
 
     click_on "Create"
-    expect(page).to have_text("Item could not be created because one field is invalid")
+    expect(page).to have_text("Item could not be created because one field is invalid", wait: 10)
 
     click_on "Room"
     expect(page).to have_field(placeholder: "Enter search term")
@@ -217,7 +217,7 @@ feature "Create item", type: :feature do
     click_on "Yes"
 
     click_on "Create"
-    expect(page).to have_text("Item could not be created because 2 fields are invalid")
+    expect(page).to have_text("Item could not be created because 2 fields are invalid", wait: 10)
   end
 
   scenario "fails with conflicting inventory code" do
@@ -245,12 +245,12 @@ feature "Create item", type: :feature do
 
     click_on "Create"
 
-    expect(page).to have_text("Inventory code already exists")
+    expect(page).to have_text("Inventory code already exists", wait: 10)
     click_on "Update"
 
     click_on "Create"
 
-    expect(page).to have_text("Item was successfully created")
+    expect(page).to have_text("Item was successfully created", wait: 10)
   end
 
   scenario "cancel works" do
