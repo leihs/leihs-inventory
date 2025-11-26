@@ -206,7 +206,7 @@ feature "Update item", type: :feature do
 
     click_on "Save"
 
-    expect(page.find("body", visible: :all).text).to include("Item was successfully saved")
+    expect(page).to have_text("Item was successfully saved")
     expect(page).to have_content "Inventory List"
 
     fill_in "search", with: model_new.product
