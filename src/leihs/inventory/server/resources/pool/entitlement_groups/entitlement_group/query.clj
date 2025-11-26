@@ -195,18 +195,20 @@
             (dissoc old-k old-s)))))
 
 (defn analyze-and-prepare-data [tx models entitlement-group-id]
-  (let [{:keys [db-model-ids]} (fetch-entitlements tx entitlement-group-id)
-        db-model-id-set (set db-model-ids)
-        incoming-model-ids (set (keep :id models))
+  (if (seq models)
+    (let [{:keys [db-model-ids]} (fetch-entitlements tx entitlement-group-id)
+          db-model-id-set (set db-model-ids)
+          incoming-model-ids (set (keep :id models))
 
-        model-ids-to-delete (vec (remove incoming-model-ids db-model-ids))
-        entitlements-to-update (mapv #(rename-key % :id :model_id)
-                                     (filterv #(contains? db-model-id-set (:id %)) models))
-        entitlements-to-create (mapv #(-> %
-                                          (rename-key :id :model_id)
-                                          (assoc :entitlement_group_id entitlement-group-id))
-                                     (filterv #(not (contains? db-model-id-set (:id %))) models))]
+          model-ids-to-delete (vec (remove incoming-model-ids db-model-ids))
+          entitlements-to-update (mapv #(rename-key % :id :model_id)
+                                       (filterv #(contains? db-model-id-set (:id %)) models))
+          entitlements-to-create (mapv #(-> %
+                                            (rename-key :id :model_id)
+                                            (assoc :entitlement_group_id entitlement-group-id))
+                                       (filterv #(not (contains? db-model-id-set (:id %))) models))]
 
-    {:entitlements-to-update entitlements-to-update
-     :entitlements-to-create entitlements-to-create
-     :entitlement-ids-to-delete model-ids-to-delete}))
+      {:entitlements-to-update entitlements-to-update
+       :entitlements-to-create entitlements-to-create
+       :entitlement-ids-to-delete model-ids-to-delete})
+    (throw (ex-info "At least one model must be provided" {:status 400}))))
