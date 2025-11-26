@@ -5,9 +5,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
    [leihs.inventory.server.resources.pool.items.types :as types]
-   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
-                                                                filter-map-by-spec
-                                                                model->enrich-with-image-attr]]
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]

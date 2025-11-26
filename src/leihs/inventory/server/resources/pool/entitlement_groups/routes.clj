@@ -15,12 +15,14 @@
 (defn routes []
   ["/entitlement-groups/"
    {:get {:summary (fe "a.k.a 'Anspruchsgruppen'")
-          :description (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/groups")
+          :description (str (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/groups")
+                            "- type: min (default)")
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}
-                       :query {(s/optional-key :page) s/Int
+                       :query {(s/optional-key :type) (s/enum "min" "all")
+                               (s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int}}
           :produces ["application/json"]
           :handler entitlement-groups/index-resources
@@ -35,10 +37,10 @@
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json"]}
            :parameters {:path {:pool_id s/Uuid}
-                        :body {:entitlement_group {:name s/Str
-                                                   :is_verification_required s/Bool}
-                               :users [{:user_id s/Uuid}]
-                               :groups [{:group_id s/Uuid}]
+                        :body {:name s/Str
+                               :is_verification_required s/Bool
+                               :users [s/Uuid]
+                               :groups [s/Uuid]
                                :models [{:id s/Uuid
                                          :quantity types/PosInt}]}}
            :produces ["application/json"]

@@ -38,11 +38,10 @@
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid
                               :entitlement_group_id s/Uuid}
-                       :body {:entitlement_group {:name s/Str
-                                                  :is_verification_required s/Bool}
-                              :users [{(s/optional-key :id) s/Uuid,
-                                       :user_id s/Uuid}]
-                              :groups [{(s/optional-key :id) s/Uuid, :group_id s/Uuid}]
+                       :body {:name s/Str
+                              :is_verification_required s/Bool
+                              :users [s/Uuid]
+                              :groups [s/Uuid]
                               :models [{:id s/Uuid
                                         :quantity PosInt}]}}
           :produces ["application/json"]
