@@ -166,9 +166,7 @@ feature "Update item", type: :feature do
     click_on "Last Checked"
 
     today = Date.today
-    day = today.day
-
-    click_on day.to_s
+    find("[data-day='#{today.strftime("%m/%d/%Y")}']").click
 
     fill_in "Responsible person", with: user_name_new
     fill_in "User/Typical usage", with: typical_usage_new
@@ -178,7 +176,7 @@ feature "Update item", type: :feature do
     fill_in "Invoice Number", with: invoice_number_new
 
     click_on "Invoice Date"
-    click_on day.to_s
+    find("[data-day='#{today.strftime("%m/%d/%Y")}']").click
 
     fill_in "Initial Price", with: price_new
 
@@ -189,10 +187,10 @@ feature "Update item", type: :feature do
     click_on supplier_new.name
 
     click_on "Warranty expiration"
-    click_on day.to_s
+    find("[data-day='#{today.strftime("%m/%d/%Y")}']").click
 
     click_on "Contract expiration"
-    click_on day.to_s
+    find("[data-day='#{today.strftime("%m/%d/%Y")}']").click
 
     click_on "building_id"
     expect(page).to have_field(placeholder: "Enter search term")

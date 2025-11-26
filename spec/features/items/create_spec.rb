@@ -81,9 +81,7 @@ feature "Create item", type: :feature do
     click_on "Last Checked"
 
     yesterday = Date.today - 1
-    day = yesterday.day
-
-    click_on day.to_s
+    find("[data-day='#{yesterday.strftime("%m/%d/%Y")}']").click
 
     fill_in "Responsible person", with: user_name
     fill_in "User/Typical usage", with: typical_usage
@@ -94,7 +92,7 @@ feature "Create item", type: :feature do
     fill_in "Invoice Number", with: invoice_number
 
     click_on "Invoice Date"
-    click_on day.to_s
+    find("[data-day='#{yesterday.strftime("%m/%d/%Y")}']").click
 
     fill_in "Initial Price", with: price
 
@@ -105,10 +103,10 @@ feature "Create item", type: :feature do
     click_on supplier.name
 
     click_on "Warranty expiration"
-    click_on day.to_s
+    find("[data-day='#{yesterday.strftime("%m/%d/%Y")}']").click
 
     click_on "Contract expiration"
-    click_on day.to_s
+    find("[data-day='#{yesterday.strftime("%m/%d/%Y")}']").click
 
     expect(page).not_to have_content "Room"
 
