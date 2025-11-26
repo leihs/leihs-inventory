@@ -2,11 +2,8 @@
   (:require
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.items.shared :as items-shared]
-   [leihs.inventory.server.resources.pool.list.export :refer [select-model-fields
-                                                              select-item-fields]]
+   [leihs.inventory.server.resources.pool.list.export :as list-export]
    [leihs.inventory.server.resources.pool.list.queries :refer [base-inventory-query
                                                                filter-by-type
                                                                from-category
@@ -16,12 +13,10 @@
                                                                without-items]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 model->enrich-with-image-attr]]
-   [leihs.inventory.server.utils.export :refer [csv-response]]
+   [leihs.inventory.server.utils.export :as export]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
-   [next.jdbc :as jdbc]
-   [next.jdbc.result-set :as jdbc-rs]
    [ring.util.response :refer [response]]
    [taoensso.timbre :refer [debug spy]]))
 
@@ -78,21 +73,10 @@
 
     (if (and accept-header (re-find #"text/csv" accept-header))
       (let [data (-> query
-                     (dissoc :select)
-                     (#(apply sql/select % select-model-fields))
-                     (sql/join :models [:= :inventory.id :models.id])
-                     (cond-> (true? with_items)
-                       (-> (#(apply sql/select % select-item-fields))
-                           (sql/join :items [:= :inventory.id :items.model_id])
-                           (sql/where (items-shared/owner-or-responsible-cond pool-id))
-                           (items-shared/item-query-params pool-id inventory_pool_id
-                                                           owned in_stock before_last_check
-                                                           retired borrowable broken incomplete)
-                           (sql/order-by :items.inventory_code)))
-                     sql-format
-                     (as-> <> (jdbc/execute! tx <>
-                                             {:builder-fn jdbc-rs/as-unqualified-arrays})))]
-        (csv-response data :filename "inventory-list.csv"))
+                     (list-export/sql-prepare pool-id)
+                     (sql-format :inline true) spy
+                     (->> (export/jdbc-execute! tx)))]
+        (export/csv-response data :filename "inventory-list.csv"))
       (let [post-fnc (fn [models]
                        (->> models
                             (fetch-thumbnails-for-ids tx)
