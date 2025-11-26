@@ -9,6 +9,7 @@
       "title": "Inventory",
       "last_check": "Last Checked",
       "inventory_pool_id": "Responsible department",
+      "responsible": "Responsible person",
       "is_inventory_relevant": "Relevant for inventory",
       "owner_id": "Owner",
       "user_name": "User/Typical usage"
@@ -22,12 +23,15 @@
       "supplier_id": "Supplier",
       "properties_reference": "Reference",
       "properties_warranty_expiration": "Warranty expiration",
-      "properties_p4u": "P4U-Nummer"
+      "properties_p4u": "P4U-Nummer",
+      "properties_contract_expiration": "Contract expiration"
     },
     "General Information": {
       "title": "General Information",
       "serial_number": "Serial Number",
       "properties_imei_number": "IMEI-Number",
+      "properties_mac_address": "MAC-Address",
+      "name": "Name",
       "attachments": "Attachments",
       "note": "Note"
     },
