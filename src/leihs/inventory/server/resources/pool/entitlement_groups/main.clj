@@ -5,14 +5,17 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.entitlement-groups.common :refer [create-entitlements
+                                                                            extract-by-keys
                                                                             link-groups-to-entitlement-group
                                                                             link-users-to-entitlement-group]]
-   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [enrich-with-is-quantity-ok fetch-models-of-entitlement-group]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [fetch-users-of-entitlement-group
+                                                                                             fetch-groups-of-entitlement-group
+                                                                                             enrich-with-is-quantity-ok fetch-models-of-entitlement-group]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [leihs.inventory.server.utils.request-utils :refer [body-params path-params]]
+   [leihs.inventory.server.utils.request-utils :refer [body-params path-params query-params]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [response]]))
@@ -73,21 +76,29 @@
 (defn index-resources [request]
   (try
     (let [tx (:tx request)
+          {:keys [type]} (query-params request)
+          type (when (= type "all") type)
+
           pool_id (-> request path-params :pool_id)
-          query (-> (sql/select :g.* [[:sum :e.quantity] :number_of_allocations])
-                    (sql/from [:entitlement_groups :g])
-                    (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
-                    (sql/join [:entitlements :e] [:= :e.entitlement_group_id :g.id])
-                    (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
-                    (sql/group-by :g.id)
-                    (sql/order-by :g.name))
+          query (->
+                 (sql/select :g.*)
+                 (cond-> type (sql/select [[:sum :e.quantity] :number_of_allocations]))
+
+                 (sql/from [:entitlement_groups :g])
+                 (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
+                 (cond-> type (sql/left-join [:entitlements :e] [:= :e.entitlement_group_id :g.id]))
+                 (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
+                 (cond-> type (sql/group-by :g.id))
+                 (sql/order-by :g.name))
+
           post-fnc (fn [models]
-                     (if (seq models)
-                       (let [ids (to-uuid (mapv :id models))
-                             models (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
-                             result (merge-by-id models (enrich-with-stats tx ids))]
-                         result)
-                       []))]
+                     (cond
+                       (not (seq models)) []
+                       type (let [ids (to-uuid (mapv :id models))
+                                  models (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
+                                  result (merge-by-id models (enrich-with-stats tx ids))]
+                              result)
+                       :else models))]
       (response (create-pagination-response request query nil post-fnc)))
     (catch Exception e
       (exception-handler request ERROR_GET e))))
@@ -108,14 +119,21 @@
           data (body-params request)
           models (:models data)
           models (mapv #(rename-key % :id :model_id) models)
-          entitlement_group (create-entitlement-group tx (:entitlement_group data) pool_id)
-          users (link-users-to-entitlement-group tx (:users data) (:id entitlement_group))
-          groups (link-groups-to-entitlement-group tx (:groups data) (:id entitlement_group))
 
-          entitlement_group_id (:id entitlement_group)
-          models-with-id (mapv #(assoc % :entitlement_group_id entitlement_group_id) models)]
+          eg-data (extract-by-keys data [:name :is_verification_required])
+
+          entitlement_group (create-entitlement-group tx eg-data pool_id)
+          entitlement-group-id (:id entitlement_group)
+
+          _ (link-users-to-entitlement-group tx (:users data) entitlement-group-id)
+          _ (link-groups-to-entitlement-group tx (:groups data) entitlement-group-id)
+
+          models-with-id (mapv #(assoc % :entitlement_group_id entitlement-group-id) models)
+          users (fetch-users-of-entitlement-group tx entitlement-group-id)
+          groups (fetch-groups-of-entitlement-group tx entitlement-group-id)]
+
       (create-entitlements tx models-with-id)
-      (let [models-response (fetch-models-of-entitlement-group tx pool_id entitlement_group_id)]
+      (let [models-response (fetch-models-of-entitlement-group tx pool_id entitlement-group-id)]
         (response (merge entitlement_group {:models models-response
                                             :users users
                                             :groups groups}))))

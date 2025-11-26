@@ -4,8 +4,8 @@ require "faker"
 require_relative "../_common"
 
 ["inventory_manager"].each do |role|
-  describe "Inventory templates API" do
-    context "when interacting with inventory templates as inventory_manager" do
+  describe "Inventory entitlement-groups API" do
+    context "when interacting with inventory entitlement-groups as inventory_manager" do
       include_context :setup_models_api_model, [role, false]
       include_context :generate_session_header
 
@@ -29,6 +29,10 @@ require_relative "../_common"
         array
           .select { |h| h["type"] == type || h[:type] == type }
           .map { |h| h.select { |k, _| key_strings.include?(k.to_s) } }
+      end
+
+      def filter_entitlement_by_key(array, key)
+        array.map { |h| h[key] || h[key.to_s] }
       end
 
       def filter_entitlement(array, keys)
@@ -119,16 +123,17 @@ require_relative "../_common"
 
         it "creates new users" do
           resp = create_entitlement_group({
-            entitlement_group: {name: Faker::Name.name, is_verification_required: true},
-            users: [{user_id: users.first.id}, {user_id: users.second.id}],
-            groups: [{group_id: group1.id}, {group_id: group2.id}],
-            models: [{quantity: 20, model_id: @models.first.id}, {quantity: 30, model_id: @models.second.id}]
+            name: Faker::Name.name,
+            is_verification_required: true,
+            users: [users.first.id, users.second.id],
+            groups: [group1.id, group2.id],
+            models: [{quantity: 20, id: @models.first.id}, {quantity: 30, id: @models.second.id}]
           })
           expect(resp.status).to eq(200)
-          template_id = resp.body["id"]
+          eg_id = resp.body["id"]
 
           resp = json_client_get(
-            "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
+            "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
@@ -136,16 +141,15 @@ require_relative "../_common"
           expect(resp.body["groups"].count).to eq(2)
           expect(resp.body["models"].count).to eq(2)
 
-          existing_users = filter_direct_entitlements(resp.body["users"], [:id, :user_id])
-          existing_groups = filter_entitlement(resp.body["groups"], [:id, :group_id])
           existing_models = filter_entitlement(resp.body["models"], [:id, :model_id, :quantity])
 
           resp = json_client_put(
-            "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
+            "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
             body: {
-              entitlement_group: {name: "updated-name", is_verification_required: false},
-              users: [existing_users.second],
-              groups: [existing_groups.second],
+              name: "updated-name",
+              is_verification_required: false,
+              users: [users.first.id],
+              groups: [group2.id],
               models: [existing_models.second]
             },
             headers: cookie_header
@@ -153,13 +157,9 @@ require_relative "../_common"
           expect(resp.status).to eq(200)
           expect(resp.body["name"]).to eq("updated-name")
 
-          ["users", "groups"].each do |key|
-            expect(resp.body[key]["created"].count).to eq(0)
-            expect(resp.body[key]["deleted"].count).to eq(1)
-          end
-          expect(resp.body["models"]["updated"].count).to eq(1)
-          expect(resp.body["models"]["created"].count).to eq(0)
-          expect(resp.body["models"]["deleted"].count).to eq(1)
+          expect(resp.body["users"].count).to eq(6)
+          expect(resp.body["groups"].count).to eq(1)
+          expect(resp.body["models"].count).to eq(1)
         end
 
         context "search fields" do
@@ -194,16 +194,18 @@ require_relative "../_common"
         context "try to delete" do
           let(:create_resp) do
             resp = create_entitlement_group({
-              entitlement_group: {name: Faker::Name.name, is_verification_required: true},
-              users: [{user_id: users.first.id}, {user_id: users.second.id}],
-              groups: [{group_id: group1.id}, {group_id: group2.id}],
-              models: [{quantity: 20, model_id: @models.first.id}, {quantity: 30, model_id: @models.second.id}]
+              name: Faker::Name.name,
+              is_verification_required: true,
+              users: [users.first.id, users.second.id],
+              groups: [group1.id, group2.id],
+              models: [{quantity: 20, id: @models.first.id}, {quantity: 30, id: @models.second.id}]
             })
+
             expect(resp.status).to eq(200)
-            template_id = resp.body["id"]
+            eg_id = resp.body["id"]
 
             resp = json_client_get(
-              "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
+              "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
               headers: cookie_header
             )
             expect(resp.status).to eq(200)
@@ -211,78 +213,152 @@ require_relative "../_common"
           end
 
           let(:existing_groups) do
-            filter_direct_entitlements(create_resp.body["groups"], [:id, :group_id])
-          end
-          let(:template_id) do
-            create_resp.body["id"]
-          end
-          let(:existing_users) do
-            filter_direct_entitlements(create_resp.body["groups"], [:id, :group_id])
-          end
-          let(:existing_models) do
-            filter_direct_entitlements(create_resp.body["groups"], [:id, :group_id])
+            create_resp.body["groups"]
           end
 
-          it "blocks deletion if groups/user/models are referenced" do
+          let(:eg_id) do
+            create_resp.body["id"]
+          end
+
+          let(:existing_users) do
+            create_resp.body["users"]
+          end
+
+          let(:existing_models) do
+            models = create_resp.body["models"]
+            models.map { |h| h.slice("id", "quantity") }
+          end
+
+          it "allow deletion if groups/user/models are referenced" do
             resp = json_client_delete(
-              "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
+              "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
               headers: cookie_header
             )
-            expect(resp.status).to eq(409)
+            expect(resp.status).to eq(200)
           end
 
           it "blocks deletion if models only are referenced" do
-            json_client_put(
-              "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
+            resp = json_client_put(
+              "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
               body: {
-                entitlement_group: {name: "updated-name", is_verification_required: false},
+                name: "updated-name",
+                is_verification_required: false,
                 users: [],
                 groups: [],
                 models: existing_models
               },
               headers: cookie_header
             )
+            expect(resp.status).to eq(200)
+
             resp = json_client_delete(
-              "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
+              "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
               headers: cookie_header
             )
             expect(resp.status).to eq(200)
+          end
+
+          context "search for user" do
+            it "without pagination" do
+              resp = json_client_get(
+                "/inventory/#{pool_id}/users/?search=#{existing_users.first["lastname"]}",
+                headers: cookie_header
+              )
+              expect(resp.status).to eq(200)
+              expect(resp.body.count).to eq(1)
+            end
+
+            it "with pagination" do
+              resp = json_client_get(
+                "/inventory/#{pool_id}/users/?page=1&search=#{existing_users.first["lastname"]}",
+                headers: cookie_header
+              )
+              expect(resp.status).to eq(200)
+              expect(resp.body["data"].count).to eq(1)
+            end
           end
 
           it "blocks deletion if users only are referenced" do
-            json_client_put(
-              "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
+            resp = json_client_get(
+              "/inventory/#{pool_id}/users/?search=#{existing_users.first["lastname"]}",
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(200)
+
+            resp = json_client_put(
+              "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
               body: {
-                entitlement_group: {name: "updated-name", is_verification_required: false},
-                users: existing_users,
+                name: "updated-name",
+                is_verification_required: false,
+                users: [existing_users.first["id"]],
                 groups: [],
-                models: []
+                models: [existing_models.second]
               },
               headers: cookie_header
             )
+            expect(resp.status).to eq(200)
+
             resp = json_client_delete(
-              "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
+              "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
               headers: cookie_header
             )
             expect(resp.status).to eq(200)
           end
 
+          context "search for group" do
+            it "without pagination" do
+              resp = json_client_get(
+                "/inventory/#{pool_id}/groups/?search=#{existing_groups.first["name"]}",
+                headers: cookie_header
+              )
+              expect(resp.status).to eq(200)
+              expect(resp.body.count).to eq(1)
+            end
+
+            it "with pagination" do
+              resp = json_client_get(
+                "/inventory/#{pool_id}/groups/?page=1&search=#{existing_groups.first["name"]}",
+                headers: cookie_header
+              )
+              expect(resp.status).to eq(200)
+              expect(resp.body["data"].count).to eq(1)
+            end
+          end
+
           it "allow deletion if groups only are referenced" do
-            json_client_put(
-              "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
+            resp = json_client_put(
+              "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
               body: {
-                entitlement_group: {name: "updated-name", is_verification_required: false},
+                name: "updated-name",
+                is_verification_required: false,
                 users: [],
-                groups: existing_groups,
+                groups: [existing_groups.first["id"]],
+                models: [existing_models.first]
+              },
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(200)
+
+            resp = json_client_delete(
+              "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(200)
+          end
+
+          it "block requests with no model" do
+            resp = json_client_put(
+              "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
+              body: {
+                name: "updated-name",
+                is_verification_required: false,
+                users: [],
+                groups: [existing_groups.first["id"]],
                 models: []
               },
               headers: cookie_header
             )
-            resp = json_client_delete(
-              "/inventory/#{pool_id}/entitlement-groups/#{template_id}",
-              headers: cookie_header
-            )
-            expect(resp.status).to eq(200)
+            expect(resp.status).to eq(400)
           end
         end
       end
