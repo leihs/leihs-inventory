@@ -1,11 +1,12 @@
 (ns leihs.inventory.server.resources.pool.list.export
   (:require
-   [honey.sql.helpers :as sql]))
+   [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.items.shared :as items-shared]))
 
 (def select-model-fields
-  [:models.product
-   :models.version
-   :models.manufacturer
+  [:inventory.product
+   :inventory.version
+   :inventory.manufacturer
    :models.technical_detail
    :models.internal_description
    :models.hand_over_note
@@ -49,23 +50,28 @@
         (sql/group-by :properties.model_id)) :properties]])
 
 (def select-item-fields
-  [:items.inventory_code
+  [[[:coalesce :items.inventory_code :inventory.inventory_code] :inventory_code]
    :items.serial_number
    [(-> (sql/select :suppliers.name)
         (sql/from :suppliers)
-        (sql/where [:= :suppliers.id :items.supplier_id])) :supplier]
+        (sql/where [:= :suppliers.id :items.supplier_id]))
+    :supplier]
    [(-> (sql/select :inventory_pools.name)
         (sql/from :inventory_pools)
-        (sql/where [:= :inventory_pools.id :items.owner_id])) :owner]
+        (sql/where [:= :inventory_pools.id :items.owner_id]))
+    :owner]
    [(-> (sql/select :inventory_pools.name)
         (sql/from :inventory_pools)
-        (sql/where [:= :inventory_pools.id :items.inventory_pool_id])) :responsible]
+        (sql/where [:or
+                    [:= :inventory_pools.id :items.inventory_pool_id]
+                    [:= :inventory_pools.id :inventory.inventory_pool_id]]))
+    :responsible]
    :items.invoice_number
    :items.invoice_date
    :items.last_check
    :items.retired
    :items.retired_reason
-   :items.price
+   [[:coalesce :items.price :inventory.price] :price]
    :items.is_broken
    :items.is_incomplete
    :items.is_borrowable
@@ -86,5 +92,35 @@
         (sql/where [:= :rooms.id :items.room_id])) :room]
    :items.shelf
    :items.properties
-   ]
-  )
+   [[:coalesce :delegated_users.firstname :users.firstname] :firstname]
+   [[:coalesce :delegated_users.lastname :users.lastname] :lastname]
+   [[:coalesce :delegated_users.badge_id :users.badge_id] :badge_id]
+   [[:case
+     [:is-not :delegated_users.id nil] :users.firstname
+     :else nil] :delegation_name]
+   [:reservations.end_date :lended_until]])
+
+(def timestamps
+  [[[:coalesce :items.created_at :models.created_at :options.created_at]
+    :created_at]
+   [[:coalesce :items.updated_at :models.updated_at :options.updated_at]
+    :updated_at]])
+
+(defn sql-prepare [query pool-id]
+  (-> query
+      (dissoc :select)
+      (#(apply sql/select %
+               :inventory.type
+               (concat select-model-fields select-item-fields timestamps)))
+      (sql/left-join :models [:and [:= :inventory.id :models.id]])
+      (sql/left-join :options [:and [:= :inventory.id :options.id]])
+      (sql/left-join :items [:and [:= :inventory.id :items.model_id]
+                             (items-shared/owner-or-responsible-cond pool-id)])
+      (sql/left-join :reservations [:and
+                                    [:= :items.id :reservations.item_id]
+                                    [:= :reservations.status "signed"]
+                                    [:is :reservations.returned_date nil]])
+      (sql/left-join :users [:= :reservations.user_id :users.id])
+      (sql/left-join [:users :delegated_users]
+                     [:= :reservations.delegated_user_id :delegated_users.id])
+      (sql/order-by :items.inventory_code)))
