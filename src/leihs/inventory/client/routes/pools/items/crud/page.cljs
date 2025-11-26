@@ -134,7 +134,6 @@
                             item-id (when (not= (:status item-res) "200") (:id item-res))]
 
                         (.. event (preventDefault))
-                        (js/alert "test submit item")
 
                         (when attachments-to-delete
                           (doseq [attachment-id attachments-to-delete]
@@ -176,7 +175,6 @@
                                                      (t "pool.items.item.create.success")
                                                      (t "pool.items.item.edit.success"))))
 
-                                (js/alert "before navigation")
                                 ;; state needs to be forwarded for back navigation
                                 (if is-create
                                   (navigate (str "/inventory/" pool-id "/list"
@@ -233,8 +231,9 @@
                   ($ ScrollspyMenu)
 
                   ($ Form (merge form)
-                     ($ :form {:id "create-model"
+                     ($ :form {:id "item-form"
                                :className "space-y-12 w-full lg:w-3/5"
+                               :no-validate true
                                :on-submit (handle-submit on-submit on-invalid)}
 
                         (for [section structure]
@@ -256,7 +255,7 @@
                                    :offset "50px"}
                      ($ ButtonGroup
                         ($ Button {:type "submit"
-                                   :form "create-model"
+                                   :form "item-form"
                                    :className "self-center"}
                            (if is-create
                              (t "pool.items.item.create.submit")

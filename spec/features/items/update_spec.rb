@@ -207,7 +207,6 @@ feature "Update item", type: :feature do
     # Retry clicking Save until success message appears
     # click_on_until("Save", expect: "Item was successfully saved")
     click_on "Save"
-    sleep 1
     expect(page).to have_text("Inventory List")
 
     fill_in "search", with: model_new.product
