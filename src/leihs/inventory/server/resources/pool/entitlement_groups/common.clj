@@ -6,14 +6,6 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]))
 
-(defn unique-ids
-  "Return items unique to either vec-a or vec-b (symmetric difference)."
-  [vec-a vec-b]
-  (vec
-   (set/difference
-    (set (concat vec-a vec-b))
-    (set/intersection (set vec-a) (set vec-b)))))
-
 (defn fetch-entitlements [tx entitlement-group-id]
   (let [query (-> (sql/select :e.id :e.model_id :e.entitlement_group_id :e.quantity)
                   (sql/from [:entitlements :e])
@@ -57,62 +49,85 @@
     []))
 
 (defn link-users-to-entitlement-group [tx users entitlement-group-id]
-  (let [existing-users (-> (sql/select :id :user_id)
-                           (sql/from :entitlement_groups_direct_users)
-                           (sql/where [:= :entitlement_group_id (to-uuid entitlement-group-id)])
-                           sql-format
-                           (->> (jdbc/execute! tx)
-                                (mapv :id)))
+  (let [entitlement-group-id (to-uuid entitlement-group-id)
+        existing (-> (sql/select :id :user_id)
+                     (sql/from :entitlement_groups_direct_users)
+                     (sql/where [:= :entitlement_group_id entitlement-group-id])
+                     sql-format
+                     (->> (jdbc/execute! tx)))
+        existing-map (into {} (map (juxt :user_id :id) existing))
+        existing-ids (set (keys existing-map))
+        incoming-ids (set users)
+        ids-to-delete (clojure.set/difference existing-ids incoming-ids)
+        ids-to-create (clojure.set/difference incoming-ids existing-ids)
 
-        ids-to-update (mapv :id (filter :id users))
-        ids-to-delete (unique-ids ids-to-update existing-users)
-        deleted (if (seq ids-to-delete)
-                  (jdbc/execute! tx (-> (sql/delete-from :entitlement_groups_direct_users)
-                                        (sql/where [:in :id ids-to-delete])
-                                        (sql/returning :*)
-                                        sql-format))
-                  [])
+        deleted-rows (if (seq ids-to-delete)
+                       (jdbc/execute! tx
+                                      (-> (sql/delete-from :entitlement_groups_direct_users)
+                                          (sql/where [:and
+                                                      [:= :entitlement_group_id entitlement-group-id]
+                                                      [:in :user_id (vec ids-to-delete)]])
+                                          (sql/returning :*)
+                                          sql-format))
+                       [])
 
-        users-to-create (remove :id users)
-        users-to-create (mapv #(assoc % :entitlement_group_id entitlement-group-id) users-to-create)
-        created (if (seq users-to-create)
-                  (jdbc/execute! tx (-> (sql/insert-into :entitlement_groups_direct_users)
-                                        (sql/values users-to-create)
-                                        (sql/returning :*)
-                                        sql-format))
-                  [])]
-    {:deleted deleted
-     :created created}))
+        rows-to-create (mapv (fn [uid]
+                               {:user_id uid
+                                :entitlement_group_id entitlement-group-id})
+                             ids-to-create)
+
+        created-rows (if (seq rows-to-create)
+                       (jdbc/execute! tx
+                                      (-> (sql/insert-into :entitlement_groups_direct_users)
+                                          (sql/values rows-to-create)
+                                          (sql/returning :*)
+                                          sql-format))
+                       [])]
+    {:deleted deleted-rows
+     :created created-rows}))
 
 (defn link-groups-to-entitlement-group [tx groups entitlement-group-id]
-  (let [now (java.sql.Timestamp/from (java.time.Instant/now))
-        db-groups (-> (sql/select :id)
-                      (sql/from :entitlement_groups_groups)
-                      (sql/where [:= :entitlement_group_id (to-uuid entitlement-group-id)])
-                      sql-format
-                      (->> (jdbc/execute! tx)
-                           (mapv :id)))
+  (let [entitlement-group-id (to-uuid entitlement-group-id)
+        now (java.sql.Timestamp/from (java.time.Instant/now))
+        existing (-> (sql/select :id :group_id)
+                     (sql/from :entitlement_groups_groups)
+                     (sql/where [:= :entitlement_group_id entitlement-group-id])
+                     sql-format
+                     (->> (jdbc/execute! tx)))
 
-        ids-to-update (mapv :id (filter :id groups))
-        ids-to-delete (unique-ids ids-to-update db-groups)
+        existing-map (into {} (map (juxt :group_id :id) existing))
+        existing-ids (set (keys existing-map))
+        incoming-ids (set groups)
+        ids-to-delete (clojure.set/difference existing-ids incoming-ids)
+        ids-to-create (clojure.set/difference incoming-ids existing-ids)
 
-        groups-to-create (remove :id groups)
-        groups-to-create (mapv #(assoc % :created_at now
-                                       :updated_at now
-                                       :entitlement_group_id entitlement-group-id)
-                               groups-to-create)
+        deleted-rows (if (seq ids-to-delete)
+                       (jdbc/execute! tx
+                                      (-> (sql/delete-from :entitlement_groups_groups)
+                                          (sql/where [:and
+                                                      [:= :entitlement_group_id entitlement-group-id]
+                                                      [:in :group_id (vec ids-to-delete)]])
+                                          (sql/returning :*)
+                                          sql-format))
+                       [])
 
-        deleted-groups (if (seq ids-to-delete)
-                         (jdbc/execute! tx (-> (sql/delete-from :entitlement_groups_groups)
-                                               (sql/where [:in :id ids-to-delete])
-                                               (sql/returning :*)
-                                               sql-format))
-                         [])
-        created-groups (if (seq groups-to-create)
-                         (jdbc/execute! tx (-> (sql/insert-into :entitlement_groups_groups)
-                                               (sql/values groups-to-create)
-                                               (sql/returning :*)
-                                               sql-format))
-                         [])]
-    {:deleted deleted-groups
-     :created created-groups}))
+        rows-to-create (mapv (fn [gid]
+                               {:group_id gid
+                                :entitlement_group_id entitlement-group-id
+                                :created_at now
+                                :updated_at now})
+                             ids-to-create)
+
+        created-rows (if (seq rows-to-create)
+                       (jdbc/execute! tx
+                                      (-> (sql/insert-into :entitlement_groups_groups)
+                                          (sql/values rows-to-create)
+                                          (sql/returning :*)
+                                          sql-format))
+                       [])]
+
+    {:deleted deleted-rows
+     :created created-rows}))
+
+(defn extract-by-keys [m ks]
+  (select-keys m ks))

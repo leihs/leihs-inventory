@@ -3,8 +3,8 @@ require "pry"
 require "#{File.dirname(__FILE__)}/_shared"
 require_relative "_shared"
 
-describe "Inventory API Endpoints - Model Links" do
-  context "when fetching model links for a specific inventory pool" do
+describe "Inventory API Endpoints" do
+  context "when fetching entitlement-groups for a specific inventory pool" do
     include_context :setup_models_api, "inventory_manager"
 
     before :each do
