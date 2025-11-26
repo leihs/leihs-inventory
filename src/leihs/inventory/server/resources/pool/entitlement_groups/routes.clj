@@ -14,11 +14,13 @@
 
 (defn routes []
   ["/entitlement-groups/"
-   {:get {:accept "application/json"
+   {:get {:summary (fe "a.k.a 'Anspruchsgruppen'")
+          :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}
-                       :query {(s/optional-key :page) s/Int
+                       :query {(s/optional-key :type) (s/enum "min" "all")
+                               (s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int}}
           :produces ["application/json"]
           :handler entitlement-groups/index-resources
@@ -33,10 +35,10 @@
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json"]}
            :parameters {:path {:pool_id s/Uuid}
-                        :body {:entitlement_group {:name s/Str
-                                                   :is_verification_required s/Bool}
-                               :users [{:user_id s/Uuid}]
-                               :groups [{:group_id s/Uuid}]
+                        :body {:name s/Str
+                               :is_verification_required s/Bool
+                               :users [s/Uuid]
+                               :groups [s/Uuid]
                                :models [{:id s/Uuid
                                          :quantity types/PosInt}]}}
            :produces ["application/json"]
