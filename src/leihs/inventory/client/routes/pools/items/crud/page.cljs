@@ -134,6 +134,7 @@
                             item-id (when (not= (:status item-res) "200") (:id item-res))]
 
                         (.. event (preventDefault))
+                        (js/alert "test submit item")
 
                         (when attachments-to-delete
                           (doseq [attachment-id attachments-to-delete]
@@ -175,7 +176,8 @@
                                                      (t "pool.items.item.create.success")
                                                      (t "pool.items.item.edit.success"))))
 
-                            ;; state needs to be forwarded for back navigation
+                                (js/alert "before navigation")
+                                ;; state needs to be forwarded for back navigation
                                 (if is-create
                                   (navigate (str "/inventory/" pool-id "/list"
                                                  (some-> state .-searchParams))
