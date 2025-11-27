@@ -6,8 +6,9 @@
    [reitit.coercion.schema]
    [reitit.coercion.spec]))
 
+;; Custom not-found handler except /inventory routes ?
 (defn custom-not-found-handler [request]
-  (println ">o> custom-not-found-handler: " (:uri request))
+  (println ">o> custom-not-found-handler (except /inventory/* routes): " (:uri request))
   (let [accept (str/lower-case (or (get-in request [:headers "accept"]) ""))
         uri (:uri request)
         inventory-route? (str/includes? uri "/inventory")]

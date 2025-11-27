@@ -8,6 +8,7 @@
    [ring.middleware.accept]
    [ring.util.response :as response]))
 
+;; create spa-response
 (defn index-html-response
 
   ([request]

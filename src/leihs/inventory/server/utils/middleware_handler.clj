@@ -95,11 +95,13 @@
         :else
         (-> (response "") (status resp-status) (content-type "text/html"))))))
 
+;; Error handling for public image/thumb/attachment URLs
 (defn wrap-html-40x
   "Wraps a handler so that for matching URIs (by regex) with Accept text/html,
    if the handler returns a 40x, we return SPA-HTML response"
   [handler url-patterns]
   (fn [request]
+    (println ">o> abc.wrap-html-40x" (:uri request))
     (let [resp (handler request)
           uri (:uri request)
           accept (some-> (get-in request [:headers "accept"]) str/lower-case)
