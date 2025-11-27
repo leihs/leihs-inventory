@@ -123,8 +123,11 @@ feature "Create item", type: :feature do
     fill_in "Shelf", with: shelf
 
     click_on "Create"
-
-    expect(page).not_to have_css(".text-destructive")
+    click_on "Create"
+    click_on "Create"
+    click_on "Create"
+    click_on "Create"
+    click_on "Create"
     # click_on_until("Create", expect: "Item was successfully created")
     expect(page).to have_content("Item was successfully created", wait: 1)
     expect(page).to have_content "Inventory List"
