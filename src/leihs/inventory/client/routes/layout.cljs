@@ -1,5 +1,6 @@
 (ns leihs.inventory.client.routes.layout
   (:require
+   ["@@/console-feed" :refer [LogsContainer]]
    ["@@/sonner" :refer [Toaster]]
    ["@@/tooltip" :refer [Tooltip TooltipTrigger TooltipContent TooltipProvider]]
    ["react-router-dom" :as router :refer [Outlet]]
@@ -14,6 +15,7 @@
        ($ :<>
           ($ header/main profile)
           ($ :main {:className "container"}
+             ($ LogsContainer)
              ($ Outlet)
              ($ Toaster {:position "top-center"
                          :closeButton true
