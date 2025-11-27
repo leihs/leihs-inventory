@@ -178,7 +178,7 @@
            :produces ["text/html"]
            :handler (fn [request]
 
-                      (println ">o> inventory-defaults: " (:uri request) )
+                      (println ">o> inventory-defaults: " (:uri request))
 
                       (let [router (:reitit.router request)
                             method (:request-method request)
@@ -186,10 +186,7 @@
                             route-data (endpoint-exists? router method uri)
                             exists? (boolean route-data)]
                         (if (authenticated? request)
-                          ;(if exists?
-                          ;  (rh/index-html-response request 200)
-                          ;  (rh/index-html-response request 404))
-                            (rh/index-html-response request)
+                          (rh/index-html-response request)
                           (let [query-string (:query-string request)
                                 full-url (if query-string
                                            (str uri "?" query-string)

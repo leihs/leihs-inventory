@@ -7,6 +7,7 @@
    [reitit.coercion.spec]))
 
 (defn custom-not-found-handler [request]
+  (println ">o> custom-not-found-handler: " (:uri request))
   (let [accept (str/lower-case (or (get-in request [:headers "accept"]) ""))
         uri (:uri request)
         inventory-route? (str/includes? uri "/inventory")]
