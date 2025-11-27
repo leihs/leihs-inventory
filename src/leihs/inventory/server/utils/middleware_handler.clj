@@ -42,7 +42,7 @@
                                            :message "Error occurred"}))
           (status code)
           (content-type "application/json"))
-      (rh/index-html-response request code))))
+      (rh/index-html-response request))))
 
 (defn endpoint-exists?
   "Check if an endpoint exists for a given method + uri.
