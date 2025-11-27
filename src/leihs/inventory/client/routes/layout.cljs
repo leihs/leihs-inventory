@@ -15,7 +15,9 @@
        ($ :<>
           ($ header/main profile)
           ($ :main {:className "container"}
-             ($ LogsContainer)
+
+             ($ :div {:className "fixed bg-white shadow-lg z-50 bottom-20 left-12 rounded-lg"}
+                ($ LogsContainer))
              ($ Outlet)
              ($ Toaster {:position "top-center"
                          :closeButton true
