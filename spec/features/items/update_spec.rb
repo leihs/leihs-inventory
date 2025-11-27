@@ -204,9 +204,8 @@ feature "Update item", type: :feature do
 
     fill_in "Shelf", with: shelf_new
 
-    # Retry clicking Save until success message appears
-    # click_on_until("Save", expect: "Item was successfully saved")
     click_on "Save"
+    export(page).to have_text("Item was successfully saved")
     expect(page).to have_text("Inventory List")
 
     fill_in "search", with: model_new.product
@@ -290,5 +289,9 @@ feature "Update item", type: :feature do
     expect(inventory_code_field).to be_disabled
     inventory_code_field.hover
     expect(page).to have_content("Only the owner can edit this field")
+
+    click_on "Save"
+    expect(page).to have_text("Item was successfully saved")
+    expect(page).to have_text("Inventory List")
   end
 end
