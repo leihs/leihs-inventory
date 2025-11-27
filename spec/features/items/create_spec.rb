@@ -50,6 +50,8 @@ feature "Create item", type: :feature do
     expect(page).to have_content model.product
     click_on model.product
 
+    click_on "asdf"
+
     fill_in "Serial Number", with: serial_number
     fill_in "MAC-Address", with: mac_address
     fill_in "IMEI-Number", with: imei_number

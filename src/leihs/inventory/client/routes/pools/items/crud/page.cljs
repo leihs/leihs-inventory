@@ -77,7 +77,6 @@
                                              #js {:count invalid-fields-count})
                                           (t "pool.items.item.edit.invalid"
                                              #js {:count invalid-fields-count}))))
-                       (js/alert (js/JSON.stringify data))
 
                        (js/console.debug "is invalid: " data)))
 
@@ -86,8 +85,6 @@
         handle-submit (.. form -handleSubmit)
         on-submit (fn [submit-data event]
                     (go
-                      (js/alert "hello")
-
                       (let [attachments (if is-create
                                           (:attachments (jc submit-data))
                                           (filter (fn [el] (= (:id el) nil))
