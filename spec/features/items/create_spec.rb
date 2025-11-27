@@ -123,8 +123,9 @@ feature "Create item", type: :feature do
     fill_in "Shelf", with: shelf
 
     click_on "Create"
+    sleep 10
     # click_on_until("Create", expect: "Item was successfully created")
-    expect(page).to have_content("Item was successfully created", wait: 1)
+    expect(page).to have_content("Item was successfully created")
     expect(page).to have_content "Inventory List"
 
     fill_in "search", with: model.product
