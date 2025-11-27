@@ -41,6 +41,41 @@
    [leihs.inventory.server.resources.pool.templates.routes :as templates]
    [leihs.inventory.server.resources.pool.templates.template.routes :as template]
    [leihs.inventory.server.resources.profile.routes :as profile]
+
+
+   ;[leihs.core.anti-csrf.back :as anti-csrf]
+   ;[leihs.core.db :as db]
+   ;[leihs.core.http-cache-buster2 :as cache-buster2]
+   ;[leihs.core.ring-audits :as ring-audits]
+   ;[leihs.core.routing.back :as core-routing]
+   ;[leihs.core.routing.dispatch-content-type :as dispatch-content-type]
+   ;;[leihs.core.settings :as settings]
+   ;[leihs.inventory.server.resources.routes :as routes]
+   ;[leihs.inventory.server.swagger :as swagger]
+   ;[leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
+   ;[leihs.inventory.server.utils.csrf-handler :as csrf]
+   ;[leihs.inventory.server.utils.debug :as debug-mw]
+   ;[leihs.inventory.server.utils.exception-handler :refer [wrap-exception]]
+   ;[leihs.inventory.server.utils.middleware-handler :refer [wrap-html-40x
+   ;                                                         wrap-strict-format-negotiate
+   ;                                                         wrap-session-token-authenticate!]]
+   ;[leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
+   ;[muuntaja.core :as m]
+   ;[reitit.coercion.schema]
+   ;[reitit.coercion.spec]
+   ;[reitit.dev.pretty :as pretty]
+   ;[reitit.ring :as ring]
+   [reitit.ring.coercion :as coercion]
+   [reitit.ring.middleware.multipart :as multipart]
+   [reitit.ring.middleware.muuntaja :as muuntaja]
+   [reitit.ring.middleware.parameters :as parameters]
+   ;[reitit.swagger]
+   ;[ring.middleware.content-type :refer [wrap-content-type]]
+   ;[ring.middleware.cookies :refer [wrap-cookies]]
+   ;[ring.middleware.default-charset :refer [wrap-default-charset]]
+   ;[ring.middleware.params :refer [wrap-params]]
+
+
    [leihs.inventory.server.resources.session.protected.routes :as session-protected]
    [leihs.inventory.server.resources.session.public.routes :as session-public]
    [leihs.inventory.server.resources.settings.routes :as settings]
@@ -206,6 +241,9 @@
 (defn swagger-endpoints []
   ["/"
 
+   {:middleware [                  reitit.swagger/swagger-feature
+                 ]}
+
    ["api-docs"
     {:get {:handler swagger-api-docs-handler
            :public true
@@ -309,7 +347,19 @@
    (sign-in-out-endpoints)
    ["inventory"
     {:swagger {:tags [""]}
-     :middleware [wrap-authorize]}
+     :middleware [
+
+                  parameters/parameters-middleware
+                  muuntaja/format-negotiate-middleware
+                  muuntaja/format-response-middleware
+
+                  muuntaja/format-request-middleware
+                  coercion/coerce-response-middleware
+                  coercion/coerce-request-middleware
+                  multipart/multipart-middleware
+
+                  wrap-authorize
+                  ]}
     (settings-endpoint)
     (swagger-endpoints)
     (csrf-endpoints)

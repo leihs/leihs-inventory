@@ -30,9 +30,12 @@
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.cookies :refer [wrap-cookies]]
    [ring.middleware.default-charset :refer [wrap-default-charset]]
-   [ring.middleware.params :refer [wrap-params]]))
+   [ring.middleware.params :refer [wrap-params]]
 
-(def middlewares [debug-mw/wrap-debug
+   ))
+
+(def middlewares [
+                  debug-mw/wrap-debug
                   #(wrap-html-40x % [#"/inventory/.+/images/.+"
                                      #"/inventory/.+/images/.+/thumbnail"
                                      #"/inventory/.+/attachments/.+"])
@@ -42,7 +45,7 @@
                   wrap-strict-format-negotiate
                   wrap-handle-coercion-error
                   db/wrap-tx
-                  settings/wrap
+                  ;settings/wrap
                   core-routing/wrap-canonicalize-params-maps
                   muuntaja/format-middleware
                   ring-audits/wrap
@@ -59,15 +62,18 @@
                   wrap-content-type
                   dispatch-content-type/wrap-accept
 
-                  reitit.swagger/swagger-feature
-                  parameters/parameters-middleware
-                  muuntaja/format-negotiate-middleware
-                  muuntaja/format-response-middleware
+                  ;reitit.swagger/swagger-feature
 
-                  muuntaja/format-request-middleware
-                  coercion/coerce-response-middleware
-                  coercion/coerce-request-middleware
-                  multipart/multipart-middleware])
+
+                  ;parameters/parameters-middleware
+                  ;muuntaja/format-negotiate-middleware
+                  ;muuntaja/format-response-middleware
+                  ;
+                  ;muuntaja/format-request-middleware
+                  ;coercion/coerce-response-middleware
+                  ;coercion/coerce-request-middleware
+                  ;multipart/multipart-middleware
+                  ])
 
 (def cache-bust-options
   {:cache-bust-paths [#"^/inventory/assets/.*\.(js|css|png|jpg|svg|woff2?)$"]
