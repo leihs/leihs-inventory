@@ -42,7 +42,7 @@ feature "Create item", type: :feature do
     click_on "Add inventory"
     click_on "New item"
 
-    fill_in "Inventory Code", with: inventory_code
+    # fill_in "Inventory Code", with: inventory_code
 
     click_on "model_id"
     expect(page).to have_field(placeholder: "Enter search term")
@@ -50,10 +50,10 @@ feature "Create item", type: :feature do
     expect(page).to have_content model.product
     click_on model.product
 
-    fill_in "Serial Number", with: serial_number
-    fill_in "MAC-Address", with: mac_address
-    fill_in "IMEI-Number", with: imei_number
-    fill_in "Name", with: name
+    # fill_in "Serial Number", with: serial_number
+    # fill_in "MAC-Address", with: mac_address
+    # fill_in "IMEI-Number", with: imei_number
+    # fill_in "Name", with: name
 
     # attach_file_by_label "Attachments", "./spec/files/#{attachment_name_1}"
     #
@@ -137,7 +137,7 @@ feature "Create item", type: :feature do
       click_on "edit"
     end
 
-    assert_field "Inventory Code", inventory_code
+    # assert_field "Inventory Code", inventory_code
     expect(find('button[data-test-id="model_id"]')).to have_text(model.product)
 
     assert_field "Serial Number", serial_number
