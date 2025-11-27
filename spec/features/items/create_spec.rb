@@ -50,8 +50,6 @@ feature "Create item", type: :feature do
     expect(page).to have_content model.product
     click_on model.product
 
-    click_on "asdf"
-
     fill_in "Serial Number", with: serial_number
     fill_in "MAC-Address", with: mac_address
     fill_in "IMEI-Number", with: imei_number
@@ -124,7 +122,9 @@ feature "Create item", type: :feature do
 
     fill_in "Shelf", with: shelf
 
-    click_on_until("Create", expect: "Item was successfully created")
+    click_on "Create"
+    # click_on_until("Create", expect: "Item was successfully created")
+    expect(page).to have_content("Item was successfully created", wait: 1)
     expect(page).to have_content "Inventory List"
 
     fill_in "search", with: model.product
@@ -246,12 +246,12 @@ feature "Create item", type: :feature do
 
     click_on "Create"
 
-    expect(page).to have_text("Inventory code already exists", wait: 10)
+    expect(page).to have_text("Inventory code already exists", wait: 1)
     click_on "Update"
 
     click_on "Create"
 
-    expect(page).to have_text("Item was successfully created", wait: 10)
+    expect(page).to have_text("Item was successfully created", wait: 1)
   end
 
   scenario "cancel works" do
