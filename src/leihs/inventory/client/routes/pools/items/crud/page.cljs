@@ -254,44 +254,51 @@
                                                      :form form
                                                      :block block}))))))
 
-                  ($ StickyBottom {:class-name "ml-auto"
-                                   :offset "50px"}
-                     ($ ButtonGroup
-                        ($ Button {:type "submit"
-                                   :form "item-form"
-                                   :className "self-center"}
-                           (if is-create
-                             (t "pool.items.item.create.submit")
-                             (t "pool.items.item.edit.submit")))
-                        ($ ButtonGroupSeparator)
-                        ($ DropdownMenu
-                           ($ DropdownMenuTrigger {:asChild true}
-                              ($ Button {:data-test-id "submit-dropdown"
-                                         :className "self-center !px-2"}
-                                 ($ ChevronDownIcon)))
+                  ($ Button {:type "submit"
+                             :form "item-form"
+                             :className "self-center"}
+                     (if is-create
+                       (t "pool.items.item.create.submit")
+                       (t "pool.items.item.edit.submit")))
 
-                           ($ DropdownMenuContent {:align "end"
-                                                   :class-name "[--radius:1rem]"}
-                              ($ DropdownMenuGroup
-                                 ($ DropdownMenuItem
-                                    {:asChild true}
-                                    ($ Link {:to (str (router/generatePath "/inventory/:pool-id/list" params)
-                                                      (some-> state .-searchParams))
-                                             :viewTransition true}
-                                       (if is-create
-                                         (t "pool.items.item.create.cancel")
-                                         (t "pool.items.item.edit.cancel")))))
+                  #_($ StickyBottom {:class-name "ml-auto"
+                                     :offset "50px"}
+                       ($ ButtonGroup
+                          ($ Button {:type "submit"
+                                     :form "item-form"
+                                     :className "self-center"}
+                             (if is-create
+                               (t "pool.items.item.create.submit")
+                               (t "pool.items.item.edit.submit")))
+                          ($ ButtonGroupSeparator)
+                          ($ DropdownMenu
+                             ($ DropdownMenuTrigger {:asChild true}
+                                ($ Button {:data-test-id "submit-dropdown"
+                                           :className "self-center !px-2"}
+                                   ($ ChevronDownIcon)))
+
+                             ($ DropdownMenuContent {:align "end"
+                                                     :class-name "[--radius:1rem]"}
+                                ($ DropdownMenuGroup
+                                   ($ DropdownMenuItem
+                                      {:asChild true}
+                                      ($ Link {:to (str (router/generatePath "/inventory/:pool-id/list" params)
+                                                        (some-> state .-searchParams))
+                                               :viewTransition true}
+                                         (if is-create
+                                           (t "pool.items.item.create.cancel")
+                                           (t "pool.items.item.edit.cancel")))))
 
                               ;; prepared for "ausmustern"
-                              #_($ DropdownMenuSeparator)
+                                #_($ DropdownMenuSeparator)
 
-                              #_($ DropdownMenuGroup
-                                   (when (not is-create)
-                                     ($ DropdownMenuItem {:variant "destructive"
-                                                          :asChild true}
-                                        ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
-                                                 :state state}
-                                           "Delete"))))))))
+                                #_($ DropdownMenuGroup
+                                     (when (not is-create)
+                                       ($ DropdownMenuItem {:variant "destructive"
+                                                            :asChild true}
+                                          ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
+                                                   :state state}
+                                             "Delete"))))))))
 
                   ;; prepared for "ausmustern"
                   #_(when (not is-create)
