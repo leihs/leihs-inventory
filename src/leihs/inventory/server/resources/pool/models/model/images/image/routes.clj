@@ -13,7 +13,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/models/:model_id/images/:image_id"
+  ["/:image_id"
    {:get {:summary (fe "")
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}

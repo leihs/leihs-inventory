@@ -43,6 +43,10 @@
    [leihs.inventory.server.resources.profile.routes :as profile]
 
 
+   [leihs.inventory.server.utils.middleware-handler :refer [wrap-html-40x
+                                                            wrap-strict-format-negotiate
+                                                            wrap-session-token-authenticate!]]
+
    ;[leihs.core.anti-csrf.back :as anti-csrf]
    ;[leihs.core.db :as db]
    ;[leihs.core.http-cache-buster2 :as cache-buster2]
@@ -301,9 +305,18 @@
                       (sw-software/routes)
                       (option/routes)
                       (options/routes)
+
+                      ["/models/:model_id/images"
+
+                       {:middleware [#(wrap-html-40x % [#"/inventory/.+/images/.+"
+                                                        #"/inventory/.+/images/.+/thumbnail"
+                                                        #"/inventory/.+/attachments/.+"])]}
+
                       (image/routes)
                       (images/routes)
                       (images-thumbnail/routes)
+                      ]
+
                       (attachment/routes)
                       (attachments/routes)
                       (items/routes)

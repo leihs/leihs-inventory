@@ -11,7 +11,9 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/models/:model_id/images/"
+
+
+  ["/"
    {:post {:accept "application/json"
            :summary (fe "")
            :description (str "- Limitations: " (config-get :api :images :max-size-mb) " MB\n"
@@ -44,4 +46,8 @@
           :responses {200 {:description "OK"
                            :body get-images-response}
                       404 {:description "Not Found"}
-                      500 {:description "Internal Server Error"}}}}])
+                      500 {:description "Internal Server Error"}}}}]
+
+
+
+  )

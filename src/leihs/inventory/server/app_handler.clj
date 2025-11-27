@@ -36,9 +36,9 @@
 
 (def middlewares [
                   debug-mw/wrap-debug
-                  #(wrap-html-40x % [#"/inventory/.+/images/.+"
-                                     #"/inventory/.+/images/.+/thumbnail"
-                                     #"/inventory/.+/attachments/.+"])
+                  ;#(wrap-html-40x % [#"/inventory/.+/images/.+"
+                  ;                   #"/inventory/.+/images/.+/thumbnail"
+                  ;                   #"/inventory/.+/attachments/.+"])
                   muuntaja/format-response-middleware
                   wrap-exception
 

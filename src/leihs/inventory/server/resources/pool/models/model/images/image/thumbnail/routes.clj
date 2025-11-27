@@ -6,11 +6,16 @@
    [leihs.inventory.server.resources.pool.models.model.images.image.types :as image]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
+
+   [leihs.inventory.server.utils.middleware-handler :refer [wrap-html-40x
+                                                            wrap-strict-format-negotiate
+                                                            wrap-session-token-authenticate!]]
+
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn routes []
-  ["/models/:model_id/images/:image_id/thumbnail"
+  ["/:image_id/thumbnail"
    {:get {:description "Determines image thumbnail by targetID"
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
