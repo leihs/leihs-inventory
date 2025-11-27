@@ -11,5 +11,5 @@
         uri (:uri request)
         inventory-route? (str/includes? uri "/inventory")]
     (if (and (str/includes? accept "text/html") inventory-route?)
-      (rh/index-html-response request 404)
+      (rh/index-html-response request)
       (create-response-by-accept accept 404 {:error "Not Found" :status "failure"}))))

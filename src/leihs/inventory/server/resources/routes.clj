@@ -177,15 +177,19 @@
      :get {:description "Public assets like JS, CSS, images"
            :produces ["text/html"]
            :handler (fn [request]
+
+                      (println ">o> inventory-defaults: " (:uri request) )
+
                       (let [router (:reitit.router request)
                             method (:request-method request)
                             uri (:uri request)
                             route-data (endpoint-exists? router method uri)
                             exists? (boolean route-data)]
                         (if (authenticated? request)
-                          (if exists?
-                            (rh/index-html-response request 200)
-                            (rh/index-html-response request 404))
+                          ;(if exists?
+                          ;  (rh/index-html-response request 200)
+                          ;  (rh/index-html-response request 404))
+                            (rh/index-html-response request)
                           (let [query-string (:query-string request)
                                 full-url (if query-string
                                            (str uri "?" query-string)
@@ -248,7 +252,7 @@
                           {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
                         (catch Exception e
                           (error "Error processing swagger-ui request:" e)
-                          (rh/index-html-response request 406))))}}]])
+                          (rh/index-html-response request))))}}]])
 
 (defn visible-api-endpoints
   "Returns a vector of the core routes plus any additional routes passed in."

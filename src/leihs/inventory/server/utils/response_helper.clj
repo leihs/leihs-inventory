@@ -8,7 +8,12 @@
    [ring.middleware.accept]
    [ring.util.response :as response]))
 
-(defn index-html-response [request status]
+(defn index-html-response
+
+  ([request]
+   (index-html-response request 200))
+
+(  [request status]
   (let [index (io/resource "public/inventory/index.html")
         html (slurp index)
         uuid (anti-csrf-token request)
@@ -17,4 +22,4 @@
         html-with-csrf (add-csrf-tags request html params)]
     (-> (response/response html-with-csrf)
         (response/status status)
-        (response/content-type "text/html; charset=utf-8"))))
+        (response/content-type "text/html; charset=utf-8"))))  )
