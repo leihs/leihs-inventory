@@ -84,6 +84,7 @@
 
         handle-submit (.. form -handleSubmit)
         on-submit (fn [submit-data event]
+                    (js/console.debug "in submit")
                     (go
                       (let [attachments (if is-create
                                           (:attachments (jc submit-data))
@@ -134,6 +135,7 @@
                             item-id (when (not= (:status item-res) "200") (:id item-res))]
 
                         (.. event (preventDefault))
+                        (js/console.debug "after let")
 
                         (when attachments-to-delete
                           (doseq [attachment-id attachments-to-delete]
@@ -176,6 +178,7 @@
                                                      (t "pool.items.item.edit.success"))))
 
                                 ;; state needs to be forwarded for back navigation
+                                (js/console.debug "before navigation")
                                 (if is-create
                                   (navigate (str "/inventory/" pool-id "/list"
                                                  (some-> state .-searchParams))
