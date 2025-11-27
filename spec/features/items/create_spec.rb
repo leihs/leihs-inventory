@@ -122,7 +122,9 @@ feature "Create item", type: :feature do
 
     fill_in "Shelf", with: shelf
 
-    click_on_until("Create", expect: "Item was successfully created")
+    binding.pry
+    click_on "Create"
+    expect(page).to have_text "Item was successfully created"
     expect(page).to have_content "Inventory List"
 
     fill_in "search", with: model.product
