@@ -15,7 +15,7 @@
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug]]))
+   [taoensso.timbre :refer [debug spy]]))
 
 (def ERROR_UPDATE_ITEM "Failed to update item")
 
@@ -44,13 +44,14 @@
                   409)
           (let [item-data-coerced (coerce-field-values item-data in-coercions)
                 properties-json (or (not-empty properties) {})
-                item-data-with-properties (assoc item-data-coerced
-                                                 :properties [:lift properties-json])
+                item-data-with-properties (cond-> item-data-coerced
+                                            (contains? item-data-coerced :properties)
+                                            (assoc :properties [:lift properties-json]))
                 sql-query (-> (sql/update :items)
                               (sql/set item-data-with-properties)
                               (sql/where [:= :id item_id])
                               (sql/returning :*)
-                              sql-format)
+                              (sql-format :inline true))
                 result (jdbc/execute-one! tx sql-query)]
             (if result
               (response (-> result

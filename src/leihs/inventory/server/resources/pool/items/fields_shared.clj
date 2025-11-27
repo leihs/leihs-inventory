@@ -75,8 +75,9 @@
       {:error "Model type 'Software' is not allowed for items"
        :model_id model-id}
 
-      (or (and item_id (not= (authorized-role-for-pool request owner-id)
-                             "inventory_manager")
+      (or (and item_id owner-id
+               (not= (authorized-role-for-pool request owner-id)
+                     "inventory_manager")
                (not= owner-id pool-id))
           (and (not item_id) (not= owner-id pool-id)))
       {:error "Unpermitted owner_id"
@@ -105,6 +106,9 @@
    :price (fn [v _] (when v (format "%.2f" v)))})
 
 (defn coerce-field-values [item-data c-set]
-  (reduce (fn [m [k c-fn]] (update m k c-fn item-data))
+  (reduce (fn [m [k c-fn]]
+            (if (contains? item-data k)
+              (update m k c-fn item-data)
+              m))
           item-data
           c-set))
