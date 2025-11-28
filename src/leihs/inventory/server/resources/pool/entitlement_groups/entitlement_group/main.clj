@@ -9,7 +9,6 @@
                                                                             link-users-to-entitlement-group
                                                                             link-groups-to-entitlement-group
                                                                             extract-by-keys
-                                                                            extract-ids
                                                                             fetch-entitlements]]
    [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [analyze-and-prepare-data
                                                                                              update-entitlement-group
@@ -91,9 +90,9 @@
           models (:models data)
 
           _ (link-users-to-entitlement-group tx (->> (:users data)
-                                                    (mapv :id)) entitlement-group-id)
-          _ (link-groups-to-entitlement-group tx (->> (:groups data)
                                                      (mapv :id)) entitlement-group-id)
+          _ (link-groups-to-entitlement-group tx (->> (:groups data)
+                                                      (mapv :id)) entitlement-group-id)
 
           entitlement-group (update-entitlement-group tx eg-data entitlement-group-id)
 
