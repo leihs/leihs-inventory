@@ -3,6 +3,8 @@
    ["@@/button" :refer [Button]]
    ["@@/dropzone" :refer [Dropzone DropzoneArea DropzoneFiles ErrorMessages
                           Item]]
+   ["@@/form" :refer [FormField FormItem FormLabel
+                      FormControl FormMessage]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
    ["lucide-react" :refer [Trash Eye]]
@@ -21,11 +23,13 @@
   (when (seq items)
     (some #(when (= id (:id %)) (:url %)) items)))
 
-(defui main [{:keys [form props]}]
+(defui main [{:keys [form name label props]}]
   (let [set-value (aget form "setValue")
         get-values (aget form "getValues")
         [t] (useTranslation)
         {:keys [data]} (useLoaderData)
+
+        control (cj (.-control form))
 
         [attachments set-attachments!] (uix.core/use-state [])
         [error set-error!] (uix.core/use-state nil)
@@ -60,44 +64,52 @@
        (set-value "attachments" (cj (vec attachments))))
      [set-value attachments])
 
-    ($ Dropzone
-       ($ DropzoneArea (merge
-                        {:multiple (:multiple props)
-                         ;; :filetypes (:filetypes props)
-                         :onDrop handle-drop}))
+    ($ FormField
+       {:control control
+        :name name
+        :render #($ FormItem
+                    ($ Dropzone
+                       (when label
+                         ($ FormLabel {:class-name "mt-6"} label))
+                       ($ FormControl
+                          ($ DropzoneArea (merge
+                                           {:disabled (:disabled props)
+                                            :multiple (:multiple props)
+                                            ;; :filetypes (:filetypes props)
+                                            :onDrop handle-drop})))
 
-       (when error ($ ErrorMessages {:rejections error}))
+                       (when error ($ ErrorMessages {:rejections error}))
 
-       (when (seq attachments)
-         ($ DropzoneFiles
-            ($ Table
-               ($ TableBody
-                  (for [[index attachment] (map-indexed vector attachments)]
-                    ($ TableRow {:key (.. (:file attachment) -name)}
+                       (when (seq attachments)
+                         ($ DropzoneFiles
+                            ($ Table
+                               ($ TableBody
+                                  (for [[index attachment] (map-indexed vector attachments)]
+                                    ($ TableRow {:key (.. (:file attachment) -name)}
 
-                       ($ Item {:file (:file attachment)
-                                :generatePreview false}
+                                       ($ Item {:file (:file attachment)
+                                                :generatePreview false}
 
-                          ($ TableCell
-                             ($ :div {:className "flex justify-end space-x-4"}
-                                ($ Button {:asChild true
-                                           :variant "outline"
-                                           :size "icon"
-                                           :type "button"
-                                           :className "select-none cursor-pointer"}
-                                   ($ :a {:target "_blank"
-                                          :href (get-url-from-id
-                                                 (:id attachment)
-                                                 (:attachments data))}
-                                      ($ Eye {:className "w-4 h-4"})))
+                                          ($ TableCell
+                                             ($ :div {:className "flex justify-end space-x-4"}
+                                                ($ Button {:asChild true
+                                                           :variant "outline"
+                                                           :size "icon"
+                                                           :type "button"
+                                                           :className "select-none cursor-pointer"}
+                                                   ($ :a {:target "_blank"
+                                                          :href (get-url-from-id
+                                                                 (:id attachment)
+                                                                 (:attachments data))}
+                                                      ($ Eye {:className "w-4 h-4"})))
 
-                                ($ Button {:variant "outline"
-                                           :size "icon"
-                                           :type "button"
-                                           :onClick (fn [] (handle-delete index))
-                                           :className "select-none cursor-pointer"}
+                                                ($ Button {:variant "outline"
+                                                           :size "icon"
+                                                           :type "button"
+                                                           :onClick (fn [] (handle-delete index))
+                                                           :className "select-none cursor-pointer"}
 
-                                   ($ Trash {:className "w-4 h-4"}))))))))))))))
+                                                   ($ Trash {:className "w-4 h-4"})))))))))))))})))
 
 (def Attachments
   (uix/as-react

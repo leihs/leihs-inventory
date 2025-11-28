@@ -156,7 +156,8 @@
                                             #js {:state state
                                                  :viewTransition true})))
 
-                          :default (.. toast (error :statusText template-res))))))]
+                          ;; default
+                          (.. toast (error :statusText template-res))))))]
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}

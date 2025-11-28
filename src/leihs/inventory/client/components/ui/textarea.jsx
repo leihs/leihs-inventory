@@ -3,7 +3,7 @@ import { cn } from "@/components/ui/utils"
 
 const Textarea = React.forwardRef(
   (
-    { className, autoscale = false, resize = true, onBlur, onFocus, ...props },
+    { className, autoscale = true, resize = true, onBlur, onFocus, ...props },
     ref,
   ) => {
     const [isFocused, setIsFocused] = React.useState(false)

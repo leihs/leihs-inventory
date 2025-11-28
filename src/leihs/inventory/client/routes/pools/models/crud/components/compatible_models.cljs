@@ -5,7 +5,7 @@
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
-   ["lucide-react" :refer [Check ChevronsUpDown Image Trash Loader2Icon]]
+   ["lucide-react" :refer [Check ChevronsUpDown Image Loader2Icon Trash]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [useParams]]
@@ -111,7 +111,7 @@
                                                       (not (check-path-existing (:product element) fields))
                                                        (append (cj {:product (:product element)
                                                                     :version (:version element)
-                                                                    :cover_image_url (:cover_image_url element)
+                                                                    :url (:url element)
                                                                     :id (:id element)}))
                                                        (remove (find-index-from-path (:product element) fields))))}
 
@@ -137,8 +137,8 @@
                       ($ TableRow {:class-name "" :key index}
 
                          ($ TableCell {:class-name "w-0"}
-                            (if (:cover_image_url field)
-                              ($ :img {:src (:cover_image_url field)
+                            (if (:url field)
+                              ($ :img {:src (str (:url field) "/thumbnail")
                                        :class-name "min-w-10 h-10 object-cover rounded-sm"})
                               ($ Image {:class-name "w-10 h-10 scale-[1.2]"})))
 
