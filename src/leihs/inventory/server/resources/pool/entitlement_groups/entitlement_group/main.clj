@@ -24,7 +24,9 @@
    [ring.util.response :refer [response status]]
    [taoensso.timbre :refer [error]]))
 
-(def ERROR_GET "Failed to get entitlement-groups")
+(def ERROR_GET "Failed to get entitlement-group")
+(def ERROR_DELETE "Failed to delete entitlement-group")
+(def ERROR_PUT "Failed to update entitlement-group")
 
 (defn- verify-unique-entries! [request]
   (let [models (-> request body-params :models)
@@ -76,8 +78,8 @@
         (status (response {:status "failure" :message "No entry found"}) 404)))
 
     (catch Exception e
-      (error e "Error deleting entitlement group")
-      (exception-handler request ERROR_GET e))))
+      (error e ERROR_DELETE)
+      (exception-handler request ERROR_DELETE e))))
 
 (defn put-resource [request]
   (try
@@ -88,10 +90,10 @@
           eg-data (extract-by-keys data [:name :is_verification_required])
           models (:models data)
 
-          _ (link-users-to-entitlement-group tx (-> (:users data)
-                                                    (extract-ids :id)) entitlement-group-id)
-          _ (link-groups-to-entitlement-group tx (-> (:groups data)
-                                                     (extract-ids :id)) entitlement-group-id)
+          _ (link-users-to-entitlement-group tx (->> (:users data)
+                                                    (mapv :id)) entitlement-group-id)
+          _ (link-groups-to-entitlement-group tx (->> (:groups data)
+                                                     (mapv :id)) entitlement-group-id)
 
           entitlement-group (update-entitlement-group tx eg-data entitlement-group-id)
 
@@ -110,5 +112,5 @@
                                           :groups groups
                                           :models models-response})))
     (catch Exception e
-      (log-by-severity ERROR_GET e)
-      (exception-handler request ERROR_GET e))))
+      (log-by-severity ERROR_PUT e)
+      (exception-handler request ERROR_PUT e))))
