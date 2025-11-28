@@ -67,16 +67,7 @@
 
                  {:path "templates"
                   :loader loader/templates-page
-                  :element ($ templates-page)}
-
-                 {:path "options"
-                  :loader #(router/redirect "create")}
-
-                 {:path "items"
-                  :loader #(router/redirect "create")}
-
-                 {:path "software"
-                  :loader #(router/redirect "create")}])}
+                  :element ($ templates-page)}])}
 
               ;; options crud 
               {:path "options/create"
@@ -116,9 +107,13 @@
 
               ;; items crud 
               {:path "items/create"
-               ;; :loader loader/items-crud-page
+               :loader loader/items-crud-page
                :element ($ items-crud-page)}
 
-              {:path "models/:item-id/items/create"
-               ;; :loader loader/items-crud-page
+              {:path "items/:item-id/delete?"
+               :loader loader/items-crud-page
+               :element ($ items-crud-page)}
+
+              {:path "models/:model-id/items/create"
+               :loader loader/items-crud-page
                :element ($ items-crud-page)}])}])}])))

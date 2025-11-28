@@ -60,8 +60,9 @@
 (def compatible {:id s/Uuid
                  :product (s/maybe s/Str)
                  :version (s/maybe s/Str)
+                 :name (s/maybe s/Str)
                  :cover_image_id (s/maybe s/Uuid)
-                 :available (s/maybe s/Int)
+                 (s/optional-key :available) (s/maybe s/Int)
 
                  (s/optional-key :url) (s/maybe s/Str)
                  (s/optional-key :content_type) (s/maybe s/Str)

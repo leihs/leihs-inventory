@@ -3,7 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.cast-helper :refer [double-to-numeric-or-nil]]
+   [leihs.inventory.server.resources.pool.cast-helper :refer [parse-to-bigdecimal-or-nil]]
    [leihs.inventory.server.resources.pool.common :refer [is-option-deletable?]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.option.types :as type]
@@ -43,7 +43,7 @@
     (let [option-id (to-uuid (get-in request [:path-params :option_id]))
           multipart (get-in request [:parameters :body])
           tx (:tx request)
-          price (double-to-numeric-or-nil (:price multipart))
+          price (parse-to-bigdecimal-or-nil (:price multipart))
           multipart (assoc multipart :price price)
           query (-> (sql/update :options)
                     (sql/set multipart)

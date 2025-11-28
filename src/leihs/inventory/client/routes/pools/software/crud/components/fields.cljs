@@ -20,6 +20,7 @@
     (cond
       (-> block :component (= "attachments"))
       ($ Attachments {:form form
+                      :name (:name block)
                       :props (:props block)})
 
       (-> block :component (= "instant-search"))

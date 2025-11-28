@@ -174,20 +174,37 @@
                                   ($ :li {:class-name "text-muted-foreground text-center text-sm"}
                                      ($ :span (t (:not-found props))))
                                   (for [current result]
-                                    ($ :li {:key current}
-                                       ($ Button {:variant "ghost"
-                                                  :class-name "w-full justify-start"
-                                                  :on-click (fn []
-                                                              (set-open! false)
-                                                              (set-search! current)
-                                                              (set-value name current))}
+                                    (if (map? current)
+                                      (let [name (:name current)
+                                            id (:id current)]
+                                        ($ :li {:key id}
+                                           ($ Button {:variant "ghost"
+                                                      :class-name "w-full justify-start"
+                                                      :on-click (fn []
+                                                                  (set-open! false)
+                                                                  (set-search! name)
+                                                                  (set-value name id))}
+                                              ($ Check
+                                                 {:class-name (str "mr-2 h-4 w-4 "
+                                                                   (if (= id (get-values name))
+                                                                     "visible"
+                                                                     "invisible"))})
+                                              ($ :span name))))
 
-                                          ($ Check
-                                             {:class-name (str "mr-2 h-4 w-4 "
-                                                               (if (= current search)
-                                                                 "visible"
-                                                                 "invisible"))})
-                                          ($ :span current)))))))))}))))
+                                      ($ :li {:key current}
+                                         ($ Button {:variant "ghost"
+                                                    :class-name "w-full justify-start"
+                                                    :on-click (fn []
+                                                                (set-open! false)
+                                                                (set-search! current)
+                                                                (set-value name current))}
+
+                                            ($ Check
+                                               {:class-name (str "mr-2 h-4 w-4 "
+                                                                 (if (= current search)
+                                                                   "visible"
+                                                                   "invisible"))})
+                                            ($ :span current))))))))))}))))
 
 (def InstantSearch
   (uix/as-react

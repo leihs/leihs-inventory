@@ -1,4 +1,61 @@
 {
+  "fields": {
+    "Mandatory data": {
+      "title": "Mandatory data",
+      "inventory_code": "Inventory Code",
+      "model_id": "Model"
+    },
+    "Inventory": {
+      "title": "Inventory",
+      "last_check": "Last Checked",
+      "inventory_pool_id": "Responsible department",
+      "responsible": "Responsible person",
+      "is_inventory_relevant": "Relevant for inventory",
+      "owner_id": "Owner",
+      "user_name": "User/Typical usage"
+    },
+    "Invoice Information": {
+      "title": "Invoice Information",
+      "invoice_number": "Invoice Number",
+      "invoice_date": "Invoice Date",
+      "price": "Initial Price",
+      "properties_project_number": "Project Number",
+      "supplier_id": "Supplier",
+      "properties_reference": "Reference",
+      "properties_warranty_expiration": "Warranty expiration",
+      "properties_p4u": "P4U-Nummer",
+      "properties_contract_expiration": "Contract expiration"
+    },
+    "General Information": {
+      "title": "General Information",
+      "serial_number": "Serial Number",
+      "properties_imei_number": "IMEI-Number",
+      "properties_mac_address": "MAC-Address",
+      "name": "Name",
+      "attachments": "Attachments",
+      "note": "Note"
+    },
+    "Status": {
+      "title": "Status",
+      "retired": "Retirement",
+      "retired_reason": "Reason for Retirement",
+      "is_broken": "Working order",
+      "is_borrowable": "Borrowable",
+      "is_incomplete": "Completeness",
+      "status_note": "Status note"
+    },
+    "Eigenschaften": {
+      "title": "Properties",
+      "properties_electrical_power": "Power consumption in kw/h",
+      "properties_ampere": "Ampère"
+    },
+    "Location": {
+      "title": "Location",
+      "room_id": "Room",
+      "building_id": "Building",
+      "shelf": "Shelf"
+    }
+  },
   "pagination": {
     "previous": "Previous",
     "next": "Next",
@@ -29,6 +86,49 @@
     "inventory": {
       "breadcrumbs": {
         "inventory": "Inventory"
+      }
+    },
+    "items": {
+      "item": {
+        "create": {
+          "title": "Create New Item",
+          "description": "Provide all required information",
+          "submit": "Create",
+          "cancel": "Cancel",
+          "success": "Item was successfully created",
+          "invalid_one": "Item could not be created because one field is invalid",
+          "invalid_other": "Item could not be created because {{count}} fields are invalid",
+          "conflict": "Inventory code already exists",
+          "error": "An error occurred while creating"
+        },
+        "edit": {
+          "title": "Edit Item",
+          "description": "Make changes and save afterwards",
+          "submit": "Save",
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "success": "Item was successfully saved",
+          "invalid_one": "Item could not be saved because one field is invalid",
+          "invalid_other": "Item could not be saved because {{count}} fields are invalid",
+          "conflict": "Inventory code already exists",
+          "error": "An error occurred while saving"
+        },
+        "delete": {
+          "title": "Delete Item",
+          "description": "Are you sure you want to delete this item?",
+          "confirm": "Delete",
+          "cancel": "Cancel",
+          "success": "Item was successfully deleted",
+          "error": "Item could not be deleted"
+        },
+        "fields": {
+          "protected": "Only the owner can edit this field",
+          "autocomplete": {
+            "select": "Make a selection",
+            "search": "Enter search term",
+            "not_found": "No results found for this search term"
+          }
+        }
       }
     },
     "models": {

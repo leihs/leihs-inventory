@@ -1,4 +1,61 @@
 {
+  "fields": {
+    "Mandatory data": {
+      "title": "Pflichtangaben",
+      "inventory_code": "Inventarcode",
+      "model_id": "Modell"
+    },
+    "Inventory": {
+      "title": "Inventar",
+      "last_check": "Letzte Inventur",
+      "inventory_pool_id": "Verantwortliche Abteilung",
+      "responsible": "Verantwortliche Person",
+      "is_inventory_relevant": "Inventarrelevant",
+      "owner_id": "Besitzer",
+      "user_name": "Benutzer/Verwendung"
+    },
+    "Invoice Information": {
+      "title": "Rechnungsinformationen",
+      "invoice_number": "Rechnungsnummer",
+      "invoice_date": "Rechnungsdatum",
+      "price": "Anschaffungswert",
+      "properties_project_number": "Projektnummer",
+      "supplier_id": "Lieferant",
+      "properties_reference": "Bezug",
+      "properties_warranty_expiration": "Garantieablaufdatum",
+      "properties_p4u": "P4U-Nummer",
+      "properties_contract_expiration": "Vertragsablaufdatum"
+    },
+    "General Information": {
+      "title": "Allgemeine Informationen",
+      "serial_number": "Seriennummer",
+      "properties_imei_number": "IMEI-Nummer",
+      "properties_mac_address": "MAC-Adresse",
+      "name": "Name",
+      "attachments": "Anhänge",
+      "note": "Notiz"
+    },
+    "Status": {
+      "title": "Zustand",
+      "retired": "Ausmusterung",
+      "retired_reason": "Grund der Ausmusterung",
+      "is_broken": "Zustand",
+      "is_borrowable": "Ausleihbar",
+      "is_incomplete": "Vollständigkeit",
+      "status_note": "Statusnotiz"
+    },
+    "Eigenschaften": {
+      "title": "Eigenschaften",
+      "properties_electrical_power": "Verbrauch in kw/h",
+      "properties_ampere": "Ampère"
+    },
+    "Location": {
+      "title": "Ort",
+      "room_id": "Raum",
+      "building_id": "Gebäude",
+      "shelf": "Gestell"
+    }
+  },
   "pagination": {
     "previous": "Vorherige",
     "next": "Nächste",
@@ -29,6 +86,48 @@
     "inventory": {
       "breadcrumbs": {
         "inventory": "Inventar"
+      }
+    },
+    "items": {
+      "item": {
+        "create": {
+          "title": "Neuen Gegenstand erstellen",
+          "description": "Geben Sie alle erforderlichen Informationen an",
+          "submit": "Erstellen",
+          "cancel": "Abbrechen",
+          "success": "Gegenstand wurde erfolgreich erstellt",
+          "invalid_one": "Gegenstand konnte nicht erstellt werden, da ein Feld ungültig ist",
+          "invalid_other": "Gegenstand konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
+        },
+        "edit": {
+          "title": "Gegenstand bearbeiten",
+          "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Speichern",
+          "delete": "Löschen",
+          "success": "Gegenstand wurde erfolgreich gespeichert",
+          "invalid_one": "Gegenstand konnte nicht gespeichert werden, da ein Feld ungültig ist",
+          "invalid_other": "Gegenstand konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim speichern ist ein Fehler aufgetreten"
+        },
+        "delete": {
+          "title": "Gegenstand löschen",
+          "description": "Sind Sie sicher, dass Sie diesen Gegenstand löschen möchten?",
+          "confirm": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Gegenstand wurde erfolgreich gelöscht",
+          "error": "Gegenstand konnte nicht gelöscht werden"
+        },
+        "fields": {
+          "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
+          "autocomplete": {
+            "select": "Auswahl treffen",
+            "search": "Suchbegriff eingeben",
+            "not_found": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
+          }
+        }
       }
     },
     "models": {

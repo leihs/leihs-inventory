@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.resources.pool.models.main
   (:require
    [clojure.set]
+   [clojure.string :as string]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
@@ -19,37 +20,49 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]]))
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
+   [ring.util.response :refer [bad-request response]]
+   [taoensso.timbre :as timbre :refer [debug spy]]))
 
 (def ERROR_CREATE_MODEL "Failed to create model")
 (def ERROR_GET_MODEL "Failed to get models-compatible")
+
+(def base-query
+  (-> (sql/select :models.id
+                  :models.product :models.version :models.name
+                  :models.cover_image_id)
+      (sql/from :models)
+      (sql/order-by :models.name)))
+
+(defn get-by-id [tx id]
+  (-> base-query
+      (sql/where [:= :models.id id])
+      sql-format
+      (->> (jdbc-query tx))
+      first))
 
 (defn index-resources [request]
   (try
     (let [tx (:tx request)
           pool-id (-> request path-params :pool_id)
-          {:keys [search]} (query-params request)
-          base-query (-> (sql/select
-                          :m.id
-                          :m.product
-                          :m.version
-                          :m.cover_image_id
-                          [[:count :i.id] :available])
-                         (sql/from [:models :m])
+          {:keys [search search_term type]} (query-params request)
+          term (or search search_term) ; search_term needed for fields
+          base-query (-> base-query
+                         (sql/select [[:count :i.id] :available])
                          (sql/left-join [:items :i]
                                         [:and
-                                         [:= :i.model_id :m.id]
+                                         [:= :i.model_id :models.id]
                                          [:= :i.inventory_pool_id pool-id]
                                          [:= :i.is_borrowable true]
                                          [:= :i.retired nil]
                                          [:= :i.parent_id nil]])
-                         (cond-> search
-                           (sql/where [:ilike :m.name (str "%" search "%")]))
-                         (sql/group-by :m.id
-                                       :m.product
-                                       :m.version
-                                       :m.cover_image_id)
-                         (sql/order-by [:m.name :asc]))
+                         (cond-> term
+                           (sql/where [:ilike :models.name (str "%" term "%")]))
+                         (cond-> type
+                           (sql/where [:= :type (string/capitalize type)]))
+                         (sql/group-by :models.id
+                                       :models.name
+                                       :models.cover_image_id))
 
           post-fnc (fn [models]
                      (->> models

@@ -20,7 +20,12 @@ export const schema = z.object({
     )
     .optional(),
   categories: z
-    .array(z.object({ id: z.string(), name: z.string() }))
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+      }),
+    )
     .optional(),
   images: z
     .array(
