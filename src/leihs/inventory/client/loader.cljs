@@ -40,7 +40,7 @@
                            (.then #(jc (.-data %))))
 
             responsible-pools (-> http-client
-                                  (.get (str "/inventory/" pool-id "/responsible-inventory-pools/"))
+                                  (.get (str "/inventory/" pool-id "/inventory-pools/?responsible=true"))
                                   (.then #(jc (.-data %))))
 
             data (-> http-client
@@ -75,6 +75,34 @@
                 {:manufacturers manufacturers
                  :data (if data data nil)})))))
 
+(defn items-crud-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        item-id (or (aget params "item-id") nil)
+        model-id (or (aget params "model-id") nil)
+
+        item-path (when item-id
+                    (str "/inventory/" pool-id "/items/"))
+
+        model (when model-id
+                (-> http-client
+                    (.get (str "/inventory/" pool-id "/models/" model-id))
+                    (.then #(jc (.-data %)))))
+
+        data (if item-path
+               (-> http-client
+                   (.get (str "/inventory/" pool-id "/fields/?resource_id=" item-id "&target_type=item")
+                         #js {:id item-id})
+                   (.then #(jc (.-data %))))
+               (-> http-client
+                   (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
+                   (.then #(jc (.-data %)))))]
+
+    (.. (js/Promise.all (cond-> [data] model (conj model)))
+        (then (fn [[data & [model]]]
+                {:data data
+                 :model (if model model nil)})))))
+
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)
         pool-id (aget params "pool-id")
@@ -89,7 +117,8 @@
                        (.then #(jc (.-data %))))
 
         manufacturers (-> http-client
-                          (.get (str "/inventory/" pool-id "/manufacturers/?type=Model") #js {:id "manufacturers"})
+                          (.get (str "/inventory/" pool-id "/manufacturers/?type=Model")
+                                #js {:id "manufacturers"})
                           (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
         model-path (when model-id
@@ -163,12 +192,3 @@
 
     (.. (js/Promise.all (cond-> [] data (conj data)))
         (then (fn [[& [data]]] {:data (if data data nil)})))))
-
-(defn items-crud-page [route-data]
-  (let [models (-> http-client
-                   (.get "/inventory/models-compatibles")
-                   (.then #(jc (.-data %))))]
-
-    (.. (js/Promise.all (cond-> [models]))
-        (then (fn [[models]]
-                {:models models})))))

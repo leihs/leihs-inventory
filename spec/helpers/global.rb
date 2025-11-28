@@ -35,5 +35,24 @@ module Helpers
     def click_on_toggle(id)
       page.execute_script("document.getElementById('#{id}').click()")
     end
+
+    def click_on_until(selector, expect:, max_attempts: 5, wait_time: 10)
+      attempts = 0
+      loop do
+        attempts += 1
+        # Find and click the button
+        # button = find(selector, wait: wait_time)
+        click_on selector
+        # button.click
+        # Check if expected text appears
+        begin
+          expect(page).to have_text(text, wait: wait_time)
+          break # Success, exit loop
+        rescue RSpec::Expectations::ExpectationNotMetError
+          raise if attempts >= max_attempts
+          sleep(0.5) # Brief pause before retry
+        end
+      end
+    end
   end
 end
