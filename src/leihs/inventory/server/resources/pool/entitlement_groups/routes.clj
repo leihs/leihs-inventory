@@ -37,8 +37,8 @@
            :parameters {:path {:pool_id s/Uuid}
                         :body {:name s/Str
                                :is_verification_required s/Bool
-                               :users [s/Uuid]
-                               :groups [s/Uuid]
+                               :users [{:id s/Uuid}]
+                               :groups [{:id s/Uuid}]
                                :models [{:id s/Uuid
                                          :quantity types/PosInt}]}}
            :produces ["application/json"]

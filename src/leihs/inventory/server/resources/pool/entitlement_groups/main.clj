@@ -21,6 +21,7 @@
    [ring.util.response :refer [response]]))
 
 (def ERROR_GET "Failed to get entitlement-groups")
+(def ERROR_CREATE "Failed to create entitlement-groups")
 
 (defn- enrich-with-stats [tx ids]
   (let [m-subquery (-> (sql/select :entitlement_group_id
@@ -125,8 +126,10 @@
           entitlement_group (create-entitlement-group tx eg-data pool_id)
           entitlement-group-id (:id entitlement_group)
 
-          _ (link-users-to-entitlement-group tx (:users data) entitlement-group-id)
-          _ (link-groups-to-entitlement-group tx (:groups data) entitlement-group-id)
+          _ (link-users-to-entitlement-group tx (->> (:users data)
+                                                     (mapv :id)) entitlement-group-id)
+          _ (link-groups-to-entitlement-group tx (->> (:groups data)
+                                                      (mapv :id)) entitlement-group-id)
 
           models-with-id (mapv #(assoc % :entitlement_group_id entitlement-group-id) models)
           users (fetch-users-of-entitlement-group tx entitlement-group-id)
@@ -138,5 +141,5 @@
                                             :users users
                                             :groups groups}))))
     (catch Exception e
-      (log-by-severity ERROR_GET e)
-      (exception-handler request ERROR_GET e))))
+      (log-by-severity ERROR_CREATE e)
+      (exception-handler request ERROR_CREATE e))))
