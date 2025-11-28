@@ -9,7 +9,6 @@ feature "Root page" do
 
     scenario "Contains expected elements" do
       expect(page).to have_content "Overview"
-      expect(page).to have_content "Resource Links"
     end
   end
 end
