@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.models.model.attachments.routes
+(ns leihs.inventory.server.resources.pool.items.item.attachments.routes
   (:require
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
@@ -12,12 +12,12 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/models/:model_id/attachments/"
+  ["/items/:item_id/attachments/"
    {:get {:accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid
-                              :model_id s/Uuid}
+                              :item_id s/Uuid}
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int}}
           :produces ["application/json"]
@@ -35,7 +35,7 @@
            :swagger {:produces ["application/json"]}
            :produces ["application/json"]
            :parameters {:path {:pool_id s/Uuid
-                               :model_id s/Uuid}
+                               :item_id s/Uuid}
                         :header {:x-filename s/Str}}
            :handler post-resource
            :responses {200 {:description "OK"

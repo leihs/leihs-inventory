@@ -1,7 +1,6 @@
-(ns leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes
+(ns leihs.inventory.server.resources.pool.items.item.attachments.attachment.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.attachments.constants :refer [ACCEPT_TYPES_ATTACHMENT]]
    [leihs.inventory.server.resources.pool.attachments.shared :as attachment]
    [leihs.inventory.server.resources.pool.attachments.types :refer [error-attachment-not-found
@@ -12,13 +11,12 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/models/:model_id/attachments/:attachment_id"
-   {:get {:summary (fe "")
-          :coercion reitit.coercion.schema/coercion
+  ["/items/:item_id/attachments/:attachment_id"
+   {:get {:coercion reitit.coercion.schema/coercion
           :swagger {:produces ACCEPT_TYPES_ATTACHMENT}
           :produces ACCEPT_TYPES_ATTACHMENT
           :parameters {:path {:pool_id s/Uuid
-                              :model_id s/Uuid
+                              :item_id s/Uuid
                               :attachment_id s/Uuid}
                        :query {(s/optional-key :content_disposition) (s/enum "attachment" "inline")}}
           :handler attachment/get-resource
@@ -30,10 +28,9 @@
                       500 {:description "Internal Server Error"}}}
 
     :delete {:accept "application/json"
-             :summary (fe "")
              :coercion reitit.coercion.schema/coercion
              :parameters {:path {:pool_id s/Uuid
-                                 :model_id s/Uuid
+                                 :item_id s/Uuid
                                  :attachment_id s/Uuid}}
              :produces ["application/json"]
              :handler attachment/delete-resource

@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.pool.models.model.routes
   (:require
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.model.main :as model]
    [leihs.inventory.server.resources.pool.models.model.types :refer [delete-response
                                                                      patch-response
@@ -14,7 +13,6 @@
 (defn routes []
   ["/models/:model_id"
    {:get {:accept "application/json"
-          :summary (fe "Form-Handler: Fetch model")
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}}
@@ -26,7 +24,6 @@
                       500 {:description "Internal Server Error"}}}
 
     :patch {:accept "application/json"
-            :summary (fe "Form-Handler: Used to patch model-attributes")
             :coercion reitit.coercion.schema/coercion
             :description description-model-form
             :produces ["application/json"]
@@ -40,7 +37,6 @@
                         500 {:description "Internal Server Error"}}}
 
     :delete {:accept "application/json"
-             :summary (fe "Form-Handler: Delete model")
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
              :description description-model-form
@@ -55,7 +51,6 @@
                          500 {:description "Internal Server Error"}}}
 
     :put {:accept "application/json"
-          :summary (fe "Form-Handler: Update model")
           :coercion spec/coercion
           :description description-model-form
           :produces ["application/json"]

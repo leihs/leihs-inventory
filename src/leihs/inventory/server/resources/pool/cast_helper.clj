@@ -13,11 +13,11 @@
                (sequential? value))
            (empty? value))))
 
-(defn int-to-numeric-or-nil [int-value]
+(defn to-bigdecimal-or-nil [int-value]
   (try (-> (BigDecimal/valueOf int-value) (.setScale 2 RoundingMode/HALF_UP))
        (catch Exception e (log-by-severity "Error in int-to-numeric" e) nil)))
 
-(defn double-to-numeric-or-nil [int-value]
+(defn parse-to-bigdecimal-or-nil [int-value]
   (cond
     (nil? int-value) nil
     (instance? java.lang.Double int-value) int-value
@@ -27,4 +27,4 @@
                                  (Double/parseDouble int-value)
                                  (catch NumberFormatException _ nil))
                                int-value)]
-            (int-to-numeric-or-nil parsed-value))))
+            (to-bigdecimal-or-nil parsed-value))))
