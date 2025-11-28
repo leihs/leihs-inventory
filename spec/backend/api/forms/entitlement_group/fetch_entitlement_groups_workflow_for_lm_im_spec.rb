@@ -125,8 +125,8 @@ require_relative "../_common"
           resp = create_entitlement_group({
             name: Faker::Name.name,
             is_verification_required: true,
-            users: [users.first.id, users.second.id],
-            groups: [group1.id, group2.id],
+            users: [{id: users.first.id}, {id: users.second.id}],
+            groups: [{id: group1.id}, {id: group2.id}],
             models: [{quantity: 20, id: @models.first.id}, {quantity: 30, id: @models.second.id}]
           })
           expect(resp.status).to eq(200)
@@ -148,8 +148,8 @@ require_relative "../_common"
             body: {
               name: "updated-name",
               is_verification_required: false,
-              users: [users.first.id],
-              groups: [group2.id],
+              users: [{id: users.first.id}],
+              groups: [{id: group2.id}],
               models: [existing_models.second]
             },
             headers: cookie_header
@@ -196,8 +196,8 @@ require_relative "../_common"
             resp = create_entitlement_group({
               name: Faker::Name.name,
               is_verification_required: true,
-              users: [users.first.id, users.second.id],
-              groups: [group1.id, group2.id],
+              users: [{id: users.first.id}, {id: users.second.id}],
+              groups: [{id: group1.id}, {id: group2.id}],
               models: [{quantity: 20, id: @models.first.id}, {quantity: 30, id: @models.second.id}]
             })
 
@@ -290,7 +290,7 @@ require_relative "../_common"
               body: {
                 name: "updated-name",
                 is_verification_required: false,
-                users: [existing_users.first["id"]],
+                users: [{id: existing_users.first["id"]}],
                 groups: [],
                 models: [existing_models.second]
               },
@@ -332,7 +332,7 @@ require_relative "../_common"
                 name: "updated-name",
                 is_verification_required: false,
                 users: [],
-                groups: [existing_groups.first["id"]],
+                groups: [{id: existing_groups.first["id"]}],
                 models: [existing_models.first]
               },
               headers: cookie_header
@@ -353,7 +353,7 @@ require_relative "../_common"
                 name: "updated-name",
                 is_verification_required: false,
                 users: [],
-                groups: [existing_groups.first["id"]],
+                groups: [{id: existing_groups.first["id"]}],
                 models: []
               },
               headers: cookie_header
