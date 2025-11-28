@@ -50,7 +50,9 @@
 (defn- fetch-sign-in-view [request]
   (let [mtoken (anti-csrf-token request)
         query (convert-to-map (:query-params request))
-        params (-> {:authFlow {:returnTo (or (:return-to query) INVENTORY_VIEW_PATH)}
+        params (-> {:authFlow (if-let [return-to (:return-to query)]
+                                {:returnTo return-to}
+                                {})
                     :flashMessages []}
                    (assoc :csrfToken {:name "csrf-token" :value mtoken})
                    (cond-> (:message query)
@@ -83,14 +85,17 @@
                                                          (sql/from :user_sessions)
                                                          (sql/where [:= :token_hash token-hash])
                                                          sql-format))
+                form-params (convert-to-map (:form-params req))
                 pools (jdbc/execute! tx (get-pools-access-rights-of-user-query true user_id))
-                return-to (if (or (empty? pools) (> (count pools) 1))
-                            INVENTORY_VIEW_PATH
-                            (->> (first pools)
-                                 :id
-                                 str
-                                 (format "/inventory/%s/list")))]
-
+                return-to-param (:return-to form-params)
+                return-to (if (and return-to-param (not (str/blank? return-to-param)))
+                            return-to-param
+                            (if (or (empty? pools) (> (count pools) 1))
+                              INVENTORY_VIEW_PATH
+                              (->> (first pools)
+                                   :id
+                                   str
+                                   (format "/inventory/%s/list"))))]
             (assoc-in resp [:headers "Location"] return-to)))))))
 
 (defn get-sign-out [request]

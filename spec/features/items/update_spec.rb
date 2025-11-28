@@ -205,7 +205,7 @@ feature "Update item", type: :feature do
     fill_in "Shelf", with: shelf_new
 
     click_on "Save"
-    export(page).to have_text("Item was successfully saved")
+    expect(page).to have_text("Item was successfully saved")
     expect(page).to have_text("Inventory List")
 
     fill_in "search", with: model_new.product

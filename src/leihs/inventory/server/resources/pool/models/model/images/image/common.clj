@@ -2,6 +2,7 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
+   [leihs.inventory.server.constants :refer [IMAGE_RESPONSE_CACHE_CONTROL]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [ring.util.response :refer [response status]])
   (:import
@@ -39,7 +40,8 @@
           decoded-bytes (decode-base64-str base64-str)]
       {:status 200
        :headers {"Content-Type" content-type
-                 "Content-Disposition" "inline"}
+                 "Content-Disposition" "inline"
+                 "Cache-Control" (or IMAGE_RESPONSE_CACHE_CONTROL "no-cache")}
        :body (io/input-stream (ByteArrayInputStream. decoded-bytes))})
     (catch IllegalArgumentException e
       (log-by-severity CONVERTING_ERROR e)

@@ -1,17 +1,25 @@
 (ns leihs.inventory.server.middlewares.authorize
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.utils.authorize.main :refer [AUTHORIZED-ROLES
-                                                        authorized-role-for-pool]]
+   [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool
+                                                        AUTHORIZED-ROLES]]
+   [ring.util.codec :as codec]
    [ring.util.response :as response]))
 
 (defn unauthorized-response [request]
   (if (str/includes? (get-in request [:headers "accept"] "") "json")
     (response/status (response/response {:status "failure" :message "Unauthorized"}) 403)
-    {:status 302
-     :headers {"Location" "/sign-in?return-to=%2Finventory"
-               "Content-Type" "text/html"}
-     :body ""}))
+    (let [uri (:uri request)
+          query-string (:query-string request)
+          full-url (if query-string
+                     (str uri "?" query-string)
+                     uri)
+          encoded-url (codec/url-encode full-url)
+          redirect-url (str "/sign-in?return-to=" encoded-url)]
+      {:status 302
+       :headers {"Location" redirect-url
+                 "Content-Type" "text/html"}
+       :body ""})))
 
 (defn wrap-authorize [handler]
   (fn [{:keys [authenticated-entity request-method]

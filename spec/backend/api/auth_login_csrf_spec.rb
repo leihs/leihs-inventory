@@ -56,8 +56,7 @@ describe "Call swagger-endpoints" do
           resp = session_auth_plain_faraday_json_client.post("/sign-in") do |req|
             req.body = URI.encode_www_form(
               "user" => @user.login,
-              "password" => @user.password,
-              "return-to" => "/inventory/"
+              "password" => @user.password
             )
 
             req.headers["Accept"] = "text/html"

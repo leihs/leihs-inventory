@@ -25,6 +25,14 @@
 
 (def ERROR_GET_ITEMS "Failed to get items")
 
+(def base-query
+  (-> (->> types/columns
+           (map #(keyword "items" (name %)))
+           concat
+           (apply sql/select))
+      (sql/from :items)
+      (sql/order-by :items.inventory_code)))
+
 (defn index-resources
   ([request]
    (let [tx (:tx request)
@@ -36,29 +44,27 @@
                  inventory_pool_id
                  in_stock before_last_check]} (query-params request)
 
-         select (apply sql/select
-                       (concat (map #(keyword "items" (name %)) types/columns)
+         extra-columns [[:ip.name :inventory_pool_name]
+                        [:r.end_date :reservation_end_date]
+                        [:r.user_id :reservation_user_id]
+                        [:r.contract_id :reservation_contract_id]
+                        [:m.is_package :is_package]
+                        [:m.name :model_name]
+                        [:rs.name :room_name]
+                        [:rs.description :room_description]
+                        [:b.name :building_name]
+                        [:b.code :building_code]
 
-                               [[:ip.name :inventory_pool_name]
-                                [:r.end_date :reservation_end_date]
-                                [:r.user_id :reservation_user_id]
-                                [:r.contract_id :reservation_contract_id]
-                                [:m.is_package :is_package]
-                                [:m.name :model_name]
-                                [:rs.name :room_name]
-                                [:rs.description :room_description]
-                                [:b.name :building_name]
-                                [:b.code :building_code]
+                        [[:nullif [:concat_ws " " :u.firstname :u.lastname] ""] :reservation_user_name]
 
-                                [[:nullif [:concat_ws " " :u.firstname :u.lastname] ""] :reservation_user_name]
+                        [(-> (sql/select :%count.*) ; [[:count :*]]
+                             (sql/from [:items :i])
+                             (sql/where [:= :i.parent_id :items.id]))
+                         :package_items]]
 
-                                [(-> (sql/select :%count.*) ; [[:count :*]]
-                                     (sql/from [:items :i])
-                                     (sql/where [:= :i.parent_id :items.id]))
-                                 :package_items]]))
+         query (-> base-query
+                   (#(apply sql/select % extra-columns))
 
-         query (-> select
-                   (sql/from :items)
                    ;; Join inventory pool
                    (sql/join [:inventory_pools :ip]
                              [:= :ip.id :items.inventory_pool_id])

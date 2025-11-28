@@ -16,23 +16,35 @@ describe "Inventory API Endpoints - Image Handling" do
     let(:different_content_type) { "image/gif" }
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
-    let(:url) { "/inventory/#{@pool.id}/models/#{any_uuid}/images/" }
+    let(:invalid_url) { "/inventory/#{@pool.id}/models/#{any_uuid}/images/" }
+    let(:url) { "/inventory/#{@pool.id}/models/#{@model.id}/images/" }
     let(:resp) { client.get url }
-    let(:single_image_id) { resp.body[0]["id"] }
-    let(:image_id) { resp.body[1]["id"] }
+
+    let(:cat_url) { "/inventory/#{@pool.id}/models/#{@category.id}/images/" }
+    let(:cat_resp) { client.get cat_url }
+    let(:single_image_id) { cat_resp.body[0]["id"] }
+
+    let(:image_id) { resp.body[0]["id"] }
     let(:image_content_type) { resp.body[0]["content_type"] }
 
     context "GET /inventory/images" do
-      it "retrieves all images and returns status 200" do
+      it "retrieves all images of model and returns status 200" do
+        resp = client.get url
         expect(resp.status).to eq(200)
-        expect(resp.body.count).to eq(3)
+        expect(resp.body.count).to eq(2)
+      end
+
+      it "retrieves all images of category and returns status 200" do
+        resp = client.get cat_url
+        expect(resp.status).to eq(200)
+        expect(resp.body.count).to eq(1)
       end
 
       it "retrieves paginated image results and returns status 200" do
         resp = client.get "#{url}?page=2&size=1"
         expect(resp.status).to eq(200)
         expect(resp.body["data"].count).to eq(1)
-        expect(resp.body["pagination"]["total_rows"]).to eq(3)
+        expect(resp.body["pagination"]["total_rows"]).to eq(2)
       end
     end
 
@@ -96,14 +108,14 @@ describe "Inventory API Endpoints - Image Handling" do
       end
     end
 
-    context "Fetch image data as an image" do
+    context "Fetch image data of category as an image" do
       it "returns error when fetching image by ID as a raw image format" do
-        resp = client.get "#{url}#{single_image_id}"
+        resp = client.get "#{cat_url}#{single_image_id}"
         expect(resp.status).to eq(200)
       end
 
       it "returns error when fetching image thumbnail as a raw image format" do
-        resp = client.get "#{url}#{single_image_id}/thumbnail"
+        resp = client.get "#{cat_url}#{single_image_id}/thumbnail"
         expect(resp.status).to eq(404)
       end
     end

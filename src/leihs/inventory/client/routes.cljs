@@ -66,16 +66,7 @@
 
                  {:path "templates"
                   :loader loader/templates-page
-                  :element ($ templates-page)}
-
-                 {:path "options"
-                  :loader #(router/redirect "create")}
-
-                 {:path "items"
-                  :loader #(router/redirect "create")}
-
-                 {:path "software"
-                  :loader #(router/redirect "create")}])}
+                  :element ($ templates-page)}])}
 
               ;; options crud 
               {:path "options/create"
