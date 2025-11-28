@@ -6,6 +6,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.entitlement-groups.common :refer [create-entitlements
                                                                             extract-by-keys
+                                                                            extract-ids
                                                                             link-groups-to-entitlement-group
                                                                             link-users-to-entitlement-group]]
    [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [fetch-users-of-entitlement-group
@@ -125,8 +126,10 @@
           entitlement_group (create-entitlement-group tx eg-data pool_id)
           entitlement-group-id (:id entitlement_group)
 
-          _ (link-users-to-entitlement-group tx (:users data) entitlement-group-id)
-          _ (link-groups-to-entitlement-group tx (:groups data) entitlement-group-id)
+          _ (link-users-to-entitlement-group tx (-> (:users data)
+                                                  (extract-ids :id)) entitlement-group-id)
+          _ (link-groups-to-entitlement-group tx (-> (:groups data)
+                                                  (extract-ids :id) ) entitlement-group-id)
 
           models-with-id (mapv #(assoc % :entitlement_group_id entitlement-group-id) models)
           users (fetch-users-of-entitlement-group tx entitlement-group-id)

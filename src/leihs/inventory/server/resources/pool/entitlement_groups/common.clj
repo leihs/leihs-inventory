@@ -131,3 +131,6 @@
 
 (defn extract-by-keys [m ks]
   (select-keys m ks))
+
+(defn extract-ids [items key]
+  (mapv key items))

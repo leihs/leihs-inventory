@@ -9,6 +9,7 @@
                                                                             link-users-to-entitlement-group
                                                                             link-groups-to-entitlement-group
                                                                             extract-by-keys
+                                                                            extract-ids
                                                                             fetch-entitlements]]
    [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [analyze-and-prepare-data
                                                                                              update-entitlement-group
@@ -86,10 +87,12 @@
           data (-> request body-params)
           eg-data (extract-by-keys data [:name :is_verification_required])
           models (:models data)
-          users (:users data)
 
-          _ (link-users-to-entitlement-group tx users entitlement-group-id)
-          _ (link-groups-to-entitlement-group tx (:groups data) entitlement-group-id)
+          _ (link-users-to-entitlement-group tx (-> (:users data)
+                                                  (extract-ids :id)) entitlement-group-id)
+          _ (link-groups-to-entitlement-group tx (-> (:groups data)
+                                                   (extract-ids :id) ) entitlement-group-id)
+
           entitlement-group (update-entitlement-group tx eg-data entitlement-group-id)
 
           {:keys [entitlements-to-update entitlements-to-create entitlement-ids-to-delete]}
