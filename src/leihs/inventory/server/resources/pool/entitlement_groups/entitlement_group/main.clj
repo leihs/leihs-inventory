@@ -89,9 +89,9 @@
           models (:models data)
 
           _ (link-users-to-entitlement-group tx (-> (:users data)
-                                                  (extract-ids :id)) entitlement-group-id)
+                                                    (extract-ids :id)) entitlement-group-id)
           _ (link-groups-to-entitlement-group tx (-> (:groups data)
-                                                   (extract-ids :id) ) entitlement-group-id)
+                                                     (extract-ids :id)) entitlement-group-id)
 
           entitlement-group (update-entitlement-group tx eg-data entitlement-group-id)
 

@@ -127,9 +127,9 @@
           entitlement-group-id (:id entitlement_group)
 
           _ (link-users-to-entitlement-group tx (-> (:users data)
-                                                  (extract-ids :id)) entitlement-group-id)
+                                                    (extract-ids :id)) entitlement-group-id)
           _ (link-groups-to-entitlement-group tx (-> (:groups data)
-                                                  (extract-ids :id) ) entitlement-group-id)
+                                                     (extract-ids :id)) entitlement-group-id)
 
           models-with-id (mapv #(assoc % :entitlement_group_id entitlement-group-id) models)
           users (fetch-users-of-entitlement-group tx entitlement-group-id)
