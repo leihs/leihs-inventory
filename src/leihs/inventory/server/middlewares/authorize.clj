@@ -1,7 +1,8 @@
 (ns leihs.inventory.server.middlewares.authorize
   (:require
    [clojure.string :as str]
-   [leihs.core.core :refer [detect]]
+   [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool
+                                                        AUTHORIZED-ROLES]]
    [ring.util.codec :as codec]
    [ring.util.response :as response]))
 
@@ -40,9 +41,7 @@
 
       (if public?
         (handler request)
-        (let [access-right (detect #(= (:inventory_pool_id %) pool-id)
-                                   (get-in request [:authenticated-entity :access-rights]))
-              role (:role access-right)]
-          (if (contains? #{"lending_manager" "inventory_manager"} role)
+        (let [role (authorized-role-for-pool request pool-id)]
+          (if (contains? AUTHORIZED-ROLES role)
             (handler (assoc-in request [:authenticated-entity :role] role))
             (unauthorized-response request)))))))

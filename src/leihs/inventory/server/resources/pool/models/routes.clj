@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.pool.models.routes
   (:require
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.main :as models]
    [leihs.inventory.server.resources.pool.models.types :refer [description-model-form
                                                                get-compatible-response
@@ -16,12 +15,16 @@
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
-          :summary "Global search for models (-compatibles)"
-          :description "Global search for models-compatibles, includes models of type: 'Model', 'Software' as well"
+          :summary "Used primarily to search for models as well as software"
+          :description (str "- compatible-models: type model and software"
+                            "\n"
+                            "- autocomplete-search for item: type model")
           :parameters {:path {:pool_id s/Uuid}
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int
-                               (s/optional-key :search) s/Str}}
+                               (s/optional-key :search) s/Str
+                               (s/optional-key :search_term) s/Str
+                               (s/optional-key :type) (s/enum "model")}}
           :handler models/index-resources
           :responses {200 {:description "OK"
                            :body get-compatible-response}
@@ -29,7 +32,6 @@
                       500 {:description "Internal Server Error"}}}
 
     :post {:accept "application/json"
-           :summary (fe "Form-Handler: Create model")
            :description description-model-form
            :coercion spec/coercion
            :parameters {:path {:pool_id uuid?}

@@ -15,14 +15,16 @@
     :else x))
 
 (defn- get-one-thumbnail-query [tx {:keys [id cover_image_id] :as model-cover-id}]
-  (let [res (jdbc/execute-one! tx (-> (sql/select :id :target_id :thumbnail :filename :content_type)
-                                      (sql/from :images)
-                                      (cond-> (nil? cover_image_id) (sql/where [:= :target_id id]))
-                                      (cond-> (not (nil? cover_image_id)) (sql/where [:or
-                                                                                      [:= :id cover_image_id]
-                                                                                      [:= :parent_id cover_image_id]]))
-                                      (sql/order-by [:thumbnail :asc])
-                                      sql-format))
+  (let [res (jdbc/execute-one!
+             tx
+             (-> (sql/select :id :target_id :thumbnail :filename :content_type)
+                 (sql/from :images)
+                 (cond-> (nil? cover_image_id) (sql/where [:= :target_id id]))
+                 (cond-> (not (nil? cover_image_id)) (sql/where [:or
+                                                                 [:= :id cover_image_id]
+                                                                 [:= :parent_id cover_image_id]]))
+                 (sql/order-by [:thumbnail :asc])
+                 sql-format))
 
         data (if res (assoc model-cover-id
                             :image_id (:id res)
@@ -53,15 +55,13 @@
 
 (defn- allowed-keys-spec [spec]
   (let [resolved-spec (clojure.spec.alpha/get-spec spec)
-        _ (debug "resolved-spec:" resolved-spec)
-        spec-form (when resolved-spec (clojure.spec.alpha/form resolved-spec))
-        _ (debug "spec-form:" spec-form)]
+        spec-form (when resolved-spec (clojure.spec.alpha/form resolved-spec))]
     (cond
       (and (seq? spec-form) (= 'clojure.spec.alpha/keys (first spec-form)))
       (let [args (apply hash-map (rest spec-form))
-            _ (debug "args:" args)
             req-keys (map #(do (debug "req-un-key:" %) (-> % name keyword)) (get args :req-un))
             opt-keys (map #(do (debug "opt-un-key:" %) (-> % name keyword)) (get args :opt-un))]
+        (debug "args:" args)
         (debug "req-keys:" req-keys)
         (debug "opt-keys:" opt-keys)
         (set (concat req-keys opt-keys)))

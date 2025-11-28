@@ -2,7 +2,7 @@
   (:require
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
+   [leihs.inventory.server.resources.pool.attachments.constants :refer [config-get]]
    [leihs.inventory.server.resources.pool.models.model.images.main :as images]
    [leihs.inventory.server.resources.pool.models.model.images.types :refer [get-images-response
                                                                             post-response]]

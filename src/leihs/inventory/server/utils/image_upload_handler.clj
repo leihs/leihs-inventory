@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.utils.image-upload-handler
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]])
+   [leihs.inventory.server.resources.pool.attachments.constants :refer [config-get]])
   (:import
    [java.io ByteArrayOutputStream File FileInputStream]
    [java.util Base64]

@@ -83,8 +83,12 @@
                                   (some allowed-formats accepted-types))
           exists? (boolean route-data)
           is-inventory? (re-matches #"/inventory(/.*)?" uri)
+          is-html-request? (and accept-header
+                                (or (str/includes? accept-header "text/html")
+                                    (str/includes? accept-header "*/*")))
           resp-status (cond
                         (and exists? (not is-accept-json?)) 200
+                        (and (not exists?) (not is-accept-json?) is-html-request?) 200
                         (and (not exists?) (not is-accept-json?)) 404
                         (and endpoint-produces? exists? is-accept-json?) 404
                         :else 404)]
@@ -104,7 +108,7 @@
           uri (:uri request)
           accept (some-> (get-in request [:headers "accept"]) str/lower-case)
           resp-status (:status resp)]
-      (if (and (#{400 404 422} resp-status)
+      (if (and (#{400 404 405 422} resp-status)
                (some #(re-matches % uri) url-patterns)
                (or (str/includes? accept "text/html")
                    (str/includes? accept "*/*")))

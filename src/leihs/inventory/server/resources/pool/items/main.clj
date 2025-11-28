@@ -1,8 +1,14 @@
 (ns leihs.inventory.server.resources.pool.items.main
   (:require
-   [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
+   [leihs.inventory.server.resources.pool.items.fields-shared :refer [coerce-field-values
+                                                                      in-coercions
+                                                                      out-coercions
+                                                                      flatten-properties
+                                                                      split-item-data
+                                                                      validate-field-permissions]]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
    [leihs.inventory.server.resources.pool.items.types :as types]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
@@ -10,50 +16,20 @@
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.pick-fields :refer [pick-fields]]
-
-   [leihs.inventory.server.utils.request-utils :refer [path-params
+   [leihs.inventory.server.utils.request-utils :refer [body-params path-params
                                                        query-params]]
+   [next.jdbc :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [response]]
+   [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug]]))
 
 (def ERROR_GET_ITEMS "Failed to get items")
 
-(def item-columns
-  [:items.id
-   :items.model_id
-   :items.name
-   :items.inventory_pool_id
-
-   :insurance_number
-   :inventory_code
-   :invoice_date
-   :invoice_number
-   :is_borrowable
-   :is_broken
-   :is_incomplete
-   :is_inventory_relevant
-   :item_version
-   :last_check
-   :needs_permission
-   :note
-   :owner_id
-   :parent_id
-   :price
-   :properties
-   :responsible
-   :retired
-   :retired_reason
-   :room_id
-   :serial_number
-   :shelf
-   :status_note
-   :supplier_id
-   :user_name
-   :m.cover_image_id])
-
 (def base-query
-  (-> (apply sql/select item-columns)
+  (-> (->> types/columns
+           (map #(keyword "items" (name %)))
+           concat
+           (apply sql/select))
       (sql/from :items)
       (sql/order-by :items.inventory_code)))
 
@@ -86,7 +62,8 @@
                              (sql/where [:= :i.parent_id :items.id]))
                          :package_items]]
 
-         query (-> (apply sql/select base-query extra-columns)
+         query (-> base-query
+                   (#(apply sql/select % extra-columns))
 
                    ;; Join inventory pool
                    (sql/join [:inventory_pools :ip]
@@ -155,8 +132,52 @@
      (try
        (-> request
            (create-pagination-response query nil post-fnc)
-           (pick-fields fields types/item)
+           (pick-fields fields types/index-item)
            response)
        (catch Exception e
          (log-by-severity ERROR_GET_ITEMS e)
          (exception-handler request ERROR_GET_ITEMS e))))))
+
+(def ERROR_CREATE_ITEM "Failed to create item")
+
+(defn inventory-code-exists? [tx inventory-code exclude-id]
+  (let [query (-> (sql/select :id)
+                  (sql/from :items)
+                  (sql/where [:= :inventory_code inventory-code])
+                  (cond-> exclude-id
+                    (sql/where [:not= :id exclude-id]))
+                  sql-format)]
+    (-> (jdbc/execute-one! tx query)
+        some?)))
+
+(defn post-resource [request]
+  (try
+    (let [tx (:tx request)
+          {:keys [pool_id]} (path-params request)
+          body-params (body-params request)
+          validation-error (validate-field-permissions request)]
+      (if validation-error
+        (bad-request validation-error)
+        (let [{:keys [item-data properties]} (split-item-data body-params)
+              inventory-code (:inventory_code item-data)]
+          (if (inventory-code-exists? tx inventory-code nil)
+            (status {:body {:error "Inventory code already exists"
+                            :proposed_code (inv-code/propose tx pool_id)}}
+                    409)
+            (let [item-data-coerced (coerce-field-values item-data in-coercions)
+                  properties-json (or (not-empty properties) {})
+                  item-data-with-properties (assoc item-data-coerced
+                                                   :properties [:lift properties-json])
+                  sql-query (-> (sql/insert-into :items)
+                                (sql/values [item-data-with-properties])
+                                (sql/returning :*)
+                                sql-format)
+                  result (jdbc/execute-one! tx sql-query)]
+              (if result
+                (response (-> result
+                              flatten-properties
+                              (coerce-field-values out-coercions)))
+                (bad-request {:error ERROR_CREATE_ITEM})))))))
+    (catch Exception e
+      (log-by-severity ERROR_CREATE_ITEM e)
+      (exception-handler request ERROR_CREATE_ITEM e))))

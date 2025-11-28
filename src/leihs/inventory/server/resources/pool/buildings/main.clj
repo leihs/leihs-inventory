@@ -12,12 +12,24 @@
 
 (def ERROR_GET_BUILDINGS "Failed to get buildings")
 
+(def base-query
+  (-> (sql/select :buildings.*)
+      (sql/from :buildings)
+      (sql/order-by :buildings.name)))
+
+(defn get-by-room-id [tx room-id]
+  (-> base-query
+      (sql/join :rooms [:= :rooms.building_id :buildings.id])
+      (sql/where [:= :rooms.id room-id])
+      sql-format
+      (->> (jdbc/query tx))
+      first))
+
 (defn index-resources [request]
   (try
     (let [tx (:tx request)
           building-id (-> request path-params :building_id)
-          query (-> (sql/select :b.*)
-                    (sql/from [:buildings :b])
+          query (-> base-query
                     (cond-> building-id (sql/where [:= :b.id building-id]))
                     sql-format)
 

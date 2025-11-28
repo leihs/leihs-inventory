@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.pool.suppliers.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.suppliers.main :as suppliers]
    [leihs.inventory.server.resources.pool.suppliers.types :refer [get-response]]
    [reitit.coercion.schema]
@@ -11,11 +10,7 @@
 
 (defn routes []
   ["/suppliers/"
-   {:get {:summary (fe "a.k.a 'Lieferanten'")
-          :description (str
-                        "- DEFAULT: no pagination\n"
-                        "- OK-Legacy | "
-                        "Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest")
+   {:get {:description "- DEFAULT: no pagination"
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}

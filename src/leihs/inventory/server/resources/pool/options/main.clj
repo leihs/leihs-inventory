@@ -3,7 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.cast-helper :refer [double-to-numeric-or-nil]]
+   [leihs.inventory.server.resources.pool.cast-helper :refer [parse-to-bigdecimal-or-nil]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec
                                                                 filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.types :as ty]
@@ -21,7 +21,7 @@
   (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :body])
-        price (double-to-numeric-or-nil (:price multipart))
+        price (parse-to-bigdecimal-or-nil (:price multipart))
         multipart (assoc multipart :price price :inventory_pool_id pool-id)]
 
     (try
