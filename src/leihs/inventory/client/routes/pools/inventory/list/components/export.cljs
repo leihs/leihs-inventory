@@ -1,9 +1,9 @@
 (ns leihs.inventory.client.routes.pools.inventory.list.components.export
   (:require
-   ["@@/Spinner" :refer [Spinner]]
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuTrigger
                                DropdownMenuContent DropdownMenuItem]]
+   ["@@/spinner" :refer [Spinner]]
    ["lucide-react" :refer [Download ChevronDown]]
    ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]
