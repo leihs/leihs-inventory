@@ -53,7 +53,7 @@
                          ($ :span {:className "hidden lg:block"}
                             (if current-pool (:name current-pool) (t "header.app-menu.inventory" "Inventar")))
                          ($ ChevronsUpDown {:className "h-4 w-4 hidden lg:block"}))))
-                ($ DropdownMenuContent {:className "ml-auto"}
+                ($ DropdownMenuContent {:className "ml-auto" :data-test-id "app-menu"}
                    ($ DropdownMenuGroup
                       (when-let [url (:borrow_url navigation)]
                         ($ DropdownMenuItem {:asChild true}
