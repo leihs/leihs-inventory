@@ -6,8 +6,10 @@
    ["@@/button" :refer [Button]]
    ["@@/dialog" :refer [Dialog DialogContent DialogHeader
                         DialogTitle DialogTrigger]]
-   ["@@/form" :refer [FormField FormItem FormMessage FormDescription]]
-   ["@@/label" :refer [Label]]
+
+   ["@@/form" :refer [FormField FormLabel FormItem
+                      FormMessage FormDescription]]
+   ["@@/spinner" :refer [Spinner]]
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
    ["lucide-react" :refer [Check ChevronsUpDown Image Trash Loader2Icon]]
    ["react-hook-form" :as hook-form]
@@ -39,40 +41,45 @@
 
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
-        [search set-search!] (uix/use-state "")
         [data set-data!] (uix/use-state [])
 
-        [pending set-pending!] (uix/use-state false)
-
+        [loading? set-loading!] (uix/use-state false)
         buttonRef (uix/use-ref nil)
+
+        debounceTimerRef (uix/use-ref nil)
+        handle-search (fn [event]
+                        (let [value (.. event -target -value)]
+                          ;; Clear existing timeout
+                          (when @debounceTimerRef
+                            (js/clearTimeout @debounceTimerRef))
+
+                          (when (> (count value) 2)
+                            ;; Set new timeout for debouncing (300ms delay)
+                            (reset! debounceTimerRef
+                                    (js/setTimeout
+                                     (fn []
+                                       (set-loading! true)
+                                       ;; Fetch result based on the search term
+                                       (-> http-client
+                                           (.get (str path "/" "?search=" value)
+                                                 #js {:cache false})
+                                           (.then (fn [res]
+                                                    (let [data (jc (.-data res))]
+                                                      (set-loading! false)
+                                                      (set-data! data))))
+                                           (.catch
+                                            (fn [err]
+                                              (js/console.error "Error fetching result" err)))))
+                                     300)))))
+
+        handle-open-change (fn [val]
+                             (set-data! [])
+                             (set-open! val))
 
         {:keys [fields append remove update]} (jc (hook-form/useFieldArray
                                                    (cj {:control control
                                                         :keyName (str name "-id")
                                                         :name name})))]
-
-    (uix/use-effect
-     (fn []
-       (if (< (count search) 2)
-         (set-data! [])
-         (let [debounce (js/setTimeout
-                         (fn []
-                           (set-pending! true)
-                           ;; Fetch result based on the search term
-                           (-> http-client
-                               (.get (str path "/" "?search=" search))
-                               (.then (fn [res]
-                                        (let [data (jc (.-data res))]
-                                          (set-pending! false)
-                                          (set-data! data))))
-                               (.catch
-                                (fn [err]
-                                  (js/console.error "Error fetching result" err)))))
-                         200)]
-
-           (set-pending! false)
-           (fn [] (js/clearTimeout debounce)))))
-     [search props path name])
 
     (uix/use-effect
      (fn []
@@ -84,12 +91,10 @@
        ($ FormField {:control control
                      :name name
                      :render #($ FormItem
-                                 ($ Label (t label) (when (:required props) "*"))
+                                 (when label
+                                   ($ FormLabel (t label) (when (:required props) "*")))
                                  ($ Popover {:open open
-                                             :on-open-change (fn [val]
-                                                               (set-search! "")
-                                                               (set-data! [])
-                                                               (set-open! val))}
+                                             :on-open-change handle-open-change}
 
                                     ($ PopoverTrigger {:as-child true}
                                        ($ Button {:variant "outline"
@@ -104,23 +109,22 @@
                                                        :style {:width (str width "px")}}
 
                                        ($ Command {:should-filter false
-                                                   :on-change (fn [event] (set-search! (.. event -target -value)))}
-                                          ($ :div
-                                             ($ CommandInput
-                                                {:placeholder (t (-> props :text :placeholder))})
-                                             (when pending
-                                               ($ Loader2Icon {:className "absolute right-0 top-0 h-4 w-4 m-3 animate-spin opacity-50"})))
+                                                   :on-change handle-search}
+
+                                          ($ CommandInput {:placeholder (t (-> props :text :placeholder))})
+
                                           ($ CommandList {:data-test-id "models-list"}
+                                             (if loading?
+                                               ($ Spinner {:className "absolute right-0 top-0 m-3"})
+                                               ($ CommandEmpty (cond
+                                                                 loading?
+                                                                 (t (-> props :text :searching))
 
-                                             ($ CommandEmpty (cond
-                                                               pending
-                                                               (t (-> props :text :searching))
+                                                                 (empty? data)
+                                                                 (t (-> props :text :search_empty))
 
-                                                               (< (count search) 3)
-                                                               (t (-> props :text :search_empty))
-
-                                                               :else
-                                                               (t (-> props :text :not_found))))
+                                                                 :else
+                                                                 (t (-> props :text :not_found)))))
 
                                              (for [element data]
                                                ($ CommandItem {:key (:id element)

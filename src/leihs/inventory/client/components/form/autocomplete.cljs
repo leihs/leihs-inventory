@@ -42,7 +42,6 @@
 
         handle-select (fn [value]
                         (set-open! false)
-                        (js/console.debug name)
                         (set-value name #js {:value value
                                              :label (get-label value)}
                                    #js {:shouldDirty true
@@ -118,7 +117,8 @@
                        ($ PopoverContent {:class-name "p-0"
                                           :style {:width (str width "px")}}
 
-                          ($ Command {:on-change handle-search}
+                          ($ Command {:should-filter false
+                                      :on-change handle-search}
                              ($ CommandInput {:placeholder (t "pool.items.item.fields.autocomplete.search")
                                               :data-test-id (str name "-input")})
                              ($ CommandList

@@ -86,6 +86,7 @@
 
     (uix/use-effect
      (fn []) [get-values])
+
     (uix/use-effect
      (fn []
        (when (.. buttonRef -current)
