@@ -147,7 +147,11 @@ feature "Update model", type: :feature do
 
     fill_in "Product", with: product_new
     fill_in "Version", with: version_new
-    fill_in "Manufacturer", with: manufacturer_new
+
+    click_on "Manufacturer"
+    fill_in "manufacturer-input", with: manufacturer_new
+    click_on manufacturer_new
+
     fill_in "Description", with: description_new
     fill_in "Technical Details", with: technical_details_new
     fill_in "Internal Description", with: internal_description_new
@@ -155,12 +159,12 @@ feature "Update model", type: :feature do
 
     find("tr", text: entitlement_group_1.name).find("button").click
     click_on "Select Entitlement-Group"
-    find("[data-value='#{entitlement_group_3.name}']").click
+    click_on entitlement_group_3.name
     fill_in "entitlements.1.quantity", with: 1
 
     find("tr", text: leaf_category_1_1_1.name).find("button").click
     click_on "Select category"
-    find("[data-value='#{parent_category_1_1.name}']").click
+    click_on parent_category_1_1.name
 
     within id: "pool.model.images.title" do
       find("tr", text: image_name_1).all("button").last.click
@@ -183,12 +187,10 @@ feature "Update model", type: :feature do
     within id: "pool.model.compatible_models.title" do
       find("tr", text: compatible_model_1.name).find("button").click
     end
-    within id: "pool.model.compatible_models.title" do
-      click_on "Select model"
-    end
-    fill_in_command_field("Search model", compatible_model_3.product)
+    click_on "compatibles"
+    fill_in "models-input", with: compatible_model_3.product
     within find("[data-test-id='models-list']") do
-      find("[data-value='#{compatible_model_3.name}']").click
+      click_on "#{compatible_model_3.product} #{compatible_model_3.version}"
     end
 
     within id: "pool.model.model_properties.title" do
@@ -216,7 +218,7 @@ feature "Update model", type: :feature do
 
     assert_field("Product", product_new)
     assert_field("Version", version_new)
-    expect(find_field("Manufacturer").value).to eq manufacturer_new
+    assert_button("manufacturer", manufacturer_new)
     assert_field("Description", description_new)
     assert_field("Technical Details", technical_details_new)
     assert_field("Internal Description", internal_description_new)

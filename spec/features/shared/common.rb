@@ -19,6 +19,11 @@ def assert_field(label, value)
   expect(find_field(label, wait: 10).value).to eq value
 end
 
+def assert_button(name, value)
+  button = find("button[name='#{name}']", wait: 10)
+  expect(button).to have_text(value)
+end
+
 def fill_in_command_field(placeholder, value)
   find("input[placeholder='#{placeholder}']").set value
 end

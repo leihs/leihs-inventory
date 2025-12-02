@@ -51,7 +51,11 @@ feature "Update software", type: :feature do
 
     fill_in "Product", with: product_new
     fill_in "Version", with: version_new
-    fill_in "Manufacturer", with: manufacturer_new
+
+    click_on "Manufacturer"
+    fill_in "manufacturer-input", with: manufacturer_new
+    click_on manufacturer_new
+
     fill_in "Software information", with: software_information_new
 
     within id: "pool.software.attachments.title" do
@@ -61,21 +65,23 @@ feature "Update software", type: :feature do
 
     click_on "Save"
 
-    expect(page).to have_content "Inventory List"
+    expect(page).to have_text("Inventory List")
     select_value("with_items", "all")
     fill_in "search", with: "#{product_new} #{version_new}"
 
+    # because there is a debounce on the search its necessary to wait a bit
+    sleep 0.3
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
     end
 
     within find("tr", text: "#{product_new} #{version_new}", visible: true) do
-      click_on "edit"
+      click_on("edit")
     end
 
     assert_field("Product", product_new)
     assert_field("Version", version_new)
-    expect(find_field("Manufacturer").value).to eq manufacturer_new
+    assert_button("manufacturer", manufacturer_new)
     assert_field("Software information", software_information_new)
 
     within id: "pool.software.attachments.title" do

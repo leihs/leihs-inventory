@@ -3,7 +3,14 @@ import { z } from "zod"
 export const schema = z.object({
   product: z.string().min(1),
   version: z.string().optional(),
-  manufacturer: z.string().optional(),
+  manufacturer: z
+    .union([
+      z.string(),
+      z
+        .object({ value: z.string(), label: z.string() })
+        .transform((val) => val.value),
+    ])
+    .optional(),
   technical_detail: z.string().optional(),
   attachments: z
     .array(
@@ -39,11 +46,21 @@ export const structure = [
       {
         name: "manufacturer",
         label: "pool.software.software.blocks.manufacturer.label",
-        component: "instant-search",
+        component: "autocomplete",
         props: {
+          instant: true,
+          extendable: true,
+          interpolate: true,
           "auto-complete": "off",
-          resource: "/inventory/:pool-id/manufacturers/?type=Software&search=",
-          "not-found": "pool.software.software.blocks.manufacturer.not_found",
+          "values-url":
+            "/inventory/:pool-id/manufacturers/?type=Software&search=",
+
+          text: {
+            search: "pool.software.software.blocks.manufacturer.search",
+            select: "pool.software.software.blocks.manufacturer.select",
+            add_new: "pool.software.software.blocks.manufacturer.add_new",
+            empty: "pool.software.software.blocks.manufacturer.empty",
+          },
         },
       },
       {

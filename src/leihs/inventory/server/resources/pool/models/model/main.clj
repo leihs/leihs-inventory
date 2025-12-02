@@ -65,7 +65,12 @@
     (mapv #(filter-map-by-spec % ::co/accessory) accessories)))
 
 (defn fetch-compatibles [tx model-id pool-id]
-  (let [query (-> (sql/select :mm.id :mm.product :mm.version ["models" :origin_table] :mm.cover_image_id)
+  (let [query (-> (sql/select :mm.id
+                              :mm.product
+                              :mm.version
+                              :mm.name
+                              ["models" :origin_table]
+                              :mm.cover_image_id)
                   (sql/from [:models_compatibles :mc])
                   (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
                   (sql/where [:= :mc.model_id model-id])

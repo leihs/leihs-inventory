@@ -67,12 +67,14 @@ feature "Create model", type: :feature do
     visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New model"
-
     click_on "this is a package"
     fill_in "Product", with: product
+
     fill_in "Version", with: version
-    fill_in "Manufacturer", with: manufacturer
-    # find_field("Manufacturer").send_keys :enter
+
+    click_on "Manufacturer"
+    fill_in "manufacturer-input", with: manufacturer
+    click_on manufacturer
 
     fill_in "Description", with: description
     fill_in "Technical Details", with: technical_details
@@ -80,16 +82,17 @@ feature "Create model", type: :feature do
     fill_in "Important notes for hand over", with: hand_over_note
 
     click_on "Select Entitlement-Group"
-    find("[data-value='#{entitlement_group_1.name}']").click
+    click_on entitlement_group_1.name
     fill_in "entitlements.0.quantity", with: 2
+
     click_on "Select Entitlement-Group"
-    find("[data-value='#{entitlement_group_2.name}']").click
+    click_on entitlement_group_2.name
     fill_in "entitlements.1.quantity", with: 1
 
     click_on "Select category"
-    find("[data-value='#{leaf_category_1_1.name}']").click
+    click_on leaf_category_1_1.name
     click_on "Select category"
-    find("[data-value='#{parent_category_2_1.name}']").click
+    click_on parent_category_2_1.name
 
     within id: "pool.model.images.title" do
       find("input[type='file']", visible: false).attach_file "./spec/files/#{image_name_1}"
@@ -109,19 +112,18 @@ feature "Create model", type: :feature do
       fill_in "accessories.1.name", with: second_accessory_name
     end
 
-    within id: "pool.model.compatible_models.title" do
-      click_on "Select model"
-    end
-    fill_in_command_field("Search model", compatible_model_1.product)
+    click_on "compatibles"
+    fill_in("Search model", with: compatible_model_1.product)
+
+    fill_in "models-input", with: compatible_model_1.product
     within find("[data-test-id='models-list']") do
-      find("[data-value='#{compatible_model_1.product} #{compatible_model_1.version}']").click
+      click_on "#{compatible_model_1.product} #{compatible_model_1.version}"
     end
-    within id: "pool.model.compatible_models.title" do
-      click_on "Select model"
-    end
-    fill_in_command_field("Search model", compatible_model_2.product)
+
+    click_on "compatibles"
+    fill_in "models-input", with: compatible_model_2.product
     within find("[data-test-id='models-list']") do
-      find("[data-value='#{compatible_model_2.product} #{compatible_model_2.version}']").click
+      click_on "#{compatible_model_2.product} #{compatible_model_2.version}"
     end
 
     within id: "pool.model.model_properties.title" do
@@ -147,7 +149,7 @@ feature "Create model", type: :feature do
 
     assert_field("Product", product)
     assert_field("Version", version)
-    expect(find_field("Manufacturer").value).to eq manufacturer
+    assert_button("manufacturer", manufacturer)
     assert_field("Description", description)
     assert_field("Technical Details", technical_details)
     assert_field("Internal Description", internal_description)
@@ -200,8 +202,8 @@ feature "Create model", type: :feature do
     click_on "New model"
 
     click_on "Create"
-    expect(page.find("body", visible: :all).text).to include("Model could not be created because one field is invalid")
-    expect(page).to have_content "Too small: expected input to have >=1 characters"
+    expect(page).to have_text("Model could not be created because one field is invalid")
+    expect(page).to have_text("Too small: expected input to have >=1 characters")
   end
 
   scenario "fails with confilicting product name" do

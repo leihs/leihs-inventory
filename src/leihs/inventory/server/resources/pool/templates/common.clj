@@ -1,5 +1,6 @@
 (ns leihs.inventory.server.resources.pool.templates.common
   (:require
+   [clojure.set :refer [rename-keys]]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
@@ -24,6 +25,7 @@
        :m.product
        :m.version
        :m.cover_image_id
+       [:m.name :model_name]
        :ml.quantity
        [count-quantity-condition
         :available]
@@ -112,8 +114,9 @@
                          (group-by :name)
                          (map (fn [[name records]]
                                 {:name name
-                                 :models (mapv #(select-keys % [:id :product :version :quantity :available
-                                                                :cover_image_id :is_quantity_ok])
+                                 :models (mapv #(-> (select-keys % [:id :product :version :quantity :available
+                                                                    :cover_image_id :is_quantity_ok :model_name])
+                                                    (rename-keys {:model_name :name}))
                                                records)}))
                          first)
              models (->> (:models result)

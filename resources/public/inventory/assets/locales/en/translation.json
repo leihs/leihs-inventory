@@ -126,7 +126,7 @@
           "autocomplete": {
             "select": "Make a selection",
             "search": "Enter search term",
-            "not_found": "No results found for this search term"
+            "empty": "No results found for this search term"
           }
         }
       }
@@ -242,7 +242,7 @@
         "title": "Template",
         "create": {
           "description": "Provide all required information",
-          "submit": "Save template",
+          "submit": "Create",
           "cancel": "Cancel",
           "success": "Template was successfully created",
           "invalid_one": "Template could not be created because one field is invalid",
@@ -252,7 +252,7 @@
         },
         "edit": {
           "description": "Make changes and save them afterward",
-          "submit": "Save template",
+          "submit": "Save",
           "delete": "Delete",
           "cancel": "Cancel",
           "success": "Template was successfully saved",
@@ -329,7 +329,11 @@
             "label": "Version"
           },
           "manufacturer": {
-            "label": "Manufacturer"
+            "label": "Manufacturer",
+            "search": "Search manufacturer",
+            "select": "Select manufacturer",
+            "add_new": "Add new manufacturer",
+            "empty": "Type at least 2 characters to search"
           },
           "software_information": {
             "label": "Software information"
@@ -419,7 +423,10 @@
           },
           "manufacturer": {
             "label": "Manufacturer",
-            "not_found": "There is no manufacturer with this name yet"
+            "search": "Search manufacturer",
+            "select": "Select manufacturer",
+            "add_new": "Add new manufacturer",
+            "empty": "Type at least 2 characters to search"
           },
           "description": {
             "label": "Description"

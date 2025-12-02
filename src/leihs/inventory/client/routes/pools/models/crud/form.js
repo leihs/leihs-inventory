@@ -4,7 +4,14 @@ export const schema = z.object({
   is_package: z.boolean().optional(),
   product: z.string().min(1),
   version: z.string().optional(),
-  manufacturer: z.string().optional(),
+  manufacturer: z
+    .union([
+      z.string(),
+      z
+        .object({ value: z.string(), label: z.string() })
+        .transform((val) => val.value),
+    ])
+    .optional(),
   description: z.string().optional(),
   technical_detail: z.string().optional(),
   internal_description: z.string().optional(),
@@ -104,11 +111,20 @@ export const structure = [
       {
         name: "manufacturer",
         label: "pool.model.product.blocks.manufacturer.label",
-        component: "instant-search",
+        component: "autocomplete",
         props: {
+          instant: true,
+          extendable: true,
+          interpolate: true,
+          "values-url": "/inventory/:pool-id/manufacturers/?search=",
           "auto-complete": "off",
-          resource: "/inventory/:pool-id/manufacturers/?search=",
-          "not-found": "pool.model.product.blocks.manufacturer.not_found",
+
+          text: {
+            search: "pool.model.product.blocks.manufacturer.search",
+            select: "pool.model.product.blocks.manufacturer.select",
+            add_new: "pool.model.product.blocks.manufacturer.add_new",
+            empty: "pool.model.product.blocks.manufacturer.empty",
+          },
         },
       },
       {

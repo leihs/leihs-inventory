@@ -22,17 +22,18 @@ feature "Create template", type: :feature do
     click_on "New template"
 
     fill_in "Template name*", with: template_name
+
     click_on "Select model"
-    fill_in_command_field("Search model", @model.product)
+    fill_in "models-input", with: @model.product
     within find("[data-test-id='models-list']") do
-      find("[data-value='#{@model.product} #{@model.version}']").click
+      click_on "#{@model.product} #{@model.version}"
     end
 
     within "tr", text: @model.product do
       fill_in "quantity", with: "10"
     end
 
-    click_on "Save template"
+    click_on "Create"
     expect(page.find("body", visible: :all).text).to include("Template was successfully created")
 
     expect(page).to have_content "Inventory List"
@@ -55,10 +56,10 @@ feature "Create template", type: :feature do
     visit "/inventory/#{pool.id}/templates"
     click_on "New template"
 
-    click_on "Save"
-    expect(page.find("body", visible: :all).text).to include("Template could not be created because 2 fields are invalid")
-    expect(page).to have_content "Too small: expected input to have >=1 characters"
-    expect(page).to have_content "Too small: expected input to have >=1 characters"
+    click_on "Create"
+    expect(page).to have_text("Template could not be created because 2 fields are invalid")
+    expect(page).to have_text "Too small: expected input to have >=1 characters"
+    expect(page).to have_text "Too small: expected input to have >=1 characters"
   end
 
   scenario "cancel works" do
@@ -69,9 +70,10 @@ feature "Create template", type: :feature do
 
     fill_in "Template name*", with: template_name
     click_on "Select model"
-    fill_in_command_field("Search model", @model.product)
+
+    fill_in "models-input", with: @model.product
     within find("[data-test-id='models-list']") do
-      find("[data-value='#{@model.product} #{@model.version}']").click
+      click_on "#{@model.product} #{@model.version}"
     end
 
     click_on "submit-dropdown"

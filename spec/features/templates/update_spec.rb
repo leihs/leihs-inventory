@@ -1,7 +1,7 @@
 require "spec_helper"
 require_relative "../shared/common"
 
-feature "Create template", type: :feature do
+feature "Update template", type: :feature do
   let(:user) { FactoryBot.create(:user, language_locale: "en-GB") }
   let(:pool) { FactoryBot.create(:inventory_pool) }
 
@@ -40,10 +40,11 @@ feature "Create template", type: :feature do
     end
 
     fill_in "Template name*", with: template_name_new
+
     click_on "Select model"
-    fill_in_command_field("Search model", @model2.product)
+    fill_in "models-input", with: "#{@model2.product} #{@model2.version}"
     within find("[data-test-id='models-list']") do
-      find("[data-value='#{@model2.product} #{@model2.version}']").click
+      click_on "#{@model2.product} #{@model2.version}"
     end
 
     within "tr", text: @model.product do
@@ -54,8 +55,8 @@ feature "Create template", type: :feature do
       fill_in "quantity", with: "5"
     end
 
-    click_on "Save template"
-    expect(page.find("body", visible: :all).text).to include("Template was successfully saved")
+    click_on "Save"
+    expect(page).to have_text("Template was successfully saved")
 
     expect(page).to have_content "Inventory List"
     expect(page).to have_content template_name_new

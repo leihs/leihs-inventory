@@ -1,15 +1,20 @@
 (ns leihs.inventory.client.components.form.autocomplete
   (:require
-   ["@/components/ui/command" :refer [Command CommandEmpty
+   ["@/components/ui/command" :refer [Command CommandEmpty CommandGroup CommandSeparator
                                       CommandInput CommandItem CommandList]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
+   ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
    ["@@/form" :refer [FormField FormItem FormLabel
                       FormControl FormMessage]]
+
    ["@@/spinner" :refer [Spinner]]
-   ["lucide-react" :refer [Check ChevronsUpDown]]
+   ["lucide-react" :refer [Check ChevronsUpDown FilePlusCorner]]
    ["react-i18next" :refer [useTranslation]]
+   ["react-router-dom" :as router]
+
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -19,13 +24,28 @@
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
 
+        params (router/useParams)
+
         control (cj (.-control form))
         buttonRef (uix/use-ref nil)
-        debounceTimerRef (uix/use-ref nil)
+
+        ;; enable instant search after 2 characters
         instant? (boolean (:instant props))
-        values-url (:values-url props)
+        ;; enable adding new entries if no existing option matches the search
+        extendable? (boolean (:extendable props))
+        ;; interpolate values-url with params /:pool-id/.. -> /42/.. etc.
+        interpolate? (boolean (:interpolate props))
+
+        values-url (if interpolate?
+                     (router/generatePath (:values-url props) params)
+                     (:values-url props))
+
+        ;; remap function to transform fetched values
         remap (if values-url (:remap props) nil)
         disabled (:disabled props)
+
+        [search set-search!] (uix/use-state "")
+        debounced-search (hooks/use-debounce search 200)
 
         set-value (aget form "setValue")
         get-values (aget form "getValues")
@@ -42,37 +62,37 @@
 
         handle-select (fn [value]
                         (set-open! false)
-                        (js/console.debug name)
-                        (set-value name #js {:value value
-                                             :label (get-label value)}
-                                   #js {:shouldDirty true
-                                        :shouldValidate true})
-                        (when instant?
-                          (set-options! [])))
+                        (let [label (get-label value)]
+                          (set-value name #js {:value value
+                                               :label (if label label value)}
+                                     #js {:shouldDirty true
+                                          :shouldValidate true})))
 
-        handle-search (fn [event]
-                        (let [value (.. event -target -value)]
-                          ;; Clear existing timeout
-                          (when @debounceTimerRef
-                            (js/clearTimeout @debounceTimerRef))
+        handle-open-change (fn [val]
+                             (when instant?
+                               (set-options! []))
+                             (set-search! "")
+                             (set-open! val))]
 
-                          (when (and instant? (> (count value) 3))
-                            ;; Set new timeout for debouncing (300ms delay)
-                            (reset! debounceTimerRef
-                                    (js/setTimeout
-                                     (fn []
-                                       (set-loading! true)
-                                       (-> http-client
-                                           (.get (str values-url value))
-                                           (.then (fn [response]
-                                                    (let [data (jc (.. response -data))]
-                                                      (if remap
-                                                        (set-options! (map remap data))
-                                                        (set-options! data))
-                                                      (set-loading! false))))))
-                                     300)))))
+    (uix/use-effect
+     (fn []
+       (cond
+         (and instant? (< (count debounced-search) 2))
+         (set-options! [])
 
-        handle-open-change (fn [val] (set-open! val))]
+         (and instant? (> (count debounced-search) 1))
+         (let [fetch (fn []
+                       (set-loading! true)
+                       (-> http-client
+                           (.get (str values-url debounced-search))
+                           (.then (fn [response]
+                                    (let [data (jc (.. response -data))]
+                                      (if remap
+                                        (set-options! (map remap data))
+                                        (set-options! data))
+                                      (set-loading! false))))))]
+           (fetch))))
+     [debounced-search values-url remap instant?])
 
     (uix/use-effect
      (fn []
@@ -80,6 +100,8 @@
          (set-width! (.. buttonRef -current -offsetWidth))))
      [])
 
+    ;; initial fetch of options if not instant
+    ;; when options are delivered via url
     (uix/use-effect
      (fn []
        (when (and (not instant?) values-url)
@@ -98,7 +120,8 @@
        {:control control
         :name name
         :render #($ FormItem {:class-name "mt-6"}
-                    ($ FormLabel label)
+                    (when label
+                      ($ FormLabel (t label)))
                     ($ Popover {:open open
                                 :on-open-change handle-open-change}
 
@@ -111,20 +134,52 @@
                                         :data-test-id name
                                         :role "combobox"
                                         :class-name "w-full justify-between"}
-                                (or (get-values (str name ".label"))
-                                    (t "pool.items.item.fields.autocomplete.select"))
+
+                                ;; the value in form can either be a string or a map with label and value
+                                ;; hence we check for both cases here
+                                (let [val (jc (get-values (str name)))
+                                      label (if (map? val) (:label val) val)]
+                                  (if (and label (seq label))
+                                    label
+                                    (t (-> props :text :select))))
+
                                 ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"}))))
 
                        ($ PopoverContent {:class-name "p-0"
                                           :style {:width (str width "px")}}
 
-                          ($ Command {:on-change handle-search}
-                             ($ CommandInput {:placeholder (t "pool.items.item.fields.autocomplete.search")
+                          ($ Command {:should-filter false
+                                      :on-change (fn [e] (set-search! (.. e -target -value)))}
+                             ($ CommandInput {:placeholder (t (-> props :text :search))
                                               :data-test-id (str name "-input")})
+
                              ($ CommandList
                                 (if loading?
                                   ($ Spinner {:className "absolute right-0 top-0 m-3"})
-                                  ($ CommandEmpty (t "pool.items.item.fields.autocomplete.not_found")))
+                                  ($ CommandEmpty (t (-> props :text :empty))))
+
+                                ;; extendable option to add new entry
+                                ;; will only show if no existing option matches the search
+                                ;; can be toggled via extendable? prop
+                                (when (and extendable?
+                                           (not (some (fn [opt]
+                                                        (= (:label opt) search))
+                                                      options))
+                                           (seq search))
+                                  ($ :<>
+                                     ($ CommandItem {:value search
+                                                     :onSelect handle-select}
+                                        ($ FilePlusCorner {:class-name "mr-2 h-4 w-4 text-blue-500"})
+
+                                        ($ :button {:type "button"
+                                                    :class-name "w-full flex justify-between"}
+                                           search
+                                           ($ :span {:class-name "rounded-full text-blue-500 mx-2 text-xs"}
+                                              (t (-> props :text :add_new)))))
+
+                                     ($ CommandSeparator {:alwaysRender true})))
+
+                                ;; options
                                 (for [option options]
                                   ($ CommandItem {:value (:value option)
                                                   :onSelect handle-select

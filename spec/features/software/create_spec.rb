@@ -28,7 +28,11 @@ feature "Create software", type: :feature do
 
     fill_in "Product", with: product
     fill_in "Version", with: version
-    fill_in "Manufacturer", with: manufacturer
+
+    click_on "Manufacturer"
+    fill_in "manufacturer-input", with: manufacturer
+    click_on manufacturer
+
     fill_in "Software information", with: software_information
 
     within id: "pool.software.attachments.title" do
@@ -46,7 +50,7 @@ feature "Create software", type: :feature do
 
     assert_field("Product", product)
     assert_field("Version", version)
-    expect(find_field("Manufacturer").value).to eq manufacturer
+    assert_button("manufacturer", manufacturer)
     assert_field("Software information", software_information)
 
     within id: "pool.software.attachments.title" do
@@ -62,8 +66,8 @@ feature "Create software", type: :feature do
     click_on "New software"
 
     click_on "Save software"
-    expect(page.find("body", visible: :all).text).to include("Software could not be created because one field is invalid")
-    expect(page).to have_content "Too small: expected input to have >=1 characters"
+    expect(page).to have_text("Software could not be created because one field is invalid")
+    expect(page).to have_text("Too small: expected input to have >=1 characters")
   end
 
   scenario "fails with confilicting product name" do
@@ -74,12 +78,16 @@ feature "Create software", type: :feature do
     click_on "New software"
     fill_in "Product", with: product
     fill_in "Version", with: version
-    fill_in "Manufacturer", with: manufacturer
+
+    click_on "Manufacturer"
+    fill_in "manufacturer-input", with: manufacturer
+    click_on manufacturer
+
     fill_in "Software information", with: software_information
 
     click_on "Save software"
 
-    expect(page.find("body", visible: :all).text).to include("A software with this name already exists")
+    expect(page).to have_text("A software with this name already exists")
   end
 
   scenario "cancel works" do
@@ -90,7 +98,11 @@ feature "Create software", type: :feature do
 
     fill_in "Product", with: product
     fill_in "Version", with: version
-    fill_in "Manufacturer", with: manufacturer
+
+    click_on "Manufacturer"
+    fill_in "manufacturer-input", with: manufacturer
+    click_on manufacturer
+
     fill_in "Software information", with: software_information
 
     click_on "submit-dropdown"

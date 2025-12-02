@@ -125,7 +125,7 @@
           "autocomplete": {
             "select": "Auswahl treffen",
             "search": "Suchbegriff eingeben",
-            "not_found": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
+            "empty": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
           }
         }
       }
@@ -241,7 +241,7 @@
         "title": "Vorlage",
         "create": {
           "description": "Geben Sie alle erforderlichen Informationen an",
-          "submit": "Vorlage speichern",
+          "submit": "Erstellen",
           "cancel": "Abbrechen",
           "success": "Vorlage wurde erfolgreich erstellt",
           "invalid_one": "Vorlage konnte nicht erstellt werden, da ein Feld ungültig ist",
@@ -251,7 +251,7 @@
         },
         "edit": {
           "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
-          "submit": "Vorlage speichern",
+          "submit": "Speichern",
           "delete": "Löschen",
           "cancel": "Abbrechen",
           "success": "Vorlage wurde erfolgreich gespeichert",
@@ -330,7 +330,10 @@
           },
           "manufacturer": {
             "label": "Hersteller",
-            "not_found": "Keine Hersteller zu diesem Suchbegriff gefunden"
+            "search": "Hersteller suchen",
+            "select": "Hersteller auswählen",
+            "add_new": "Neuen Hersteller hinzufügen",
+            "empty": "Keine Hersteller zu diesem Suchbegriff gefunden"
           },
           "software_information": {
             "label": "Software Informationen"
@@ -420,7 +423,10 @@
           },
           "manufacturer": {
             "label": "Hersteller",
-            "not_found": "Keine Hersteller zu diesem Suchbegriff gefunden"
+            "search": "Hersteller suchen",
+            "select": "Hersteller auswählen",
+            "add_new": "Neuen Hersteller hinzufügen",
+            "empty": "Keine Hersteller zu diesem Suchbegriff gefunden"
           },
           "description": {
             "label": "Beschreibung"

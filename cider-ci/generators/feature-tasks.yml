@@ -219,7 +219,7 @@
     FEATURE_NAME: "Delete template 02"
     FEATURE: './spec/features/templates/delete_spec.rb[1:2]'
 './spec/features/templates/update_spec.rb[1:1]':
-  name: "Create template 04"
+  name: "Update template 01"
   environment_variables:
-    FEATURE_NAME: "Create template 04"
+    FEATURE_NAME: "Update template 01"
     FEATURE: './spec/features/templates/update_spec.rb[1:1]'

@@ -18,6 +18,7 @@
 (sa/def :get/model
   (sa/keys :req-un [::sp/id
                     ::sp/product
+                    ::sp/name
                     :nil/version
                     ::sp/quantity
                     ::sp/available
