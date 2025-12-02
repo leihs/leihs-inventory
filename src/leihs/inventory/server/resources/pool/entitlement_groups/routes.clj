@@ -19,8 +19,7 @@
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}
-                       :query {(s/optional-key :type) (s/enum "min" "all")
-                               (s/optional-key :page) s/Int
+                       :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int}}
           :produces ["application/json"]
           :handler entitlement-groups/index-resources
