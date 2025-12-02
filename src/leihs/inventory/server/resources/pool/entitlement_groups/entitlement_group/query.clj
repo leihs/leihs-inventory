@@ -106,7 +106,7 @@
         entitlements))
 
 (defn fetch-users-of-entitlement-group [tx entitlement-group-id]
-  (let [query (-> (sql/select :u.id :u.firstname :u.lastname :u.email :u.searchable)
+  (let [query (-> (sql/select :u.id :u.firstname :u.lastname :u.email :u.searchable :egu.type)
                   (sql/from [:entitlement_groups_users :egu])
                   (sql/join [:users :u] [:= :egu.user_id :u.id])
                   (sql/where [:= :egu.entitlement_group_id entitlement-group-id])

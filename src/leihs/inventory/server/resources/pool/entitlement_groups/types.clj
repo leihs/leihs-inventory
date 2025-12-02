@@ -7,9 +7,10 @@
   (s/constrained s/Int pos? 'positive-integer))
 
 (def post-user {:id s/Uuid
-                :firstname s/Str
-                :lastname s/Str
-                :email s/Str
+                :firstname (s/maybe s/Str)
+                :lastname (s/maybe s/Str)
+                :email (s/maybe s/Str)
+                (s/optional-key :type) (s/maybe s/Str)
                 :searchable s/Str})
 
 (def post-group {:id s/Uuid
@@ -53,7 +54,7 @@
                    (s/optional-key :number_of_groups) s/Int
                    (s/optional-key :number_of_direct_users) s/Int
                    (s/optional-key :number_of_users) s/Int
-                   (s/optional-key :number_of_allocations) s/Int})
+                   (s/optional-key :number_of_allocations) (s/maybe s/Int)})
 
 (def get-response-body
   (s/->Either [[get-response] {:data [get-response] :pagination pagination}]))
