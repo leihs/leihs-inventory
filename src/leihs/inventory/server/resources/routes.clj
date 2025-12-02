@@ -3,6 +3,7 @@
    [clojure.java.io :as io]
    [clojure.string :as str]
    [dev.routes :refer [get-dev-routes]]
+   [hiccup.page :refer [html5]]
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
@@ -64,11 +65,15 @@
 (defn- create-root-page [_]
   {:status 200
    :headers {"Content-Type" "text/html"}
-   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
-       </head><div class='max-width'>
-       <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
-       <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-              (slurp (io/resource "md/info.html")) "</div></body></html>")})
+   :body (html5
+          [:head
+           [:link {:rel "stylesheet" :href "/inventory/assets/css/additional.css"}]]
+          [:body
+           [:div {:class "max-width"}
+            [:img {:src "/inventory/assets/zhdk-logo.svg"
+                   :alt "ZHdK Logo"
+                   :style "margin-bottom:4em"}]
+            [:h1 "Overview _> go to " [:a {:href "/inventory"} "go to /inventory"]]]])})
 
 (defn sign-in-out-endpoints []
   [[""
@@ -218,7 +223,7 @@
             :produces ["text/html" "application/json"]
             :swagger {:info {:title "inventory-api"
                              :version "2.0.0"
-                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
+                             :description (slurp (io/resource "md/csrf.html"))}
                       :securityDefinitions {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}
                                             :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}}
                       :security [{:csrfToken []}]}
@@ -230,7 +235,7 @@
             :produces ["text/html" "application/json"]
             :openapi {:openapi "3.0.0"
                       :info {:title "inventory-api"
-                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
+                             :description (slurp (io/resource "md/csrf.html"))
                              :version "3.0.0"}}
             :handler (openapi/create-openapi-handler)}}]]
 

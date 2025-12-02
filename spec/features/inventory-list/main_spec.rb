@@ -16,7 +16,9 @@ feature "Inventory Page", type: :feature do
     visit "/inventory"
     expect(page).to have_content("Inventory", wait: 20)
     find("nav button", text: "Inventory").click
-    click_on pool.name
+    within('[role="menu"]', match: :first) do
+      click_on pool.name
+    end
     expect(page).to have_content(pool.name)
 
     page.driver.browser.action.key_down(:shift)
@@ -284,7 +286,9 @@ feature "Inventory Page", type: :feature do
     visit "/inventory"
     expect(page).to have_content "Inventory"
     find("nav button", text: "Inventory").click
-    click_on pool_1.name
+    within('[role="menu"]', match: :first) do
+      click_on pool_1.name
+    end
 
     expect(page).to have_css('nav[aria-label="breadcrumb"]', text: pool_1.name)
     expect(page).to have_css('nav[aria-label="breadcrumb"]', text: "Inventory List")

@@ -16,7 +16,9 @@ feature "Inventory Pagination ", type: :feature do
     visit "/inventory"
     expect(page).to have_content("Inventory", wait: 30)
     find("nav button", text: "Inventory").click
-    click_on pool.name
+    within('[role="menu"]', match: :first) do
+      click_on pool.name
+    end
     expect(page).to have_content pool.name
   end
 

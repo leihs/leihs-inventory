@@ -34,9 +34,9 @@
         query (-> (base-inventory-query pool-id)
                   (cond-> type (filter-by-type type))
                   (cond->
-                    (not= type :option)
+                   (not= type :option)
                     (cond->
-                      (true? with_items)
+                     (true? with_items)
                       (with-items pool-id
                         (cond-> {:retired retired
                                  :borrowable borrowable

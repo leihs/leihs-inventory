@@ -11,7 +11,7 @@
   [[header & rows]]
   (let [all-rows (cons (map name header) rows)]
     (with-out-str
-     (csv/write-csv *out* all-rows))))
+      (csv/write-csv *out* all-rows))))
 
 (defn csv-response
   [data & {:keys [filename] :or {filename "export.csv"}}]
