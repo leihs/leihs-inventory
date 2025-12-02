@@ -33,4 +33,5 @@
                         :is_verification_required s/Bool
                         :models [get-model]
                         :users [post-user]
+                        :direct-users [post-user]
                         :groups [post-group]})

@@ -8,8 +8,8 @@
    [schema.core :as s]))
 
 (def user {:id s/Uuid
-           :firstname s/Str
-           :lastname s/Str
+           :firstname (s/maybe s/Str)
+           :lastname (s/maybe s/Str)
            :login (s/maybe s/Str)
            :email (s/maybe s/Str)
            :searchable s/Str})
