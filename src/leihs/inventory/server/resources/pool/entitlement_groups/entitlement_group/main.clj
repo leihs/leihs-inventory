@@ -39,6 +39,13 @@
                       {:duplicate-model-ids duplicates
                        :status 400})))))
 
+(defn- filter-eg [type coll]
+  (->> coll
+       (filter (fn [item]
+                 (or (nil? type)
+                     (= type (:type item)))))
+       (map #(dissoc % :type))))
+
 (defn get-resource [request]
   (try
     (let [tx (:tx request)
@@ -51,10 +58,10 @@
                                :status 404})))
 
           models (fetch-models-of-entitlement-group tx request)
-
-          users (fetch-users-of-entitlement-group tx entitlement-group-id)
+          users-raw (fetch-users-of-entitlement-group tx entitlement-group-id)
           groups (fetch-groups-of-entitlement-group tx entitlement-group-id)]
-      (response (merge entitlement-group {:users users
+      (response (merge entitlement-group {:users (filter-eg nil users-raw)
+                                          :direct-users (filter-eg "direct_entitlement" users-raw)
                                           :groups groups
                                           :models models})))
     (catch Exception e
