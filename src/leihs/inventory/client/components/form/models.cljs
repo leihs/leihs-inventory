@@ -131,6 +131,7 @@
                                                                              (not (check-path-existing (:product element) fields))
                                                                               (append (cj (merge {:product (:product element)
                                                                                                   :version (:version element)
+                                                                                                  :name (:name element)
                                                                                                   :url (:url element)
                                                                                                   :id (:id element)}
                                                                                                  (into {}
@@ -138,18 +139,18 @@
                                                                                                               (when-let [value (get element (keyword attr))]
                                                                                                                 [(keyword attr) value]))
                                                                                                             (:attributes props))))))
-                                                                              (remove (find-index-from-path (:product element) fields))))}
+                                                                              (remove (find-index-from-path (:name element) fields))))}
 
                                                   ($ Check
                                                      {:class-name (str "mr-2 h-4 w-4 "
-                                                                       (if (check-path-existing (:product element) fields)
+                                                                       (if (check-path-existing (:name element) fields)
                                                                          "visible"
                                                                          "invisible"))})
                                                   ($ :span
                                                      {:class-name (str (when (= 1 (:level element)) " font-bold ")
                                                                        (when (= 2 (:level element)) " font-medium ")
                                                                        " truncate")}
-                                                     (str (:product element) " " (:version element)))))))))
+                                                     (str (:name element)))))))))
                                  ($ FormDescription)
                                  ($ FormMessage))})
 
@@ -176,13 +177,13 @@
                                                 :class-name "w-10 h-10 p-1 object-contain rounded"})))
                                  ($ DialogContent
                                     ($ DialogHeader
-                                       ($ DialogTitle (:product field)))
+                                       ($ DialogTitle (:name field)))
                                     ($ :img {:src (:url field)
                                              :class-name "w-[50vh] aspect-square object-contain"})))
                               ($ Image {:class-name "w-10 h-10 scale-[1.2] align-middle"})))
 
                          ($ TableCell {:class-name ""}
-                            (str (:product field) " " (:version field)))
+                            (str (:name field)))
 
                          (when children ($ :<> (children update index field)))
 
