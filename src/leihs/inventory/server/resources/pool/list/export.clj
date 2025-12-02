@@ -101,9 +101,9 @@
    [:reservations.end_date :lended_until]])
 
 (def timestamps
-  [[[:coalesce :items.created_at :models.created_at :options.created_at]
+  [[[:coalesce :items.created_at :inventory.created_at]
     :created_at]
-   [[:coalesce :items.updated_at :models.updated_at :options.updated_at]
+   [[:coalesce :items.updated_at :inventory.updated_at]
     :updated_at]])
 
 (defn sql-prepare [query pool-id]
