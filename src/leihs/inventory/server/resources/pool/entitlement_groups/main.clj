@@ -78,28 +78,22 @@
   (try
     (let [tx (:tx request)
           {:keys [type]} (query-params request)
-          type (when (= type "all") type)
 
           pool_id (-> request path-params :pool_id)
-          query (->
-                 (sql/select :g.*)
-                 (cond-> type (sql/select [[:sum :e.quantity] :number_of_allocations]))
-
-                 (sql/from [:entitlement_groups :g])
-                 (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
-                 (cond-> type (sql/left-join [:entitlements :e] [:= :e.entitlement_group_id :g.id]))
-                 (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
-                 (cond-> type (sql/group-by :g.id))
-                 (sql/order-by :g.name))
+          query (-> (sql/select :g.* [[:coalesce [:sum :e.quantity] 0] :number_of_allocations])
+                    (sql/from [:entitlement_groups :g])
+                    (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
+                    (sql/left-join [:entitlements :e] [:= :e.entitlement_group_id :g.id])
+                    (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
+                    (sql/group-by :g.id)
+                    (sql/order-by :g.name))
 
           post-fnc (fn [models]
-                     (cond
-                       (not (seq models)) []
-                       type (let [ids (to-uuid (mapv :id models))
-                                  models (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
-                                  result (merge-by-id models (enrich-with-stats tx ids))]
-                              result)
-                       :else models))]
+                     (if (not (seq models)) []
+                         (let [ids (to-uuid (mapv :id models))
+                               models (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
+                               result (merge-by-id models (enrich-with-stats tx ids))]
+                           result)))]
       (response (create-pagination-response request query nil post-fnc)))
     (catch Exception e
       (exception-handler request ERROR_GET e))))
