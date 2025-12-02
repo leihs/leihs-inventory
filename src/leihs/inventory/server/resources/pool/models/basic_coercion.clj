@@ -47,10 +47,17 @@
                             :req-un [::id]))
 (sa/def ::categories
   (sa/coll-of ::category :kind vector? :min-count 0))
-(sa/def ::compatible (sa/keys :opt-un [::product :nil/image_id :nil/url :nil/version]
+
+(sa/def ::compatible (sa/keys :opt-un [::product
+                                       :nil/version
+                                       ::name
+                                       :nil/image_id
+                                       :nil/url]
                               :req-un [::id]))
+
 (sa/def ::compatibles
   (sa/coll-of ::compatible :kind vector? :min-count 0))
+
 (sa/def :min/compatible (sa/keys :opt-un [::product]
                                  :req-un [::id]))
 (sa/def :min/compatibles

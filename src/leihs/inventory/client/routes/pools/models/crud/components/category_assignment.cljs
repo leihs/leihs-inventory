@@ -107,12 +107,6 @@
           ($ PopoverContent {:class-name "p-0"
                              :style {:width (str width "px")}}
              ($ Command
-                {:filter (fn [value search]
-                           (if (str/includes?
-                                (str/lower-case value)
-                                (str/lower-case search))
-                             1 0))}
-
                 ($ CommandInput {:placeholder (t "pool.model.categories.blocks.categories.placeholder")})
                 ($ CommandList
 
@@ -120,7 +114,8 @@
 
                    (for [item flat-categories]
                      ($ CommandItem {:key (:path item)
-                                     :value (:label item)
+                                     :value (:id item)
+                                     :keywords #js [(:label item)]
                                      :on-select #(do (set-open! false)
                                                      (if
                                                       (not (check-id-existing (:id item) fields))

@@ -18,14 +18,14 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn check-path-existing [product items]
+(defn check-path-existing [id items]
   (some (fn [item]
-          (= product (:product item)))
+          (= id (:id item)))
         items))
 
-(defn find-index-from-path [path items]
+(defn find-index-from-id [id items]
   (some (fn [[idx item]]
-          (when (= path item)
+          (when (= id (:id item))
             idx))
         (map-indexed vector items)))
 
@@ -124,11 +124,12 @@
 
                                              (for [element data]
                                                ($ CommandItem {:key (:id element)
-                                                               :value (str (:product element) " " (:version element))
+                                                               :value (:id element)
+                                                               :keywords #js [(:name element)]
                                                                :on-select (fn []
                                                                             (set-open! false)
                                                                             (if
-                                                                             (not (check-path-existing (:product element) fields))
+                                                                             (not (check-path-existing (:id element) fields))
                                                                               (append (cj (merge {:product (:product element)
                                                                                                   :version (:version element)
                                                                                                   :name (:name element)
@@ -139,11 +140,11 @@
                                                                                                               (when-let [value (get element (keyword attr))]
                                                                                                                 [(keyword attr) value]))
                                                                                                             (:attributes props))))))
-                                                                              (remove (find-index-from-path (:name element) fields))))}
+                                                                              (remove (find-index-from-id (:id element) fields))))}
 
                                                   ($ Check
                                                      {:class-name (str "mr-2 h-4 w-4 "
-                                                                       (if (check-path-existing (:name element) fields)
+                                                                       (if (check-path-existing (:id element) fields)
                                                                          "visible"
                                                                          "invisible"))})
                                                   ($ :span
