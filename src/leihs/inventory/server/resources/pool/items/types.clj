@@ -6,12 +6,27 @@
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
    [schema.core :as s]))
 
+(s/defschema query-params {(s/optional-key :page) s/Int
+                           (s/optional-key :size) s/Int
+                           (s/optional-key :search_term) s/Str
+                           (s/optional-key :not_packaged) s/Bool
+                           (s/optional-key :packages) s/Bool
+                           (s/optional-key :retired) s/Bool
+                           :result_type (s/enum "Min" "Normal" "Distinct")})
+
 (s/defschema path-params {:pool_id s/Uuid})
+
+(s/defschema error-body {:status s/Str
+                         :message s/Str
+                         :type s/Any
+                         :details s/Str})
 
 (s/defschema query-params {(s/optional-key :fields) s/Str
                            (s/optional-key :model_id) s/Uuid
                            (s/optional-key :parent_id) s/Uuid
                            (s/optional-key :search_term) s/Str
+
+                           (s/optional-key :filter_q) s/Str
 
                            ;; item filters
                            (s/optional-key :borrowable) s/Bool

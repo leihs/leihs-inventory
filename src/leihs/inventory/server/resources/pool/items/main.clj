@@ -1,7 +1,10 @@
 (ns leihs.inventory.server.resources.pool.items.main
   (:require
+   [cheshire.core :as json]
+   [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.fields.main :as fields]
    [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
    [leihs.inventory.server.resources.pool.items.fields-shared :refer [coerce-field-values
                                                                       in-coercions
@@ -9,6 +12,12 @@
                                                                       flatten-properties
                                                                       split-item-data
                                                                       validate-field-permissions]]
+   [leihs.inventory.server.resources.pool.items.filter-handler :refer [build-where-clause
+                                                                       extract-id-type
+                                                                       get-fields-response
+                                                                       create-filter-query-and-validate!
+                                                                       normalize-pipes
+                                                                       parse-filter]]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
    [leihs.inventory.server.resources.pool.items.types :as types]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
@@ -18,10 +27,17 @@
    [leihs.inventory.server.utils.pick-fields :refer [pick-fields]]
    [leihs.inventory.server.utils.request-utils :refer [body-params path-params
                                                        query-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params query-params]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug]]))
+   [taoensso.timbre :refer [debug]])
+  (:import
+   [java.sql Timestamp]
+   [java.time LocalDate]
+   [java.time LocalDate OffsetDateTime ZonedDateTime ZoneId]
+   [java.time.format DateTimeFormatter]
+   [java.util UUID]))
 
 (def ERROR_GET_ITEMS "Failed to get items")
 
@@ -41,7 +57,7 @@
                  model_id parent_id
                  retired borrowable
                  incomplete broken owned
-                 inventory_pool_id
+                 inventory_pool_id filter_q
                  in_stock before_last_check]} (query-params request)
 
          extra-columns [[:ip.name :inventory_pool_name]
@@ -100,6 +116,9 @@
 
                    (cond-> model_id (sql/where [:= :items.model_id model_id]))
                    (cond-> parent_id (sql/where [:= :items.parent_id parent_id]))
+
+                   (cond-> filter_q
+                     (create-filter-query-and-validate! request pool_id filter_q))
 
                    (items-shared/item-query-params pool_id inventory_pool_id
                                                    owned in_stock before_last_check
@@ -181,3 +200,39 @@
     (catch Exception e
       (log-by-severity ERROR_CREATE_ITEM e)
       (exception-handler request ERROR_CREATE_ITEM e))))
+
+(def ERROR_UPDATE_ITEM "Failed to update item")
+
+(defn patch-resource [{:keys [tx] :as request}]
+  (try
+    (if-let [validation-error (validate-field-permissions request)]
+      (bad-request validation-error)
+      (let [{:keys [ids data]} (body-params request)
+            ids (set ids)
+            [item-fields prop-fields]
+            (reduce-kv
+             (fn [[norm props] k v]
+               (let [kname (name k)]
+                 (if (str/starts-with? kname "properties_")
+                   [norm (assoc props (subs kname (count "properties_")) v)]
+                   [(assoc norm k v) props])))
+             [{} {}]
+             data)
+            set-map (cond-> item-fields
+                      (seq prop-fields)
+                      (assoc :properties
+                             [:||
+                              :properties
+                              [:cast (json/generate-string prop-fields) :jsonb]]))
+            query (-> (sql/update :items)
+                      (sql/set set-map)
+                      (sql/where [:in :id ids])
+                      (sql/returning :*)
+                      sql-format)
+            results (jdbc/execute! tx query)]
+        (if (seq results)
+          (response (map flatten-properties results))
+          (bad-request {:error ERROR_UPDATE_ITEM}))))
+    (catch Exception e
+      (log-by-severity ERROR_UPDATE_ITEM e)
+      (exception-handler request ERROR_UPDATE_ITEM e))))

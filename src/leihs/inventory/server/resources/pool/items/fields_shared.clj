@@ -37,26 +37,26 @@
   (let [tx (:tx request)
         role (:role (:authenticated-entity request))
         body-params (body-params request)
-        {pool-id :pool_id item_id :item_id} (path-params request)
-        {:keys [item-data]} (split-item-data body-params)
-        existing-owner-id (when item_id
-                            (-> (sql/select :owner_id)
-                                (sql/from :items)
-                                (sql/where [:= :id item_id])
-                                sql-format
-                                (->> (jdbc/execute-one! tx))
-                                :owner_id))
+        {pool-id :pool_id item-id :item_id} (path-params request)
+        is-patch? (contains? body-params :data)
+        item-data (if is-patch?
+                    (:data body-params)
+                    (split-item-data body-params))
+        item-ids (if is-patch?
+                   (:ids body-params)
+                   (when item-id [item-id]))
         permitted-fields (-> (fields/base-query "item" (keyword role) pool-id)
-                             (cond-> (some-> existing-owner-id
-                                             (or (:owner_id item-data))
-                                             (not= pool-id))
-                               (sql/where fields/not-owner-required))
                              sql-format
                              (->> (jdbc-query tx)))
         permitted-field-ids (->> permitted-fields
                                  (map (comp keyword :id))
                                  set)
-        body-keys (-> body-params (dissoc :id) keys set)
+        body-keys (-> (if is-patch?
+                        (:data body-params)
+                        body-params)
+                      (dissoc :id)
+                      keys
+                      set)
         unpermitted-fields (set/difference body-keys permitted-field-ids)
         owner-id (:owner_id item-data)
         model-id (:model_id item-data)
@@ -67,22 +67,46 @@
                          sql-format
                          (->> (jdbc/execute-one! tx))))
         model-type (:type model-data)]
-    (cond
-      (seq unpermitted-fields)
-      {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
 
-      (= model-type "Software")
+    (when (seq unpermitted-fields)
+      {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields})
+
+    (when (= model-type "Software")
       {:error "Model type 'Software' is not allowed for items"
-       :model_id model-id}
+       :model_id model-id})
 
-      (or (and item_id owner-id
-               (not= (authorized-role-for-pool request owner-id)
-                     "inventory_manager")
-               (not= owner-id pool-id))
-          (and (not item_id) (not= owner-id pool-id)))
-      {:error "Unpermitted owner_id"
-       :provided owner-id
-       :expected pool-id})))
+    (when (seq item-ids)
+      (let [owners (-> (sql/select :id :owner_id)
+                       (sql/from :items)
+                       (sql/where [:in :id item-ids])
+                       sql-format
+                       (->> (jdbc/execute! tx))
+                       (->> (reduce (fn [m row] (assoc m (:id row) (:owner_id row))) {})))]
+        (some (fn [id]
+                (let [existing-owner-id (get owners id)
+                      new-owner-id (or owner-id existing-owner-id)
+                      owner-changing? (and owner-id (not= owner-id existing-owner-id))]
+                  (cond
+                    ;; Case 1: Trying to change owner to unauthorized value
+                    (and owner-changing?
+                         (not= (authorized-role-for-pool request new-owner-id)
+                               "inventory_manager")
+                         (not= new-owner-id pool-id))
+                    {:error (format "Unpermitted owner_id for item %s" id)
+                     :provided owner-id
+                     :expected pool-id
+                     :item_id id}
+
+                    ;; Case 2: Trying to modify item with unauthorized owner
+                    (and (not owner-changing?)
+                         existing-owner-id
+                         (not= existing-owner-id pool-id)
+                         (not= (authorized-role-for-pool request existing-owner-id)
+                               "inventory_manager"))
+                    {:error (format "Unauthorized to modify item %s (wrong owner)" id)
+                     :item_id id
+                     :owner_id existing-owner-id})))
+              item-ids)))))
 
 (defn flatten-properties [item]
   (let [properties (:properties item)
