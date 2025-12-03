@@ -44,10 +44,11 @@
        ($ :p final-msg)
        (when friendly-msg
          ($ :p {:class-name "text-muted-foreground"} friendly-msg))
-       (when (not is-prod)
-         ($ :pre {:class-name "text-left whitespace-pre-wrap text-sm bg-muted/40 rounded p-4 mt-4 overflow-auto max-h-[40vh]"}
-            (or (when error (.-stack error))
-                (js/JSON.stringify (or error #js {}) nil 2))))
+       (let [debug-str (or (when error (.-stack error))
+                           (when error (js/JSON.stringify error nil 2)))]
+         (when (and (not is-prod) debug-str (seq debug-str))
+           ($ :pre {:class-name "text-left whitespace-pre-wrap text-sm bg-muted/40 rounded p-4 mt-4 overflow-auto max-h-[40vh]"}
+              debug-str)))
        ($ :a {:href "/inventory/"
               :class-name "mt-12"}
           (t "notfound.back-to-home" "Back to Home"))
