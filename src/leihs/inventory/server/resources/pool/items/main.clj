@@ -101,7 +101,7 @@
                    (cond-> model_id (sql/where [:= :items.model_id model_id]))
                    (cond-> parent_id (sql/where [:= :items.parent_id parent_id]))
 
-                   (items-shared/item-query-params :pool_id pool_id
+                   (items-shared/item-query-params pool_id
                                                    :inventory_pool_id inventory_pool_id
                                                    :owned owned
                                                    :in_stock in_stock

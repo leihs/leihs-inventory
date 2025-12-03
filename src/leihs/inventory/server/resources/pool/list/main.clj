@@ -3,12 +3,12 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [leihs.core.core :refer [presence]]
+   [leihs.inventory.server.resources.pool.list.search :refer [with-search]]
    [leihs.inventory.server.resources.pool.list.queries :refer [base-inventory-query
                                                                filter-by-type
                                                                from-category
                                                                with-items
                                                                all-items
-                                                               with-search
                                                                without-items]]
 
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
@@ -41,7 +41,8 @@
                                   :broken broken
                                   :inventory_pool_id inventory_pool_id
                                   :owned owned
-                                  :in_stock in_stock}
+                                  :in_stock in_stock
+                                  :search search}
                            (not= type :software)
                            (assoc :before_last_check before_last_check)))
 
@@ -56,7 +57,8 @@
                                            :broken broken
                                            :inventory_pool_id inventory_pool_id
                                            :owned owned
-                                           :in_stock in_stock}
+                                           :in_stock in_stock
+                                           :search search}
                                     (not= type :software)
                                     (assoc :before_last_check before_last_check)))))
                    (cond-> (presence search)
