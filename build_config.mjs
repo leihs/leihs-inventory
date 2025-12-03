@@ -74,6 +74,7 @@ export default {
 
   define: {
     "process.env.NODE_ENV": `"${process.env.NODE_ENV}"`,
+    "process.env.INVENTORY_ERROR_FRIENDLY_MESSAGE": `${JSON.stringify(process.env.INVENTORY_ERROR_FRIENDLY_MESSAGE || "")}`,
   },
 
   target: ["es2020", "chrome119", "firefox120", "safari17", "edge119"],
