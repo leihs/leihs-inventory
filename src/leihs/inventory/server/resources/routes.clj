@@ -177,21 +177,37 @@
    {:swagger {:tags ["Html"]}
     :no-doc HIDE_BASIC_ENDPOINTS}
 
-   ["{*path}"
-    {:no-doc HIDE_BASIC_ENDPOINTS
-     :fallback? true
-     :get {:description "Public assets like JS, CSS, images"
-           :produces ["text/html"]
-           :handler (fn [request]
-                      (let [router (:reitit.router request)
-                            method (:request-method request)
-                            uri (:uri request)
-                            route-data (endpoint-exists? router method uri)
-                            exists? (boolean route-data)]
-                        (if (authenticated? request)
+  ["{*path}"
+   {:no-doc HIDE_BASIC_ENDPOINTS
+    :fallback? true
+    :get {:description "Public assets like JS, CSS, images"
+          :produces ["text/html"]
+          :handler (fn [request]
+                     (let [router (:reitit.router request)
+                           method (:request-method request)
+                           uri (:uri request)
+                           resource (io/resource (str "public" uri))
+                           route-data (endpoint-exists? router method uri)
+                           exists? (boolean route-data)]
+                        (cond
+                          ;; Serve static resources when found under resources/public
+                          resource
+                          (try
+                            {:status 200
+                             :headers {"Content-Type" (content-type uri)}
+                             :body (slurp resource)}
+                            (catch Exception e
+                              (error "Error serving static resource" uri e)
+                              (rh/index-html-response request 406)))
+
+                          ;; Authenticated SPA routes: return index.html with 200/404
+                          (authenticated? request)
                           (if exists?
                             (rh/index-html-response request 200)
                             (rh/index-html-response request 404))
+
+                          ;; Unauthenticated: redirect to sign-in with return-to
+                          :else
                           (let [query-string (:query-string request)
                                 full-url (if query-string
                                            (str uri "?" query-string)

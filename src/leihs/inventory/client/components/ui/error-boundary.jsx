@@ -1,4 +1,5 @@
 import * as React from "react"
+import { NODE_ENV, INVENTORY_ERROR_FRIENDLY_MESSAGE } from "@/env.js"
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -58,9 +59,9 @@ class ErrorBoundary extends React.Component {
   }
   render() {
     if (this.state.hasError) {
-      const isProd = process.env.NODE_ENV === "production"
+      const isProd = NODE_ENV === "production"
       const message =
-        process.env.INVENTORY_ERROR_FRIENDLY_MESSAGE ||
+        INVENTORY_ERROR_FRIENDLY_MESSAGE ||
         "An unexpected error occurred. Please try again later."
       if (isProd) {
         return (
@@ -76,7 +77,7 @@ class ErrorBoundary extends React.Component {
               </button>
               <div className="mt-4">
                 <a href="/inventory" className="underline">
-                  Back to Landingpage
+                  Back
                 </a>
               </div>
             </div>
@@ -92,6 +93,7 @@ class ErrorBoundary extends React.Component {
         <div className="w-screen h-screen flex items-center justify-center p-6">
           <div className="max-w-2xl text-center">
             <h1 className="text-2xl font-bold mb-3">Error</h1>
+            <p className="text-muted-foreground">{this.linkify(message)}</p>
             <p className="text-muted-foreground">
               {err ? String(err) : "Unexpected error"}
             </p>
@@ -106,7 +108,7 @@ class ErrorBoundary extends React.Component {
             </button>
             <div className="mt-4">
               <a href="/inventory" className="underline">
-                Back to Landingpage
+                Back
               </a>
             </div>
           </div>

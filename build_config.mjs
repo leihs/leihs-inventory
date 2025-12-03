@@ -70,6 +70,7 @@ export default {
     src: "./src", // Alias 'src' to the './src' directory
     "@/*": "./src/leihs/inventory/client/*",
     "@@/*": "src/leihs/inventory/client/components/ui/*",
+    "~/*": "./*",
   },
 
   define: {
