@@ -58,14 +58,46 @@ class ErrorBoundary extends React.Component {
   }
   render() {
     if (this.state.hasError) {
+      const isProd = process.env.NODE_ENV === "production"
       const message =
         process.env.INVENTORY_ERROR_FRIENDLY_MESSAGE ||
         "An unexpected error occurred. Please try again later."
+      if (isProd) {
+        return (
+          <div className="w-screen h-screen flex items-center justify-center p-6">
+            <div className="max-w-xl text-center">
+              <h1 className="text-2xl font-bold mb-3">Error</h1>
+              <p className="text-muted-foreground">{this.linkify(message)}</p>
+              <button
+                className="mt-6 underline"
+                onClick={() => location.reload()}
+              >
+                Reload
+              </button>
+              <div className="mt-4">
+                <a href="/inventory" className="underline">
+                  Back to Landingpage
+                </a>
+              </div>
+            </div>
+          </div>
+        )
+      }
+      const err = this.state.error
+      const stack =
+        (err && err.stack) ||
+        (this.state.errorInfo && this.state.errorInfo.componentStack) ||
+        ""
       return (
         <div className="w-screen h-screen flex items-center justify-center p-6">
-          <div className="max-w-xl text-center">
+          <div className="max-w-2xl text-center">
             <h1 className="text-2xl font-bold mb-3">Error</h1>
-            <p className="text-muted-foreground">{this.linkify(message)}</p>
+            <p className="text-muted-foreground">
+              {err ? String(err) : "Unexpected error"}
+            </p>
+            <pre className="text-left whitespace-pre-wrap text-sm bg-muted/40 rounded p-4 mt-4 overflow-auto max-h-[40vh]">
+              {stack}
+            </pre>
             <button
               className="mt-6 underline"
               onClick={() => location.reload()}
@@ -74,7 +106,7 @@ class ErrorBoundary extends React.Component {
             </button>
             <div className="mt-4">
               <a href="/inventory" className="underline">
-                Back
+                Back to Landingpage
               </a>
             </div>
           </div>
