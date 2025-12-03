@@ -6,7 +6,7 @@
    [leihs.inventory.client.loader :as loader]
    [leihs.inventory.client.routes.debug.page :rename {page debug-page}]
    [leihs.inventory.client.routes.layout :rename {layout root-layout}]
-   [leihs.inventory.client.routes.notfound :rename {page notfound-page}]
+   [leihs.inventory.client.routes.error :rename {page error-page}]
    [leihs.inventory.client.routes.page :rename {page home-page}]
    [leihs.inventory.client.routes.pools.inventory.advanced-search.page :rename {page advanced-search-page}]
    [leihs.inventory.client.routes.pools.inventory.entitlement-groups.page :rename {page entitlement-groups-page}]
@@ -32,7 +32,7 @@
      {:path "/inventory"
       :id "root"
       :element ($ root-layout)
-      ;; :errorElement ($ notfound-page)
+      :errorElement ($ error-page)
       :loader loader/root-layout
       :children
       (cj
@@ -115,4 +115,7 @@
 
               {:path "models/:model-id/items/create"
                :loader loader/items-crud-page
-               :element ($ items-crud-page)}])}])}])))
+               :element ($ items-crud-page)}
+
+              {:path "*"
+               :element ($ error-page)}])}])}])))
