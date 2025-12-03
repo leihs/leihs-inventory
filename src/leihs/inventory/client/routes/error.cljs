@@ -35,8 +35,7 @@
                        (= status 422) "Unprocessable Entity"
                        (= status 500) "Internal Server Error"
                        :else (if (seq status-text) status-text "Error"))
-        final-msg (if (and display-msg (seq display-msg)) display-msg fallback-msg)
-        json-preview (if json? (js/JSON.stringify data nil 2) "{}")]
+        final-msg (if (and display-msg (seq display-msg)) display-msg fallback-msg)]
 
     (js/console.error "error" error)
 
@@ -45,7 +44,6 @@
        ($ :p final-msg)
        (when friendly-msg
          ($ :p {:class-name "text-muted-foreground"} friendly-msg))
-       ($ :p json-preview)
        (when (not is-prod)
          ($ :pre {:class-name "text-left whitespace-pre-wrap text-sm bg-muted/40 rounded p-4 mt-4 overflow-auto max-h-[40vh]"}
             (or (when error (.-stack error))
