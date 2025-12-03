@@ -26,18 +26,26 @@
                    (when json? (aget data "message"))
                    (when (and (string? data) (not is-html)) data)
                    status-text)
-        display-msg (if is-html (str status " " (if (seq status-text) status-text "Not Found")) reason)]
+        display-msg (if is-html (str status " " (if (seq status-text) status-text "Not Found")) reason)
+        fallback-msg (cond
+                       (= status 404) "Not Found"
+                       (= status 401) "Unauthorized"
+                       (= status 403) "Forbidden"
+                       (= status 422) "Unprocessable Entity"
+                       (= status 500) "Internal Server Error"
+                       :else (if (seq status-text) status-text "Error"))
+        final-msg (if (and display-msg (seq display-msg)) display-msg fallback-msg)]
 
     (js/console.error "error" error)
 
     ($ :div {:class-name "w-screen h-screen flex flex-col items-center justify-center"}
        ($ :h1 {:className "text-2xl font-bold"} status)
-       ($ :p display-msg)
+       ($ :p final-msg)
        (when (not is-prod)
          ($ :pre {:class-name "text-left whitespace-pre-wrap text-sm bg-muted/40 rounded p-4 mt-4 overflow-auto max-h-[40vh]"}
             (or (when error (.-stack error))
                 (js/JSON.stringify (or error #js {}) nil 2))))
        ($ :a {:href "/inventory/"
               :class-name "mt-12"}
-          (t "notfound.back-to-home" "Zurück zur Startseite"))
+          (t "notfound.back-to-home" "Back to Home"))
        )))
