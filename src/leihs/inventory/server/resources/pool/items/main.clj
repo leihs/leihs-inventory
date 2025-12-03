@@ -101,9 +101,15 @@
                    (cond-> model_id (sql/where [:= :items.model_id model_id]))
                    (cond-> parent_id (sql/where [:= :items.parent_id parent_id]))
 
-                   (items-shared/item-query-params pool_id inventory_pool_id
-                                                   owned in_stock before_last_check
-                                                   retired borrowable broken incomplete)
+                   (items-shared/item-query-params :pool_id pool_id
+                                                   :inventory_pool_id inventory_pool_id
+                                                   :owned owned
+                                                   :in_stock in_stock
+                                                   :before_last_check before_last_check
+                                                   :retired retired
+                                                   :borrowable borrowable
+                                                   :broken broken
+                                                   :incomplete incomplete)
 
                    (cond-> (seq search_term)
                      (sql/where [:or

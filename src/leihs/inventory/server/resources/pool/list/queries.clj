@@ -57,9 +57,15 @@
             (sql/from :items)
             (sql/where [:= :items.model_id :inventory.id])
             (sql/where (items-shared/owner-or-responsible-cond pool-id))
-            (items-shared/item-query-params pool-id inventory_pool_id
-                                            owned in_stock before_last_check
-                                            retired borrowable broken incomplete))
+            (items-shared/item-query-params :pool_id pool-id
+                                            :inventory_pool_id inventory_pool_id
+                                            :owned owned
+                                            :in_stock in_stock
+                                            :before_last_check before_last_check
+                                            :retired retired
+                                            :borrowable borrowable
+                                            :broken broken
+                                            :incomplete incomplete))
         :items])))
 
 (defn all-items [query pool-id
@@ -96,9 +102,15 @@
                     (sql/from :items)
                     (sql/where [:= :items.model_id :inventory.id])
                     (sql/where (items-shared/owner-or-responsible-cond pool-id))
-                    (items-shared/item-query-params pool-id inventory_pool_id
-                                                    owned in_stock before_last_check
-                                                    retired borrowable broken incomplete))])))
+                    (items-shared/item-query-params :pool_id pool-id
+                                                    :inventory_pool_id inventory_pool_id
+                                                    :owned owned
+                                                    :in_stock in_stock
+                                                    :before_last_check before_last_check
+                                                    :retired retired
+                                                    :borrowable borrowable
+                                                    :broken broken
+                                                    :incomplete incomplete))])))
 
 (defn without-items [query pool-id]
   (-> query

@@ -31,25 +31,26 @@
    [:not= :items.owner_id pool-id]
    [:= :items.inventory_pool_id inventory-pool-id]])
 
-(defn item-query-params [query pool-id inventory_pool_id
-                         owned in_stock before_last_check
-                         retired borrowable broken incomplete]
+(defn item-query-params [query &
+                         {:keys [pool_id inventory_pool_id
+                                 owned in_stock before_last_check
+                                 retired borrowable broken incomplete]}]
   (-> query
       (#(cond
           (and inventory_pool_id (true? owned))
-          (sql/where % (owner-and-responsible-cond pool-id inventory_pool_id))
+          (sql/where % (owner-and-responsible-cond pool_id inventory_pool_id))
 
           (and inventory_pool_id (false? owned))
-          (sql/where % (not-owner-and-responsible-cond pool-id inventory_pool_id))
+          (sql/where % (not-owner-and-responsible-cond pool_id inventory_pool_id))
 
           inventory_pool_id
           (sql/where % (owner-or-responsible-cond inventory_pool_id))
 
           (true? owned)
-          (sql/where % [:= :items.owner_id pool-id])
+          (sql/where % [:= :items.owner_id pool_id])
 
           (false? owned)
-          (sql/where % [:not= :items.owner_id pool-id])
+          (sql/where % [:not= :items.owner_id pool_id])
 
           :else %))
       (cond-> (boolean? in_stock) (in-stock in_stock))
