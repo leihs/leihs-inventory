@@ -61,7 +61,7 @@
           users-raw (fetch-users-of-entitlement-group tx entitlement-group-id)
           groups (fetch-groups-of-entitlement-group tx entitlement-group-id)]
       (response (merge entitlement-group {:users (filter-eg nil users-raw)
-                                          :direct-users (filter-eg "direct_entitlement" users-raw)
+                                          :direct_users (filter-eg "direct_entitlement" users-raw)
                                           :groups groups
                                           :models models})))
     (catch Exception e
