@@ -110,6 +110,7 @@
                   (sql/from [:entitlement_groups_users :egu])
                   (sql/join [:users :u] [:= :egu.user_id :u.id])
                   (sql/where [:= :egu.entitlement_group_id entitlement-group-id])
+                  (sql/order-by :u.lastname)
                   sql-format)
         users-groups (jdbc/execute! tx query)]
     users-groups))
@@ -171,6 +172,7 @@
                   (sql/from [:entitlement_groups_groups :egg])
                   (sql/join [:groups :g] [:= :egg.group_id :g.id])
                   (sql/where [:= :egg.entitlement_group_id entitlement-group-id])
+                  (sql/order-by :g.name)
                   sql-format)
         groups (jdbc/execute! tx query)]
     groups))

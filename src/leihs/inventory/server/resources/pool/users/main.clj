@@ -22,7 +22,8 @@
                                      :u.searchable)
                          (sql/from [:users :u])
                          (cond-> search
-                           (sql/where [:ilike :u.searchable (str "%" search "%")])))]
+                           (sql/where [:ilike :u.searchable (str "%" search "%")]))
+                         (sql/order-by :u.lastname))]
       (response (create-pagination-response request base-query nil)))
     (catch Exception e
       (log-by-severity ERROR_GET e)

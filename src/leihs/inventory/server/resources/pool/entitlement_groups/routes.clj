@@ -9,9 +9,6 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn create-description [url]
-  (str "- GET " url " Accept: application/json "))
-
 (defn routes []
   ["/entitlement-groups/"
    {:get {:summary (fe "a.k.a 'Anspruchsgruppen'")
