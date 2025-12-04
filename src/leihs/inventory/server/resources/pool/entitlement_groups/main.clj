@@ -10,12 +10,13 @@
                                                                             link-users-to-entitlement-group]]
    [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [fetch-users-of-entitlement-group
                                                                                              fetch-groups-of-entitlement-group
-                                                                                             enrich-with-is-quantity-ok fetch-models-of-entitlement-group]]
+                                                                                             enrich-with-is-quantity-ok
+                                                                                             fetch-models-of-entitlement-group]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [leihs.inventory.server.utils.request-utils :refer [body-params path-params query-params]]
+   [leihs.inventory.server.utils.request-utils :refer [body-params path-params]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [response]]))
@@ -77,8 +78,6 @@
 (defn index-resources [request]
   (try
     (let [tx (:tx request)
-          {:keys [type]} (query-params request)
-
           pool_id (-> request path-params :pool_id)
           query (-> (sql/select :g.* [[:coalesce [:sum :e.quantity] 0] :number_of_allocations])
                     (sql/from [:entitlement_groups :g])
