@@ -22,7 +22,7 @@ end
 
 FactoryBot.define do
   factory :category do
-    name { Faker::Commerce.department(max: 2) }
+    name { Faker::Commerce.unique.department(max: 2) }
     type { "Category" }
 
     created_at { DateTime.now }

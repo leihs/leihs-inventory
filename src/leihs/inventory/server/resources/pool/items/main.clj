@@ -4,13 +4,14 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
    [leihs.inventory.server.resources.pool.items.fields-shared :refer [coerce-field-values
+                                                                      flatten-properties
                                                                       in-coercions
                                                                       out-coercions
-                                                                      flatten-properties
                                                                       split-item-data
                                                                       validate-field-permissions]]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
    [leihs.inventory.server.resources.pool.items.types :as types]
+   [leihs.inventory.server.resources.pool.list.search :refer [with-search]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
@@ -37,7 +38,7 @@
   ([request]
    (let [tx (:tx request)
          {:keys [pool_id]} (path-params request)
-         {:keys [fields search_term
+         {:keys [fields search
                  model_id parent_id
                  retired borrowable
                  incomplete broken owned
@@ -48,8 +49,8 @@
                         [:r.end_date :reservation_end_date]
                         [:r.user_id :reservation_user_id]
                         [:r.contract_id :reservation_contract_id]
-                        [:m.is_package :is_package]
-                        [:m.name :model_name]
+                        [:models.is_package :is_package]
+                        [:models.name :model_name]
                         [:rs.name :room_name]
                         [:rs.description :room_description]
                         [:b.name :building_name]
@@ -78,10 +79,10 @@
                              [:= :rs.building_id :b.id])
 
                    ;; Join models
-                   (sql/left-join [:models :m]
+                   (sql/left-join :models
                                   [:or
-                                   [:= :items.model_id :m.id]
-                                   [:= :m.id model_id]])
+                                   [:= :items.model_id :models.id]
+                                   [:= :models.id model_id]])
 
                    ;; Join reservations (only active)
                    (sql/left-join [:reservations :r]
@@ -101,15 +102,19 @@
                    (cond-> model_id (sql/where [:= :items.model_id model_id]))
                    (cond-> parent_id (sql/where [:= :items.parent_id parent_id]))
 
-                   (items-shared/item-query-params pool_id inventory_pool_id
-                                                   owned in_stock before_last_check
-                                                   retired borrowable broken incomplete)
-
-                   (cond-> (seq search_term)
-                     (sql/where [:or
-                                 [:ilike :items.inventory_code (str "%" search_term "%")]
-                                 [:ilike :m.product (str "%" search_term "%")]
-                                 [:ilike :m.manufacturer (str "%" search_term "%")]])))
+                   ; in legacy no query params are passed down to the children,
+                   ; speaking: all children are always showed.
+                   (cond-> (not parent_id)
+                     (-> (items-shared/item-query-params pool_id
+                                                         :inventory_pool_id inventory_pool_id
+                                                         :owned owned
+                                                         :in_stock in_stock
+                                                         :before_last_check before_last_check
+                                                         :retired retired
+                                                         :borrowable borrowable
+                                                         :broken broken
+                                                         :incomplete incomplete)
+                         (cond-> (seq search) (with-search search :models)))))
 
          post-fnc (fn [items]
                     ;; Prepare items for thumbnail fetching by using model_id as id

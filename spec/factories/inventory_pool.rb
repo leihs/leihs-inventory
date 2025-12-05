@@ -5,5 +5,6 @@ end
 FactoryBot.modify do
   factory :inventory_pool do
     name { Faker::Commerce.department(max: 5, fixed_amount: true) }
+    shortname { Faker::Alphanumeric.alpha(number: 3).upcase }
   end
 end

@@ -24,6 +24,8 @@
              "user_name" "model_name" "reservation_user_name" "url"
              "reservation_contract_id"])
 
+(def query-keys [:search])
+
 (defui main [{:keys [package]}]
   (let [location (router/useLocation)
         [t] (useTranslation)
@@ -36,18 +38,23 @@
                         (if result
                           (set-result! nil)
 
-                          (-> http-client
-                              (.get (str "/inventory/" pool-id "/items/")
-                                    (cj {:params (merge {:parent_id (:id package)
-                                                         :fields (str/join "," fields)})
-                                         :cache false}))
-                              (.then (fn [data]
-                                       (set-result! {:status (.. data -status)
-                                                     :statusText (.. data -statusText)
-                                                     :data (jc (.. data -data))})))
-                              (.catch (fn [err]
-                                        (.. toast (error (.. err -response -status)
-                                                         #js {:description (.. err -response -statusText)})))))))]
+                          (let [param-map (into {}
+                                                (for [[key val] (.entries search-params)]
+                                                  [(keyword key) (str val)]))
+                                params (merge {:parent_id (:id package)
+                                               :fields (str/join "," fields)}
+                                              (select-keys param-map query-keys))]
+                            (-> http-client
+                                (.get (str "/inventory/" pool-id "/items/")
+                                      (cj {:params (router/createSearchParams (cj params))
+                                           :cache false}))
+                                (.then (fn [data]
+                                         (set-result! {:status (.. data -status)
+                                                       :statusText (.. data -statusText)
+                                                       :data (jc (.. data -data))})))
+                                (.catch (fn [err]
+                                          (.. toast (error (.. err -response -status)
+                                                           #js {:description (.. err -response -statusText)}))))))))]
     (uix/use-effect
      (fn []
        (set-result! nil))

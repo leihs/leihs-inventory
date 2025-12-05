@@ -22,7 +22,7 @@
 (def query-keys [:owned :incomplete
                  :broken :retired :borrowable
                  :fields :in_stock
-                 :model_id :parent_id :inventory_pool_id])
+                 :model_id :parent_id :inventory_pool_id :search])
 
 (def fields ["id" "is_package" "is_borrowable" "is_broken" "retired" "is_incomplete"
              "price" "inventory_code" "shelf" "building_code" "package_items"
