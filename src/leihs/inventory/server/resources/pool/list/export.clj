@@ -1,12 +1,15 @@
 (ns leihs.inventory.server.resources.pool.list.export
   (:require
+   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.items.shared :as items-shared]))
+   [leihs.inventory.server.resources.pool.items.shared :as items-shared]
+   [next.jdbc :as jdbc]))
 
 (def select-model-fields
   [:inventory.product
    :inventory.version
    :inventory.manufacturer
+   :models.description
    :models.technical_detail
    :models.internal_description
    :models.hand_over_note
@@ -91,7 +94,6 @@
         (sql/from :rooms)
         (sql/where [:= :rooms.id :items.room_id])) :room]
    :items.shelf
-   :items.properties
    [[:coalesce :delegated_users.firstname :users.firstname] :firstname]
    [[:coalesce :delegated_users.lastname :users.lastname] :lastname]
    [[:coalesce :delegated_users.badge_id :users.badge_id] :badge_id]
@@ -106,21 +108,58 @@
    [[:coalesce :items.updated_at :inventory.updated_at]
     :updated_at]])
 
-(defn sql-prepare [query pool-id]
-  (-> query
-      (dissoc :select)
-      (#(apply sql/select %
-               :inventory.type
-               (concat select-model-fields select-item-fields timestamps)))
-      (sql/left-join :models [:and [:= :inventory.id :models.id]])
-      (sql/left-join :options [:and [:= :inventory.id :options.id]])
-      (sql/left-join :items [:and [:= :inventory.id :items.model_id]
-                             (items-shared/owner-or-responsible-cond pool-id)])
-      (sql/left-join :reservations [:and
-                                    [:= :items.id :reservations.item_id]
-                                    [:= :reservations.status "signed"]
-                                    [:is :reservations.returned_date nil]])
-      (sql/left-join :users [:= :reservations.user_id :users.id])
-      (sql/left-join [:users :delegated_users]
-                     [:= :reservations.delegated_user_id :delegated_users.id])
-      (sql/order-by :items.inventory_code)))
+(defn get-active-property-fields
+  "Fetch all active property fields for a pool (excluding disabled ones)"
+  [tx pool-id]
+  (-> (sql/select :fields.id
+                  [[:cast :fields.data :jsonb] :data])
+      (sql/from :fields)
+      (sql/where [:= :fields.active true]
+                 [:like :fields.id "properties_%"]
+                 [:not [:exists
+                        (-> (sql/select 1)
+                            (sql/from :disabled_fields)
+                            (sql/where [:= :disabled_fields.field_id :fields.id]
+                                       [:= :disabled_fields.inventory_pool_id pool-id]))]])
+      (sql/order-by :fields.position)
+      sql-format
+      (->> (jdbc/execute! tx)
+           (map (fn [field]
+                  {:id (:id field)
+                   :key (get-in field [:data "attribute" 1])})))))
+
+(defn property-field-select
+  "Generate a SELECT clause for a property field"
+  [property-key field-id]
+  [[:-> :items.properties property-key] (keyword field-id)])
+
+(comment
+  (require '[leihs.core.db :as db])
+  (get-active-property-fields (db/get-ds)
+                              #uuid "8bd16d45-056d-5590-bc7f-12849f034351")
+  (sql-format (property-field-select "ampere" "properties_ampere")))
+
+(defn sql-prepare [tx query pool-id]
+  (let [property-fields (get-active-property-fields tx pool-id)
+        property-selects (map (fn [{:keys [id key]}]
+                                (property-field-select key id))
+                              property-fields)]
+    (-> query
+        (dissoc :select)
+        (#(apply sql/select %
+                 [[:case
+                   [:is-not :items.inventory_code nil] "Item"
+                   :else :inventory.type] :type]
+                 (concat select-model-fields select-item-fields property-selects timestamps)))
+        (sql/left-join :models [:and [:= :inventory.id :models.id]])
+        (sql/left-join :options [:and [:= :inventory.id :options.id]])
+        (sql/left-join :items [:and [:= :inventory.id :items.model_id]
+                               (items-shared/owner-or-responsible-cond pool-id)])
+        (sql/left-join :reservations [:and
+                                      [:= :items.id :reservations.item_id]
+                                      [:= :reservations.status "signed"]
+                                      [:is :reservations.returned_date nil]])
+        (sql/left-join :users [:= :reservations.user_id :users.id])
+        (sql/left-join [:users :delegated_users]
+                       [:= :reservations.delegated_user_id :delegated_users.id])
+        (sql/order-by :items.inventory_code))))

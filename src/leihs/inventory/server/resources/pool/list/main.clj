@@ -73,7 +73,7 @@
 
     (if (and accept-header (re-find #"text/csv" accept-header))
       (let [data (-> query
-                     (list-export/sql-prepare pool-id)
+                     (#(list-export/sql-prepare tx % pool-id))
                      (sql-format :inline true) spy
                      (->> (export/jdbc-execute! tx)))]
         (export/csv-response data :filename "inventory-list.csv"))
