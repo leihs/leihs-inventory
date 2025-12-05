@@ -133,6 +133,16 @@
   [property-key field-id]
   [[:-> :items.properties property-key] (keyword field-id)])
 
+(def type-expr
+  [[:case
+    [:and [:is-not :items.inventory_code nil] [:= :inventory.type "Package"]]
+    "Package-Item"
+    [:and [:is-not :items.inventory_code nil] [:= :inventory.type "Model"]]
+    "Item"
+    [:= :inventory.type "Package"]
+    "Package-Model"
+    :else :inventory.type] :type])
+
 (comment
   (require '[leihs.core.db :as db])
   (get-active-property-fields (db/get-ds)
@@ -147,10 +157,11 @@
     (-> query
         (dissoc :select)
         (#(apply sql/select %
-                 [[:case
-                   [:is-not :items.inventory_code nil] "Item"
-                   :else :inventory.type] :type]
-                 (concat select-model-fields select-item-fields property-selects timestamps)))
+                 type-expr
+                 (concat select-model-fields
+                         select-item-fields
+                         property-selects
+                         timestamps)))
         (sql/left-join :models [:and [:= :inventory.id :models.id]])
         (sql/left-join :options [:and [:= :inventory.id :options.id]])
         (sql/left-join :items [:and [:= :inventory.id :items.model_id]
