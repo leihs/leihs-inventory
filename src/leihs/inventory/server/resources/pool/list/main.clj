@@ -71,12 +71,23 @@
 
     (debug (sql-format query :inline true))
 
-    (if (and accept-header (re-find #"text/csv" accept-header))
+    (cond
+      (and accept-header (re-find #"text/csv" accept-header))
       (let [data (-> query
                      (#(list-export/sql-prepare tx % pool-id))
-                     (sql-format :inline true) spy
+                     sql-format
                      (->> (export/jdbc-execute! tx)))]
         (export/csv-response data :filename "inventory-list.csv"))
+
+      (and accept-header (re-find #"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" accept-header))
+      (let [data (-> query
+                     (#(list-export/sql-prepare tx % pool-id))
+                     sql-format
+                     (->> (export/jdbc-execute! tx))
+                     export/arrays-to-maps)]
+        (export/excel-response data :filename "inventory-list.xlsx"))
+
+      :else
       (let [post-fnc (fn [models]
                        (->> models
                             (fetch-thumbnails-for-ids tx)

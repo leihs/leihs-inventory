@@ -45,3 +45,11 @@
 
 (defn jdbc-execute! [tx sql]
   (jdbc/execute! tx sql {:builder-fn jdbc-rs/as-unqualified-arrays}))
+
+(defn arrays-to-maps
+  "Convert JDBC array result (header + rows) to maps"
+  [[header & rows]]
+  (let [keys (map keyword header)]
+    (map (fn [row]
+           (zipmap keys row))
+         rows)))
