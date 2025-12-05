@@ -1524,7 +1524,7 @@ feature "Inventory Page", type: :feature do
       click_on pool_6.name
     end
     find("input[name='search']").set(item_model_11_1.inventory_code)
-    expect(all("table tbody tr").count).to eq 1
+    expect(page).to have_selector("table tbody tr", count: 1, wait: 10)
     verify_row_details(
       model_11,
       "2 | 2",
