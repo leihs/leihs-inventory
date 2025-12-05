@@ -102,18 +102,19 @@
                    (cond-> model_id (sql/where [:= :items.model_id model_id]))
                    (cond-> parent_id (sql/where [:= :items.parent_id parent_id]))
 
-                   (items-shared/item-query-params pool_id
-                                                   :inventory_pool_id inventory_pool_id
-                                                   :owned owned
-                                                   :in_stock in_stock
-                                                   :before_last_check before_last_check
-                                                   :retired retired
-                                                   :borrowable borrowable
-                                                   :broken broken
-                                                   :incomplete incomplete)
-
-                   (cond-> (seq search)
-                     (with-search search :models)))
+                   ; in legacy no query params are passed down to the children,
+                   ; speaking: all children are always showed.
+                   (cond-> (not parent_id)
+                     (-> (items-shared/item-query-params pool_id
+                                                         :inventory_pool_id inventory_pool_id
+                                                         :owned owned
+                                                         :in_stock in_stock
+                                                         :before_last_check before_last_check
+                                                         :retired retired
+                                                         :borrowable borrowable
+                                                         :broken broken
+                                                         :incomplete incomplete)
+                         (cond-> (seq search) (with-search search :models)))))
 
          post-fnc (fn [items]
                     ;; Prepare items for thumbnail fetching by using model_id as id

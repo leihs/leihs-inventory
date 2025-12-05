@@ -3,7 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.list.search :refer [with-search]]
+   [leihs.inventory.server.resources.pool.list.search :refer [with-search-inventory]]
    [leihs.inventory.server.resources.pool.list.queries :refer [base-inventory-query
                                                                filter-by-type
                                                                from-category
@@ -62,7 +62,7 @@
                                     (not= type :software)
                                     (assoc :before_last_check before_last_check)))))
                    (cond-> (presence search)
-                     (with-search search))
+                     (with-search-inventory search))
                    (cond-> (and category_id (not (some #{type} [:option :software])))
                      (#(from-category tx % category_id))))
 

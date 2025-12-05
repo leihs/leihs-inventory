@@ -5,7 +5,7 @@
    [honey.sql.helpers :as sql]
    [hugsql.core :as hugsql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.list.search :refer [with-search-for-select-count]]
+   [leihs.inventory.server.resources.pool.list.search :refer [with-search]]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
@@ -67,8 +67,7 @@
                                             :borrowable borrowable
                                             :broken broken
                                             :incomplete incomplete)
-            (cond-> (presence search)
-              (with-search-for-select-count search)))
+            (cond-> (presence search) (with-search search :inventory)))
         :items])))
 
 (defn all-items [query pool-id

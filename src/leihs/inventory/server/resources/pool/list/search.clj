@@ -23,38 +23,34 @@
     (keyword (name table) "properties")]
    (str "%" search "%")])
 
-(defn matches-children-expr
-  ([search] (matches-children-expr search :inventory))
-  ([search table]
-   [:exists
-    (-> (sql/select 1)
-        (sql/from [:items :parent_items])
-        (sql/join [:items :child_items] [:= :child_items.parent_id :parent_items.id])
-        (sql/join [:models :child_models] [:= :child_models.id :child_items.model_id])
-        (sql/where [:= :parent_items.model_id (keyword (name table) "id")])
-        (sql/where
-         [:or
-          (matches-model-columns-expr search :child_models)
-          (matches-item-columns-expr search :child_items)]))]))
+(defn matches-children-expr [search ref-table]
+  [:exists
+   (-> (sql/select 1)
+       (sql/from [:items :parent_items])
+       (sql/join [:items :child_items] [:= :child_items.parent_id :parent_items.id])
+       (sql/join [:models :child_models] [:= :child_models.id :child_items.model_id])
+       (sql/where [:= :parent_items.model_id (keyword (name ref-table) "id")])
+       (sql/where
+        [:or
+         (matches-model-columns-expr search :child_models)
+         (matches-item-columns-expr search :child_items)]))])
 
-(defn with-search-for-select-count [query search]
+(defn with-search [query search ref-table]
+  (sql/where
+   query
+   [:or
+    (matches-model-columns-expr search ref-table)
+    (matches-item-columns-expr search :items)
+    (matches-children-expr search ref-table)]))
+
+(defn with-search-inventory [query search]
   (sql/where
    query
    [:or
     (matches-model-columns-expr search :inventory)
-    (matches-item-columns-expr search :items)
-    (matches-children-expr search)]))
-
-(defn with-search
-  ([query search] (with-search query search :inventory))
-  ([query search table]
-   (sql/where
-    query
-    [:or
-     (matches-model-columns-expr search table)
-     [:exists
-      (-> (sql/select 1)
-          (sql/from :items)
-          (sql/where [:= :items.model_id (keyword (name table) "id")])
-          (sql/where (matches-item-columns-expr search :items)))]
-     (matches-children-expr search table)])))
+    [:exists
+     (-> (sql/select 1)
+         (sql/from :items)
+         (sql/where [:= :items.model_id :inventory.id])
+         (sql/where (matches-item-columns-expr search :items)))]
+    (matches-children-expr search :inventory)]))
