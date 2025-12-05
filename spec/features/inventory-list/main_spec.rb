@@ -1632,7 +1632,7 @@ def verify_row_details(model, availabilty, items = [], is_package: false, is_opt
       row.all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
     end
 
-    expect(following_rows.size).to eq(items.size)
+    wait_until { following_rows.size == items.size }
 
     items.each_with_index do |details, index|
       expect(following_rows[index]).to have_content(details[:inventory_code])
