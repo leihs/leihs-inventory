@@ -256,18 +256,18 @@ feature "Inventory Page", type: :feature do
       room: room)
 
     item_model_11_1 = FactoryBot.create(:item,
-                                        inventory_code: "#{pool_6.shortname}111",
-                                        leihs_model: model_11,
-                                        owner_id: pool_6.id,
-                                        inventory_pool_id: pool_6.id,
-                                        room: room)
+      inventory_code: "#{pool_6.shortname}111",
+      leihs_model: model_11,
+      owner_id: pool_6.id,
+      inventory_pool_id: pool_6.id,
+      room: room)
 
-    item_model_11_2 = FactoryBot.create(:item,
-                                        inventory_code: "#{pool_6.shortname}112",
-                                        leihs_model: model_11,
-                                        owner_id: pool_6.id,
-                                        inventory_pool_id: pool_6.id,
-                                        room: room)
+    FactoryBot.create(:item,
+      inventory_code: "#{pool_6.shortname}112",
+      leihs_model: model_11,
+      owner_id: pool_6.id,
+      inventory_pool_id: pool_6.id,
+      room: room)
 
     user_2 = FactoryBot.create(:user)
     contract = Contract.create_with_disabled_triggers(

@@ -5,8 +5,8 @@
    [honey.sql.helpers :as sql]
    [hugsql.core :as hugsql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.list.search :refer [with-search]]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
+   [leihs.inventory.server.resources.pool.list.search :refer [with-search]]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
 (defn base-inventory-query [pool-id]

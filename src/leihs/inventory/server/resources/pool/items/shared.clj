@@ -38,22 +38,22 @@
                                  retired borrowable broken incomplete]}]
   (-> query
       (#(cond
-         (and inventory_pool_id (true? owned))
-         (sql/where % (owner-and-responsible-cond pool-id inventory_pool_id))
+          (and inventory_pool_id (true? owned))
+          (sql/where % (owner-and-responsible-cond pool-id inventory_pool_id))
 
-         (and inventory_pool_id (false? owned))
-         (sql/where % (not-owner-and-responsible-cond pool-id inventory_pool_id))
+          (and inventory_pool_id (false? owned))
+          (sql/where % (not-owner-and-responsible-cond pool-id inventory_pool_id))
 
-         inventory_pool_id
-         (sql/where % (owner-or-responsible-cond inventory_pool_id))
+          inventory_pool_id
+          (sql/where % (owner-or-responsible-cond inventory_pool_id))
 
-         (true? owned)
-         (sql/where % [:= :items.owner_id pool-id])
+          (true? owned)
+          (sql/where % [:= :items.owner_id pool-id])
 
-         (false? owned)
-         (sql/where % [:not= :items.owner_id pool-id])
+          (false? owned)
+          (sql/where % [:not= :items.owner_id pool-id])
 
-         :else %))
+          :else %))
       (cond-> (boolean? in_stock) (in-stock in_stock))
       (cond-> before_last_check
         (sql/where [:<= :items.last_check before_last_check]))

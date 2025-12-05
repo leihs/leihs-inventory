@@ -3,13 +3,13 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.list.search :refer [with-search-inventory]]
    [leihs.inventory.server.resources.pool.list.queries :refer [base-inventory-query
                                                                filter-by-type
                                                                from-category
                                                                with-items
                                                                all-items
                                                                without-items]]
+   [leihs.inventory.server.resources.pool.list.search :refer [with-search-inventory]]
 
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 model->enrich-with-image-attr]]

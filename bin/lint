@@ -2,5 +2,5 @@
 set -euo pipefail
 
 ./bin/cljfmt fix
-./bin/rblint --fix
+./bin/rblint --fix-unsafely
 ./bin/jslint
