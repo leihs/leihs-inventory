@@ -3,6 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [leihs.core.core :refer [presence]]
+   [leihs.inventory.server.constants :refer [ACCEPT-CSV ACCEPT-EXCEL]]
    [leihs.inventory.server.resources.pool.list.export :as list-export]
    [leihs.inventory.server.resources.pool.list.queries :refer [base-inventory-query
                                                                filter-by-type
@@ -22,6 +23,8 @@
 
 (defn- get-accept-header [request]
   (get-in request [:headers "accept"]))
+
+(def EXPORT-FILE-NAME "inventory-list")
 
 (defn index-resources [request]
   (let [tx (:tx request)
@@ -72,21 +75,23 @@
     (debug (sql-format query :inline true))
 
     (cond
-      (and accept-header (re-find #"text/csv" accept-header))
+      (and accept-header (re-find (re-pattern ACCEPT-CSV) accept-header))
       (let [data (-> query
                      (#(list-export/sql-prepare tx % pool-id))
                      sql-format
                      (->> (export/jdbc-execute! tx)))]
-        (export/csv-response data :filename "inventory-list.csv"))
+        (export/csv-response data :filename (str EXPORT-FILE-NAME ".csv")))
 
-      (and accept-header (re-find #"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" accept-header))
+      (and accept-header (re-find (re-pattern ACCEPT-EXCEL) accept-header))
       (let [array-data (-> query
                            (#(list-export/sql-prepare tx % pool-id))
                            sql-format
                            (->> (export/jdbc-execute! tx)))
             [header & _] array-data
             data (export/arrays-to-maps array-data)]
-        (export/excel-response data :keys (map keyword header) :filename "inventory-list.xlsx"))
+        (export/excel-response data
+                               :keys (map keyword header)
+                               :filename (str EXPORT-FILE-NAME ".xlsx")))
 
       :else
       (let [post-fnc (fn [models]
