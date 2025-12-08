@@ -495,9 +495,12 @@
         "title": "Compatible Models",
         "blocks": {
           "compatible_models": {
+            "label": "Select model",
+            "not_found": "Model not found",
             "select": "Select model",
-            "search": "Search model",
-            "not_found": "Model not found"
+            "placeholder": "Search model",
+            "search_empty": "Type at least 2 characters to search",
+            "searching": "Searching..."
           }
         }
       },

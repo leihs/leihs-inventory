@@ -6,6 +6,7 @@
                               AlertDialogFooter AlertDialogHeader
                               AlertDialogTitle]]
    ["@@/button" :refer [Button]]
+   ["@@/button-group" :refer [ButtonGroup ButtonGroupSeparator]]
    ["@@/card" :refer [Card CardContent]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
@@ -173,8 +174,9 @@
             ($ CardContent
                ($ :div {:className "flex gap-4"}
                   ($ Form (merge form)
-                     ($ :form {:id "create-template"
+                     ($ :form {:id "template-form"
                                :className "space-y-12 w-full xl:w-3/5"
+                               :no-validate true
                                :on-submit (handle-submit on-submit on-invalid)}
 
                         (for [section (jc structure)]
@@ -193,53 +195,51 @@
                                                      :form form
                                                      :block block}))))))
 
-                  ($ :div {:className "flex items-end flex-1"}
-                     ($ :div {:class-name "flex [&>*]:rounded-none ml-auto sticky bottom-[1.5rem] [&>button:first-child]:rounded-l-md [&>button:last-child]:rounded-r-md divide-x divide-border/40"}
-                        ($ Button {:type "submit"
-                                   :form "create-template"}
-                           (if is-create
-                             (t "pool.templates.template.create.submit")
-                             (t "pool.templates.template.edit.submit")))
+                  ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}
+                     ($ Button {:type "submit"
+                                :form "template-form"}
+                        (if is-create
+                          (t "pool.templates.template.create.submit")
+                          (t "pool.templates.template.edit.submit")))
 
-                        ($ DropdownMenu
-                           ($ DropdownMenuTrigger {:asChild true}
-                              ($ Button {:data-test-id "submit-dropdown"
-                                         :size "icon"}
-                                 ($ ChevronDown {:className "w-4 h-4"})))
-                           ($ DropdownMenuContent {:align "end"}
-                              ($ DropdownMenuItem {:asChild true}
-                                 ($ Link {:to (str (router/generatePath "/inventory/:pool-id/templates" params)
-                                                   (some-> state .-searchParams))
-                                          :viewTransition true}
-                                    (if is-create
-                                      (t "pool.templates.template.create.cancel")
-                                      (t "pool.templates.template.edit.cancel"))))
+                     ($ ButtonGroupSeparator)
+                     ($ DropdownMenu
+                        ($ DropdownMenuTrigger {:asChild true}
+                           ($ Button {:data-test-id "submit-dropdown"
+                                      :size "icon"}
+                              ($ ChevronDown {:className "w-4 h-4"})))
+                        ($ DropdownMenuContent {:align "end"}
+                           ($ DropdownMenuItem {:asChild true}
+                              ($ Link {:to (str (router/generatePath "/inventory/:pool-id/templates" params)
+                                                (some-> state .-searchParams))
+                                       :viewTransition true}
+                                 (if is-create
+                                   (t "pool.templates.template.create.cancel")
+                                   (t "pool.templates.template.edit.cancel"))))
 
-                              (when (not is-create)
-                                ($ DropdownMenuItem {:asChild true}
-                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/templates/:template-id/delete" params)
-                                            :state state}
-                                      (t "pool.templates.template.edit.delete")))))))
+                           (when (not is-create)
+                             ($ DropdownMenuItem {:asChild true}
+                                ($ Link {:to (router/generatePath "/inventory/:pool-id/templates/:template-id/delete" params)
+                                         :state state}
+                                   (t "pool.templates.template.edit.delete")))))))
 
-                      ;; Dialog when deleting a template
-                     (when (not is-create)
-                       ($ AlertDialog {:open is-delete}
-                          ($ AlertDialogContent
+                  ;; Dialog when deleting a template
+                  (when (not is-create)
+                    ($ AlertDialog {:open is-delete}
+                       ($ AlertDialogContent
 
-                             ($ AlertDialogHeader
-                                ($ AlertDialogTitle (t "pool.templates.template.delete.title"))
-                                ($ AlertDialogDescription (t "pool.templates.template.delete.description")))
+                          ($ AlertDialogHeader
+                             ($ AlertDialogTitle (t "pool.templates.template.delete.title"))
+                             ($ AlertDialogDescription (t "pool.templates.template.delete.description")))
 
-                             ($ AlertDialogFooter
-                                ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
+                          ($ AlertDialogFooter
+                             ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
                                                     hover:bg-destructive hover:text-destructive-foreground"
-                                                      :onClick handle-delete}
-                                   (t "pool.templates.template.delete.confirm"))
+                                                   :onClick handle-delete}
+                                (t "pool.templates.template.delete.confirm"))
 
-                                ($ AlertDialogCancel
-                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/templates/:template-id" params)
-                                            :state state}
+                             ($ AlertDialogCancel
+                                ($ Link {:to (router/generatePath "/inventory/:pool-id/templates/:template-id" params)
+                                         :state state}
 
-                                      (t "pool.templates.template.delete.cancel")))))))))))))))
-
-
+                                   (t "pool.templates.template.delete.cancel"))))))))))))))

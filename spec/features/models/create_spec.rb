@@ -113,14 +113,14 @@ feature "Create model", type: :feature do
       click_on "Select model"
     end
     fill_in_command_field("Search model", compatible_model_1.product)
-    within find("[data-test-id='compatible-models-list']") do
+    within find("[data-test-id='models-list']") do
       find("[data-value='#{compatible_model_1.product} #{compatible_model_1.version}']").click
     end
     within id: "pool.model.compatible_models.title" do
       click_on "Select model"
     end
     fill_in_command_field("Search model", compatible_model_2.product)
-    within find("[data-test-id='compatible-models-list']") do
+    within find("[data-test-id='models-list']") do
       find("[data-value='#{compatible_model_2.product} #{compatible_model_2.version}']").click
     end
 

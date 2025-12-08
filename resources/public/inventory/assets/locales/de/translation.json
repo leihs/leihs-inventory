@@ -496,9 +496,12 @@
         "title": "Ergänzende Modelle",
         "blocks": {
           "compatible_models": {
+            "label": "Modell auswählen",
+            "not_found": "Modell nicht gefunden",
             "select": "Modell auswählen",
-            "search": "Modell suchen",
-            "not_found": "Modell nicht gefunden"
+            "placeholder": "Modell suchen",
+            "search_empty": "Geben Sie mindestens 2 Zeichen ein",
+            "searching": "Suche..."
           }
         }
       },

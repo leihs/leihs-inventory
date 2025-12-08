@@ -1,9 +1,7 @@
 (ns leihs.inventory.client.routes.pools.inventory.list.page
   (:require
-   ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent CardFooter CardHeader]]
-   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader TableRow]]
-   ["lucide-react" :refer [Download ListRestart]]
+   ["@@/table" :refer [Table TableBody TableHead TableHeader TableRow]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    [clojure.string :as str]

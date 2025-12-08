@@ -212,8 +212,23 @@ export const structure = [
     blocks: [
       {
         name: "compatibles",
-        label: "pool.model.fields.blocks.compatibles.label",
         component: "compatible-models",
+        props: {
+          text: {
+            select:
+              "pool.model.compatible_models.blocks.compatible_models.select",
+            search:
+              "pool.model.compatible_models.blocks.compatible_models.search",
+            placeholder:
+              "pool.model.compatible_models.blocks.compatible_models.placeholder",
+            not_found:
+              "pool.model.compatible_models.blocks.compatible_models.not_found",
+            searching:
+              "pool.model.compatible_models.blocks.compatible_models.searching",
+            search_empty:
+              "pool.model.compatible_models.blocks.compatible_models.search_empty",
+          },
+        },
       },
     ],
   },

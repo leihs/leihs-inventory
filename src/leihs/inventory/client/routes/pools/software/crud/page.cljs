@@ -8,6 +8,7 @@
                               AlertDialogFooter AlertDialogHeader
                               AlertDialogTitle]]
    ["@@/button" :refer [Button]]
+   ["@@/button-group" :refer [ButtonGroup ButtonGroupSeparator]]
    ["@@/card" :refer [Card CardContent]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem
@@ -215,8 +216,9 @@
                   ($ ScrollspyMenu)
 
                   ($ Form (merge form)
-                     ($ :form {:id "create-software"
+                     ($ :form {:id "software-form"
                                :className "space-y-12 w-full lg:w-3/5"
+                               :no-validate true
                                :on-submit (handle-submit on-submit on-invalid)}
 
                         (for [section (jc structure)]
@@ -234,56 +236,53 @@
                                                      :form form
                                                      :block block}))))))
 
-                  ($ :div {:className "h-max flex space-x-6 sticky bottom-0 pt-12 lg:top-[43vh] ml-auto"}
+                  ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}
+                     ($ Button {:type "submit"
+                                :form "software-form"}
+                        (if is-create
+                          (t "pool.software.create.submit")
+                          (t "pool.software.submit")))
 
-                     ($ :div {:class-name "flex [&>*]:rounded-none [&>button:first-child]:rounded-l-md [&>button:last-child]:rounded-r-md divide-x divide-border/40"}
-                        ($ Button {:type "submit"
-                                   :form "create-software"}
-                           (if is-create
-                             (t "pool.software.create.submit")
-                             (t "pool.software.submit")))
+                     ($ ButtonGroupSeparator)
+                     ($ DropdownMenu
+                        ($ DropdownMenuTrigger {:asChild true}
+                           ($ Button {:data-test-id "submit-dropdown"
+                                      :size "icon"}
+                              ($ ChevronDown {:className "w-4 h-4"})))
+                        ($ DropdownMenuContent {:align "end"}
+                           ($ DropdownMenuItem {:asChild true}
+                              ($ Link {:to (str (router/generatePath "/inventory/:pool-id/list" params)
+                                                (some-> state .-searchParams))
+                                       :viewTransition true}
+                                 (if is-create
+                                   (t "pool.software.create.cancel")
+                                   (t "pool.software.cancel"))))
 
-                        ($ DropdownMenu
-                           ($ DropdownMenuTrigger {:asChild true}
-                              ($ Button {:data-test-id "submit-dropdown"
-                                         :size "icon"}
-                                 ($ ChevronDown {:className "w-4 h-4"})))
-                           ($ DropdownMenuContent {:align "end"}
-                              ($ DropdownMenuItem {:asChild true}
-                                 ($ Link {:to (str (router/generatePath "/inventory/:pool-id/list" params)
-                                                   (some-> state .-searchParams))
-                                          :viewTransition true}
-                                    (if is-create
-                                      (t "pool.software.create.cancel")
-                                      (t "pool.software.cancel"))))
+                           (when (and (not is-create)
+                                      (:is_deletable data))
+                             ($ DropdownMenuItem {:asChild true}
+                                ($ Link {:to (router/generatePath "/inventory/:pool-id/software/:software-id/delete" params)
+                                         :state state}
+                                   (t "pool.software.edit.delete")))))))
 
-                              (when (and (not is-create)
-                                         (:is_deletable data))
-                                ($ DropdownMenuItem {:asChild true}
-                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/software/:software-id/delete" params)
-                                            :state state}
-                                      (t "pool.software.edit.delete")))))))
+                  ;; Dialog when deleting a software
+                  (when (and (not is-create)
+                             (:is_deletable data))
+                    ($ AlertDialog {:open is-delete}
+                       ($ AlertDialogContent
 
-                      ;; Dialog when deleting a software
-                     (when (and (not is-create)
-                                (:is_deletable data))
-                       ($ AlertDialog {:open is-delete}
-                          ($ AlertDialogContent
+                          ($ AlertDialogHeader
+                             ($ AlertDialogTitle (t "pool.software.delete.title"))
+                             ($ AlertDialogDescription (t "pool.software.delete.description")))
 
-                             ($ AlertDialogHeader
-                                ($ AlertDialogTitle (t "pool.software.delete.title"))
-                                ($ AlertDialogDescription (t "pool.software.delete.description")))
-
-                             ($ AlertDialogFooter
-                                ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
+                          ($ AlertDialogFooter
+                             ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
                                                     hover:bg-destructive hover:text-destructive-foreground"
-                                                      :onClick handle-delete}
-                                   (t "pool.software.delete.confirm"))
+                                                   :onClick handle-delete}
+                                (t "pool.software.delete.confirm"))
 
-                                ($ AlertDialogCancel
-                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/software/:software-id" params)
-                                            :state state}
+                             ($ AlertDialogCancel
+                                ($ Link {:to (router/generatePath "/inventory/:pool-id/software/:software-id" params)
+                                         :state state}
 
-                                      (t "pool.software.delete.cancel")))))))))))))))
-
-
+                                   (t "pool.software.delete.cancel"))))))))))))))

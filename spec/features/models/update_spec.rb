@@ -187,7 +187,7 @@ feature "Update model", type: :feature do
       click_on "Select model"
     end
     fill_in_command_field("Search model", compatible_model_3.product)
-    within find("[data-test-id='compatible-models-list']") do
+    within find("[data-test-id='models-list']") do
       find("[data-value='#{compatible_model_3.name}']").click
     end
 

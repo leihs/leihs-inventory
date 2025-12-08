@@ -8,10 +8,10 @@
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.attachments :refer [Attachments]]
    [leihs.inventory.client.components.form.instant-search :refer [InstantSearch]]
+   [leihs.inventory.client.components.form.models :refer [Models]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.models.crud.components.accessories-list :refer [AccessoryList]]
    [leihs.inventory.client.routes.pools.models.crud.components.category-assignment :refer [CategoryAssignment]]
-   [leihs.inventory.client.routes.pools.models.crud.components.compatible-models :refer [CompatibleModels]]
    [leihs.inventory.client.routes.pools.models.crud.components.entitlement-allocations :refer [EntitlementAllocations]]
    [leihs.inventory.client.routes.pools.models.crud.components.image-upload :refer [ImageUpload]]
    [leihs.inventory.client.routes.pools.models.crud.components.model-properties :refer [ModelProperties]]
@@ -51,9 +51,9 @@
                       :props (:props block)})
 
       (-> block :component (= "compatible-models"))
-      ($ CompatibleModels {:form form
-                           :name (:name block)
-                           :props (:props block)})
+      ($ Models {:form form
+                 :name (:name block)
+                 :props (:props block)})
 
       (-> block :component (= "model-properties"))
       ($ ModelProperties {:control control
