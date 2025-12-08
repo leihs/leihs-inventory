@@ -24,11 +24,11 @@ describe "Inventory List Export" do
     it "returns CSV with proper headers and data" do
       headers = {"accept" => ACCEPT_CSV}
       headers[:Cookie] = @user_cookies.map(&:to_s).join("; ")
-      
+
       client = Faraday.new(url: api_base_url, headers: headers) do |conn|
         conn.adapter Faraday.default_adapter
       end
-      
+
       resp = client.get url
 
       expect(resp.status).to eq(200)
@@ -51,11 +51,11 @@ describe "Inventory List Export" do
     it "shows 'Item' type for rows with inventory_code" do
       headers = {"accept" => ACCEPT_CSV}
       headers[:Cookie] = @user_cookies.map(&:to_s).join("; ")
-      
+
       client = Faraday.new(url: api_base_url, headers: headers) do |conn|
         conn.adapter Faraday.default_adapter
       end
-      
+
       resp = client.get url
 
       csv_data = CSV.parse(resp.body)
@@ -74,11 +74,11 @@ describe "Inventory List Export" do
     it "splits property fields into separate columns" do
       headers = {"accept" => ACCEPT_CSV}
       headers[:Cookie] = @user_cookies.map(&:to_s).join("; ")
-      
+
       client = Faraday.new(url: api_base_url, headers: headers) do |conn|
         conn.adapter Faraday.default_adapter
       end
-      
+
       resp = client.get url
 
       csv_data = CSV.parse(resp.body)
@@ -96,11 +96,11 @@ describe "Inventory List Export" do
     it "returns Excel file with proper headers" do
       headers = {"accept" => ACCEPT_XLSX}
       headers[:Cookie] = @user_cookies.map(&:to_s).join("; ")
-      
+
       client = Faraday.new(url: api_base_url, headers: headers) do |conn|
         conn.adapter Faraday.default_adapter
       end
-      
+
       resp = client.get url
 
       expect(resp.status).to eq(200)
@@ -116,11 +116,11 @@ describe "Inventory List Export" do
     it "has the same column order in CSV and Excel exports" do
       headers = {"accept" => ACCEPT_CSV}
       headers[:Cookie] = @user_cookies.map(&:to_s).join("; ")
-      
+
       csv_client = Faraday.new(url: api_base_url, headers: headers) do |conn|
         conn.adapter Faraday.default_adapter
       end
-      
+
       csv_resp = csv_client.get url
 
       csv_data = CSV.parse(csv_resp.body)
