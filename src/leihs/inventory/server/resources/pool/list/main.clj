@@ -80,12 +80,13 @@
         (export/csv-response data :filename "inventory-list.csv"))
 
       (and accept-header (re-find #"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" accept-header))
-      (let [data (-> query
-                     (#(list-export/sql-prepare tx % pool-id))
-                     sql-format
-                     (->> (export/jdbc-execute! tx))
-                     export/arrays-to-maps)]
-        (export/excel-response data :filename "inventory-list.xlsx"))
+      (let [array-data (-> query
+                           (#(list-export/sql-prepare tx % pool-id))
+                           sql-format
+                           (->> (export/jdbc-execute! tx)))
+            [header & _] array-data
+            data (export/arrays-to-maps array-data)]
+        (export/excel-response data :keys (map keyword header) :filename "inventory-list.xlsx"))
 
       :else
       (let [post-fnc (fn [models]
