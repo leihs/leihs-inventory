@@ -21,7 +21,7 @@
                          (sql/from [:groups :g])
                          (sql/join [:groups_users :gu] [:= :g.id :gu.group_id])
                          (sql/group-by :g.id :g.name :g.searchable)
-                         (sql/order-by :g.name)
+                         (sql/order-by :g.name :g.id)
                          (cond-> search
                            (sql/where [:ilike :g.name (str "%" search "%")])))]
       (response (create-pagination-response request base-query nil)))

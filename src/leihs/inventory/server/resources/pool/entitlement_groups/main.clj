@@ -85,7 +85,7 @@
                     (sql/left-join [:entitlements :e] [:= :e.entitlement_group_id :g.id])
                     (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
                     (sql/group-by :g.id)
-                    (sql/order-by :g.name))
+                    (sql/order-by :g.name :g.id))
 
           post-fnc (fn [models]
                      (if (not (seq models)) []
