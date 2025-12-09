@@ -14,13 +14,16 @@
 (defn index-resources [request]
   (try
     (let [{:keys [search]} (-> request query-params)
+          user-count-subquery (-> (sql/select :gu.group_id
+                                              [[:count :gu.user_id] :user_count])
+                                  (sql/from [:groups_users :gu])
+                                  (sql/group-by :gu.group_id))
           base-query (-> (sql/select :g.id
                                      :g.name
                                      :g.searchable
-                                     [[:count :gu.user_id] :user_count])
+                                     [[:coalesce :uc.user_count 0] :user_count])
                          (sql/from [:groups :g])
-                         (sql/join [:groups_users :gu] [:= :g.id :gu.group_id])
-                         (sql/group-by :g.id :g.name :g.searchable)
+                         (sql/left-join [user-count-subquery :uc] [:= :uc.group_id :g.id])
                          (sql/order-by :g.name :g.id)
                          (cond-> search
                            (sql/where [:ilike :g.name (str "%" search "%")])))]
