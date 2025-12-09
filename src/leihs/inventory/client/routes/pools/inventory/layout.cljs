@@ -109,7 +109,7 @@
                         :asChild true
                         :value (:segment tab)}
                        ($ Link
-                          {:to (str (:segment tab) (:search tab))
+                          {:to (str (:segment tab) "/" (:search tab))
                            :state #js {:searchParams (.. location -search)}
                            :viewTransition true}
                           (:label tab))))))

@@ -21,3 +21,33 @@
           (.catch (fn [error]
                     (js/console.error "Language change error:" error)
                     #js {:error (.-message error)}))))))
+
+(defn list-page [action]
+  (p/let [form-data (.. action -request (formData))
+          url (.get form-data "url")
+          format (.get form-data "format")
+          accept-header (case format
+                          "csv" "text/csv"
+                          "excel" "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                          "text/csv")]
+
+    (-> http-client
+        (.get url (cj {:cache false
+                       :headers {:Accept accept-header}
+                       :responseType "blob"}))
+        (.then (fn [response]
+                 (let [blob (.-data response)
+                       url (js/URL.createObjectURL blob)
+                       link (.createElement js/document "a")
+                       content-disposition (.. response -headers (get "content-disposition"))
+                       filename (second (re-find #"filename=\"(.+)\"" content-disposition))]
+                   (set! (.-href link) url)
+                   (set! (.-download link) filename)
+                   (.appendChild (.-body js/document) link)
+                   (.click link)
+                   (.removeChild (.-body js/document) link)
+                   (js/URL.revokeObjectURL url)
+                   #js {:status "ok"})))
+        (.catch (fn [error]
+                  (js/console.error "Export error:" error)
+                  #js {:error (.-message error)})))))

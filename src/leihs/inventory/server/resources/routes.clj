@@ -16,8 +16,6 @@
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :as entitlement-groups]
-   [leihs.inventory.server.resources.pool.export.csv.routes :as export-csv]
-   [leihs.inventory.server.resources.pool.export.excel.routes :as export-excel]
    [leihs.inventory.server.resources.pool.fields.routes :as fields]
    [leihs.inventory.server.resources.pool.inventory-pools.routes :as inventory-pools]
    [leihs.inventory.server.resources.pool.items.item.attachments.attachment.routes :as i-attachment]
@@ -294,8 +292,6 @@
                       (when APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                         [(suppliers/routes)
                          (fields/routes)
-                         (export-csv/routes)
-                         (export-excel/routes)
                          (fields/routes)])
 
                       (when APPLY_DEV_ENDPOINTS

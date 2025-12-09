@@ -44,10 +44,10 @@
   (-> query
       (sql/where [:= :inventory.type (-> type name capitalize)])))
 
-(defn items-count [query pool-id
-                   & {:keys [retired borrowable incomplete broken
-                             inventory_pool_id owned
-                             in_stock before_last_check]}]
+(defn select-items-count
+  [query pool-id & {:keys [retired borrowable incomplete broken
+                           inventory_pool_id owned
+                           in_stock before_last_check]}]
   (-> query
       (sql/select
        [(-> (sql/select [[:case
@@ -62,35 +62,20 @@
                                             retired borrowable broken incomplete))
         :items])))
 
-(defn all-items [query pool-id
-                 & {:keys [retired borrowable incomplete broken
-                           inventory_pool_id owned
-                           in_stock before_last_check]}]
-  (-> query
-      (items-count pool-id
-                   :retired retired
-                   :borrowable borrowable
-                   :incomplete incomplete
-                   :broken broken
-                   :inventory_pool_id inventory_pool_id
-                   :owned owned
-                   :in_stock in_stock
-                   :before_last_check before_last_check)))
-
 (defn with-items [query pool-id
                   & {:keys [retired borrowable incomplete broken
                             inventory_pool_id owned
                             in_stock before_last_check]}]
   (-> query
-      (items-count pool-id
-                   :retired retired
-                   :borrowable borrowable
-                   :incomplete incomplete
-                   :broken broken
-                   :inventory_pool_id inventory_pool_id
-                   :owned owned
-                   :in_stock in_stock
-                   :before_last_check before_last_check)
+      (select-items-count pool-id
+                          :retired retired
+                          :borrowable borrowable
+                          :incomplete incomplete
+                          :broken broken
+                          :inventory_pool_id inventory_pool_id
+                          :owned owned
+                          :in_stock in_stock
+                          :before_last_check before_last_check)
       (sql/where
        [:exists (-> (sql/select 1)
                     (sql/from :items)
