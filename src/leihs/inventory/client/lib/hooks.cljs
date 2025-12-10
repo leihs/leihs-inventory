@@ -46,3 +46,39 @@
      [])
 
     [state scroll-to]))
+
+;; NOTE: docs https://usehooks.com/useWindowSize
+(defn use-window-size []
+  (let [[size set-size!] (uix/use-state {:width nil :height nil})]
+
+    (uix/use-layout-effect
+     (fn []
+       (let [handle-resize (fn []
+                             (set-size! {:width (.-innerWidth js/window)
+                                         :height (.-innerHeight js/window)}))]
+         (handle-resize)
+         (.addEventListener js/window "resize" handle-resize)
+
+         (fn []
+           (.removeEventListener js/window "resize" handle-resize))))
+     [])
+
+    size))
+
+;; NOTE: docs https://www.30secondsofcode.org/react/s/use-mutation-observer/
+(defn use-mutation-observer
+  [{:keys [ref callback options]
+    :or {options {:attributes false
+                  :subtree false
+                  :childList false
+                  :characterData false}}}]
+
+  (uix/use-effect
+   (fn []
+     (when-let [el (.-current ref)]
+       (let [observer (js/MutationObserver. callback)]
+         (.observe observer el (clj->js options))
+         (fn []
+           (.disconnect observer)))))
+   [callback options ref]))
+

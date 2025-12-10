@@ -112,6 +112,7 @@ feature "Create model", type: :feature do
       fill_in "accessories.1.name", with: second_accessory_name
     end
 
+    binding.pry
     click_on "compatibles"
     fill_in("Search model", with: compatible_model_1.product)
 
