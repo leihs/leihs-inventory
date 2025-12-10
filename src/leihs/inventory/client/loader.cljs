@@ -18,11 +18,15 @@
   (let [profile (-> http-client
                     (.get "/inventory/profile/" #js {:id "profile"})
                     (.then (fn [res] (jc (.. res -data))))
-                    (.catch (fn [error] (js/console.log "error" error) #js {})))
+                    (.catch (fn [error]
+                              (js/console.error "Profile loader error" error)
+                              (js/Promise.reject error))))
         settings (-> http-client
                      (.get "/inventory/settings/")
                      (.then #(jc (.-data %)))
-                     (.catch (fn [error] (js/console.log "error" error) #js {})))]
+                     (.catch (fn [error]
+                               (js/console.error "Settings loader error" error)
+                               (js/Promise.reject error))))]
     (.. (js/Promise.all (cond-> [profile settings]))
         (then (fn [[profile settings]]
                 {:profile profile
