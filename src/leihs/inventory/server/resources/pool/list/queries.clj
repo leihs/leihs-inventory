@@ -4,9 +4,10 @@
    [clojure.string :refer [capitalize]]
    [honey.sql.helpers :as sql]
    [hugsql.core :as hugsql]
+   [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
-   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
-   [taoensso.timbre :refer [debug]]))
+   [leihs.inventory.server.resources.pool.list.search :refer [with-search-for-count]]
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
 (defn base-inventory-query [pool-id]
   (-> (sql/select :inventory.*
@@ -44,10 +45,10 @@
   (-> query
       (sql/where [:= :inventory.type (-> type name capitalize)])))
 
-(defn select-items-count
-  [query pool-id & {:keys [retired borrowable incomplete broken
-                           inventory_pool_id owned
-                           in_stock before_last_check]}]
+(defn select-items-count [query pool-id
+                          & {:keys [retired borrowable incomplete broken
+                                    inventory_pool_id owned search
+                                    in_stock before_last_check]}]
   (-> query
       (sql/select
        [(-> (sql/select [[:case
@@ -57,14 +58,37 @@
             (sql/from :items)
             (sql/where [:= :items.model_id :inventory.id])
             (sql/where (items-shared/owner-or-responsible-cond pool-id))
-            (items-shared/item-query-params pool-id inventory_pool_id
-                                            owned in_stock before_last_check
-                                            retired borrowable broken incomplete))
+            (items-shared/item-query-params pool-id
+                                            :inventory_pool_id inventory_pool_id
+                                            :owned owned
+                                            :in_stock in_stock
+                                            :before_last_check before_last_check
+                                            :retired retired
+                                            :borrowable borrowable
+                                            :broken broken
+                                            :incomplete incomplete)
+            (cond-> (presence search) (with-search-for-count search :inventory)))
         :items])))
+
+(defn all-items [query pool-id
+                 & {:keys [retired borrowable incomplete broken
+                           inventory_pool_id owned search
+                           in_stock before_last_check]}]
+  (-> query
+      (select-items-count pool-id
+                          :retired retired
+                          :borrowable borrowable
+                          :incomplete incomplete
+                          :broken broken
+                          :inventory_pool_id inventory_pool_id
+                          :owned owned
+                          :in_stock in_stock
+                          :before_last_check before_last_check
+                          :search search)))
 
 (defn with-items [query pool-id
                   & {:keys [retired borrowable incomplete broken
-                            inventory_pool_id owned
+                            inventory_pool_id owned search
                             in_stock before_last_check]}]
   (-> query
       (select-items-count pool-id
@@ -75,15 +99,22 @@
                           :inventory_pool_id inventory_pool_id
                           :owned owned
                           :in_stock in_stock
-                          :before_last_check before_last_check)
+                          :before_last_check before_last_check
+                          :search search)
       (sql/where
        [:exists (-> (sql/select 1)
                     (sql/from :items)
                     (sql/where [:= :items.model_id :inventory.id])
                     (sql/where (items-shared/owner-or-responsible-cond pool-id))
-                    (items-shared/item-query-params pool-id inventory_pool_id
-                                                    owned in_stock before_last_check
-                                                    retired borrowable broken incomplete))])))
+                    (items-shared/item-query-params pool-id
+                                                    :inventory_pool_id inventory_pool_id
+                                                    :owned owned
+                                                    :in_stock in_stock
+                                                    :before_last_check before_last_check
+                                                    :retired retired
+                                                    :borrowable borrowable
+                                                    :broken broken
+                                                    :incomplete incomplete))])))
 
 (defn without-items [query pool-id]
   (-> query
@@ -94,48 +125,6 @@
                           (sql/from :items)
                           (sql/where [:= :items.model_id :inventory.id])
                           (sql/where (items-shared/owner-or-responsible-cond pool-id)))]])))
-
-(defn matches-model-columns-expr [search table]
-  [:ilike
-   [:concat_ws " "
-    (keyword (name table) "manufacturer")
-    (keyword (name table) "product")
-    (keyword (name table) "version")]
-   (str "%" search "%")])
-
-(defn matches-item-columns-expr [search table]
-  [:ilike
-   [:concat_ws " "
-    (keyword (name table) "inventory_code")
-    (keyword (name table) "serial_number")
-    (keyword (name table) "invoice_number")
-    (keyword (name table) "note")
-    (keyword (name table) "name")
-    (keyword (name table) "user_name")
-    (keyword (name table) "properties")]
-   (str "%" search "%")])
-
-(defn with-search [query search]
-  (sql/where
-   query
-   [:or
-    (matches-model-columns-expr search :inventory)
-    [:exists
-     (-> (sql/select 1)
-         (sql/from :items)
-         (sql/where [:= :items.model_id :inventory.id])
-         (sql/where (matches-item-columns-expr search :items)))]
-    [:exists
-     (-> (sql/select 1)
-         (sql/from :items)
-         (sql/join :models [:= :models.id :items.model_id])
-         (sql/join [:items :child_items] [:= :child_items.parent_id :items.id])
-         (sql/join [:models :child_models] [:= :child_models.id :child_items.model_id])
-         (sql/where [:= :items.model_id :inventory.id])
-         (sql/where
-          [:or
-           (matches-model-columns-expr search :child_models)
-           (matches-item-columns-expr search :child_items)]))]]))
 
 (hugsql/def-sqlvec-fns "sql/descendent_ids.sql")
 

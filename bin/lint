@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+./bin/cljfmt fix
+./bin/rblint --fix-unsafely
+./bin/jslint

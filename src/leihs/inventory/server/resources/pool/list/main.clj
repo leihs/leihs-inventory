@@ -10,8 +10,9 @@
                                                                from-category
                                                                select-items-count
                                                                with-items
-                                                               with-search
                                                                without-items]]
+   [leihs.inventory.server.resources.pool.list.search :refer [with-search-inventory]]
+
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 model->enrich-with-image-attr]]
    [leihs.inventory.server.utils.export :as export]
@@ -47,7 +48,8 @@
                                  :broken broken
                                  :inventory_pool_id inventory_pool_id
                                  :owned owned
-                                 :in_stock in_stock}
+                                 :in_stock in_stock
+                                 :search search}
                           (not= type :software)
                           (assoc :before_last_check before_last_check)))
 
@@ -62,11 +64,12 @@
                                                    :broken broken
                                                    :inventory_pool_id inventory_pool_id
                                                    :owned owned
-                                                   :in_stock in_stock}
+                                                   :in_stock in_stock
+                                                   :search search}
                                             (not= type :software)
                                             (assoc :before_last_check before_last_check)))))
                   (cond-> (presence search)
-                    (with-search search))
+                    (with-search-inventory search))
                   (cond-> (and category_id (not (some #{type} [:option :software])))
                     (#(from-category tx % category_id))))
 

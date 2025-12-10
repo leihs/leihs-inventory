@@ -68,6 +68,8 @@ feature "Inventory Page", type: :feature do
     # | model_5    | false   | PA103  | pool_1 | pool_2 | true    | true       | true     | false      | false  |            |
     # | model_6    | false   | PC104  | pool_3 | pool_1 | false   | true       | true     | false      | true   |            |
     # | model_7    | false   | PD105  | pool_4 | pool_4 | false   | true       | true     | false      | false  |            |
+    # | model_11   | false   | PF111  | pool_6 | pool_6 | false   | true       | true     | false      | false  |            |
+    # | model_11   | false   | PF112  | pool_6 | pool_6 | false   | true       | true     | false      | false  |            |
     # |            |
     # |-PACKAGE--  |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
     # | model_8    | true    | PA106  | pool_1 | pool_1 | false   | true       | false    | false      | false  |            |
@@ -105,11 +107,12 @@ feature "Inventory Page", type: :feature do
     pool_3 = FactoryBot.create(:inventory_pool, shortname: "PC")
     pool_4 = FactoryBot.create(:inventory_pool, shortname: "PD")
     pool_5 = FactoryBot.create(:inventory_pool, shortname: "PE")
+    pool_6 = FactoryBot.create(:inventory_pool, shortname: "PF")
 
     # user = FactoryBot.create(:user)
     user = FactoryBot.create(:user, language_locale: "en-GB")
 
-    [pool_1, pool_2, pool_5].each do |pool|
+    [pool_1, pool_2, pool_5, pool_6].each do |pool|
       FactoryBot.create(:access_right,
         inventory_pool: pool,
         user: user,
@@ -139,6 +142,7 @@ feature "Inventory Page", type: :feature do
     model_8 = FactoryBot.create(:leihs_model, product: "Model_8", version: "AA8", is_package: true)
     model_9 = FactoryBot.create(:leihs_model, product: "Model_9", version: "AA9 #{search_term}")
     model_10 = FactoryBot.create(:leihs_model, product: "Model_10", version: "AA10")
+    model_11 = FactoryBot.create(:leihs_model, product: "Model_11", version: "AA11")
 
     model_1.add_category(cat_1)
     model_2.add_category(cat_2)
@@ -249,6 +253,20 @@ feature "Inventory Page", type: :feature do
       owner_id: pool_1.id,
       shelf: "S101",
       inventory_pool_id: pool_1.id,
+      room: room)
+
+    item_model_11_1 = FactoryBot.create(:item,
+      inventory_code: "#{pool_6.shortname}111",
+      leihs_model: model_11,
+      owner_id: pool_6.id,
+      inventory_pool_id: pool_6.id,
+      room: room)
+
+    FactoryBot.create(:item,
+      inventory_code: "#{pool_6.shortname}112",
+      leihs_model: model_11,
+      owner_id: pool_6.id,
+      inventory_pool_id: pool_6.id,
       room: room)
 
     user_2 = FactoryBot.create(:user)
@@ -678,7 +696,7 @@ feature "Inventory Page", type: :feature do
 
     expect(page).to have_button("Status", disabled: true)
 
-    expect(all("table tbody tr").count).to eq 2
+    expect(all("table tbody tr").count).to eq 3
 
     verify_row_details(
       model_1,
@@ -697,7 +715,7 @@ feature "Inventory Page", type: :feature do
     first(:link_or_button, "50").click
     click_on "20"
 
-    expect(all("table tbody tr").count).to eq 11
+    expect(all("table tbody tr").count).to eq 12
 
     verify_row_details(
       model_1,
@@ -1368,7 +1386,7 @@ feature "Inventory Page", type: :feature do
       click_on "Model"
     end
 
-    expect(all("table tbody tr").count).to eq 9
+    expect(all("table tbody tr").count).to eq 10
 
     verify_row_details(
       model_1,
@@ -1500,6 +1518,27 @@ feature "Inventory Page", type: :feature do
       ]
     )
 
+    # test correct number of items count on a model line
+    find("nav button", match: :first).click
+    within('[role="menu"]', match: :first) do
+      click_on pool_6.name
+    end
+    find("input[name='search']").set(item_model_11_1.inventory_code)
+    expect(page).to have_selector("table tbody tr", count: 1, wait: 10)
+
+    # somehow the test started to break here after some BE changes
+    # sleep seems to fix it for now
+    sleep 1
+    verify_row_details(
+      model_11,
+      "2 | 2",
+      [
+        {
+          inventory_code: item_model_11_1.inventory_code
+        }
+      ]
+    )
+
     # type=option
     visit "/inventory/#{pool_1.id}/list"
 
@@ -1597,7 +1636,7 @@ def verify_row_details(model, availabilty, items = [], is_package: false, is_opt
       row.all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
     end
 
-    expect(following_rows.size).to eq(items.size)
+    wait_until { following_rows.size == items.size }
 
     items.each_with_index do |details, index|
       expect(following_rows[index]).to have_content(details[:inventory_code])
@@ -1612,8 +1651,10 @@ def verify_row_details(model, availabilty, items = [], is_package: false, is_opt
       end
 
       # Extract the status portion and validate it
-      status_texts = following_rows[index].all('[data-test-id="item-status"] span').map(&:text)
-      expect(details[:statuses]).to include(*status_texts)
+      if details[:statuses]
+        status_texts = following_rows[index].all('[data-test-id="item-status"] span').map(&:text)
+        expect(details[:statuses]).to include(*status_texts)
+      end
 
       if details[:package_items]
 

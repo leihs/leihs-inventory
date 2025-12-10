@@ -2,7 +2,8 @@
   (:require
    [clojure.set]
    [honey.sql.helpers :as sql]
-   [ring.middleware.accept]))
+   [ring.middleware.accept]
+   [taoensso.timbre :as timbre :refer [debug spy]]))
 
 (defn in-stock [query true-or-false]
   (-> query
@@ -31,9 +32,10 @@
    [:not= :items.owner_id pool-id]
    [:= :items.inventory_pool_id inventory-pool-id]])
 
-(defn item-query-params [query pool-id inventory_pool_id
-                         owned in_stock before_last_check
-                         retired borrowable broken incomplete]
+(defn item-query-params [query pool-id &
+                         {:keys [inventory_pool_id
+                                 owned in_stock before_last_check
+                                 retired borrowable broken incomplete]}]
   (-> query
       (#(cond
           (and inventory_pool_id (true? owned))
