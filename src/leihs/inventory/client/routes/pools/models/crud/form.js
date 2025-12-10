@@ -235,8 +235,6 @@ export const structure = [
               "pool.model.compatible_models.blocks.compatible_models.select",
             search:
               "pool.model.compatible_models.blocks.compatible_models.search",
-            placeholder:
-              "pool.model.compatible_models.blocks.compatible_models.placeholder",
             not_found:
               "pool.model.compatible_models.blocks.compatible_models.not_found",
             searching:

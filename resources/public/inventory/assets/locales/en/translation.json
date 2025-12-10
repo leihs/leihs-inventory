@@ -505,7 +505,7 @@
             "label": "Select model",
             "not_found": "Model not found",
             "select": "Select model",
-            "placeholder": "Search model",
+            "search": "Search model",
             "search_empty": "Type at least 2 characters to search",
             "searching": "Searching..."
           }

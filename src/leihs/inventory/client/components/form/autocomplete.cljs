@@ -25,6 +25,7 @@
         [width set-width!] (uix/use-state nil)
 
         params (router/useParams)
+        size (hooks/use-window-size)
 
         control (cj (.-control form))
         buttonRef (uix/use-ref nil)
@@ -98,7 +99,7 @@
      (fn []
        (when (.. buttonRef -current)
          (set-width! (.. buttonRef -current -offsetWidth))))
-     [])
+     [size])
 
     ;; initial fetch of options if not instant
     ;; when options are delivered via url
@@ -148,7 +149,7 @@
                        ($ PopoverContent {:class-name "p-0"
                                           :style {:width (str width "px")}}
 
-                          ($ Command {:should-filter false
+                          ($ Command {:should-filter (if instant? false true)
                                       :on-change (fn [e] (set-search! (.. e -target -value)))}
                              ($ CommandInput {:placeholder (t (-> props :text :search))
                                               :data-test-id (str name "-input")})

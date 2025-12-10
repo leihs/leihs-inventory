@@ -37,7 +37,10 @@ feature "Create model", type: :feature do
   let(:attachment_name_1) { "secd.pdf" }
   let(:attachment_name_2) { "shenpaper.pdf" }
 
-  let!(:compatible_model_1) { FactoryBot.create(:leihs_model) }
+  let!(:compatible_model_1) {
+    FactoryBot.create(:leihs_model,
+      images: [FactoryBot.create(:image, :for_leihs_model)])
+  }
   let!(:compatible_model_2) { FactoryBot.create(:leihs_model) }
 
   let(:first_accessory_name) { "First accessory" }
@@ -113,9 +116,8 @@ feature "Create model", type: :feature do
     end
 
     click_on "compatibles"
-    fill_in("Search model", with: compatible_model_1.product)
-
     fill_in "models-input", with: compatible_model_1.product
+    expect(page).to have_css("img[alt='#{compatible_model_1.product} #{compatible_model_1.version}']")
     within find("[data-test-id='models-list']") do
       click_on "#{compatible_model_1.product} #{compatible_model_1.version}"
     end
