@@ -39,6 +39,7 @@
         body-params (body-params request)
         {pool-id :pool_id item_id :item_id} (path-params request)
         {:keys [item-data]} (split-item-data body-params)
+        item-type (or (:type body-params) "item")
         existing-owner-id (when item_id
                             (-> (sql/select :owner_id)
                                 (sql/from :items)
@@ -46,7 +47,7 @@
                                 sql-format
                                 (->> (jdbc/execute-one! tx))
                                 :owner_id))
-        permitted-fields (-> (fields/base-query "item" (keyword role) pool-id)
+        permitted-fields (-> (fields/base-query item-type (keyword role) pool-id)
                              (cond-> (some-> existing-owner-id
                                              (or (:owner_id item-data))
                                              (not= pool-id))
@@ -56,7 +57,7 @@
         permitted-field-ids (->> permitted-fields
                                  (map (comp keyword :id))
                                  set)
-        body-keys (-> body-params (dissoc :id) keys set)
+        body-keys (-> body-params (dissoc :id :type :item_ids) keys set)
         unpermitted-fields (set/difference body-keys permitted-field-ids)
         owner-id (:owner_id item-data)
         model-id (:model_id item-data)
