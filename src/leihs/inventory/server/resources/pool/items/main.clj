@@ -134,7 +134,12 @@
                                        (cond-> original-item
                                          (:image_id item-with-img)
                                          (assoc :image_id (:image_id item-with-img)
-                                                :url (str "/inventory/" pool_id "/models/" (:model_id original-item) "/images/" (:image_id item-with-img))
+                                                :url (str "/inventory/"
+                                                          pool_id
+                                                          "/models/"
+                                                          (:model_id original-item)
+                                                          "/images/"
+                                                          (:image_id item-with-img))
                                                 :content_type (:content_type item-with-img)))))
                                    items-with-images)))]
 
