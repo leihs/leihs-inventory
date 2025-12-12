@@ -171,6 +171,29 @@
       sql-format
       (->> (jdbc-query tx))))
 
+(defn validate-package-model [tx model-id]
+  (let [model (-> (sql/select :is_package)
+                  (sql/from :models)
+                  (sql/where [:= :id model-id])
+                  sql-format
+                  (->> (jdbc/execute-one! tx)))]
+    (when-not (:is_package model)
+      (throw (ex-info "Model must have is_package=true for package type"
+                      {:model_id model-id})))))
+
+(defn assign-items-to-package [tx package-id item-ids]
+  (when-not (seq item-ids)
+    (throw (ex-info "item_ids is required for package" {})))
+  (let [invalid-items (validate-item-ids-for-package tx item-ids)]
+    (when (seq invalid-items)
+      (throw (ex-info "Cannot add packages or already assigned items to package"
+                      {:invalid_item_ids (map :id invalid-items)}))))
+  (-> (sql/update :items)
+      (sql/set {:parent_id package-id})
+      (sql/where [:in :id item-ids])
+      sql-format
+      (->> (jdbc/execute! tx))))
+
 (defn post-resource [request]
   (try
     (let [tx (:tx request)
@@ -185,14 +208,7 @@
               inventory-code (:inventory_code item-data)
               model-id (:model_id item-data)]
           (when (= item-type "package")
-            (let [model (-> (sql/select :is_package)
-                            (sql/from :models)
-                            (sql/where [:= :id model-id])
-                            sql-format
-                            (->> (jdbc/execute-one! tx)))]
-              (when-not (:is_package model)
-                (throw (ex-info "Model must have is_package=true for package type"
-                                {:model_id model-id})))))
+            (validate-package-model tx model-id))
           (if (inventory-code-exists? tx inventory-code nil)
             (status {:body {:error "Inventory code already exists"
                             :proposed_code (inv-code/propose tx pool_id)}}
@@ -209,17 +225,7 @@
               (if result
                 (do
                   (when (= item-type "package")
-                    (when-not (seq item-ids)
-                      (throw (ex-info "item_ids is required for package" {})))
-                    (let [invalid-items (validate-item-ids-for-package tx item-ids)]
-                      (when (seq invalid-items)
-                        (throw (ex-info "Cannot add packages or already assigned items to package"
-                                        {:invalid_item_ids (map :id invalid-items)}))))
-                    (-> (sql/update :items)
-                        (sql/set {:parent_id (:id result)})
-                        (sql/where [:in :id item-ids])
-                        sql-format
-                        (->> (jdbc/execute! tx))))
+                    (assign-items-to-package tx (:id result) item-ids))
                   (response (-> result
                                 flatten-properties
                                 (coerce-field-values out-coercions)
