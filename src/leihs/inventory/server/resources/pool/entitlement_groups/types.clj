@@ -23,8 +23,11 @@
                 :name (s/maybe s/Str)
                 :version (s/maybe s/Str)
                 :quantity s/Int
-                :available_count s/Int
-                (s/optional-key :items_count) s/Int
+
+                ;:available_count s/Int ;remove
+                :entitled_in_other_groups s/Int
+                (s/optional-key :available) s/Int ;:items_count
+
                 :is_quantity_ok s/Bool
 
                 (s/optional-key :cover_image_id) (s/maybe s/Uuid)
