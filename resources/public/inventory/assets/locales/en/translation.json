@@ -569,5 +569,59 @@
   },
   "notfound": {
     "back-to-home": "Back to Home"
+  },
+  "error": {
+    "alerts": {
+      "offline": {
+        "title": "No Internet Connection",
+        "description": "It seems you are offline. Please check your Internet connection."
+      }
+    },
+    "boundary": {
+      "not_found": {
+        "title": "Page Not Found",
+        "description": "The page you're looking for doesn't exist."
+      },
+      "unauthorized": {
+        "title": "Unauthorized",
+        "description": "You need to log in to access this page."
+      },
+      "forbidden": {
+        "title": "Access Forbidden",
+        "description": "You don't have permission to access this page."
+      },
+      "bad_request": {
+        "title": "Bad Request",
+        "description": "The server was unable to process your request."
+      },
+      "server_error": {
+        "title": "Server Error",
+        "description": "Something went wrong on the Server. Please try again later."
+      },
+      "client_error": {
+        "title": "Client Error",
+        "description": "The client failed to communicate with the server. Please try again."
+      },
+      "loader_error": {
+        "title": "Loader Error",
+        "description": "The client couldn't load the data for this page. Please try again or navigate back to the home page."
+      },
+      "application_error": {
+        "title": "Application Error",
+        "description": "An error occurred during rendering of the application."
+      },
+      "unknown": {
+        "title": "Something Went Wrong",
+        "description": "An unexpected error occurred. Please try again or contact support if the problem persists."
+      },
+      "open": "Open error message",
+      "actions": {
+        "close": "Close",
+        "go_back": "Go Back",
+        "go_home": "Go to Home",
+        "go_signin": "Go to sign in",
+        "retry": "Retry"
+      }
+    }
   }
 }

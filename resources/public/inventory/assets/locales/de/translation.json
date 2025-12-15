@@ -569,5 +569,59 @@
   },
   "notfound": {
     "back-to-home": "Zurück zur Startseite"
+  },
+  "error": {
+    "alerts": {
+      "offline": {
+        "title": "Keine Internetverbindung",
+        "description": "Es scheint als wären Sie offline. Bitte überprüfen Sie Ihre Internetverbindung."
+      }
+    },
+    "boundary": {
+      "not_found": {
+        "title": "Seite nicht gefunden",
+        "description": "Die gesuchte Seite existiert nicht oder wurde verschoben."
+      },
+      "unauthorized": {
+        "title": "Nicht autorisiert",
+        "description": "Sie müssen sich anmelden, um auf diese Seite zuzugreifen."
+      },
+      "forbidden": {
+        "title": "Zugriff verweigert",
+        "description": "Sie haben keine Berechtigung, um auf diese Seite zuzugreifen."
+      },
+      "bad_request": {
+        "title": "Ungültige Anfrage",
+        "description": "Der Server konnte Ihre Anfrage nicht verarbeiten."
+      },
+      "server_error": {
+        "title": "Serverfehler",
+        "description": "Auf dem Server ist etwas schief gelaufen. Bitte versuchen Sie es später erneut."
+      },
+      "client_error": {
+        "title": "Clientfehler",
+        "description": "Es gab ein Problem mit der Applikation. Bitte versuchen Sie es erneut."
+      },
+      "loader_error": {
+        "title": "Ladefehler",
+        "description": "Die Daten für diese Seite konnten nicht geladen werden. Bitte versuchen Sie es erneut."
+      },
+      "application_error": {
+        "title": "Applikationsfehler",
+        "description": "Es gab ein Problem mit der Applikation. Bitte versuchen Sie es erneut."
+      },
+      "unknown": {
+        "title": "Ein Fehler ist aufgetreten",
+        "description": "Es ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie den Support, falls das Problem weiterhin besteht."
+      },
+      "open": "Fehlermeldung anzeigen",
+      "actions": {
+        "close": "Schliessen",
+        "go_back": "Zurück",
+        "go_home": "Zur Startseite",
+        "go_signin": "Zur Anmeldung",
+        "retry": "Erneut versuchen"
+      }
+    }
   }
 }

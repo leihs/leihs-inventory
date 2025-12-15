@@ -1,3 +1,23 @@
+'./spec/features/error-handling/application_errors_spec.rb[1:1]':
+  name: "Application Errors 01"
+  environment_variables:
+    FEATURE_NAME: "Application Errors 01"
+    FEATURE: './spec/features/error-handling/application_errors_spec.rb[1:1]'
+'./spec/features/error-handling/client_errors_spec.rb[1:1]':
+  name: "Client Errors 01"
+  environment_variables:
+    FEATURE_NAME: "Client Errors 01"
+    FEATURE: './spec/features/error-handling/client_errors_spec.rb[1:1]'
+'./spec/features/error-handling/client_errors_spec.rb[1:2]':
+  name: "Client Errors 02"
+  environment_variables:
+    FEATURE_NAME: "Client Errors 02"
+    FEATURE: './spec/features/error-handling/client_errors_spec.rb[1:2]'
+'./spec/features/error-handling/network_errors_spec.rb[1:1]':
+  name: "Network Errors 01"
+  environment_variables:
+    FEATURE_NAME: "Network Errors 01"
+    FEATURE: './spec/features/error-handling/network_errors_spec.rb[1:1]'
 './spec/features/i18n/language-switcher_spec.rb[1:1]':
   name: "Language 01"
   environment_variables:
