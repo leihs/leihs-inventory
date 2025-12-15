@@ -36,7 +36,7 @@
                                :users [{:id s/Uuid}]
                                :groups [{:id s/Uuid}]
                                :models [{:id s/Uuid
-                                         :quantity types/PosInt}]}}
+                                         :quantity s/Int}]}}
            :produces ["application/json"]
            :handler entitlement-groups/post-resource
            :responses {200 {:description "OK"
