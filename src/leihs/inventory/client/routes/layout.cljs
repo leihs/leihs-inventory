@@ -3,6 +3,7 @@
    ["@@/sonner" :refer [Toaster]]
    ["@@/tooltip" :refer [Tooltip TooltipTrigger TooltipContent TooltipProvider]]
    ["react-router-dom" :as router :refer [Outlet]]
+   [leihs.inventory.client.components.error-boundary :refer [error-boundary erroring-component]]
    [leihs.inventory.client.routes.components.header :as header]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))

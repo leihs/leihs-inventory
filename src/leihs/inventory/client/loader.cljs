@@ -14,19 +14,28 @@
 ;; Generic view data should be named with the `data` key in the returned map.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn not-found
+  "Loader that throws a 404 error to trigger the error boundary"
+  []
+  (let [error (js/Error "Page not found")]
+    (set! (.-status error) 404)
+    (set! (.-statusText error) "Not Found")
+    (throw error)))
+
 (defn root-layout []
   (let [profile (-> http-client
                     (.get "/inventory/profile/" #js {:id "profile"})
-                    (.then (fn [res] (jc (.. res -data))))
-                    (.catch (fn [error] (js/console.log "error" error) #js {})))
+                    (.then (fn [res] (jc (.. res -data)))))
         settings (-> http-client
                      (.get "/inventory/settings/")
-                     (.then #(jc (.-data %)))
-                     (.catch (fn [error] (js/console.log "error" error) #js {})))]
+                     (.then #(jc (.-data %))))]
     (.. (js/Promise.all (cond-> [profile settings]))
         (then (fn [[profile settings]]
                 {:profile profile
-                 :settings settings})))))
+                 :settings settings}))
+        (catch (fn [_]
+                 (throw (js/Error "Loading route data failed"
+                                  #js {:cause "loader-error"})))))))
 
 (defn list-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
@@ -51,7 +60,10 @@
             (then (fn [[categories data responsible-pools]]
                     {:categories categories
                      :responsible-pools responsible-pools
-                     :data data})))))))
+                     :data data}))
+            (catch (fn [_]
+                     (throw (js/Error "Loading route data failed"
+                                      #js {:cause "loader-error"})))))))))
 
 (defn software-crud-page [route-data]
   (let [params (.. ^js route-data -params)
@@ -73,7 +85,10 @@
                           data (conj data)))
         (then (fn [[manufacturers & [data]]]
                 {:manufacturers manufacturers
-                 :data (if data data nil)})))))
+                 :data (if data data nil)}))
+        (catch (fn [_]
+                 (throw (js/Error "Loading route data failed"
+                                  #js {:cause "loader-error"})))))))
 
 (defn items-crud-page [route-data]
   (let [params (.. ^js route-data -params)
@@ -101,7 +116,10 @@
     (.. (js/Promise.all (cond-> [data] model (conj model)))
         (then (fn [[data & [model]]]
                 {:data data
-                 :model (if model model nil)})))))
+                 :model (if model model nil)}))
+        (catch (fn [_]
+                 (throw (js/Error "Loading route data failed"
+                                  #js {:cause "loader-error"})))))))
 
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)
@@ -135,7 +153,10 @@
                 {:categories categories
                  :manufacturers manufacturers
                  :entitlement-groups entitlement-groups
-                 :data (if data data nil)})))))
+                 :data (if data data nil)}))
+        (catch (fn [_]
+                 (throw (js/Error "Loading route data failed"
+                                  #js {:cause "loader-error"})))))))
 
 (defn options-crud-page [route-data]
   (let [params (.. ^js route-data -params)
@@ -151,7 +172,10 @@
                    (.then #(jc (.-data %)))))]
 
     (.. (js/Promise.all (cond-> [] data (conj data)))
-        (then (fn [[& [data]]] {:data (if data data nil)})))))
+        (then (fn [[& [data]]] {:data (if data data nil)}))
+        (catch (fn [_]
+                 (throw (js/Error "Loading route data failed"
+                                  #js {:cause "loader-error"})))))))
 
 (defn templates-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
@@ -167,13 +191,14 @@
                      (.get (str "/inventory/" pool-id "/templates/" search)
                            #js {:cache false})
                      (.then (fn [res]
-                              (jc (.. res -data))))
-                     (.catch (fn [error]
-                               (js/console.error "Error fetching templates" error))))]
+                              (jc (.. res -data)))))]
 
         (.. (js/Promise.all [data])
             (then (fn [[data]]
-                    {:data data})))))))
+                    {:data data}))
+            (catch (fn [_]
+                     (throw (js/Error "Loading route data failed"
+                                      #js {:cause "loader-error"})))))))))
 
 (defn template-crud-page [route-data]
   (let [params (.. ^js route-data -params)
@@ -186,9 +211,16 @@
         data (when template-path
                (-> http-client
                    (.get template-path #js {:id template-id})
-                   (.then #(jc (.-data %)))
-                   (.catch (fn [error]
-                             (js/console.error "Error fetching template" error)))))]
+                   (.then #(jc (.-data %)))))]
 
     (.. (js/Promise.all (cond-> [] data (conj data)))
-        (then (fn [[& [data]]] {:data (if data data nil)})))))
+        (then (fn [[& [data]]] {:data (if data data nil)}))
+        (catch (fn [_]
+                 (throw (js/Error "Loading route data failed"
+                                  #js {:cause "loader-error"})))))))
+
+(defn error-test
+  "Test loader that always throws an error"
+  []
+  (throw (js/Error "Test loader error - this should trigger the error boundary!"
+                   #js {:cause "loader-error"})))
