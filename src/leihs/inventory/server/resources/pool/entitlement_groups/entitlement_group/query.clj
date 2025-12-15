@@ -30,7 +30,7 @@
   (let [query
         (-> (sql/select
              [:e.model_id :id]
-             [[:cast [:coalesce [:sum :e.quantity] 0] :integer] :allocations_in_other_entitlement_groups])
+             [[:cast [:coalesce [:sum :e.quantity] 0] :integer] :entitled_in_other_groups])
             (sql/from [:entitlements :e])
             (sql/join [:entitlement_groups :eg] [:= :eg.id :e.entitlement_group_id])
             (sql/where [:and
@@ -41,13 +41,13 @@
             sql-format)]
     (jdbc/execute! ds query)))
 
-(defn- select-items-count
+(defn- select-available
   "Selects item counts for models in the inventory pool."
   [ds inventory-pool-id model-ids]
   (let [query
         (-> (sql/select
              [:items.model_id :id]
-             [[[:count :items.id]] :items_count])
+             [[[:count :items.id]] :available])
             (sql/from :items)
             (sql/where [:and
                         [:in :items.model_id model-ids]
@@ -62,21 +62,21 @@
 (defn- merge-results
   "Merges allocations and items count results.
    Ensures all model-ids have entries with 0 defaults for missing values."
-  [model-ids allocations items-counts]
+  [model-ids allocations availables]
   (let [allocations-by-id (into {} (map (fn [row] [(:id row) row]) allocations))
-        items-by-id (into {} (map (fn [row] [(:id row) row]) items-counts))]
+        items-by-id (into {} (map (fn [row] [(:id row) row]) availables))]
     (mapv (fn [model-id]
             {:id model-id
-             :allocations_in_other_entitlement_groups
-             (get-in allocations-by-id [model-id :allocations_in_other_entitlement_groups] 0)
+             :entitled_in_other_groups
+             (get-in allocations-by-id [model-id :entitled_in_other_groups] 0)
              :items_count
              (get-in items-by-id [model-id :items_count] 0)})
           model-ids)))
 
 (defn select-entitlements-with-item-count [ds inventory-pool-id model-ids exclude-group-id]
   (let [allocations (select-allocations ds inventory-pool-id model-ids exclude-group-id)
-        items-counts (select-items-count ds inventory-pool-id model-ids)]
-    (merge-results model-ids allocations items-counts)))
+        availables (select-available ds inventory-pool-id model-ids)]
+    (merge-results model-ids allocations availables)))
 
 (defn- ->long [v]
   (cond
@@ -88,20 +88,13 @@
 
 (defn add-allocation-considered-count [entitlements]
   (mapv (fn [e]
-          (let [items-count-raw (:items_count e)
-                allocations-raw (:allocations_in_other_entitlement_groups e)
+          (let [available-raw (:available e)
                 quantity-raw (:quantity e)
-
-                items-count (->long items-count-raw)
-                allocations (->long allocations-raw)
+                available (->long available-raw)
                 quantity (->long quantity-raw)
-                available (- items-count allocations)
-
-                e (assoc e
-                         :available_count available
+                e (assoc e :available available
                          :is_quantity_ok (<= quantity available))
-
-                result (dissoc e :entitlement_group_id :allocations_in_other_entitlement_groups)]
+                result (dissoc e :entitlement_group_id)]
             result))
         entitlements))
 
@@ -144,7 +137,6 @@
                                      (map (model->enrich-with-image-attr pool-id)))
              model-ids (to-uuid model-ids)
              allocation-data (select-entitlements-with-item-count tx pool-id model-ids entitlement-group-id)
-
              allocation-map (->> allocation-data
                                  (map (juxt :id identity))
                                  (into {}))
@@ -152,8 +144,8 @@
              models-with-allocation (map (fn [model]
                                            (let [allocation (get allocation-map (:id model))]
                                              (merge model
-                                                    {:allocations_in_other_entitlement_groups (or (:allocations_in_other_entitlement_groups allocation) 0)
-                                                     :items_count (or (:items_count allocation) 0)})))
+                                                    {:entitled_in_other_groups (or (:entitled_in_other_groups allocation) 0)
+                                                     :available (or (:available allocation) 0)})))
                                          models-with-images)]
 
          (add-allocation-considered-count models-with-allocation))
