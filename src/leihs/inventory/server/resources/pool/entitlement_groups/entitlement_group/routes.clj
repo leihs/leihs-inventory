@@ -43,7 +43,7 @@
                               :users [{:id s/Uuid}]
                               :groups [{:id s/Uuid}]
                               :models [{:id s/Uuid
-                                        :quantity s/Int}]}}
+                                        :quantity PosInt}]}}
           :produces ["application/json"]
           :handler entitlement-group/put-resource
           :responses {200 {:description "OK"
