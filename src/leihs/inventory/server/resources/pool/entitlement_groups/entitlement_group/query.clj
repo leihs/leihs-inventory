@@ -24,26 +24,27 @@
                   sql-format)
         entitlement-group (jdbc/execute-one! tx query)] entitlement-group))
 
-(defn- select-allocations
-  "Selects allocation counts for models in other entitlement groups."
-  [ds inventory-pool-id model-ids exclude-group-id]
-  (let [query
-        (-> (sql/select
-             [:e.model_id :id]
-             [[:cast [:coalesce [:sum :e.quantity] 0] :integer] :entitled_in_other_groups])
-            (sql/from [:entitlements :e])
-            (sql/join [:entitlement_groups :eg] [:= :eg.id :e.entitlement_group_id])
-            (sql/where [:and
-                        [:= :eg.inventory_pool_id inventory-pool-id]
-                        [:in :e.model_id model-ids]
-                        [:!= :e.entitlement_group_id exclude-group-id]])
-            (sql/group-by :e.model_id)
-            sql-format)]
-    (jdbc/execute! ds query)))
+(defn select-allocations [tx inventory-pool-id model-ids exclude-group-id]
+  (let [keyname (if exclude-group-id
+                  :entitled_in_other_groups
+                  :entitled_in_groups)
+        query (-> (sql/select
+                   [:e.model_id :id]
+                   [[:cast [:coalesce [:sum :e.quantity] 0] :integer] keyname])
+                  (sql/from [:entitlements :e])
+                  (sql/join [:entitlement_groups :eg] [:= :eg.id :e.entitlement_group_id])
+                  (sql/where [:and
+                              [:= :eg.inventory_pool_id inventory-pool-id]
+                              [:in :e.model_id model-ids]])
+                  (cond-> exclude-group-id
+                    (sql/where [:!= :e.entitlement_group_id exclude-group-id]))
+                  (sql/group-by :e.model_id)
+                  sql-format)]
+    (jdbc/execute! tx query)))
 
 (defn- select-available
   "Selects item counts for models in the inventory pool."
-  [ds inventory-pool-id model-ids]
+  [tx inventory-pool-id model-ids]
   (let [query
         (-> (sql/select
              [:items.model_id :id]
@@ -57,7 +58,7 @@
                         [:= :items.inventory_pool_id inventory-pool-id]])
             (sql/group-by :items.model_id)
             sql-format)]
-    (jdbc/execute! ds query)))
+    (jdbc/execute! tx query)))
 
 (defn- merge-results
   "Merges allocations and items count results.
@@ -69,13 +70,13 @@
             {:id model-id
              :entitled_in_other_groups
              (get-in allocations-by-id [model-id :entitled_in_other_groups] 0)
-             :items_count
-             (get-in items-by-id [model-id :items_count] 0)})
+             :available
+             (get-in items-by-id [model-id :available] 0)})
           model-ids)))
 
-(defn select-entitlements-with-item-count [ds inventory-pool-id model-ids exclude-group-id]
-  (let [allocations (select-allocations ds inventory-pool-id model-ids exclude-group-id)
-        availables (select-available ds inventory-pool-id model-ids)]
+(defn select-entitlements-with-item-count [tx inventory-pool-id model-ids exclude-group-id]
+  (let [allocations (select-allocations tx inventory-pool-id model-ids exclude-group-id)
+        availables (select-available tx inventory-pool-id model-ids)]
     (merge-results model-ids allocations availables)))
 
 (defn- ->long [v]
@@ -140,14 +141,12 @@
              allocation-map (->> allocation-data
                                  (map (juxt :id identity))
                                  (into {}))
-
              models-with-allocation (map (fn [model]
                                            (let [allocation (get allocation-map (:id model))]
                                              (merge model
                                                     {:entitled_in_other_groups (or (:entitled_in_other_groups allocation) 0)
                                                      :available (or (:available allocation) 0)})))
                                          models-with-images)]
-
          (add-allocation-considered-count models-with-allocation))
        []))))
 
@@ -189,20 +188,18 @@
             (dissoc old-k old-s)))))
 
 (defn analyze-and-prepare-data [tx models entitlement-group-id]
-  (if (seq models)
-    (let [{:keys [db-model-ids]} (fetch-entitlements tx entitlement-group-id)
-          db-model-id-set (set db-model-ids)
-          incoming-model-ids (set (keep :id models))
+  (let [{:keys [db-model-ids]} (fetch-entitlements tx entitlement-group-id)
+        db-model-id-set (set db-model-ids)
+        incoming-model-ids (set (keep :id models))
 
-          model-ids-to-delete (vec (remove incoming-model-ids db-model-ids))
-          entitlements-to-update (mapv #(rename-key % :id :model_id)
-                                       (filterv #(contains? db-model-id-set (:id %)) models))
-          entitlements-to-create (mapv #(-> %
-                                            (rename-key :id :model_id)
-                                            (assoc :entitlement_group_id entitlement-group-id))
-                                       (filterv #(not (contains? db-model-id-set (:id %))) models))]
+        model-ids-to-delete (vec (remove incoming-model-ids db-model-ids))
+        entitlements-to-update (mapv #(rename-key % :id :model_id)
+                                     (filterv #(contains? db-model-id-set (:id %)) models))
+        entitlements-to-create (mapv #(-> %
+                                          (rename-key :id :model_id)
+                                          (assoc :entitlement_group_id entitlement-group-id))
+                                     (filterv #(not (contains? db-model-id-set (:id %))) models))]
 
-      {:entitlements-to-update entitlements-to-update
-       :entitlements-to-create entitlements-to-create
-       :entitlement-ids-to-delete model-ids-to-delete})
-    (throw (ex-info "At least one model must be provided" {:status 400}))))
+    {:entitlements-to-update entitlements-to-update
+     :entitlements-to-create entitlements-to-create
+     :entitlement-ids-to-delete model-ids-to-delete}))

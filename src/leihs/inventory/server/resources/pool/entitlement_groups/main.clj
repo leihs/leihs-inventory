@@ -58,7 +58,7 @@
                   sql-format)]
     (jdbc/execute! tx query)))
 
-(defn- merge-by-id
+(defn merge-by-id
   "Merge two vectors of maps by matching :id.
      Fields from v2 override those from v1 on collision."
   [v1 v2]
