@@ -64,6 +64,7 @@
                  :cover_image_id (s/maybe s/Uuid)
                  (s/optional-key :available) (s/maybe s/Int)
 
+                 (s/optional-key :entitled_in_groups) s/Int
                  (s/optional-key :url) (s/maybe s/Str)
                  (s/optional-key :content_type) (s/maybe s/Str)
                  (s/optional-key :image_id) (s/maybe s/Uuid)})
