@@ -128,6 +128,7 @@
         },
         "fields": {
           "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
+          "inactive": "Inaktiv",
           "autocomplete": {
             "select": "Auswahl treffen",
             "search": "Suchbegriff eingeben",
