@@ -101,7 +101,7 @@
                                                   (let [values-url (-> block :props :values-url)
                                                         dep (:field values-dep)]
                                                     {:remap (fn [item] {:value (str (:id item))
-                                                                        :label (:name item)})
+                                                                        :label (str (:name item) (when (not (:is_active item)) "(inaktiv)"))})
                                                      :values-url (str values-url "?" dep "=" (.-value watched-dependency))})
                                                   (:props block)))})
 
