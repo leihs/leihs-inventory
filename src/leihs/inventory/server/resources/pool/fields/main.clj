@@ -46,7 +46,7 @@
   (let [pools-hook (fn [f & {:keys [tx resource-id user-id pool]}]
                      (-> f
                          (assoc :values
-                                (-> pools/base-query (dissoc :select)
+                                (-> pools/base-query (dissoc :select :where)
                                     (sql/select [:id :value] [:name :label] :is_active)
                                     (cond-> resource-id
                                       (pools/for-inventory-manager user-id))
