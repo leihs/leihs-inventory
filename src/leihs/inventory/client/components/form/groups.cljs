@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.components.form.models
+(ns leihs.inventory.client.components.form.groups
   (:require
    ["@/components/ui/command" :refer [Command CommandEmpty CommandInput
                                       CommandItem CommandList]]
@@ -18,14 +18,14 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn check-path-existing [product items]
+(defn check-path-existing [id items]
   (some (fn [item]
-          (= product (:product item)))
+          (= id (:id item)))
         items))
 
-(defn find-index-from-path [path items]
+(defn find-index-from-path [id items]
   (some (fn [[idx item]]
-          (when (= path item)
+          (when (= id (:id item))
             idx))
         (map-indexed vector items)))
 
@@ -35,7 +35,7 @@
         control (cj (.-control form))
 
         params (useParams)
-        path (router/generatePath "/inventory/:pool-id/models" params)
+        path (router/generatePath "/inventory/:pool-id/groups" params)
 
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
@@ -110,7 +110,7 @@
                                                 {:placeholder (t (-> props :text :placeholder))})
                                              (when pending
                                                ($ Loader2Icon {:className "absolute right-0 top-0 h-4 w-4 m-3 animate-spin opacity-50"})))
-                                          ($ CommandList {:data-test-id "models-list"}
+                                          ($ CommandList {:data-test-id "groups-list"}
 
                                              ($ CommandEmpty (cond
                                                                pending
@@ -124,13 +124,12 @@
 
                                              (for [element data]
                                                ($ CommandItem {:key (:id element)
-                                                               :value (str (:product element) " " (:version element))
+                                                               :value (:name element)
                                                                :on-select (fn []
                                                                             (set-open! false)
                                                                             (if
-                                                                             (not (check-path-existing (:product element) fields))
-                                                                              (append (cj (merge {:product (:product element)
-                                                                                                  :version (:version element)
+                                                                             (not (check-path-existing (:id element) fields))
+                                                                              (append (cj (merge {:name (:name element)
                                                                                                   :url (:url element)
                                                                                                   :id (:id element)}
                                                                                                  (into {}
@@ -138,18 +137,18 @@
                                                                                                               (when-let [value (get element (keyword attr))]
                                                                                                                 [(keyword attr) value]))
                                                                                                             (:attributes props))))))
-                                                                              (remove (find-index-from-path (:product element) fields))))}
+                                                                              (remove (find-index-from-path (:id element) fields))))}
 
                                                   ($ Check
                                                      {:class-name (str "mr-2 h-4 w-4 "
-                                                                       (if (check-path-existing (:product element) fields)
+                                                                       (if (check-path-existing (:id element) fields)
                                                                          "visible"
                                                                          "invisible"))})
                                                   ($ :span
                                                      {:class-name (str (when (= 1 (:level element)) " font-bold ")
                                                                        (when (= 2 (:level element)) " font-medium ")
                                                                        " truncate")}
-                                                     (str (:product element) " " (:version element)))))))))
+                                                     (:name element))))))))
                                  ($ FormDescription)
                                  ($ FormMessage))})
 
@@ -170,19 +169,19 @@
                               ($ Dialog
                                  ($ DialogTrigger {:as-child true}
                                     ($ Button {:variant "outline"
-                                               :data-test-id (str (:product field) "-preview")
-                                               :class-name "p-0 w-10 h-10 hover:bg-white shadow-none align-middle"}
+                                               :data-test-id (str (:id field) "-preview")
+                                               :class-name "p-0 w-10 h-10 hover:bg-white shadow-none"}
                                        ($ :img {:src (str (:url field) "/thumbnail")
                                                 :class-name "w-10 h-10 p-1 object-contain rounded"})))
                                  ($ DialogContent
                                     ($ DialogHeader
-                                       ($ DialogTitle (:product field)))
+                                       ($ DialogTitle (:name field)))
                                     ($ :img {:src (:url field)
                                              :class-name "w-[50vh] aspect-square object-contain"})))
-                              ($ Image {:class-name "w-10 h-10 scale-[1.2] align-middle"})))
+                              ($ Image {:class-name "w-10 h-10 scale-[1.2]"})))
 
                          ($ TableCell {:class-name ""}
-                            (str (:product field) " " (:version field)))
+                            (:name field))
 
                          (when children ($ :<> (children update index field)))
 
@@ -194,7 +193,7 @@
                                ($ Trash {:class-name "h-4 w-4"})))))
                     fields)))))))))
 
-(def Models
+(def Groups
   (uix/as-react
    (fn [props]
      (main props))))

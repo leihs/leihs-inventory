@@ -301,7 +301,6 @@
                           (t "pool.model.create.submit")
                           (t "pool.model.submit")))
 
-                     ($ ButtonGroupSeparator)
                      ($ DropdownMenu
                         ($ DropdownMenuTrigger {:asChild true}
                            ($ Button {:data-test-id "submit-dropdown"

@@ -6,7 +6,7 @@
    ["@@/textarea" :refer [Textarea]]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.attachments :refer [Attachments]]
-   [leihs.inventory.client.components.form.autocomplete :refer [Autocomplete]]
+   [leihs.inventory.client.components.form.instant-search :refer [InstantSearch]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [defui $]]))
 
@@ -23,14 +23,11 @@
                       :name (:name block)
                       :props (:props block)})
 
-      (-> block :component (= "autocomplete"))
-      ($ Autocomplete {:form form
-                       :name (:name block)
-                       :label (:label block)
-                       :props (merge
-                               {:remap (fn [item] {:value item
-                                                   :label item})}
-                               (:props block))})
+      (-> block :component (= "instant-search"))
+      ($ InstantSearch {:form form
+                        :name (:name block)
+                        :label (:label block)
+                        :props (:props block)})
 
       ;; "default case - this renders a component from the component map"
       :else

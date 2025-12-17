@@ -86,7 +86,6 @@
 
     (uix/use-effect
      (fn []) [get-values])
-
     (uix/use-effect
      (fn []
        (when (.. buttonRef -current)
@@ -108,6 +107,12 @@
           ($ PopoverContent {:class-name "p-0"
                              :style {:width (str width "px")}}
              ($ Command
+                {:filter (fn [value search]
+                           (if (str/includes?
+                                (str/lower-case value)
+                                (str/lower-case search))
+                             1 0))}
+
                 ($ CommandInput {:placeholder (t "pool.model.categories.blocks.categories.placeholder")})
                 ($ CommandList
 
@@ -115,8 +120,7 @@
 
                    (for [item flat-categories]
                      ($ CommandItem {:key (:path item)
-                                     :value (:id item)
-                                     :keywords #js [(:label item)]
+                                     :value (:label item)
                                      :on-select #(do (set-open! false)
                                                      (if
                                                       (not (check-id-existing (:id item) fields))
@@ -134,8 +138,7 @@
                            {:class-name (str (when (= 1 (:level item)) " font-bold ")
                                              (when (= 2 (:level item)) " font-medium ")
                                              " truncate")}
-                           ($ :button {:type "button"}
-                              (:label item)))))))))
+                           (:label item))))))))
 
        (when (not-empty fields)
          ($ :div {:class-name "rounded-md border overflow-hidden"}

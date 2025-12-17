@@ -27,12 +27,6 @@
    "dropzone" Dropzone
    "textarea" Textarea})
 
-(def translations
-  {:text
-   {:select "pool.items.item.fields.autocomplete.select"
-    :search "pool.items.item.fields.autocomplete.search"
-    :empty "pool.items.item.fields.autocomplete.empty"}})
-
 (defn- has-value?
   "Check if a value is considered 'truthy' for dependency purposes.
    Returns false for: nil, empty string, empty array, empty object, false"
@@ -81,13 +75,11 @@
                                  :name (:name block)
                                  :props (:props block)})
 
-                 ;; instant search via values-url
                  "autocomplete-search"
                  ($ Autocomplete {:form form
                                   :name (:name block)
-                                  :label (:label block)
+                                  :label (t (:label block))
                                   :props (merge
-                                          translations
                                           {:remap (fn [item] {:value (str (:id item))
                                                               :label (:name item)})}
                                           (:props block))})
@@ -95,15 +87,14 @@
                  "autocomplete"
                  ($ Autocomplete {:form form
                                   :name (:name block)
-                                  :label (:label block)
-                                  :props (merge translations
-                                                (if values-dep
-                                                  (let [values-url (-> block :props :values-url)
-                                                        dep (:field values-dep)]
-                                                    {:remap (fn [item] {:value (str (:id item))
-                                                                        :label (:name item)})
-                                                     :values-url (str values-url "?" dep "=" (.-value watched-dependency))})
-                                                  (:props block)))})
+                                  :label (t (:label block))
+                                  :props (if values-dep
+                                           (let [values-url (-> block :props :values-url)
+                                                 dep (:field values-dep)]
+                                             {:remap (fn [item] {:value (str (:id item))
+                                                                 :label (:name item)})
+                                              :values-url (str values-url "?" dep "=" (.-value watched-dependency))})
+                                           (:props block))})
 
                  ;; Radiogroup field
                  "radio-group"
