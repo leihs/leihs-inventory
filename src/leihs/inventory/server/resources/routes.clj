@@ -61,7 +61,7 @@
    [reitit.swagger :as swagger]
    [ring.util.codec :as codec]
    [schema.core :as s]
-   [taoensso.timbre :refer [debug error spy]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn- create-root-page [_]
   {:status 200

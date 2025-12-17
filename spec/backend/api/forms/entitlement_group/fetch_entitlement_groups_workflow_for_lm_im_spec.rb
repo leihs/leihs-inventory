@@ -346,7 +346,7 @@ require_relative "../_common"
             expect(resp.status).to eq(200)
           end
 
-          it "block requests with no model" do
+          it "allow requests with no model" do
             resp = json_client_put(
               "/inventory/#{pool_id}/entitlement-groups/#{eg_id}",
               body: {
@@ -358,7 +358,7 @@ require_relative "../_common"
               },
               headers: cookie_header
             )
-            expect(resp.status).to eq(400)
+            expect(resp.status).to eq(200)
           end
         end
       end
