@@ -11,6 +11,8 @@
                 :lastname (s/maybe s/Str)
                 :email (s/maybe s/Str)
                 (s/optional-key :type) (s/maybe s/Str)
+                (s/optional-key :img32_url) (s/maybe s/Str)
+                (s/optional-key :img256_url) (s/maybe s/Str)
                 :searchable s/Str})
 
 (def post-group {:id s/Uuid

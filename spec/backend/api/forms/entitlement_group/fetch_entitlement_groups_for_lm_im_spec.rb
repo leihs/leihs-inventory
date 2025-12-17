@@ -160,7 +160,7 @@ require_relative "../_common"
               },
               headers: cookie_header
             )
-            expect(resp.status).to eq(400)
+            expect(resp.status).to eq(200)
           end
         end
       end
