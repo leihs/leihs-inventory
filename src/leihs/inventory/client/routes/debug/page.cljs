@@ -1,7 +1,6 @@
 (ns leihs.inventory.client.routes.debug.page
   (:require
    ["react-i18next" :refer [useTranslation]]
-   [leihs.inventory.client.components.error :refer [error-component]]
    [leihs.inventory.client.routes.components.translate-check :as translate-check]
    [leihs.inventory.client.routes.debug.components.error :as error]
    [leihs.inventory.client.routes.debug.components.lang-switcher :as lang-switcher]
