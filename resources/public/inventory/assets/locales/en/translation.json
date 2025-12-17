@@ -569,5 +569,40 @@
   },
   "notfound": {
     "back-to-home": "Back to Home"
+  },
+  "error": {
+    "boundary": {
+      "not_found": {
+        "title": "Page Not Found",
+        "description": "The page you're looking for doesn't exist or has been moved."
+      },
+      "server_error": {
+        "title": "Server Error",
+        "description": "Something went wrong on the Server. Please try again later."
+      },
+      "client_error": {
+        "title": "Client Error",
+        "description": "The client failed to communicate with the server. Please try again."
+      },
+      "loader_error": {
+        "title": "Loader Error",
+        "description": "The client couldn't load the data for this page. Please try again or navigate back to the home page."
+      },
+      "application_error": {
+        "title": "Application Error",
+        "description": "An error occurred during rendering of the application."
+      },
+      "unknown": {
+        "title": "Something Went Wrong",
+        "description": "An unexpected error occurred. Please try again or contact support if the problem persists."
+      },
+      "open": "Open error message",
+      "actions": {
+        "close": "Close",
+        "go_back": "Go Back",
+        "go_home": "Go to Home",
+        "retry": "Retry"
+      }
+    }
   }
 }
