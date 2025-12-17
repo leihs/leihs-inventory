@@ -6,6 +6,7 @@
    [hugsql.core :as hugsql]
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
+   [leihs.inventory.server.resources.pool.list.search :refer [with-search-for-count]]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
 (defn base-inventory-query [pool-id]
@@ -68,22 +69,6 @@
                                             :incomplete incomplete)
             (cond-> (presence search) (with-search-for-count search :inventory)))
         :items])))
-
-(defn all-items [query pool-id
-                 & {:keys [retired borrowable incomplete broken
-                           inventory_pool_id owned search
-                           in_stock before_last_check]}]
-  (-> query
-      (select-items-count pool-id
-                          :retired retired
-                          :borrowable borrowable
-                          :incomplete incomplete
-                          :broken broken
-                          :inventory_pool_id inventory_pool_id
-                          :owned owned
-                          :in_stock in_stock
-                          :before_last_check before_last_check
-                          :search search)))
 
 (defn with-items [query pool-id
                   & {:keys [retired borrowable incomplete broken
