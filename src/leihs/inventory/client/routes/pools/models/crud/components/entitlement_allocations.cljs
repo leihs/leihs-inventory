@@ -83,16 +83,13 @@
           ($ PopoverContent {:class-name "p-0"
                              :style {:width (str width "px")}}
              ($ Command
-                {:filter (fn [value search]
-                           (let [lSearch (str/lower-case search)
-                                 lValue (str/lower-case value)]
-                             (if (str/includes? lValue lSearch) 1 0)))}
                 ($ CommandInput {:placeholder (t "pool.model.entitlements.blocks.entitlements.select")})
                 ($ CommandList
                    ($ CommandEmpty (t "pool.model.entitlements.blocks.entitlements.not_found"))
                    ($ CommandGroup
                       (for [entitlement entitlement-groups]
-                        ($ CommandItem {:value (:name entitlement)
+                        ($ CommandItem {:value (:id entitlement)
+                                        :keywords #js [(:name entitlement)]
                                         :onSelect #(do (set-open! false)
                                                        (if
                                                         (not (check-path-existing (:id entitlement) fields))
@@ -108,7 +105,9 @@
                                                 (if (check-path-existing (:id entitlement) fields)
                                                   "visible"
                                                   "invisible"))})
-                           (:name entitlement))))))))
+
+                           ($ :button {:type "button"}
+                              (:name entitlement)))))))))
 
        (when (not-empty fields)
          ($ :div {:class-name "rounded-md border overflow-hidden"}

@@ -9,7 +9,6 @@
    [leihs.inventory.client.routes.notfound :rename {page notfound-page}]
    [leihs.inventory.client.routes.page :rename {page home-page}]
    [leihs.inventory.client.routes.pools.inventory.advanced-search.page :rename {page advanced-search-page}]
-   [leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.page :rename {page entitlement-group-crud-page}]
    [leihs.inventory.client.routes.pools.inventory.entitlement-groups.page :rename {page entitlement-groups-page}]
    [leihs.inventory.client.routes.pools.inventory.layout :rename {layout inventory-layout}]
    [leihs.inventory.client.routes.pools.inventory.list.page :rename {page list-page}]
@@ -49,10 +48,11 @@
                :children
                (cj
                 [{:index true
-                  :loader #(router/redirect "list?with_items=true&retired=false&page=1&size=50")}
+                  :loader #(router/redirect "list/?with_items=true&retired=false&page=1&size=50")}
 
                  {:path "list"
                   :loader loader/list-page
+                  :action actions/list-page
                   :id "models-page"
                   :element ($ list-page)}
 
@@ -63,7 +63,6 @@
                   :element ($ statistics-page)}
 
                  {:path "entitlement-groups"
-                  :loader loader/entitlement-groups-page
                   :element ($ entitlement-groups-page)}
 
                  {:path "templates"
@@ -96,15 +95,6 @@
               {:path "software/:software-id/delete?"
                :loader loader/software-crud-page
                :element ($ software-crud-page)}
-
-              ;; entitlement group crud
-              {:path "entitlement-groups/create"
-               :loader loader/entitlement-group-crud-page
-               :element ($ entitlement-group-crud-page)}
-
-              {:path "entitlement-groups/:entitlement-group-id/delete?"
-               :loader loader/entitlement-group-crud-page
-               :element ($ entitlement-group-crud-page)}
 
               ;; template crud 
               {:path "templates/create"
