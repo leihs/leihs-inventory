@@ -204,7 +204,7 @@
 
         :else
         (let [{:keys [item-data properties]} (split-item-data body-params)]
-          (if (inventory-code-exists? tx inventory-code nil)
+          (if (inventory-code-exists? tx inventory_code nil)
             (status {:body {:error "Inventory code already exists"
                             :proposed_code (inv-code/propose tx pool_id)}}
                     409)
