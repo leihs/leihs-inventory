@@ -128,7 +128,7 @@
          properties))
 
 (def post-response
-  (s/->Either [post-response-item] post-response-item))
+  (s/->Either [[post-response-item] post-response-item]))
 
 (s/defschema index-item
   {(s/optional-key :building_code) (s/maybe s/Str)
