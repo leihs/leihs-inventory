@@ -56,7 +56,7 @@
         permitted-field-ids (->> permitted-fields
                                  (map (comp keyword :id))
                                  set)
-        body-keys (-> body-params (dissoc :id) keys set)
+        body-keys (-> body-params (dissoc :id :inventory_code :count) keys set)
         unpermitted-fields (set/difference body-keys permitted-field-ids)
         owner-id (:owner_id item-data)
         model-id (:model_id item-data)

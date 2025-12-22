@@ -213,6 +213,75 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.body["proposed_code"]).to be_a(String)
       end
     end
+
+    context "with count parameter (batch creation)" do
+      it "creates N items with sequential codes and returns status 200" do
+        item_data = {
+          count: 3,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(200)
+        expect(resp.body).to be_an(Array)
+        expect(resp.body.length).to eq(3)
+
+        # Verify all items share same properties
+        resp.body.each do |item|
+          expect(item["model_id"]).to eq(@model.id)
+          expect(item["room_id"]).to eq(@room.id)
+          expect(item["owner_id"]).to eq(@inventory_pool.id)
+          expect(item["id"]).to be_a(String)
+          expect(item["inventory_code"]).to be_a(String)
+        end
+
+        # Verify sequential codes
+        codes = resp.body.map { |item| item["inventory_code"] }
+        numbers = codes.map { |c| c.gsub(/\D/, '').to_i }
+        expect(numbers).to eq(numbers.sort)
+        expect(numbers.last - numbers.first).to eq(2) # count - 1
+      end
+
+      it "handles inventory_code collision when generating sequential codes" do
+        # Create item with high number (oldest)
+        FactoryBot.create(:item,
+          inventory_code: "#{@inventory_pool.shortname}105",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          created_at: 2.days.ago)
+
+        # Create newer item with lower number (will be used by propose)
+        FactoryBot.create(:item,
+          inventory_code: "#{@inventory_pool.shortname}103",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          created_at: 1.day.ago)
+
+        item_data = {
+          count: 3,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        # Collision occurs when batch-generated code already exists
+        # Latest item is shortname103, so propose returns shortname104
+        # Generated codes: shortname104, shortname105 (collision!), shortname106
+        # Database unique constraint triggers error, wrapped as 409
+        expect(resp.status).to eq(409)
+      end
+    end
   end
 
   context "when creating items with lending_manager role" do

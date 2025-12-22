@@ -201,10 +201,10 @@
 
         count
         (let [codes (generate-inventory-codes tx pool_id count)
-              created-items (map #(create-item tx
-                                               (assoc item-data-coerced :inventory_code %)
-                                               properties-json)
-                                 codes)]
+              created-items (doall (map #(create-item tx
+                                                      (assoc item-data-coerced :inventory_code %)
+                                                      properties-json)
+                                        codes))]
           (response created-items))
 
         (inventory-code-exists? tx inventory_code nil)
