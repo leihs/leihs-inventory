@@ -15,8 +15,10 @@
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
+   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.routes :as entitlement-group]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :as entitlement-groups]
    [leihs.inventory.server.resources.pool.fields.routes :as fields]
+   [leihs.inventory.server.resources.pool.groups.routes :as groups]
    [leihs.inventory.server.resources.pool.inventory-pools.routes :as inventory-pools]
    [leihs.inventory.server.resources.pool.items.item.attachments.attachment.routes :as i-attachment]
    [leihs.inventory.server.resources.pool.items.item.attachments.routes :as i-attachments]
@@ -40,6 +42,7 @@
    [leihs.inventory.server.resources.pool.suppliers.routes :as suppliers]
    [leihs.inventory.server.resources.pool.templates.routes :as templates]
    [leihs.inventory.server.resources.pool.templates.template.routes :as template]
+   [leihs.inventory.server.resources.pool.users.routes :as users]
    [leihs.inventory.server.resources.profile.routes :as profile]
    [leihs.inventory.server.resources.session.protected.routes :as session-protected]
    [leihs.inventory.server.resources.session.public.routes :as session-public]
@@ -58,7 +61,7 @@
    [reitit.swagger :as swagger]
    [ring.util.codec :as codec]
    [schema.core :as s]
-   [taoensso.timbre :refer [debug error spy]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn- create-root-page [_]
   {:status 200
@@ -276,6 +279,8 @@
                       (items/routes)
                       (i-attachment/routes)
                       (i-attachments/routes)
+                      (groups/routes)
+                      (users/routes)
                       (templates/routes)
                       (template/routes)
                       (building/routes)
@@ -284,6 +289,7 @@
                       (rooms/routes)
                       (category-tree/routes)
                       (entitlement-groups/routes)
+                      (entitlement-group/routes)
 
                       (manufacturers/routes)
                       (inventory-pools/routes)

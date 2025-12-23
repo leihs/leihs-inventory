@@ -4,6 +4,8 @@
    [clojure.string :as string]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [select-allocations]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.main :refer [merge-by-id]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-map-by-spec
                                                                 model->enrich-with-image-attr]]
@@ -21,8 +23,7 @@
                                                        query-params]]
    [next.jdbc :as jdbc]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :as timbre :refer [debug spy]]))
+   [ring.util.response :refer [bad-request response]]))
 
 (def ERROR_CREATE_MODEL "Failed to create model")
 (def ERROR_GET_MODEL "Failed to get models-compatible")
@@ -40,6 +41,12 @@
       sql-format
       (->> (jdbc-query tx))
       first))
+
+(defn ensure-entitled-in-groups-default-value [coll]
+  (mapv #(if (contains? % :entitled_in_groups)
+           %
+           (assoc % :entitled_in_groups 0))
+        coll))
 
 (defn index-resources [request]
   (try
@@ -65,9 +72,15 @@
                                        :models.cover_image_id))
 
           post-fnc (fn [models]
-                     (->> models
-                          (fetch-thumbnails-for-ids tx)
-                          (map (model->enrich-with-image-attr pool-id))))]
+                     (let [model-ids (->> models
+                                          (map :id)
+                                          (into []))
+                           allocations (select-allocations tx pool-id model-ids nil)
+                           models (-> (merge-by-id models allocations)
+                                      ensure-entitled-in-groups-default-value)]
+                       (->> models
+                            (fetch-thumbnails-for-ids tx)
+                            (map (model->enrich-with-image-attr pool-id)))))]
 
       (response (create-pagination-response request base-query nil post-fnc)))
 
@@ -84,12 +97,12 @@
         (extract-model-form-data request)]
 
     (try
-      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                          (sql/values [prepared-model-data])
-                                          (sql/returning :*)
-                                          sql-format))
-            res (filter-map-by-spec res :create-model/scheme)
-            model-id (:id res)]
+      (let [models (jdbc/execute-one! tx (-> (sql/insert-into :models)
+                                             (sql/values [prepared-model-data])
+                                             (sql/returning :*)
+                                             sql-format))
+            models (filter-map-by-spec models :create-model/scheme)
+            model-id (:id models)]
 
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
@@ -97,8 +110,8 @@
         (process-compatibles tx compatibles model-id)
         (process-categories tx categories model-id pool-id)
 
-        (if res
-          (response res)
+        (if models
+          (response models)
           (bad-request {:message ERROR_CREATE_MODEL})))
       (catch Exception e
         (log-by-severity ERROR_CREATE_MODEL e)
