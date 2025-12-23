@@ -39,11 +39,11 @@
                       {:duplicate-model-ids duplicates
                        :status 400})))))
 
-(defn- filter-eg [type coll]
+(defn- filter-eg [types coll]
   (->> coll
        (filter (fn [item]
-                 (or (nil? type)
-                     (= type (:type item)))))
+                 (or (nil? types)
+                     (contains? types (:type item)))))
        (map #(dissoc % :type))))
 
 (defn get-resource [request]
@@ -61,7 +61,7 @@
           users-raw (fetch-users-of-entitlement-group tx entitlement-group-id)
           groups (fetch-groups-of-entitlement-group tx entitlement-group-id)]
       (response (merge entitlement-group {:users (filter-eg nil users-raw)
-                                          :direct_users (filter-eg "direct_entitlement" users-raw)
+                                          :direct_users (filter-eg #{"direct_entitlement" "mixed"} users-raw)
                                           :groups groups
                                           :models models})))
     (catch Exception e
