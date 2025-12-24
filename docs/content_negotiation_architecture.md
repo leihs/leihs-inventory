@@ -61,6 +61,128 @@ This enables:
    → 406 Not Acceptable
 ```
 
+## Reitit Architecture Considerations
+
+### The Challenge
+
+Reitit applies middleware only to **matched routes**. For unmatched routes, middleware stack doesn't run.
+
+**Flow:**
+```
+Request → Router → Match?
+                    ├─ Yes → Route middleware → Handler
+                    └─ No  → :not-found handler (no route middleware)
+```
+
+For content negotiation with SPA fallback, need to handle unmatched routes.
+
+### Current Implementation
+
+Uses **`:not-found` handler** approach in `app_handler.clj:92-94`:
+
+```clojure
+(ring/ring-handler router
+  (ring/create-default-handler
+    {:not-found custom-not-found-handler
+     :method-not-allowed custom-not-found-handler}))
+```
+
+`custom-not-found-handler` in `ressource_handler.clj:9-15`:
+
+```clojure
+(defn custom-not-found-handler [request]
+  (let [accept (str/lower-case (or (get-in request [:headers "accept"]) ""))
+        uri (:uri request)
+        inventory-route? (str/includes? uri "/inventory")]
+    (if (and (str/includes? accept "text/html") inventory-route?)
+      (rh/index-html-response request 404)  ; ← Issue: 404 not 200
+      (create-response-by-accept accept 404 {:error "Not Found"}))))
+```
+
+**Problem:** Returns SPA with 404 status. Should be 200 for client routing.
+
+### Three Implementation Options
+
+#### Option 1: Fix :not-found Handler (Recommended)
+
+**Change:** `ressource_handler.clj:14` - status 404 → 200
+
+```clojure
+(defn custom-not-found-handler [request]
+  (let [accept (get-in request [:headers "accept"] "")
+        uri (:uri request)
+        is-html? (or (str/includes? accept "text/html")
+                     (str/includes? accept "*/*"))
+        is-inventory? (str/includes? uri "/inventory")]
+    (if (and is-html? is-inventory?)
+      (rh/index-html-response request 200)  ; ← Changed to 200
+      {:status 404
+       :headers {"content-type" "application/json"}
+       :body {:error "Not Found"}})))
+```
+
+**Benefits:**
+- Single line change
+- Matches current architecture
+- Minimal refactoring
+
+#### Option 2: Outer Middleware Wrapper
+
+Wrap entire app before router processes request:
+
+```clojure
+(defn wrap-content-negotiate [handler]
+  (fn [request]
+    (let [accept (get-in request [:headers "accept"])
+          uri (:uri request)]
+      (if (and (str/includes? uri "/inventory")
+               (or (str/includes? accept "text/html")
+                   (str/includes? accept "*/*")))
+        (let [resp (handler request)]
+          (if (#{404 405} (:status resp))
+            (rh/index-html-response request 200)
+            resp))
+        (handler request)))))
+
+;; In init:
+(-> app
+    wrap-content-negotiate  ; Add before cache-buster
+    (cache-buster2/wrap-resource ...))
+```
+
+**Benefits:**
+- Runs for all requests
+- Can intercept before route matching
+- More control over flow
+
+**Drawbacks:**
+- More complex
+- Duplicates logic from :not-found handler
+
+#### Option 3: Catch-all Route
+
+Add fallback route at end:
+
+```clojure
+;; In routes.clj
+["/inventory/*" {:fallback? true
+                 :get {:handler (fn [req] (rh/index-html-response req 200))}}]
+```
+
+**Benefits:**
+- Uses Reitit route matching
+
+**Drawbacks:**
+- Only handles GET
+- Requires :fallback? flag
+- Less flexible than handler approach
+
+### Recommendation
+
+**Use Option 1** - Fix existing `:not-found` handler.
+
+One line change: `ressource_handler.clj:14` change 404→200 for HTML inventory requests.
+
 ## Implementation Recommendations
 
 ### Simplified Middleware
@@ -125,8 +247,9 @@ The proposal is missing explicit documentation of:
 
 ## Related Files
 
-- `src/leihs/inventory/server/app_handler.clj` - Middleware stack
+- `src/leihs/inventory/server/app_handler.clj` - Middleware stack and router initialization
 - `src/leihs/inventory/server/utils/middleware_handler.clj` - Content negotiation logic
+- `src/leihs/inventory/server/utils/ressource_handler.clj` - Not-found handler (content negotiation for unmatched routes)
 - `src/leihs/inventory/server/utils/response_helper.clj` - Response helpers
 - `src/leihs/inventory/server/resources/routes.clj` - Route definitions
 
