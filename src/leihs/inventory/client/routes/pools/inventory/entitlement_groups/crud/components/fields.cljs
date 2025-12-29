@@ -48,50 +48,51 @@
                  :props (:props block)}
          (fn [update index field]
            ;; cells to be inserted into the generic model row component
-           ($ :<>
-              ($ TableCell {:class-name "w-1/5"}
-                 (cond
-                   (and (:quantity field)
-                        (> (:quantity field)
-                           (:available_count field)))
-                   ($ :span {:class-name "text-red-500"}
-                      (t "pool.entitlement_groups.entitlement_group.quantity_error"))
+           (let [available (:available field)
+                 entitled-in-groups (or (:entitled_in_other_groups field) (:entitled_in_groups field))
+                 net-available (- available entitled-in-groups)
+                 quantity (:quantity field)
+                 quantity-exceeds-availability? (and quantity (> quantity net-available))
+                 quantity-too-low? (and quantity (< quantity 1))]
+             ($ :<>
+                ($ TableCell {:class-name "w-1/5"}
+                   (cond
+                     quantity-exceeds-availability?
+                     ($ :span {:class-name "text-red-500"}
+                        (t "pool.entitlement_groups.entitlement_group.quantity_error"))
 
-                   (and (:quantity field)
-                        (< (:quantity field) 0))
-                   (let [models-err (aget (aget form "formState" "errors") "models")]
-                     (when (and models-err (aget models-err index))
-                       ($ :span {:class-name "text-red-500"}
-                          (aget models-err index "quantity" "message"))))))
+                     quantity-too-low?
+                     (let [models-err (aget (aget form "formState" "errors") "models")]
+                       (when (and models-err (aget models-err index))
+                         ($ :span {:class-name "text-red-500"}
+                            (aget models-err index "quantity" "message"))))))
 
-              ($ TableCell {:class-name "w-[5rem]"}
-                 ($ Input {:class-name "text-right"
-                           :type "number"
-                           :data-test-id "quantity"
-                           :value (if (:quantity field)
-                                    (:quantity field)
-                                    1)
-                           :onChange (fn [event]
-                                       (update
-                                        index
-                                        (cj (merge field
-                                                   {:quantity (.. event -target -value)}))))}))
-              ($ TableCell {:class-name "px-0"} "/")
-              ($ TableCell
-                 ($ Tooltip
-                    ($ TooltipTrigger {:asChild true}
-                       ($ :span {:data-test-id "entitled_in_other_groups"}
-                          (- (:available field) (or (:entitled_in_other_groups field) (:entitled_in_groups field)))))
-                    ($ TooltipContent {:className "max-w-[20rem]"}
-                       (t "pool.entitlement_groups.entitlement_group.models.blocks.models.available_count_tooltip"))))
-              ($ TableCell {:class-name "px-0"} "/")
-              ($ TableCell
-                 ($ Tooltip
-                    ($ TooltipTrigger {:asChild true}
-                       ($ :span {:data-test-id "available"}
-                          (:available field)))
-                    ($ TooltipContent {:className "max-w-[20rem]"}
-                       (t "pool.entitlement_groups.entitlement_group.models.blocks.models.items_count_tooltip")))))))
+                ($ TableCell {:class-name "w-[5rem]"}
+                   ($ Input {:class-name "text-right"
+                             :type "number"
+                             :data-test-id "quantity"
+                             :value (if (:quantity field)
+                                      (:quantity field)
+                                      1)
+                             :onChange (fn [event]
+                                         (update
+                                          index
+                                          (cj (merge field
+                                                     {:quantity (.. event -target -value)}))))}))
+                ($ TableCell {:class-name "px-0"} "/")
+                ($ TableCell
+                   ($ Tooltip
+                      ($ TooltipTrigger {:asChild true}
+                         ($ :span {:data-test-id "entitled_in_other_groups"} net-available))
+                      ($ TooltipContent {:className "max-w-[20rem]"}
+                         (t "pool.entitlement_groups.entitlement_group.models.blocks.models.available_count_tooltip"))))
+                ($ TableCell {:class-name "px-0"} "/")
+                ($ TableCell
+                   ($ Tooltip
+                      ($ TooltipTrigger {:asChild true}
+                         ($ :span {:data-test-id "available"} available))
+                      ($ TooltipContent {:className "max-w-[20rem]"}
+                         (t "pool.entitlement_groups.entitlement_group.models.blocks.models.items_count_tooltip"))))))))
 
       "users"
       ($ Users {:form form

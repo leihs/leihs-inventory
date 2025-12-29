@@ -306,7 +306,6 @@
           "title": "Authorized users",
           "blocks": {
             "users": {
-              "label": "Select user",
               "not_found": "User not found",
               "select": "Select user",
               "placeholder": "Search user",
@@ -319,7 +318,6 @@
           "title": "Authorized groups",
           "blocks": {
             "groups": {
-              "label": "Select group",
               "not_found": "Group not found",
               "select": "Select group",
               "placeholder": "Search group",

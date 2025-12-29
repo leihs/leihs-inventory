@@ -302,13 +302,12 @@
           }
         },
         "users": {
-          "title": "Berechtigte User",
+          "title": "Berechtigte Benutzer",
           "blocks": {
             "users": {
-              "label": "User auswählen",
-              "not_found": "User nicht gefunden",
-              "select": "User auswählen",
-              "placeholder": "User suchen",
+              "not_found": "Benutzer nicht gefunden",
+              "select": "Benutzer auswählen",
+              "placeholder": "Benutzer suchen",
               "search_empty": "Geben Sie mindestens 2 Zeichen ein",
               "searching": "Suche..."
             }
@@ -318,7 +317,6 @@
           "title": "Berechtigte Gruppen",
           "blocks": {
             "groups": {
-              "label": "Gruppe auswählen",
               "not_found": "Gruppe nicht gefunden",
               "select": "Gruppe auswählen",
               "placeholder": "Gruppe suchen",

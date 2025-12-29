@@ -91,8 +91,7 @@ export const structure = [
       blocks: [
         {
           name: "groups",
-          label:
-            "pool.entitlement_groups.entitlement_group.groups.blocks.groups.label",
+          label: undefined,
           component: "groups",
           props: {
             text: {
@@ -117,8 +116,7 @@ export const structure = [
       blocks: [
         {
           name: "users",
-          label:
-            "pool.entitlement_groups.entitlement_group.users.blocks.users.label",
+          label: undefined,
           component: "users",
           props: {
             text: {
