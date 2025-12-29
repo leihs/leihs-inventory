@@ -21,7 +21,7 @@
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.dev.pretty :as pretty]
-   [reitit.ring :as ring]
+   [reitit.ring :as reitit-ring]
    [reitit.ring.coercion :as coercion]
    [reitit.ring.middleware.multipart :as multipart]
    [reitit.ring.middleware.muuntaja :as muuntaja]
@@ -80,20 +80,21 @@
           :muuntaja m/instance
           :middleware middlewares}})
 
-(defn- wrap-router [handler router]
+(def default-handler
+  (reitit-ring/create-default-handler {:not-found custom-not-found-handler
+                                       :method-not-allowed custom-not-found-handler}))
+
+(defn- wrap-attach-router-to-request [handler router]
   (fn [request]
     (handler (assoc request :reitit.router router))))
 
 (defn init []
-  (let [router (ring/router (routes/all-api-endpoints)
-                            default-router-config)
-        app (ring/routes (swagger/init)
-                         (ring/ring-handler router
-                                            (ring/create-default-handler
-                                             {:not-found custom-not-found-handler
-                                              :method-not-allowed custom-not-found-handler})))
-        app (wrap-router app router)]
-    (-> app
+  (let [router (reitit-ring/router (routes/all-api-endpoints)
+                                   default-router-config)]
+    (-> router
+        (reitit-ring/ring-handler default-handler)
+        (->> (reitit-ring/routes (swagger/init)))
+        (wrap-attach-router-to-request router)
         (cache-buster2/wrap-resource "public" cache-bust-options)
         (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
         (wrap-default-charset "utf-8"))))
