@@ -87,12 +87,14 @@ describe "Inventory Model" do
 
             it "allows fetching the uploaded image" do
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{non_existing_image_id}"
-              expect_spa_content(resp, 404)
+              expect(resp.status).to eq(404)
+              expect(resp.body).to eq("image not found")
             end
 
             it "allows fetching the uploaded thumbnail" do
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{non_existing_image_id}/thumbnail"
-              expect_spa_content(resp, 404)
+              expect(resp.status).to eq(404)
+              expect(resp.body).to eq("image not found")
             end
           end
 
@@ -101,12 +103,14 @@ describe "Inventory Model" do
 
             it "blocks fetching the uploaded image" do
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{invalid_uuid_coercion_error}"
-              expect_spa_content(resp, 404)
+              expect(resp.status).to eq(422)
+              expect(resp.body).to eq("coercion error")
             end
 
             it "blocks fetching the uploaded thumbnail" do
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{invalid_uuid_coercion_error}/thumbnail"
-              expect_spa_content(resp, 404)
+              expect(resp.status).to eq(422)
+              expect(resp.body).to eq("coercion error")
             end
           end
 

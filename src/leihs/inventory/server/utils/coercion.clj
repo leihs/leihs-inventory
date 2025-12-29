@@ -90,19 +90,46 @@
            :body (data->input-stream response-data)
            :status response-status)))
 
+(defn- accept-html? [accept-header]
+  (when accept-header
+    (or (str/includes? accept-header "text/html")
+        (str/includes? accept-header "*/*"))))
+
+(defn- generate-plain-text-coercion-response [data req resp]
+  (warn (pretty-print-json data))
+  (let [parsed-data (-> data (json/parse-string true) parse-edn-strings)
+        scope (some->> (:in parsed-data) (map str) (str/join "/"))
+        status (if (str/includes? (str scope) "response")
+                 CONST_COERCION_RESPONSE_ERROR_HTTP_CODE
+                 CONST_COERCION_REQUEST_ERROR_HTTP_CODE)]
+    (-> resp
+        (assoc :body "coercion error")
+        (assoc :status status)
+        (assoc :headers (assoc (:headers resp {}) "Content-Type" "text/plain")))))
+
 (defn handle-coercion-error [request resp]
-  (let [accept-header (get-in request [:headers "accept"])]
+  (let [accept-header (get-in request [:headers "accept"])
+        is-html? (accept-html? accept-header)
+        is-json? (= accept-header "application/json")
+        body (:body resp)]
     (cond
-      (not= accept-header "application/json") resp
+      (and (not is-html?) (not is-json?)) resp
 
-      (string? (:body resp)) resp
+      (and (string? body) is-html?
+           (has-coercion-substring? body)
+           (is-coercion-error? body))
+      (generate-plain-text-coercion-response body request resp)
 
-      (instance? java.io.ByteArrayInputStream (:body resp))
-      (let [ext-data (extract-data-from-input-stream (:body resp))]
+      (string? body) resp
+
+      (instance? java.io.ByteArrayInputStream body)
+      (let [ext-data (extract-data-from-input-stream body)]
         (if (and ext-data
                  (has-coercion-substring? ext-data)
                  (is-coercion-error? ext-data))
-          (generate-coercion-response ext-data request resp)
+          (if is-html?
+            (generate-plain-text-coercion-response ext-data request resp)
+            (generate-coercion-response ext-data request resp))
           (assoc resp :body (data->input-stream ext-data))))
 
       :else resp)))

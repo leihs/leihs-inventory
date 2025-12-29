@@ -13,8 +13,7 @@
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug :as debug-mw]
    [leihs.inventory.server.utils.exception-handler :refer [wrap-exception]]
-   [leihs.inventory.server.utils.middleware-handler :refer [wrap-html-40x
-                                                            wrap-session-token-authenticate!
+   [leihs.inventory.server.utils.middleware-handler :refer [wrap-session-token-authenticate!
                                                             wrap-strict-format-negotiate]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [muuntaja.core :as m]
@@ -33,7 +32,6 @@
    [ring.middleware.params :refer [wrap-params]]))
 
 (def middlewares [debug-mw/wrap-debug
-                  #(wrap-html-40x % [#"/inventory/.+"])
                   muuntaja/format-response-middleware
                   wrap-exception
 

@@ -36,10 +36,17 @@
                   :detail message
                   :coercion-type ctype
                   :scope scope
-                  :uri (str method " " uri)}]
+                  :uri (str method " " uri)}
+        accept (get-in request [:headers "accept"] "")
+        is-html? (or (str/includes? accept "text/html")
+                     (str/includes? accept "*/*"))]
     (warn (pretty-print-json resp-map))
-    (-> (response resp-map)
-        (resp/status response-status))))
+    (if is-html?
+      (-> (response "coercion error")
+          (content-type "text/plain")
+          (resp/status response-status))
+      (-> (response resp-map)
+          (resp/status response-status)))))
 
 (defn exception-handler [request message e]
   (let [accept (get-in request [:headers "accept"])]

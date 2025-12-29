@@ -16,8 +16,8 @@
   ["/models/:model_id/images/:image_id"
    {:get {:summary (fe "")
           :coercion reitit.coercion.schema/coercion
-          :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}
-          :produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)
+          :swagger {:produces (into ["application/json" "text/plain"] ALLOWED_IMAGE_CONTENT_TYPES)}
+          :produces (into ["application/json" "text/plain"] ALLOWED_IMAGE_CONTENT_TYPES)
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :image_id s/Uuid}}
@@ -25,7 +25,7 @@
           :responses {200 {:description "OK"
                            :body (s/->Either [image s/Any])}
                       404 {:description "Not Found"
-                           :body error-message-structure}
+                           :body (s/either error-message-structure s/Str)}
                       406 {:description "Requested content type not supported"
                            :body error-message-structure}
                       500 {:description "Internal Server Error"}}}

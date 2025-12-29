@@ -84,7 +84,11 @@
 
     (cond
       (nil? image-data)
-      (status (response {:status "failure" :message "No image found"}) 404)
+      (if json-request?
+        (status (response {:status "failure" :message "No image found"}) 404)
+        (-> (response "image not found")
+            (status 404)
+            (assoc-in [:headers "Content-Type"] "text/plain")))
 
       json-request?
       (response image-data)
