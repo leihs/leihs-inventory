@@ -9,7 +9,9 @@
 (defn custom-not-found-handler [request]
   (let [accept (str/lower-case (or (get-in request [:headers "accept"]) ""))
         uri (:uri request)
-        inventory-route? (str/includes? uri "/inventory")]
-    (if (and (str/includes? accept "text/html") inventory-route?)
-      (rh/index-html-response request 404)
+        inventory-route? (str/includes? uri "/inventory")
+        is-html-request? (or (str/includes? accept "text/html")
+                             (str/includes? accept "*/*"))]
+    (if (and is-html-request? inventory-route?)
+      (rh/index-html-response request 200)
       (create-response-by-accept accept 404 {:error "Not Found" :status "failure"}))))
