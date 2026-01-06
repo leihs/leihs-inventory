@@ -31,10 +31,13 @@
         location (router/useLocation)
         [search-params set-search-params!] (router/useSearchParams)
         size (js/parseInt (or (.. search-params (get "size")) 10))
-        total-pages (:total_pages pagination)
-        total-rows (:total_rows pagination)
-        current-page (:page pagination)
-        page-range (page-range current-page size total-rows)
+        total-pages (or (:total_pages pagination) 0)
+        total-rows (or (:total_rows pagination) 0)
+        current-page (or (:page pagination) 0)
+
+        page-range (if pagination
+                     (page-range current-page size total-rows)
+                     {:start 0 :end 0})
 
         next-page (if (not= current-page
                             total-pages)
@@ -93,7 +96,7 @@
                       :data-test-id "pagination"}
 
           ;; previous link
-          (if prev-page
+          (if (> prev-page 0)
             ($ PaginationPrevious {:ref ref-prev
                                    :data-test-id "pagination-previous"
                                    :to (str (.. location -pathname)
@@ -107,7 +110,6 @@
                ($ ChevronLeft) (t "pagination.previous")))
 
           ($ PaginationContent
-
              ;; first page when current page is greater than 2
              (when (> current-page 2)
                ($ :<>
@@ -120,7 +122,7 @@
                   ($ PaginationEllipsis)))
 
              ;; previous link
-             (when prev-page
+             (when (> prev-page 0)
                ($ PaginationItem
                   ($ PaginationLink {:data-test-id "pagination-previous-page"
                                      :to (str (.. location -pathname)
@@ -190,6 +192,7 @@
           ($ DropdownMenu
              ($ DropdownMenuTrigger {:asChild "true"}
                 ($ Button {:data-test-id "pagination-size-button"
+                           :disabled (<= total-rows 10)
                            :variant "outline"}
                    size ($ ChevronDown {:class-name "ml-1 h-4 w-4"})))
 
