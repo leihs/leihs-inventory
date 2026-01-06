@@ -55,11 +55,56 @@ This enables:
 
 3. Accept: image/*
    → Binary if image route exists
-   → 404 or SPA fallback (if */* also in Accept)
+   → 404 text/plain if route doesn't exist (no SPA)
 
 4. No acceptable format
    → 406 Not Acceptable
 ```
+
+### Accept Whitelist
+
+Maintain whitelist of supported Accept types:
+- `text/html`
+- `application/json`
+- `image/*`
+
+Behavior:
+- **No Accept header or `*/*`:** Return default for resource (text/html for inventory routes)
+- **Unsupported Accept:** Return 400 or 406 (request cannot be processed)
+
+Example invalid request:
+```
+POST /some-endpoint
+Content-Type: application/json
+Accept: application/xml
+
+{ "age": "twenty" }
+```
+→ 406 or 400 (no endpoint returns application/xml)
+
+## Error Handling by Accept Header
+
+### Accept: application/json
+
+Error codes for JSON API endpoints (e.g., GET /inventory/:pool-id/models/:model-id):
+- **404** - Resource not found
+- **400** - Malformed request (invalid headers, JSON syntax error, missing required fields, invalid query string)
+- **422** - Validation error (invalid property types in payload)
+
+### Accept: image/*
+
+For image endpoints:
+- **404 text/plain** - Image not found
+  - Content-Type: text/plain
+  - Body: "image not found"
+  - **No SPA fallback**
+- **406** - Unsupported image type requested
+
+### Accept: text/html or */*
+
+For `/inventory/*` routes:
+- **200 SPA** - All routes, regardless of backend route existence
+- Client-side routing handles actual route resolution
 
 ## Reitit Architecture Considerations
 
@@ -105,26 +150,51 @@ Uses **`:not-found` handler** approach in `app_handler.clj:92-94`:
 
 #### Option 1: Fix :not-found Handler (Recommended)
 
-**Change:** `ressource_handler.clj:14` - status 404 → 200
+**Changes:** `ressource_handler.clj:14`
+- HTML requests: status 404 → 200
+- Image requests: return text/plain (no SPA)
+- Unsupported Accept: return 406
 
 ```clojure
+(def supported-accepts #{"text/html" "application/json" "image/"})
+
 (defn custom-not-found-handler [request]
-  (let [accept (get-in request [:headers "accept"] "")
+  (let [accept (get-in request [:headers "accept"] "*/*")
         uri (:uri request)
         is-html? (or (str/includes? accept "text/html")
                      (str/includes? accept "*/*"))
-        is-inventory? (str/includes? uri "/inventory")]
-    (if (and is-html? is-inventory?)
+        is-image? (str/includes? accept "image/")
+        is-inventory? (str/includes? uri "/inventory")
+        supported? (or (= accept "*/*")
+                       (some #(str/includes? accept %) supported-accepts))]
+    (cond
+      ;; Unsupported Accept header
+      (not supported?)
+      {:status 406
+       :headers {"content-type" "text/plain"}
+       :body "Not Acceptable"}
+
+      ;; HTML + inventory → SPA/200
+      (and is-html? is-inventory?)
       (rh/index-html-response request 200)  ; ← Changed to 200
+
+      ;; Image → text/plain (no SPA)
+      is-image?
+      {:status 404
+       :headers {"content-type" "text/plain"}
+       :body "image not found"}
+
+      ;; Default → JSON
+      :else
       {:status 404
        :headers {"content-type" "application/json"}
        :body {:error "Not Found"}})))
 ```
 
 **Benefits:**
-- Single line change
-- Matches current architecture
-- Minimal refactoring
+- Minimal changes to existing architecture
+- Handles all Accept types correctly
+- Accept whitelist validation
 
 #### Option 2: Outer Middleware Wrapper
 
@@ -181,33 +251,61 @@ Add fallback route at end:
 
 **Use Option 1** - Fix existing `:not-found` handler.
 
-One line change: `ressource_handler.clj:14` change 404→200 for HTML inventory requests.
+Changes to `ressource_handler.clj`:
+- Add Accept whitelist validation (406 for unsupported types)
+- Change 404→200 for HTML inventory requests
+- Return text/plain for image/* 404s (no SPA)
+- Maintain JSON 404s for API endpoints
 
 ## Implementation Recommendations
 
 ### Simplified Middleware
 
 ```clojure
+(def supported-accepts #{"text/html" "application/json" "image/"})
+
 (defn wrap-content-negotiate [handler]
   (fn [request]
-    (let [accept (get-in request [:headers "accept"])
+    (let [accept (get-in request [:headers "accept"] "*/*")
           uri (:uri request)
-          is-inventory? (re-matches #"/inventory(/.*)?" uri)]
+          is-inventory? (re-matches #"/inventory(/.*)?" uri)
+          is-html? (or (str/includes? accept "text/html")
+                       (str/includes? accept "*/*"))
+          is-image? (str/includes? accept "image/")
+          is-json? (str/includes? accept "application/json")
+          supported? (or (= accept "*/*")
+                         (some #(str/includes? accept %) supported-accepts))]
 
       (cond
+        ;; Unsupported Accept header
+        (and (not= accept "*/*") (not supported?))
+        {:status 406
+         :headers {"content-type" "text/plain"}
+         :body "Not Acceptable"}
+
         ;; Inventory + HTML → Always SPA/200
-        (and is-inventory?
-             (or (str/includes? accept "text/html")
-                 (str/includes? accept "*/*")))
+        (and is-inventory? is-html?)
         (rh/index-html-response request 200)
 
-        ;; JSON/image → Check if endpoint handles it
+        ;; Handle request
         :else
         (let [resp (handler request)]
           (if (= 404 (:status resp))
-            (-> (response {:error "Not found"})
-                (status 404)
-                (content-type "application/json"))
+            (cond
+              ;; Image 404 → text/plain (no SPA)
+              is-image?
+              {:status 404
+               :headers {"content-type" "text/plain"}
+               :body "image not found"}
+
+              ;; JSON 404
+              is-json?
+              {:status 404
+               :headers {"content-type" "application/json"}
+               :body {:error "Not found"}}
+
+              ;; Default
+              :else resp)
             resp))))))
 ```
 
@@ -216,6 +314,8 @@ One line change: `ressource_handler.clj:14` change 404→200 for HTML inventory 
 - No route existence checking for HTML requests
 - SPA handles all client routing
 - API requests (JSON) get proper 404
+- Image 404s return text/plain (no SPA)
+- Accept whitelist validation (406 for unsupported types)
 - Clear precedence: HTML first, then specific formats
 - Eliminates need for separate `wrap-html-40x` middleware
 - Simpler, more maintainable code
@@ -236,14 +336,15 @@ One line change: `ressource_handler.clj:14` change 404→200 for HTML inventory 
 
 **Recommendation:** Option A - consolidation eliminates complexity.
 
-## Issue #2063 Gaps
+## Issue #2063 Updates
 
-The proposal is missing explicit documentation of:
+Based on discussion in issue comments, the following have been clarified and documented:
 
-1. **Client-side routing case:** Route doesn't exist but HTML requested → SPA/200
-2. **Image handling:** No explicit image/* content negotiation flow
-3. **406 responses:** When to return "Not Acceptable"
-4. **Precedence ordering:** Which format takes priority when multiple in Accept header
+1. **Client-side routing case:** Route doesn't exist but HTML requested → SPA/200 ✓
+2. **Image handling:** image/* 404 returns text/plain "image not found" (no SPA) ✓
+3. **406 responses:** Accept whitelist approach - reject unsupported Accept headers ✓
+4. **Error codes by Accept type:** Different status codes (400/404/422) for JSON API endpoints ✓
+5. **Precedence ordering:** HTML first, then JSON, then image/* ✓
 
 ## Related Files
 
