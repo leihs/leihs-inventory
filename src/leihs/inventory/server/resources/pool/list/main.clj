@@ -20,7 +20,7 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [ring.util.response :refer [response]]
-   [taoensso.timbre :refer [debug spy]]))
+   [taoensso.timbre :refer [debug]]))
 
 (defn- get-accept-header [request]
   (get-in request [:headers "accept"]))
