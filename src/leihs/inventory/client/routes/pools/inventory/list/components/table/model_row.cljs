@@ -74,7 +74,7 @@
                                    "[&+tr[data-row='item']]:shadow-[0_-0.5px_0_hsl(var(--border)),inset_0_4px_4px_-2px_hsl(var(--border))] "
                                    "[&+tr[data-row='package']]:shadow-[0_-0.5px_0_hsl(var(--border)),inset_0_4px_4px_-2px_hsl(var(--border))] "
                                    "shadow-[0_-0.5px_0_hsl(var(--border))] "
-                                   (if result "bg-accent/70 " " ")
+                                   (if result "bg-secondary/70 " " ")
                                    className)
                       :on-expand handle-expand
                       :subrows (when (and result (= (:status result) 200))
