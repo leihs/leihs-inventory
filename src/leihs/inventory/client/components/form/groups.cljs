@@ -60,7 +60,7 @@
                            (set-loading! true)
                            ;; Fetch result based on the search term
                            (-> http-client
-                               (.get (str path "/" "?search=" search))
+                               (.get (str path "/" "?search=" (js/encodeURIComponent search)))
                                (.then (fn [res]
                                         (let [data (jc (.-data res))]
                                           (set-loading! false)

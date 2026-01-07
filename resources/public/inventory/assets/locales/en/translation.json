@@ -308,7 +308,8 @@
               "select": "Select user",
               "placeholder": "Search user",
               "search_empty": "Type at least 2 characters to search",
-              "searching": "Searching..."
+              "searching": "Searching...",
+              "account_disabled": "inactive"
             }
           }
         },

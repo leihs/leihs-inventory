@@ -16,7 +16,8 @@
                     :parameters {:path {:pool_id s/Uuid}
                                  :query {(s/optional-key :page) s/Int
                                          (s/optional-key :size) s/Int
-                                         (s/optional-key :search) s/Str}}
+                                         (s/optional-key :search) s/Str
+                                         (s/optional-key :account_enabled) s/Bool}}
                     :handler users/index-resources
                     :responses {200 {:description "OK"
                                      :body types/user-response-body}

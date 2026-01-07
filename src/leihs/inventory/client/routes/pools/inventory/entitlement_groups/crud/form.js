@@ -130,6 +130,8 @@ export const structure = [
                 "pool.entitlement_groups.entitlement_group.users.blocks.users.searching",
               search_empty:
                 "pool.entitlement_groups.entitlement_group.users.blocks.users.search_empty",
+              account_disabled:
+                "pool.entitlement_groups.entitlement_group.users.blocks.users.account_disabled",
             },
             attributes: ["quantity", "available"],
           },

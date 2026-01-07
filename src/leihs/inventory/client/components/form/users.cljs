@@ -4,15 +4,14 @@
                                       CommandItem CommandList]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
-   ["@@/dialog" :refer [Dialog DialogContent DialogHeader
-                        DialogTitle DialogTrigger]]
-   ["@@/form" :refer [FormField FormItem FormMessage FormDescription]]
+   ["@@/form" :refer [FormDescription FormField FormItem FormMessage]]
    ["@@/label" :refer [Label]]
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
-   ["lucide-react" :refer [Check ChevronsUpDown Image Trash Loader2Icon]]
+   ["lucide-react" :refer [Check ChevronsUpDown Loader2Icon Trash]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [useParams]]
+   [leihs.core.url.query-params :as query-params]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
@@ -29,11 +28,13 @@
             idx))
         (map-indexed vector items)))
 
-(defn user-label [u]
-  (str (:firstname u) " " (:lastname u) (some->> (:email u) not-empty (str " - "))))
-
 (defui main [{:keys [form name props label children]}]
   (let [[t] (useTranslation)
+
+        user-label (fn [u]
+                     (str (:firstname u) " " (:lastname u)
+                          (some->> (:email u) not-empty (str " - "))
+                          (when-not (:account_enabled u) (str " (" (t (-> props :text :account_disabled)) ")"))))
 
         control (cj (.-control form))
 
@@ -63,7 +64,7 @@
                            (set-loading! true)
                            ;; Fetch result based on the search term
                            (-> http-client
-                               (.get (str path "/" "?search=" search))
+                               (.get (str path "/" "?account_enabled=true&search=" (js/encodeURIComponent search)))
                                (.then (fn [res]
                                         (let [data (jc (.-data res))]
                                           (set-loading! false)

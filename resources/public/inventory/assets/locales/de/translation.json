@@ -307,7 +307,8 @@
               "select": "Benutzer auswählen",
               "placeholder": "Benutzer suchen",
               "search_empty": "Geben Sie mindestens 2 Zeichen ein",
-              "searching": "Suche..."
+              "searching": "Suche...",
+              "account_disabled": "inaktiv"
             }
           }
         },
