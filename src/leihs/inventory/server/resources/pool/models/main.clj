@@ -76,7 +76,9 @@
                      (let [model-ids (->> models
                                           (map :id)
                                           (into []))
-                           allocations (select-allocations tx pool-id model-ids nil)
+                           allocations (if (empty? model-ids)
+                                         []
+                                         (select-allocations tx pool-id model-ids nil))
                            models (-> (merge-by-id models allocations)
                                       ensure-entitled-in-groups-default-value)]
                        (->> models
