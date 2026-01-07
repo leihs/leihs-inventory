@@ -132,7 +132,7 @@ Uses **`:not-found` handler** approach in `app_handler.clj:92-94`:
      :method-not-allowed custom-not-found-handler}))
 ```
 
-`custom-not-found-handler` in `ressource_handler.clj:9-15`:
+`custom-not-found-handler` in `resource_handler.clj:9-15`:
 
 ```clojure
 (defn custom-not-found-handler [request]
@@ -150,7 +150,7 @@ Uses **`:not-found` handler** approach in `app_handler.clj:92-94`:
 
 #### Option 1: Fix :not-found Handler (Recommended)
 
-**Changes:** `ressource_handler.clj:14`
+**Changes:** `resource_handler.clj:14`
 - HTML requests: status 404 → 200
 - Image requests: return text/plain (no SPA)
 - Unsupported Accept: return 406
@@ -251,7 +251,7 @@ Add fallback route at end:
 
 **Use Option 1** - Fix existing `:not-found` handler.
 
-Changes to `ressource_handler.clj`:
+Changes to `resource_handler.clj`:
 - Add Accept whitelist validation (406 for unsupported types)
 - Change 404→200 for HTML inventory requests
 - Return text/plain for image/* 404s (no SPA)
@@ -350,7 +350,7 @@ Based on discussion in issue comments, the following have been clarified and doc
 
 - `src/leihs/inventory/server/app_handler.clj` - Middleware stack and router initialization
 - `src/leihs/inventory/server/utils/middleware_handler.clj` - Content negotiation logic
-- `src/leihs/inventory/server/utils/ressource_handler.clj` - Not-found handler (content negotiation for unmatched routes)
+- `src/leihs/inventory/server/utils/resource_handler.clj` - Not-found handler (content negotiation for unmatched routes)
 - `src/leihs/inventory/server/utils/response_helper.clj` - Response helpers
 - `src/leihs/inventory/server/resources/routes.clj` - Route definitions
 
