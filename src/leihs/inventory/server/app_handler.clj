@@ -7,6 +7,7 @@
    [leihs.core.routing.back :as core-routing]
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
    [leihs.core.settings :as settings]
+   [leihs.inventory.server.middlewares.enforce-accept :refer [wrap-enforce-accept]]
    [leihs.inventory.server.resources.routes :as routes]
    [leihs.inventory.server.swagger :as swagger]
    [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
@@ -49,9 +50,10 @@
                   dispatch-content-type/wrap-accept
                   reitit.swagger/swagger-feature
                   parameters/parameters-middleware
+                  wrap-enforce-accept
                   muuntaja/format-negotiate-middleware
-                  muuntaja/format-request-middleware
                   muuntaja/format-response-middleware
+                  muuntaja/format-request-middleware
                   coercion/coerce-response-middleware
                   coercion/coerce-request-middleware
                   multipart/multipart-middleware])
