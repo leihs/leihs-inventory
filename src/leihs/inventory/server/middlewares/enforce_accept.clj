@@ -5,7 +5,7 @@
 
 (defn wrap-enforce-accept
   "Enforces :accept constraints from matched route data.
-   If route requires JSON but request has HTML Accept → fallback to SPA."
+   Both mismatches fallback to custom-not-found-handler."
   [handler]
   (fn [request]
     (let [method (:request-method request)
@@ -14,14 +14,26 @@
           accept-header (str/lower-case
                          (or (get-in request [:headers "accept"]) "*/*"))
           has-html? (str/includes? accept-header "text/html")
+          has-json? (str/includes? accept-header "application/json")
           has-wildcard-only? (and (str/includes? accept-header "*/*")
                                   (not has-html?)
+                                  (not has-json?)
                                   (not (str/includes? accept-header "image/")))
-          is-html-request? (or has-html? has-wildcard-only?)]
+          is-html-request? (or has-html? has-wildcard-only?)
+          is-json-only-request? (and has-json? (not has-html?) (not has-wildcard-only?))]
 
-      (if (and (= route-accept "application/json")
-               is-html-request?)
-        ;; Route requires JSON, request wants HTML → fallback to not-found handler
+      (cond
+        ;; JSON route + HTML request → fallback to not-found handler
+        (and (= route-accept "application/json")
+             is-html-request?
+             (not has-json?))
         (custom-not-found-handler request)
+
+        ;; HTML route + JSON-only request → fallback to not-found handler
+        (and (= route-accept "text/html")
+             is-json-only-request?)
+        (custom-not-found-handler request)
+
         ;; Otherwise continue normally
+        :else
         (handler request)))))

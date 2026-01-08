@@ -43,6 +43,7 @@
                   csrf/extract-header
                   wrap-session-token-authenticate!
                   wrap-cookies
+                  wrap-enforce-accept
                   csrf/wrap-csrf
                   leihs.core.anti-csrf.back/wrap
                   wrap-params
@@ -50,7 +51,6 @@
                   dispatch-content-type/wrap-accept
                   reitit.swagger/swagger-feature
                   parameters/parameters-middleware
-                  wrap-enforce-accept
                   muuntaja/format-negotiate-middleware
                   muuntaja/format-response-middleware
                   muuntaja/format-request-middleware
