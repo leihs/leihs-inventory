@@ -10,6 +10,7 @@
    ["react-router-dom" :as router :refer [Outlet]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.routes.components.header :as header]
+   [leihs.inventory.client.routes.components.theme-provider :refer [ThemeProvider]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -30,12 +31,13 @@
 (defui layout []
   (let [{:keys [profile]} (router/useLoaderData)]
 
-    ($ TooltipProvider
-       ($ :<>
-          ($ header/main profile)
-          ($ :main {:className "container"}
-             ($ Outlet)
-             ($ Toaster {:position "top-center"
-                         :closeButton true
-                         :richColors true}))
-          ($ OfflineDialog)))))
+    ($ ThemeProvider {:default-theme "system"}
+       ($ TooltipProvider
+          ($ :<>
+             ($ header/main profile)
+             ($ :main {:className "container"}
+                ($ Outlet)
+                ($ Toaster {:position "top-center"
+                            :closeButton true
+                            :richColors true}))
+             ($ OfflineDialog))))))

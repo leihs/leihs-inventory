@@ -1,3 +1,18 @@
+'./spec/features/appearance/theme_spec.rb[1:1]':
+  name: "Theme 01"
+  environment_variables:
+    FEATURE_NAME: "Theme 01"
+    FEATURE: './spec/features/appearance/theme_spec.rb[1:1]'
+'./spec/features/appearance/theme_spec.rb[1:2]':
+  name: "Theme 02"
+  environment_variables:
+    FEATURE_NAME: "Theme 02"
+    FEATURE: './spec/features/appearance/theme_spec.rb[1:2]'
+'./spec/features/appearance/theme_spec.rb[1:3]':
+  name: "Theme 03"
+  environment_variables:
+    FEATURE_NAME: "Theme 03"
+    FEATURE: './spec/features/appearance/theme_spec.rb[1:3]'
 './spec/features/error-handling/application_errors_spec.rb[1:1]':
   name: "Application Errors 01"
   environment_variables:

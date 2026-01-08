@@ -79,7 +79,13 @@
       "user-data": "User data",
       "my-documents": "My documents",
       "logout": "Logout",
-      "language": "Language"
+      "language": "Language",
+      "theme": {
+        "title": "Appearance",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      }
     }
   },
   "pool": {

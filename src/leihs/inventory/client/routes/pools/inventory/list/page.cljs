@@ -53,8 +53,8 @@
      [navigation pagination])
 
     ($ Card {:className "my-4"}
-       ($ CardHeader {:className "flex bg-white rounded-xl z-10"
-                      :style {:background "linear-gradient(to bottom, white 90%, transparent 100%)"}}
+       ($ CardHeader {:className "flex bg-background rounded-xl z-10"
+                      :style {:background "linear-gradient(to bottom, hsl(var(--background)) 90%, transparent 100%)"}}
           ($ :div {:class-name "w-full flex"}
              ($ :div {:class-name "flex flex-col gap-2"}
                 ($ :div {:className "flex gap-2"}
@@ -80,9 +80,9 @@
                ($ :div {:class-name "p-4 text-center text-sm text-muted-foreground"}
                   (t "pool.models.list.empty"))
                ($ Table {:class-name "rounded-md"}
-                  ($ TableHeader {:class-name "bg-white sticky top-16 rounded-t-md z-50"
+                  ($ TableHeader {:class-name "bg-background sticky top-16 rounded-t-md z-50"
                                   :style {:box-shadow "0 0.5px 0 hsl(var(--border))"}}
-                     ($ TableRow {:class-name "rounded-t-md hover:bg-white"}
+                     ($ TableRow {:class-name "rounded-t-md hover:bg-background"}
                         ($ TableHead {:class-name "rounded-tl-md text-right"}
                            (t "pool.models.list.header.quantity"))
                         ($ TableHead "")
@@ -101,7 +101,7 @@
                          ($ ModelRow {:key (:id model)
                                       :model model}))))))))
 
-       ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-b-xl  pt-6"
-                      :style {:background "linear-gradient(to top, white 80%, transparent 100%)"}}
+       ($ CardFooter {:class-name "sticky bottom-0 bg-background z-10 rounded-b-xl  pt-6"
+                      :style {:background "linear-gradient(to top, hsl(var(--background)) 80%, transparent 100%)"}}
           ($ pagination/main {:pagination pagination
                               :class-name "justify-start w-full"})))))
