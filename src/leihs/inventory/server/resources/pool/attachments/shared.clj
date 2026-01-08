@@ -26,7 +26,8 @@
           accept-header (if (str/includes? (get-in request [:headers "accept"]) "*/*")
                           "*/*"
                           (get-in request [:headers "accept"]))
-          content-negotiation? (str/includes? accept-header "*/*")
+          content-negotiation? (or (str/includes? accept-header "*/*")
+                                   (str/includes? accept-header "text/html"))
           json-request? (= accept-header "application/json")
           content-disposition (or (-> request :parameters :query :content_disposition) "inline")
           query (-> (sql/select :a.*)

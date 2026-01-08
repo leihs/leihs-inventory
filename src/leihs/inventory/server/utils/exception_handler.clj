@@ -13,14 +13,25 @@
 (defn- pretty-print-json [data]
   (json/generate-string data {:pretty true}))
 
-(defn create-response-by-accept [accept status data]
-  (if (= accept "text/html")
-    (-> (response "")
-        (content-type "text/html")
-        (resp/status status))
-    (-> (response (json/generate-string data))
-        (content-type "application/json")
-        (resp/status status))))
+(defn create-response-by-accept [request accept status data]
+  (let [uri (:uri request)
+        is-attachment? (str/includes? uri "/attachments/")
+        error-msg (or (:details data) (:message data) "Error")]
+    (cond
+      (and (= accept "text/html") is-attachment?)
+      (-> (response error-msg)
+          (content-type "text/plain")
+          (resp/status status))
+
+      (= accept "text/html")
+      (-> (response "")
+          (content-type "text/html")
+          (resp/status status))
+
+      :else
+      (-> (response (json/generate-string data))
+          (content-type "application/json")
+          (resp/status status)))))
 
 (defn- build-coercion-response [request e response-status]
   (let [data (.getData e)
@@ -37,19 +48,25 @@
                   :detail message
                   :coercion-type ctype
                   :scope scope
-                  :uri (str method " " uri)}]
+                  :uri (str method " " uri)}
+        accept (get-in request [:headers "accept"])
+        is-attachment? (str/includes? uri "/attachments/")]
     (warn (pretty-print-json resp-map))
-    (-> (response resp-map)
-        (resp/status response-status))))
+    (if (and (= accept "text/html") is-attachment?)
+      (-> (response message)
+          (content-type "text/plain")
+          (resp/status response-status))
+      (-> (response resp-map)
+          (resp/status response-status)))))
 
 (defn exception-handler [request message e]
   (let [accept (get-in request [:headers "accept"])]
     (cond
       (instance? PSQLException e)
-      (create-response-by-accept accept 409 {:status "failure"
-                                             :message message
-                                             :type (str (class e))
-                                             :details (.getMessage e)})
+      (create-response-by-accept request accept 409 {:status "failure"
+                                                     :message message
+                                                     :type (str (class e))
+                                                     :details (.getMessage e)})
 
       (and (instance? ExceptionInfo e)
            (str/includes? (.getMessage e) "Response coercion failed"))
@@ -62,15 +79,15 @@
       (instance? ExceptionInfo e)
       (let [{:keys [status]} (ex-data e)
             msg (ex-message e)]
-        (create-response-by-accept accept status {:status "failure"
-                                                  :message message
-                                                  :type (str (class e))
-                                                  :details msg}))
+        (create-response-by-accept request accept status {:status "failure"
+                                                          :message message
+                                                          :type (str (class e))
+                                                          :details msg}))
 
-      :else (create-response-by-accept accept 400 {:status "failure"
-                                                   :message message
-                                                   :type (str (class e))
-                                                   :details (.getMessage e)}))))
+      :else (create-response-by-accept request accept 400 {:status "failure"
+                                                           :message message
+                                                           :type (str (class e))
+                                                           :details (.getMessage e)}))))
 
 (defn wrap-exception
   "Middleware that catches exceptions and delegates to exception-handler."
