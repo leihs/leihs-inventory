@@ -13,16 +13,19 @@
 
 (defn index-resources [request]
   (try
-    (let [{:keys [search]} (-> request query-params)
+    (let [{:keys [search account_enabled]} (-> request query-params)
           base-query (-> (sql/select :u.id
                                      :u.firstname
                                      :u.lastname
                                      :u.login
                                      :u.email
-                                     :u.searchable)
+                                     :u.searchable
+                                     :u.account_enabled)
                          (sql/from [:users :u])
                          (cond-> search
                            (sql/where [:ilike :u.searchable (str "%" search "%")]))
+                         (cond-> (some? account_enabled)
+                           (sql/where [:= :u.account_enabled account_enabled]))
                          (sql/order-by :u.lastname :u.firstname :u.id))]
       (response (create-pagination-response request base-query nil)))
     (catch Exception e
