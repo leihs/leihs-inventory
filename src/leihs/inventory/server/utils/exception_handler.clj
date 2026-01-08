@@ -18,7 +18,8 @@
     (-> (response "")
         (content-type "text/html")
         (resp/status status))
-    (-> (response data)
+    (-> (response (json/generate-string data))
+        (content-type "application/json")
         (resp/status status))))
 
 (defn- build-coercion-response [request e response-status]
@@ -47,7 +48,7 @@
       (instance? PSQLException e)
       (create-response-by-accept accept 409 {:status "failure"
                                              :message message
-                                             :type (class e)
+                                             :type (str (class e))
                                              :details (.getMessage e)})
 
       (and (instance? ExceptionInfo e)
@@ -63,12 +64,12 @@
             msg (ex-message e)]
         (create-response-by-accept accept status {:status "failure"
                                                   :message message
-                                                  :type (class e)
+                                                  :type (str (class e))
                                                   :details msg}))
 
       :else (create-response-by-accept accept 400 {:status "failure"
                                                    :message message
-                                                   :type (class e)
+                                                   :type (str (class e))
                                                    :details (.getMessage e)}))))
 
 (defn wrap-exception
