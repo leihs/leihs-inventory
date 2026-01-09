@@ -64,6 +64,9 @@
       (some #{"image/*"} accepts)
       {:accept-header nil :negotiation? true}
 
+      (some #{"*/*"} accepts)
+      {:accept-header nil :negotiation? true}
+
       (some #{"application/json"} accepts)
       {:accept-header "application/json" :negotiation? false}
 
