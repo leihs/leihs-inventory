@@ -3,23 +3,21 @@
    [clojure.string :as str]
    [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool
                                                         AUTHORIZED-ROLES]]
-   [ring.util.codec :as codec]
+   [leihs.inventory.server.utils.response-helper :as rh]
    [ring.util.response :as response]))
 
 (defn unauthorized-response [request]
-  (if (str/includes? (get-in request [:headers "accept"] "") "json")
-    (response/status (response/response {:status "failure" :message "Unauthorized"}) 403)
-    (let [uri (:uri request)
-          query-string (:query-string request)
-          full-url (if query-string
-                     (str uri "?" query-string)
-                     uri)
-          encoded-url (codec/url-encode full-url)
-          redirect-url (str "/sign-in?return-to=" encoded-url)]
-      {:status 302
-       :headers {"Location" redirect-url
-                 "Content-Type" "text/html"}
-       :body ""})))
+  (let [authenticated? (-> request :authenticated-entity boolean)
+        json-request? (str/includes? (get-in request [:headers "accept"] "") "json")]
+    (if json-request?
+      ;; JSON request
+      (if authenticated?
+        ;; Authenticated but lacks permission -> 403
+        (response/status (response/response {:status "failure" :message "Forbidden"}) 403)
+        ;; Not authenticated -> 401
+        (response/status (response/response {:status "failure" :message "Not authenticated"}) 401))
+      ;; HTML request -> Always return SPA with 200
+      (rh/index-html-response request 200))))
 
 (defn wrap-authorize [handler]
   (fn [{:keys [authenticated-entity request-method]

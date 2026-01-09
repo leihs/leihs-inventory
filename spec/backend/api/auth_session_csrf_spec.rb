@@ -13,7 +13,7 @@ describe "Call swagger-endpoints" do
 
     it "accesses protected resource with valid session cookie" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
-      expect(resp.status).to eq(403)
+      expect(resp.status).to eq(401)
 
       resp = client.get("/inventory/test-csrf")
       expect(resp.status).to eq(200)
@@ -50,7 +50,7 @@ describe "Call swagger-endpoints" do
 
     it "accesses protected json-resource by accept=application/json" do
       resp = plain_faraday_json_client.get("/inventory/test-csrf")
-      expect(resp.status).to eq(403)
+      expect(resp.status).to eq(401)
 
       resp = plain_faraday_json_client.post("/inventory/test-csrf")
       expect(resp.status).to eq(403)
