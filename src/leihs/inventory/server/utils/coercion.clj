@@ -111,7 +111,7 @@
       resp
 
       ;; HTML request to /inventory (non-attachment) with error status → return SPA
-      (and is-html? is-inventory? is-error-status?)
+      (and is-html? is-inventory? (not is-attachment?) is-error-status?)
       (rh/index-html-response request status)
 
       ;; HTML request to /inventory (non-attachment) with string body containing error → return SPA
