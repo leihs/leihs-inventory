@@ -56,7 +56,8 @@
       (-> (response message)
           (content-type "text/plain")
           (resp/status response-status))
-      (-> (response resp-map)
+      (-> (response (json/generate-string resp-map))
+          (content-type "application/json")
           (resp/status response-status)))))
 
 (defn exception-handler [request message e]
@@ -74,7 +75,10 @@
 
       (and (instance? ExceptionInfo e)
            (str/includes? (.getMessage e) "Request coercion failed"))
-      (build-coercion-response request e 422)
+      (let [data (.getData e)
+            scope-in (:in data)
+            status (if (some #{:path-params :query-params} scope-in) 404 422)]
+        (build-coercion-response request e status))
 
       (instance? ExceptionInfo e)
       (let [{:keys [status]} (ex-data e)

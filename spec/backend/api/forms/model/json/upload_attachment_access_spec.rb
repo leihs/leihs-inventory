@@ -115,7 +115,7 @@ describe "Inventory Model" do
               invalid_uuid_coercion_error = "00000000-0000-0000-0000-00000000000s"
 
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{invalid_uuid_coercion_error}"
-              expect(resp.status).to eq(422)
+              expect(resp.status).to eq(404)
               expect(resp.headers["content-type"]).to eq("text/plain; charset=utf-8")
               expect(resp.body).to eq("Request coercion failed")
             end

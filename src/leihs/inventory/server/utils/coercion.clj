@@ -67,9 +67,15 @@
        (let [errors (or (get-in parsed-data [:messages])
                         (beautify-problems (:problems parsed-data)))
              scope (some->> (:in parsed-data) (map str) (str/join "/"))
-             status (if (str/includes? scope "response")
+             status (cond
+                      (str/includes? scope "response")
                       CONST_COERCION_RESPONSE_ERROR_HTTP_CODE
-                      CONST_COERCION_REQUEST_ERROR_HTTP_CODE)
+
+                      (or (str/includes? scope "path-params")
+                          (str/includes? scope "query-params"))
+                      404
+
+                      :else 422)
              base-resp {:reason "Coercion-Error"
                         :scope scope
                         :coercion-type coercion
