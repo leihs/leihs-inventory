@@ -12,18 +12,10 @@
 (defn routes []
   ["/models/:model_id/images/:image_id/thumbnail"
    {:get {:description "Determines image thumbnail by targetID"
-          :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}
           :produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :image_id s/Uuid}}
-          :handler image-thumbnail/get-resource
-          :responses {200 {:description "OK"
-                           :body (s/->Either [image/image s/Any])}
-                      404 {:description "Not Found"
-                           :body image/error-message-structure}
-                      406 {:description "Requested content type not supported"
-                           :body image/error-message-structure}
-                      500 {:description "Internal Server Error"}}}}])
+          :handler image-thumbnail/get-resource}}])
