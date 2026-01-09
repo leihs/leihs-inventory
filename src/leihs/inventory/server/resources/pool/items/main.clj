@@ -20,6 +20,7 @@
    [leihs.inventory.server.utils.request-utils :refer [body-params path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug]]))
@@ -39,7 +40,7 @@
    (let [tx (:tx request)
          {:keys [pool_id]} (path-params request)
          {:keys [fields search
-                 model_id parent_id
+                 model_id parent_id only_items
                  retired borrowable
                  incomplete broken owned
                  inventory_pool_id
@@ -101,6 +102,10 @@
 
                    (cond-> model_id (sql/where [:= :items.model_id model_id]))
                    (cond-> parent_id (sql/where [:= :items.parent_id parent_id]))
+                   (cond-> only_items (sql/where [:and
+                                                  [:not= :models.is_package true]
+                                                  [:= :items.parent_id nil]
+                                                  [:not= :models.type "Software"]]))
 
                    ; in legacy no query params are passed down to the children,
                    ; speaking: all children are always showed.
@@ -129,7 +134,12 @@
                                        (cond-> original-item
                                          (:image_id item-with-img)
                                          (assoc :image_id (:image_id item-with-img)
-                                                :url (str "/inventory/" pool_id "/models/" (:model_id original-item) "/images/" (:image_id item-with-img))
+                                                :url (str "/inventory/"
+                                                          pool_id
+                                                          "/models/"
+                                                          (:model_id original-item)
+                                                          "/images/"
+                                                          (:image_id item-with-img))
                                                 :content_type (:content_type item-with-img)))))
                                    items-with-images)))]
 
@@ -155,6 +165,40 @@
     (-> (jdbc/execute-one! tx query)
         some?)))
 
+(defn validate-item-ids-for-package [tx item-ids]
+  (-> (sql/select :items.id)
+      (sql/from :items)
+      (sql/join :models [:= :models.id :items.model_id])
+      (sql/where [:in :items.id item-ids])
+      (sql/where [:or
+                  [:= :models.is_package true]
+                  [:not= :items.parent_id nil]])
+      sql-format
+      (->> (jdbc-query tx))))
+
+(defn validate-package-model [tx model-id]
+  (let [model (-> (sql/select :is_package)
+                  (sql/from :models)
+                  (sql/where [:= :id model-id])
+                  sql-format
+                  (->> (jdbc/execute-one! tx)))]
+    (when-not (:is_package model)
+      (throw (ex-info "Model must have is_package=true for package type"
+                      {:model_id model-id})))))
+
+(defn assign-items-to-package [tx package-id item-ids]
+  (when-not (seq item-ids)
+    (throw (ex-info "item_ids is required for package" {})))
+  (let [invalid-items (validate-item-ids-for-package tx item-ids)]
+    (when (seq invalid-items)
+      (throw (ex-info "Cannot add packages or already assigned items to package"
+                      {:invalid_item_ids (map :id invalid-items)}))))
+  (-> (sql/update :items)
+      (sql/set {:parent_id package-id})
+      (sql/where [:in :id item-ids])
+      sql-format
+      (->> (jdbc/execute! tx))))
+
 (defn post-resource [request]
   (try
     (let [tx (:tx request)
@@ -164,7 +208,12 @@
       (if validation-error
         (bad-request validation-error)
         (let [{:keys [item-data properties]} (split-item-data body-params)
-              inventory-code (:inventory_code item-data)]
+              item-type (:type body-params)
+              item-ids (:item_ids body-params)
+              inventory-code (:inventory_code item-data)
+              model-id (:model_id item-data)]
+          (when (= item-type "package")
+            (validate-package-model tx model-id))
           (if (inventory-code-exists? tx inventory-code nil)
             (status {:body {:error "Inventory code already exists"
                             :proposed_code (inv-code/propose tx pool_id)}}
@@ -179,9 +228,14 @@
                                 sql-format)
                   result (jdbc/execute-one! tx sql-query)]
               (if result
-                (response (-> result
-                              flatten-properties
-                              (coerce-field-values out-coercions)))
+                (do
+                  (when (= item-type "package")
+                    (assign-items-to-package tx (:id result) item-ids))
+                  (response (-> result
+                                flatten-properties
+                                (coerce-field-values out-coercions)
+                                (cond-> (= item-type "package")
+                                  (assoc :item_ids item-ids)))))
                 (bad-request {:error ERROR_CREATE_ITEM})))))))
     (catch Exception e
       (log-by-severity ERROR_CREATE_ITEM e)
