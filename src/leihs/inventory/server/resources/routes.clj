@@ -73,7 +73,7 @@
 (defn sign-in-out-endpoints []
   [[""
     {:no-doc HIDE_BASIC_ENDPOINTS
-     :get {:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+     :get {:accept "text/html"
            :swagger {:produces ["text/html"] :security []}
            :produces ["text/html"]
            :description "Root page"
