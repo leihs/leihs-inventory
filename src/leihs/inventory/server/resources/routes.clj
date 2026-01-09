@@ -49,14 +49,11 @@
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
    [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
-   [leihs.inventory.server.utils.middleware-handler :refer [endpoint-exists?]]
-   [leihs.inventory.server.utils.request-utils :refer [authenticated?]]
    [leihs.inventory.server.utils.response-helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
-   [ring.util.codec :as codec]
    [schema.core :as s]
    [taoensso.timbre :refer [debug error spy]]))
 
@@ -76,7 +73,7 @@
 (defn sign-in-out-endpoints []
   [[""
     {:no-doc HIDE_BASIC_ENDPOINTS
-     :get {:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+     :get {:accept "text/html"
            :swagger {:produces ["text/html"] :security []}
            :produces ["text/html"]
            :description "Root page"
@@ -169,37 +166,6 @@
                 last
                 str/lower-case)]
     (get mime-types ext "application/octet-stream")))
-
-(defn html-endpoints []
-  [""
-   {:swagger {:tags ["Html"]}
-    :no-doc HIDE_BASIC_ENDPOINTS}
-
-   ["{*path}"
-    {:no-doc HIDE_BASIC_ENDPOINTS
-     :fallback? true
-     :get {:description "Public assets like JS, CSS, images"
-           :produces ["text/html"]
-           :handler (fn [request]
-                      (let [router (:reitit.router request)
-                            method (:request-method request)
-                            uri (:uri request)
-                            route-data (endpoint-exists? router method uri)
-                            exists? (boolean route-data)]
-                        (if (authenticated? request)
-                          (if exists?
-                            (rh/index-html-response request 200)
-                            (rh/index-html-response request 404))
-                          (let [query-string (:query-string request)
-                                full-url (if query-string
-                                           (str uri "?" query-string)
-                                           uri)
-                                encoded-url (codec/url-encode full-url)
-                                redirect-url (str "/sign-in?return-to=" encoded-url)]
-                            {:status 302
-                             :headers {"Location" redirect-url
-                                       "Content-Type" "text/html"}
-                             :body ""}))))}}]])
 
 (defn settings-endpoint []
   ["/"
@@ -315,5 +281,4 @@
     (settings-endpoint)
     (swagger-endpoints)
     (csrf-endpoints)
-    (visible-api-endpoints)
-    (html-endpoints)]])
+    (visible-api-endpoints)]])

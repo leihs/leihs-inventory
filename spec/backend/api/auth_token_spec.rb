@@ -50,7 +50,7 @@ describe "Call swagger-endpoints" do
 
     it "returns 200 and valid token for protected resource access" do
       resp = plain_faraday_json_client.get(@protected_url)
-      expect(resp.status).to eq(403)
+      expect(resp.status).to eq(401)
 
       resp = client.post(@create_token_url) do |req|
         req.body = {
@@ -100,7 +100,7 @@ describe "Call swagger-endpoints" do
 
     it "redirects to sign-in when accessing protected resource without valid token" do
       resp = plain_faraday_json_client.get(@protected_url)
-      expect(resp.status).to eq(403)
+      expect(resp.status).to eq(401)
 
       resp = client.post(@create_token_url) do |req|
         req.body = {

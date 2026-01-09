@@ -19,7 +19,7 @@
               :token (get-auth-entity request)}})
     (do
       (debug "User not authenticated")
-      {:status 403 :body "Forbidden"})))
+      {:status 401 :body "Not authenticated"})))
 
 (defn extract-scope-attributes [data]
   (select-keys data (filter #(str/starts-with? (name %) "scope_") (keys data))))

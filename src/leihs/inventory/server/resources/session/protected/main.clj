@@ -13,4 +13,4 @@
               :token (get-auth-entity request)}})
     (do
       (debug "User not authenticated")
-      {:status 403 :body "Forbidden"})))
+      {:status 401 :body "Not authenticated"})))

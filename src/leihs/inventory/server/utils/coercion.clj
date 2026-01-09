@@ -5,6 +5,7 @@
    [clojure.string :as str]
    [clojure.walk]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
+   [leihs.inventory.server.utils.response-helper :as rh]
    [taoensso.timbre :refer [warn]])
   (:import
    [java.io ByteArrayInputStream]))
@@ -67,9 +68,15 @@
        (let [errors (or (get-in parsed-data [:messages])
                         (beautify-problems (:problems parsed-data)))
              scope (some->> (:in parsed-data) (map str) (str/join "/"))
-             status (if (str/includes? scope "response")
+             status (cond
+                      (str/includes? scope "response")
                       CONST_COERCION_RESPONSE_ERROR_HTTP_CODE
-                      CONST_COERCION_REQUEST_ERROR_HTTP_CODE)
+
+                      (or (str/includes? scope "path-params")
+                          (str/includes? scope "query-params"))
+                      404
+
+                      :else 422)
              base-resp {:reason "Coercion-Error"
                         :scope scope
                         :coercion-type coercion
@@ -91,19 +98,55 @@
            :status response-status)))
 
 (defn handle-coercion-error [request resp]
-  (let [accept-header (get-in request [:headers "accept"])]
+  (let [accept-header (str/lower-case (or (get-in request [:headers "accept"]) ""))
+        is-html? (str/includes? accept-header "text/html")
+        uri (:uri request)
+        is-inventory? (str/includes? uri "/inventory")
+        is-attachment? (str/includes? uri "/attachments/")
+        status (:status resp)
+        is-error-status? (and status (>= status 400))]
     (cond
-      (not= accept-header "application/json") resp
+      ;; HTML request to /inventory attachment with error → keep text/plain response
+      (and is-html? is-inventory? is-attachment? is-error-status?)
+      resp
 
-      (string? (:body resp)) resp
+      ;; HTML request to /inventory (non-attachment) with error status → return SPA
+      (and is-html? is-inventory? (not is-attachment?) is-error-status?)
+      (rh/index-html-response request status)
 
-      (instance? java.io.ByteArrayInputStream (:body resp))
+      ;; HTML request to /inventory (non-attachment) with string body containing error → return SPA
+      (and is-html? is-inventory? (not is-attachment?) (string? (:body resp))
+           (or (str/includes? (:body resp) "Coercion-Error")
+               (str/includes? (:body resp) "coercion")))
+      (rh/index-html-response request (or status 500))
+
+      ;; HTML request to /inventory (non-attachment) with ByteArrayInputStream → check for error
+      (and is-html? is-inventory? (not is-attachment?) (instance? java.io.ByteArrayInputStream (:body resp)))
+      (let [ext-data (extract-data-from-input-stream (:body resp))]
+        (if (and ext-data
+                 (or (str/includes? ext-data "Coercion-Error")
+                     (str/includes? ext-data "coercion")))
+          (rh/index-html-response request (or status 500))
+          ;; Not an error - restore body and continue
+          (assoc resp :body (data->input-stream ext-data))))
+
+      ;; String body (non-HTML or non-inventory) - return as-is
+      (string? (:body resp))
+      resp
+
+      ;; Check if body contains coercion error (for JSON requests)
+      (and (= accept-header "application/json")
+           (instance? java.io.ByteArrayInputStream (:body resp)))
       (let [ext-data (extract-data-from-input-stream (:body resp))]
         (if (and ext-data
                  (has-coercion-substring? ext-data)
                  (is-coercion-error? ext-data))
           (generate-coercion-response ext-data request resp)
           (assoc resp :body (data->input-stream ext-data))))
+
+      ;; Non-JSON requests - return as-is
+      (not= accept-header "application/json")
+      resp
 
       :else resp)))
 

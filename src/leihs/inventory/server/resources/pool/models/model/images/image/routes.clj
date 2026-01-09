@@ -21,14 +21,7 @@
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :image_id s/Uuid}}
-          :handler image/get-resource
-          :responses {200 {:description "OK"
-                           :body (s/->Either [image s/Any])}
-                      404 {:description "Not Found"
-                           :body error-message-structure}
-                      406 {:description "Requested content type not supported"
-                           :body error-message-structure}
-                      500 {:description "Internal Server Error"}}}
+          :handler image/get-resource}
 
     :delete {:accept "application/json"
              :summary (fe "")

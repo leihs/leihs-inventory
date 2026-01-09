@@ -101,12 +101,14 @@ describe "Inventory Model" do
 
             it "blocks fetching the uploaded image" do
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{invalid_uuid_coercion_error}"
-              expect_spa_content(resp, 404)
+              expect(resp.status).to eq(404)
+              expect(resp.body).to include("Coercion-Error")
             end
 
             it "blocks fetching the uploaded thumbnail" do
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{invalid_uuid_coercion_error}/thumbnail"
-              expect_spa_content(resp, 404)
+              expect(resp.status).to eq(404)
+              expect(resp.body).to include("Coercion-Error")
             end
           end
 
@@ -127,7 +129,7 @@ describe "Inventory Model" do
             it "process invalid route-requests" do
               invalid_routes.each do |route|
                 resp = html_client.get route
-                expect_spa_content(resp, 404)
+                expect_spa_content(resp, 200)
               end
             end
 
