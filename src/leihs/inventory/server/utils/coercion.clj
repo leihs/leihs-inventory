@@ -102,21 +102,26 @@
         is-html? (str/includes? accept-header "text/html")
         uri (:uri request)
         is-inventory? (str/includes? uri "/inventory")
+        is-attachment? (str/includes? uri "/attachments/")
         status (:status resp)
         is-error-status? (and status (>= status 400))]
     (cond
-      ;; HTML request to /inventory with error status → return SPA
+      ;; HTML request to /inventory attachment with error → keep text/plain response
+      (and is-html? is-inventory? is-attachment? is-error-status?)
+      resp
+
+      ;; HTML request to /inventory (non-attachment) with error status → return SPA
       (and is-html? is-inventory? is-error-status?)
       (rh/index-html-response request status)
 
-      ;; HTML request to /inventory with string body containing error → return SPA
-      (and is-html? is-inventory? (string? (:body resp))
+      ;; HTML request to /inventory (non-attachment) with string body containing error → return SPA
+      (and is-html? is-inventory? (not is-attachment?) (string? (:body resp))
            (or (str/includes? (:body resp) "Coercion-Error")
                (str/includes? (:body resp) "coercion")))
       (rh/index-html-response request (or status 500))
 
-      ;; HTML request to /inventory with ByteArrayInputStream → check for error
-      (and is-html? is-inventory? (instance? java.io.ByteArrayInputStream (:body resp)))
+      ;; HTML request to /inventory (non-attachment) with ByteArrayInputStream → check for error
+      (and is-html? is-inventory? (not is-attachment?) (instance? java.io.ByteArrayInputStream (:body resp)))
       (let [ext-data (extract-data-from-input-stream (:body resp))]
         (if (and ext-data
                  (or (str/includes? ext-data "Coercion-Error")
