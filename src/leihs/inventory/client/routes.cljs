@@ -5,6 +5,7 @@
    [leihs.inventory.client.lib.utils :refer [cj]]
    [leihs.inventory.client.loader :as loader]
    [leihs.inventory.client.routes.debug.page :rename {page debug-page}]
+   [leihs.inventory.client.routes.error :rename {page error-page}]
    [leihs.inventory.client.routes.layout :rename {layout root-layout}]
    [leihs.inventory.client.routes.notfound :rename {page notfound-page}]
    [leihs.inventory.client.routes.page :rename {page home-page}]
@@ -25,14 +26,20 @@
 (def routes
   (router/createBrowserRouter
    (cj
-    [{:path "/profile"
+    [{:path "*"
+      :id "not-found"
+      :loader loader/not-found
+      :element ($ :div)
+      :errorElement ($ error-page)}
+
+     {:path "/profile"
       :id "profile"
       :action actions/profile}
 
      {:path "/inventory"
       :id "root"
       :element ($ root-layout)
-      ;; :errorElement ($ notfound-page)
+      :errorElement ($ error-page)
       :loader loader/root-layout
       :children
       (cj
@@ -42,9 +49,14 @@
         {:path "debug"
          :element ($ debug-page)}
 
+        {:path "test-error"
+         :loader loader/error-test
+         :element ($ :div "This should never render")}
+
         {:path ":pool-id"
          :children
          (cj [{:element ($ inventory-layout)
+               :errorElement ($ error-page)
                :children
                (cj
                 [{:index true
@@ -116,4 +128,19 @@
 
               {:path "models/:model-id/items/create"
                :loader loader/items-crud-page
-               :element ($ items-crud-page)}])}])}])))
+               :element ($ items-crud-page)}
+
+               ;; Wildcard route for undefined pool routes
+              {:path "*"
+               :id "pool-not-found"
+               :loader loader/not-found
+               :element ($ :div)
+               :errorElement ($ error-page)}])}
+
+         ;; Wildcard route for undefined inventory routes
+        {:path "*"
+         :id "inventory-not-found"
+         :loader loader/not-found
+         :element ($ :div)
+         :errorElement ($ error-page)}])}])))
+

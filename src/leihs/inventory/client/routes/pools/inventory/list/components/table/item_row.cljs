@@ -29,7 +29,7 @@
                   "[&>*]:px2 [&>*]:py-1 "
                   "[&+tr[data-row=model]]:shadow-[0_-0.5px_0_hsl(var(--border)),0_-4px_4px_-2px_hsl(var(--border))] "
                   "[&+tr[data-row=package]]:shadow-[0_-0.5px_0_hsl(var(--border)),0_-4px_4px_-2px_hsl(var(--border))] "
-                  "shadow-[0_-0.5px_0_hsl(var(--border))] bg-destructive-foreground/50")}
+                  "shadow-[0_-0.5px_0_hsl(var(--border))] bg-primary-foreground/50")}
 
        ($ TableCell)
 
