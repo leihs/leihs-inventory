@@ -111,6 +111,7 @@ feature "Update item", type: :feature do
     visit "/inventory/#{pool.id}/list"
 
     fill_in "search", with: model_old.product
+    await_debounce
 
     within find('[data-row="model"]', text: model_old.product) do
       click_on "expand-button"
@@ -209,6 +210,7 @@ feature "Update item", type: :feature do
     expect(page).to have_text("Inventory List")
 
     fill_in "search", with: model_new.product
+    await_debounce
 
     within find('[data-row="model"]', text: model_new.product) do
       click_on "expand-button"
@@ -276,6 +278,7 @@ feature "Update item", type: :feature do
     visit "/inventory/#{pool.id}/list"
 
     fill_in "search", with: model_old.product
+    await_debounce
 
     within find('[data-row="model"]', text: model_old.product) do
       click_on "expand-button"

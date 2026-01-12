@@ -16,7 +16,7 @@
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
-   [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.client :refer [http-client safe-query]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
@@ -81,7 +81,7 @@
         [selected set-selected!] (uix/use-state nil)
 
         [search set-search!] (uix/use-state "")
-        debounced-search (hooks/use-debounce search 200)
+        debounced-search (hooks/use-debounce search 300)
         size (hooks/use-window-size)
 
         {:keys [fields append remove update]} (jc (hook-form/useFieldArray
@@ -124,7 +124,7 @@
          (let [fetch (fn []
                        (set-loading! true)
                        (-> http-client
-                           (.get (str path "/" "?search=" debounced-search)
+                           (.get (safe-query (str path "/") {:search debounced-search})
                                  #js {:cache false})
                            (.then (fn [response]
                                     (let [data (jc (.-data response))]

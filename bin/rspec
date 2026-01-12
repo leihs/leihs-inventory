@@ -7,5 +7,6 @@ cd $PROJECT_DIR
 ./bin/env/geckodriver-setup
 ./bin/env/ruby-setup
 
+source $PROJECT_DIR/bin/env/select-tool-versions-manager
 bundle exec rspec "$@"
 # vi: ft=sh

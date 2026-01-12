@@ -25,7 +25,7 @@
 
         search (hook-form/useWatch #js {:control control
                                         :name name})
-        debounced-search (hooks/use-debounce search 200)
+        debounced-search (hooks/use-debounce search 300)
 
         get-values (aget form "getValues")
         set-value (aget form "setValue")

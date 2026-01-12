@@ -143,6 +143,7 @@ feature "Update model", type: :feature do
     visit "/inventory/#{pool.id}"
     select_value("with_items", "without_items")
     fill_in "search", with: "#{product_old} #{version_old}"
+    await_debounce
     find("a", text: "edit").click
 
     fill_in "Product", with: product_new
@@ -207,6 +208,7 @@ feature "Update model", type: :feature do
     expect(page).to have_content "Inventory List"
     select_value("with_items", "without_items")
     fill_in "search", with: "#{product_new} #{version_new}"
+    await_debounce
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
