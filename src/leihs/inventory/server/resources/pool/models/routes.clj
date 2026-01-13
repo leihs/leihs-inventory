@@ -13,6 +13,7 @@
   ["/models/"
    {:get {:conflicting true
           :accept "application/json"
+          :produces ["application/json"]
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :summary "Used primarily to search for models as well as software"

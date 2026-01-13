@@ -6,7 +6,7 @@
    [clojure.walk]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.response-helper :as rh]
-   [taoensso.timbre :refer [warn]])
+   [taoensso.timbre :refer [warn debug]])
   (:import
    [java.io ByteArrayInputStream]))
 
@@ -98,18 +98,33 @@
            :status response-status)))
 
 (defn handle-coercion-error [request resp]
-  (let [status (:status resp)]
-    ;; Pass through auth/authz errors unchanged
-    (if (or (= status 401) (= status 403))
-      resp
-      ;; Continue with existing coercion error handling logic
-      (let [accept-header (str/lower-case (or (get-in request [:headers "accept"]) ""))
-            is-html? (str/includes? accept-header "text/html")
-            uri (:uri request)
-            is-inventory? (str/includes? uri "/inventory")
-            is-attachment? (str/includes? uri "/attachments/")
-            is-error-status? (and status (>= status 400))]
-        (cond
+  (let [status (:status resp)
+        accept-header (str/lower-case (or (get-in request [:headers "accept"]) ""))
+        is-image? (str/includes? accept-header "image/")
+        uri (:uri request)
+        check-result (and (= status 500) is-image? (str/includes? uri "/inventory"))]
+    (warn "handle-coercion-error called" "status:" status "accept:" accept-header "is-image?:" is-image? "uri:" uri "check:" check-result)
+    (cond
+      ;; Pass through auth/authz errors unchanged
+      (or (= status 401) (= status 403))
+      (do (warn "Passing through auth error") resp)
+
+      ;; 500 error on image/* request → assume coercion error from auth failure, return 401
+      check-result
+      (do
+        (warn "Converting 500 coercion error to 401 for image/* request")
+        {:status 401
+         :headers {"content-type" "application/json"}
+         :body (json/generate-string {:status "failure" :message "Not authenticated"})})
+
+      ;; Otherwise continue with existing logic
+      :else
+      (let [is-html? (str/includes? accept-header "text/html")
+              uri (:uri request)
+              is-inventory? (str/includes? uri "/inventory")
+              is-attachment? (str/includes? uri "/attachments/")
+              is-error-status? (and status (>= status 400))]
+          (cond
       ;; HTML request to /inventory attachment with error → keep text/plain response
           (and is-html? is-inventory? is-attachment? is-error-status?)
           resp
@@ -149,10 +164,10 @@
               (assoc resp :body (data->input-stream ext-data))))
 
           ;; Non-JSON requests - return as-is
-          (not= accept-header "application/json")
-          resp
+            (not= accept-header "application/json")
+            resp
 
-          :else resp)))))
+            :else resp)))))
 
 (defn wrap-handle-coercion-error [handler]
   (fn [request]

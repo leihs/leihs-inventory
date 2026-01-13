@@ -12,6 +12,8 @@
           route-data (get-in request [:reitit.core/match :data method])
           route-accept (:accept route-data)
           route-produces (:produces route-data)
+          route-public? (:public route-data)
+          authenticated? (some? (:authenticated-entity request))
           accept-header (str/lower-case
                          (or (get-in request [:headers "accept"]) "*/*"))
           has-html? (str/includes? accept-header "text/html")
@@ -27,14 +29,18 @@
                                      (some #(str/includes? % "image/") route-produces))]
 
       (cond
-        ;; Image request to route that doesn't support images → 406
+        ;; Image request to route that doesn't support images
+        ;; If not authenticated and route requires auth, pass through to authorize middleware for 401
+        ;; Otherwise return 406
         (and has-image?
              (:reitit.core/match request) ; Route exists
              route-produces ; Route has explicit produces
              (not route-accepts-images?))
-        {:status 406
-         :headers {"content-type" "text/plain"}
-         :body "Not Acceptable"}
+        (if (and (not route-public?) (not authenticated?))
+          (handler request) ; Pass through - route-level authorize middleware will return 401
+          {:status 406
+           :headers {"content-type" "text/plain"}
+           :body "Not Acceptable"})
 
         ;; JSON route + HTML request → fallback to not-found handler
         (and (= route-accept "application/json")
