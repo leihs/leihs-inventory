@@ -3,7 +3,6 @@
    [clojure.set]
    [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [ALLOWED_IMAGE_CONTENT_TYPES]]
    [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.main :as image-thumbnail]
-   [leihs.inventory.server.resources.pool.models.model.images.image.types :as image]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -18,4 +17,8 @@
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :image_id s/Uuid}}
-          :handler image-thumbnail/get-resource}}])
+          :handler image-thumbnail/get-resource
+          :responses {200 {:description "OK"}
+                      404 {:description "Not Found"}
+                      406 {:description "Requested content type not supported"}
+                      500 {:description "Internal Server Error"}}}}])
