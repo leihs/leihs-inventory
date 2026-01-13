@@ -1,7 +1,9 @@
 (ns leihs.inventory.server.middlewares.enforce-accept
   (:require
-   [clojure.string :as str]
-   [leihs.inventory.server.utils.resource-handler :refer [custom-not-found-handler]]))
+    [clojure.string :as str]
+    [taoensso.timbre :refer [warn]]
+    [cheshire.core :as json]
+    [leihs.inventory.server.utils.resource-handler :refer [custom-not-found-handler]]))
 
 (defn wrap-enforce-accept
   "Enforces :accept constraints from matched route data.
@@ -36,11 +38,13 @@
              (:reitit.core/match request) ; Route exists
              route-produces ; Route has explicit produces
              (not route-accepts-images?))
-        (if (and (not route-public?) (not authenticated?))
-          (handler request) ; Pass through - route-level authorize middleware will return 401
-          {:status 406
-           :headers {"content-type" "text/plain"}
-           :body "Not Acceptable"})
+(if (and (not route-public?) (not authenticated?))
+           {:status 401
+            :headers {"content-type" "application/json"}
+            :body (json/generate-string {:status "failure" :message "Not authenticated"})}
+           {:status 406
+            :headers {"content-type" "text/plain"}
+            :body "Not Acceptable"})
 
         ;; JSON route + HTML request → fallback to not-found handler
         (and (= route-accept "application/json")
