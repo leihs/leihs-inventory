@@ -23,7 +23,6 @@
                      (str/includes? accept "*/*"))
         is-image? (str/includes? accept "image/")
         is-inventory? (str/includes? uri "/inventory")
-        authenticated? (-> request :authenticated-entity boolean)
         supported? (or (= accept "*/*")
                        (some #(str/includes? accept %) supported-accepts))]
     (cond
@@ -36,12 +35,6 @@
       ;; HTML + inventory → SPA/200 (client-side routing)
       (and is-html? is-inventory?)
       (rh/index-html-response request 200)
-
-      ;; Non-HTML inventory request without auth → 401
-      (and is-inventory? (not authenticated?) (not is-html?))
-      {:status 401
-       :headers {"content-type" "application/json"}
-       :body (json/generate-string {:status "failure" :message "Not authenticated"})}
 
       ;; Image → 404 text/plain (generic message)
       is-image?

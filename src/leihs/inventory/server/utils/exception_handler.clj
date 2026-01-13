@@ -61,13 +61,27 @@
           (resp/status response-status)))))
 
 (defn exception-handler [request message e]
-  (let [accept (get-in request [:headers "accept"])]
+  (let [accept (get-in request [:headers "accept"])
+        uri (:uri request)
+        authenticated? (-> request :authenticated-entity boolean)
+        is-image? (and accept (str/includes? (str/lower-case accept) "image/"))
+        is-inventory? (and uri (str/includes? uri "/inventory"))]
     (cond
       (instance? PSQLException e)
       (create-response-by-accept request accept 409 {:status "failure"
                                                      :message message
                                                      :type (str (class e))
                                                      :details (.getMessage e)})
+
+      ;; Response coercion on image/* to /inventory when not authenticated → 401
+      (and (instance? ExceptionInfo e)
+           (str/includes? (.getMessage e) "Response coercion failed")
+           is-image?
+           is-inventory?
+           (not authenticated?))
+      (-> (response (json/generate-string {:status "failure" :message "Not authenticated"}))
+          (content-type "application/json")
+          (resp/status 401))
 
       (and (instance? ExceptionInfo e)
            (str/includes? (.getMessage e) "Response coercion failed"))

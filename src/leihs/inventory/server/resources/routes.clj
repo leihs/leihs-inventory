@@ -272,6 +272,49 @@
                      (token/routes)]]
     (vec core-routes)))
 
+(def supported-accepts
+  #{"text/html"
+    "application/json"
+    "image/"
+    "text/csv"
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
+
+(defn catch-all-handler [request]
+  (let [authenticated? (-> request :authenticated-entity boolean)
+        accept (str/lower-case (or (get-in request [:headers "accept"]) "*/*"))
+        is-html? (or (str/includes? accept "text/html") (str/includes? accept "*/*"))
+        is-image? (str/includes? accept "image/")
+        supported? (or (= accept "*/*")
+                       (some #(str/includes? accept %) supported-accepts))]
+    (cond
+      ;; Unsupported Accept header → 406
+      (not supported?)
+      {:status 406
+       :headers {"content-type" "text/plain"}
+       :body "Not Acceptable"}
+
+      ;; HTML requests → SPA (client-side routing)
+      is-html?
+      (rh/index-html-response request 200)
+
+      ;; Unauthenticated non-HTML → 401
+      (not authenticated?)
+      {:status 401
+       :headers {"content-type" "application/json"}
+       :body "{\"status\":\"failure\",\"message\":\"Not authenticated\"}"}
+
+      ;; Authenticated image requests → 404 text/plain
+      is-image?
+      {:status 404
+       :headers {"content-type" "text/plain"}
+       :body "Not Found"}
+
+      ;; Authenticated other formats → 404 JSON
+      :else
+      {:status 404
+       :headers {"content-type" "application/json"}
+       :body "{\"error\":\"Not Found\"}"})))
+
 (defn all-api-endpoints []
   ["/"
    (sign-in-out-endpoints)
@@ -281,4 +324,12 @@
     (settings-endpoint)
     (swagger-endpoints)
     (csrf-endpoints)
-    (visible-api-endpoints)]])
+    (visible-api-endpoints)
+    ;; Catch-all for unmatched /inventory/* routes
+    ["*path"
+     {:fallback? true
+      :get {:handler catch-all-handler :no-doc true}
+      :post {:handler catch-all-handler :no-doc true}
+      :put {:handler catch-all-handler :no-doc true}
+      :patch {:handler catch-all-handler :no-doc true}
+      :delete {:handler catch-all-handler :no-doc true}}]]])
