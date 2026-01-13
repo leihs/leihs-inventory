@@ -36,11 +36,11 @@
       (and is-html? is-inventory?)
       (rh/index-html-response request 200)
 
-      ;; Image → 404 text/plain (no SPA)
+      ;; Image → 404 text/plain (generic message)
       is-image?
       {:status 404
        :headers {"content-type" "text/plain"}
-       :body "image not found"}
+       :body "Not Found"}
 
       ;; All other formats (JSON, CSV, Excel, etc.) → 404 JSON
       :else

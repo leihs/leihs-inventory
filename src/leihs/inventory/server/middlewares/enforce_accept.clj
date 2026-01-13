@@ -11,18 +11,31 @@
     (let [method (:request-method request)
           route-data (get-in request [:reitit.core/match :data method])
           route-accept (:accept route-data)
+          route-produces (:produces route-data)
           accept-header (str/lower-case
                          (or (get-in request [:headers "accept"]) "*/*"))
           has-html? (str/includes? accept-header "text/html")
           has-json? (str/includes? accept-header "application/json")
+          has-image? (str/includes? accept-header "image/")
           has-wildcard-only? (and (str/includes? accept-header "*/*")
                                   (not has-html?)
                                   (not has-json?)
-                                  (not (str/includes? accept-header "image/")))
+                                  (not has-image?))
           is-html-request? (or has-html? has-wildcard-only?)
-          is-json-only-request? (and has-json? (not has-html?) (not has-wildcard-only?))]
+          is-json-only-request? (and has-json? (not has-html?) (not has-wildcard-only?))
+          route-accepts-images? (and route-produces
+                                     (some #(str/includes? % "image/") route-produces))]
 
       (cond
+        ;; Image request to route that doesn't support images → 406
+        (and has-image?
+             (:reitit.core/match request) ; Route exists
+             route-produces ; Route has explicit produces
+             (not route-accepts-images?))
+        {:status 406
+         :headers {"content-type" "text/plain"}
+         :body "Not Acceptable"}
+
         ;; JSON route + HTML request → fallback to not-found handler
         (and (= route-accept "application/json")
              is-html-request?

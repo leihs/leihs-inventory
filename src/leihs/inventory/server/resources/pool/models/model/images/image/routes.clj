@@ -21,7 +21,7 @@
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :image_id s/Uuid}}
-          :handler image/get-resource}
+          :handler image/get-resource
           :responses {200 {:description "OK"}
                       404 {:description "Not Found"}
                       406 {:description "Requested content type not supported"}

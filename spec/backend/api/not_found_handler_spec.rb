@@ -54,7 +54,7 @@ describe "custom-not-found-handler content negotiation" do
 
       expect(response.status).to eq(404)
       expect(response.headers["content-type"]).to eq("text/plain; charset=utf-8")
-      expect(response.body).to eq("image not found")
+      expect(response.body).to eq("Not Found")
     end
 
     it "returns 404 text/plain for image/jpeg" do
@@ -63,7 +63,7 @@ describe "custom-not-found-handler content negotiation" do
 
       expect(response.status).to eq(404)
       expect(response.headers["content-type"]).to eq("text/plain; charset=utf-8")
-      expect(response.body).to eq("image not found")
+      expect(response.body).to eq("Not Found")
     end
   end
 
