@@ -10,6 +10,7 @@
 
 (s/defschema query-params {(s/optional-key :fields) s/Str
                            (s/optional-key :model_id) s/Uuid
+                           (s/optional-key :only_items) s/Bool
                            (s/optional-key :parent_id) s/Uuid
                            (s/optional-key :search_term) s/Str
 
@@ -76,6 +77,7 @@
           (s/optional-key :is_broken) s/Bool
           (s/optional-key :is_incomplete) s/Bool
           (s/optional-key :is_inventory_relevant) s/Bool
+          (s/optional-key :item_ids) [s/Uuid]
           (s/optional-key :item_version) (s/maybe s/Str)
           (s/optional-key :last_check) (s/maybe Date)
           (s/optional-key :name) (s/maybe s/Str)
@@ -90,6 +92,7 @@
           (s/optional-key :shelf) (s/maybe s/Str)
           (s/optional-key :status_note) (s/maybe s/Str)
           (s/optional-key :supplier_id) (s/maybe s/Uuid)
+          (s/optional-key :type) (s/enum "item" "package")
           (s/optional-key :user_name) (s/maybe s/Str)}
          properties))
 
