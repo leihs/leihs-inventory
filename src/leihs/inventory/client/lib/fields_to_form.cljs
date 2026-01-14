@@ -11,18 +11,81 @@
     "autocomplete-search"
     "autocomplete"})
 
-(defn- field-type->component [field-type]
-  (case field-type
-    "text" "input"
-    "textarea" "textarea"
-    "date" "calendar"
-    "select" "select"
-    "radio" "radio-group"
-    "checkbox" "checkbox"
-    "attachment" "attachments"
-    "autocomplete-search" "autocomplete-search"
-    "autocomplete" "autocomplete"
-    nil))
+;; Custom Fields Structure
+;; =======================
+;; Custom fields can be passed to transform-fields-to-structure, extract-default-values,
+;; and fields-to-zod-schema to add frontend-defined fields alongside API fields.
+;;
+;; Custom field structure:
+;; {:id "unique_field_id"           ;; REQUIRED: Unique field identifier (used as form key)
+;;  :type "custom-type-name"        ;; REQUIRED: Type name (can be any string for custom fields)
+;;  :component "component-name"     ;; REQUIRED: UI component to render (e.g., "input", "select", "textarea" ...)
+;;  
+;;  ;; Optional - Standard field attributes
+;;  :group "Group Name"             ;; Group name (default: "Mandatory data")
+;;  :position 50                    ;; Position for sorting within group (lower = earlier)
+;;  :label "Field Label"            ;; Display label for the field
+;;  :required false                 ;; Is field required? (default: false)
+;;  :default "default-value"        ;; Default value (type depends on field type)
+;;  :description "Help text"        ;; Description/help text shown below field
+;;  :placeholder "Placeholder..."   ;; Placeholder text for input fields
+;;  
+;;  ;; Optional - Custom field features
+;;  :props {:type "number"          ;; Props passed directly to the component
+;;          :min 0                  ;; These are merged with standard props
+;;          :max 100
+;;          :step 1}
+;;  :validator (-> (z/string)       ;; Custom Zod validator (if not provided, defaults to string)
+;;               (.min 1))
+;;  
+;;  ;; Optional - Advanced features (same as API fields)
+;;  :visibility-dependency          ;; Show/hide based on another field's value
+;;    {:field "other_field_id"
+;;     :value "expected_value"}
+;;  :values-dependency              ;; Field values depend on another field
+;;    {:field "other_field_id"}
+;;  :protected true                 ;; Make field read-only/disabled
+;;  :exclude_from_submit true}      ;; Don't include in form submission
+;;
+;; Example - Custom number field:
+;; [{:id "item_count"
+;;   :type "number"
+;;   :component "input"
+;;   :group "Mandatory data"
+;;   :position 3
+;;   :label "Item Count"
+;;   :required true
+;;   :default 1
+;;   :props {:type "number"
+;;           :min 0
+;;           :max 999999
+;;           :step 1}
+;;   :validator (-> (.. z -coerce (number))
+;;                (.min 0 "Must be at least 0")
+;;                (.max 999999 "Must be less than 1,000,000")
+;;                (.int "Must be a whole number"))}]
+;;
+;; Usage:
+;; (def custom-fields [{...}])
+;; (transform-fields-to-structure api-response custom-fields)
+;; (extract-default-values api-response custom-fields)
+;; (fields-to-zod-schema api-response custom-fields)
+
+(defn- field-type->component [field]
+  ;; If field has explicit component, use it (for custom fields)
+  (or (:component field)
+      ;; Otherwise use standard type mapping
+      (case (:type field)
+        "text" "input"
+        "textarea" "textarea"
+        "date" "calendar"
+        "select" "select"
+        "radio" "radio-group"
+        "checkbox" "checkbox"
+        "attachment" "attachments"
+        "autocomplete-search" "autocomplete-search"
+        "autocomplete" "autocomplete"
+        nil)))
 
 (defn- transform-field-values [values field-type]
   (when values
@@ -41,7 +104,7 @@
 (defn- transform-field [field]
   (let [id (:id field)
         field-type (:type field)
-        component (field-type->component field-type)
+        component (field-type->component field)
         group-name (or (:group field) "Mandatory data")]
     (when component
       (let [base-block {:name (:id field)
@@ -66,11 +129,15 @@
                     (contains? field :values) (assoc :options (transform-field-values (:values field) field-type))
                     (contains? field :placeholder) (assoc :placeholder (:placeholder field))
                     (contains? field :required) (assoc :required (:required field))
-                    (contains? field :protected) (assoc :disabled (:protected field))
+                    (contains? field :protected) (assoc :disabled (:protected field)
+                                                        :disabled-reason :protected)
 
                     ;; For autocomplete with values_url, pass the URL
                     (and (= field-type "autocomplete") (:values_url field))
-                    (assoc :values-url (:values_url field)))
+                    (assoc :values-url (:values_url field))
+
+                    ;; Merge custom props if provided
+                    (:props field) (merge (:props field)))
 
             ;; Add visibility dependency if present
             visibility-dep (when (and (:visibility_dependency_field_id field)
@@ -95,10 +162,14 @@
           {}
           fields))
 
-(defn transform-fields-to-structure [fields-response]
+(defn transform-fields-to-structure [fields-response & [custom-fields]]
   (let [fields (-> fields-response :fields)
-        ;; Filter only implemented field types
-        implemented-fields (filter #(implemented-field-types (:type %)) fields)
+        ;; Merge custom fields with API fields
+        all-fields (concat fields (or custom-fields []))
+        ;; Filter only implemented field types or fields with custom component
+        implemented-fields (filter #(or (implemented-field-types (:type %))
+                                        (:component %))
+                                   all-fields)
         grouped (group-fields-by-group implemented-fields)]
 
     (mapv (fn [[group-name group-fields]]
@@ -110,9 +181,14 @@
                           vec)})
           grouped)))
 
-(defn extract-default-values [fields-response]
+(defn extract-default-values [fields-response & [custom-fields]]
   (let [fields (-> fields-response :fields)
-        implemented-fields (filter #(implemented-field-types (:type %)) fields)]
+        ;; Merge custom fields with API fields
+        all-fields (concat fields (or custom-fields []))
+        ;; Filter only implemented field types or fields with custom component
+        implemented-fields (filter #(or (implemented-field-types (:type %))
+                                        (:component %))
+                                   all-fields)]
     (reduce (fn [acc field]
               (let [field-id (keyword (:id field))
                     field-type (:type field)
@@ -134,6 +210,7 @@
                                                            :label nil}
                                     "autocomplete" {:value nil
                                                     :label nil}
+                                    ;; Default for custom/unknown types
                                     nil))
 
                     ;; Convert default value based on field type
@@ -158,7 +235,36 @@
                                       "attachment"
                                       (if (vector? default-val) default-val [])
 
+                                      ;; Default for custom/unknown types - use as-is
                                       default-val))]
                 (assoc acc field-id converted-val)))
             {}
             implemented-fields)))
+
+(defn update-field-props
+  "Updates props for a specific field in the structure.
+   
+   Args:
+     structure - The form structure (vector of sections)
+     field-name - The name of the field to update (string)
+     props-update - Map of props to merge/overwrite
+   
+   Returns:
+     Updated structure with the field's props modified.
+     Returns unchanged structure if field-name not found.
+   
+   Example:
+     (update-field-props structure \"inventory_code\" {:disabled true
+                                                       :disabled-reason :multiple-items})
+     (update-field-props structure \"model_id\" {:disabled false
+                                                 :disabled-reason nil})"
+  [structure field-name props-update]
+  (mapv (fn [section]
+          (update section :blocks
+                  (fn [blocks]
+                    (mapv (fn [block]
+                            (if (= (:name block) field-name)
+                              (update block :props merge props-update)
+                              block))
+                          blocks))))
+        structure))

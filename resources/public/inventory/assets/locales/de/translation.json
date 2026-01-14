@@ -2,6 +2,7 @@
   "fields": {
     "Mandatory data": {
       "title": "Pflichtangaben",
+      "count": "Anzahl Gegenstände erstellen",
       "inventory_code": "Inventarcode",
       "model_id": "Modell"
     },
@@ -127,7 +128,13 @@
           "error": "Gegenstand konnte nicht gelöscht werden"
         },
         "fields": {
-          "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
+          "disabled": {
+            "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
+            "model-selected": "Dieses Feld ist gesperrt, da ein Modell ausgewählt wurde",
+            "multiple-items": "Dieses Feld ist gesperrt beim Erstellen mehrerer Gegenstände",
+            "owner-locked": "Der Besitzer wird automatisch zugewiesen",
+            "generic": "Dieses Feld ist derzeit deaktiviert"
+          },
           "autocomplete": {
             "select": "Auswahl treffen",
             "search": "Suchbegriff eingeben",
