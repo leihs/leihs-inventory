@@ -130,6 +130,49 @@
         }
       }
     },
+    "packages": {
+      "package": {
+        "create": {
+          "title": "Neues Paket erstellen",
+          "description": "Geben Sie alle erforderlichen Informationen an",
+          "submit": "Paket erstellen",
+          "cancel": "Abbrechen",
+          "success": "Paket wurde erfolgreich erstellt",
+          "invalid_one": "Paket konnte nicht erstellt werden, da ein Feld ungültig ist",
+          "invalid_other": "Paket konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
+        },
+        "edit": {
+          "title": "Paket bearbeiten",
+          "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Speichern",
+          "delete": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Paket wurde erfolgreich gespeichert",
+          "invalid_one": "Paket konnte nicht gespeichert werden, da ein Feld ungültig ist",
+          "invalid_other": "Paket konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Speichern ist ein Fehler aufgetreten"
+        },
+        "delete": {
+          "title": "Paket löschen",
+          "description": "Sind Sie sicher, dass Sie dieses Paket löschen möchten?",
+          "confirm": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Paket wurde erfolgreich gelöscht",
+          "error": "Paket konnte nicht gelöscht werden"
+        },
+        "fields": {
+          "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
+          "autocomplete": {
+            "select": "Auswahl treffen",
+            "search": "Suchbegriff eingeben",
+            "empty": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
+          }
+        }
+      }
+    },
     "models": {
       "title": "Inventarliste",
       "filters": {
@@ -182,6 +225,7 @@
       "dropdown": {
         "title": "Inventar hinzufügen",
         "add_model": "Neues Modell",
+        "add_package": "Neues Paket",
         "add_item": "Neuen Gegenstand",
         "add_option": "Neue Option",
         "add_software": "Neue Software"

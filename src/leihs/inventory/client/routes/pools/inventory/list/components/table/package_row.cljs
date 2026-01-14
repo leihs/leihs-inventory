@@ -99,7 +99,7 @@
              ($ Button {:variant "outline"
                         :asChild true}
                 ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (str (:id package) "/edit")
+                         :to (str "../packages/" (:id package))
                          :viewTransition true}
                    (t "pool.models.list.actions.edit")))
 

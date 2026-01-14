@@ -18,6 +18,7 @@
    [leihs.inventory.client.routes.pools.items.crud.page :rename {page items-crud-page}]
    [leihs.inventory.client.routes.pools.models.crud.page :rename {page models-crud-page}]
    [leihs.inventory.client.routes.pools.options.crud.page :rename {page options-crud-page}]
+   [leihs.inventory.client.routes.pools.packages.crud.page :rename {page packages-crud-page}]
    [leihs.inventory.client.routes.pools.software.crud.page :rename {page software-crud-page}]
    [uix.core :as uix :refer [$]]
    [uix.dom]))
@@ -116,4 +117,17 @@
 
               {:path "models/:model-id/items/create"
                :loader loader/items-crud-page
-               :element ($ items-crud-page)}])}])}])))
+               :element ($ items-crud-page)}
+
+              ;; packages crud 
+              {:path "packages/create"
+               :loader loader/packages-crud-page
+               :element ($ packages-crud-page)}
+
+              {:path "packages/:package-id/delete?"
+               :loader loader/packages-crud-page
+               :element ($ packages-crud-page)}
+
+              {:path "models/:model-id/packages/create"
+               :loader loader/packages-crud-page
+               :element ($ packages-crud-page)}])}])}])))

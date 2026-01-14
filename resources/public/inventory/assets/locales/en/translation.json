@@ -131,6 +131,49 @@
         }
       }
     },
+    "packages": {
+      "package": {
+        "create": {
+          "title": "Create New Package",
+          "description": "Provide all required information",
+          "submit": "Create Package",
+          "cancel": "Cancel",
+          "success": "Package was successfully created",
+          "invalid_one": "Package could not be created because one field is invalid",
+          "invalid_other": "Package could not be created because {{count}} fields are invalid",
+          "conflict": "Inventory code already exists",
+          "error": "An error occurred while creating"
+        },
+        "edit": {
+          "title": "Edit Package",
+          "description": "Make changes and save afterwards",
+          "submit": "Save",
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "success": "Package was successfully saved",
+          "invalid_one": "Package could not be saved because one field is invalid",
+          "invalid_other": "Package could not be saved because {{count}} fields are invalid",
+          "conflict": "Inventory code already exists",
+          "error": "An error occurred while saving"
+        },
+        "delete": {
+          "title": "Delete Package",
+          "description": "Are you sure you want to delete this package?",
+          "confirm": "Delete",
+          "cancel": "Cancel",
+          "success": "Package was successfully deleted",
+          "error": "Package could not be deleted"
+        },
+        "fields": {
+          "protected": "Only the owner can edit this field",
+          "autocomplete": {
+            "select": "Make a selection",
+            "search": "Enter search term",
+            "empty": "No results found for this search term"
+          }
+        }
+      }
+    },
     "models": {
       "title": "Inventory list",
       "filters": {
@@ -183,6 +226,7 @@
       "dropdown": {
         "title": "Add inventory",
         "add_model": "New model",
+        "add_package": "New package",
         "add_item": "New item",
         "add_option": "New option",
         "add_software": "New software"

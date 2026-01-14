@@ -137,6 +137,13 @@
 
                         ($ DropdownMenuItem {:asChild true}
                            ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/packages/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              (t "pool.models.dropdown.add_package")))
+
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
                                     :to (generatePath "/inventory/:pool-id/items/create"
                                                       (cj {:pool-id pool-id}))
                                     :viewTransition true}
