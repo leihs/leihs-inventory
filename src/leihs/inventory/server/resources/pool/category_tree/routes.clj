@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.pool.category-tree.routes
   (:require
    [clojure.spec.alpha :as sa]
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.category-tree.main :as category-tree]
    [leihs.inventory.server.resources.pool.category-tree.types :as types]
    [reitit.coercion.schema]
@@ -11,7 +10,6 @@
 (defn routes []
   ["/category-tree/"
    {:get {:accept "application/json"
-          :summary (fe "")
           :description "Fetch tree
 
 - `with-metadata` provides additional metadata, including a base64-encoded image URL.

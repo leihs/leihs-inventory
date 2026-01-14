@@ -2,10 +2,8 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [dev.routes :refer [get-dev-routes]]
    [hiccup.page :refer [html5]]
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
-                                                        APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.middlewares.authorize :refer [wrap-authorize-for-pool wrap-authorize]]
    [leihs.inventory.server.middlewares.uri-restrict :refer [restrict-uri-middleware]]
@@ -258,10 +256,7 @@
                       (when APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                         [(suppliers/routes)
                          (fields/routes)
-                         (fields/routes)])
-
-                      (when APPLY_DEV_ENDPOINTS
-                        [(get-dev-routes)])]
+                         (fields/routes)])]
 
                      (admin-status/routes)
                      (profile/routes)
