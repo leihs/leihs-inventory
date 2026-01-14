@@ -143,6 +143,7 @@ feature "Create model", type: :feature do
     expect(page).to have_content "#{product} #{version}"
 
     fill_in "search", with: "#{product} #{version}"
+    await_debounce
     find("a", text: "edit").click
 
     expect(

@@ -7,7 +7,7 @@
                                DropdownMenuSub DropdownMenuSubContent DropdownMenuSubTrigger
                                DropdownMenuTrigger]]
    ["@@/input-group" :refer [InputGroup InputGroupInput InputGroupAddon]]
-   ["lucide-react" :refer [ChevronsUpDown CircleUser LayoutGrid Search]]
+   ["lucide-react" :refer [ChevronsUpDown CircleUser LayoutGrid Moon Search Sun]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
@@ -15,19 +15,21 @@
    [leihs.core.core :refer [detect]]
    [leihs.inventory.client.lib.csrf :as csrf]
    [leihs.inventory.client.lib.utils :refer [jc cj]]
+   [leihs.inventory.client.routes.components.theme-provider :refer [use-theme]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
 (defui main [{:keys [navigation available_inventory_pools user_details languages]}]
   (let [[t] (useTranslation)
         {:keys [pool-id]} (jc (router/useParams))
+        {:keys [theme set-theme]} (use-theme)
         fetcher (router/useFetcher)
         current-pool (->> available_inventory_pools (detect #(= pool-id (:id %))))
         current-lending-url (->> navigation :manage_nav_items (detect #(= (:name current-pool) (:name %))) :href)
         current-search-url (str/replace (or current-lending-url "") "/daily" "/search")
         current-lang (.. i18n -language)]
 
-    ($ :header {:className "bg-white sticky z-50 top-0 flex h-12 items-center gap-4 border-b h-16"}
+    ($ :header {:className "bg-background sticky z-50 top-0 flex h-12 items-center gap-4 border-b h-16"}
        ($ :nav {:className "container w-full flex flex-row justify-between text-sm items-center"}
           ($ :div {:className "flex items-center"}
              ($ :img {:src "/inventory/assets/zhdk-logo.svg" :className ""})
@@ -106,7 +108,8 @@
                    ($ DropdownMenuSeparator)
                    ($ DropdownMenuSub
                       ($ DropdownMenuSubTrigger
-                         ($ :button {:type "button" :data-test-id "language-menu"}
+                         ($ :button {:type "button"
+                                     :data-test-id "language-menu"}
                             (t "header.user-menu.language")))
                       ($ DropdownMenuPortal
                          ($ DropdownMenuSubContent
@@ -124,4 +127,26 @@
                                                      :action "/profile"}
                                        ($ :input {:type "hidden"
                                                   :name "language"
-                                                  :value (:locale language)})))))))))))))))
+                                                  :value (:locale language)}))))))))
+
+                   ($ DropdownMenuSub
+                      ($ DropdownMenuSubTrigger
+                         ($ :button {:class-name "flex items-center gap-2"
+                                     :type "button"}
+                            (t "header.user-menu.theme.title")))
+                      ($ DropdownMenuSubContent {:align "end"}
+                         ($ DropdownMenuItem {:as-child true
+                                              :onClick #(set-theme "light")}
+                            ($ :button {:type "button"
+                                        :class-name (str "w-full font-normal " (when (= theme "light") "font-semibold"))}
+                               (t "header.user-menu.theme.light")))
+                         ($ DropdownMenuItem {:as-child true
+                                              :onClick #(set-theme "dark")}
+                            ($ :button {:type "button"
+                                        :class-name (str "w-full font-normal " (when (= theme "dark") "font-semibold"))}
+                               (t "header.user-menu.theme.dark")))
+                         ($ DropdownMenuItem {:as-child true
+                                              :onClick #(set-theme "system")}
+                            ($ :button {:type "button"
+                                        :class-name (str "w-full font-normal " (when (= theme "system") "font-semibold"))}
+                               (t "header.user-menu.theme.system"))))))))))))

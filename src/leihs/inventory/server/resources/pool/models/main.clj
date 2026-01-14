@@ -4,6 +4,7 @@
    [clojure.string :as string]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.list.search :refer [make-multi-term-clause]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-map-by-spec
                                                                 model->enrich-with-image-attr]]
@@ -57,7 +58,7 @@
                                          [:= :i.retired nil]
                                          [:= :i.parent_id nil]])
                          (cond-> term
-                           (sql/where [:ilike :models.name (str "%" term "%")]))
+                           (sql/where (make-multi-term-clause term :ilike :models.name)))
                          (cond-> type
                            (sql/where [:= :type (string/capitalize type)]))
                          (sql/group-by :models.id

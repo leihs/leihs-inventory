@@ -1,27 +1,35 @@
 (ns leihs.inventory.server.resources.pool.list.search
   (:require
    [clojure.set]
+   [clojure.string :as string]
    [honey.sql.helpers :as sql]))
 
+(defn split-search-terms [search-term]
+  (->> (string/split search-term #"\s+")
+       (remove string/blank?)))
+
+(defn make-multi-term-clause [search-term operator field]
+  (let [terms (split-search-terms search-term)
+        clauses (map #(vector operator field (str "%" % "%")) terms)]
+    (cons :and clauses)))
+
 (defn matches-model-columns-expr [search table]
-  [:ilike
-   [:concat_ws " "
-    (keyword (name table) "manufacturer")
-    (keyword (name table) "product")
-    (keyword (name table) "version")]
-   (str "%" search "%")])
+  (let [field [:concat_ws " "
+               (keyword (name table) "manufacturer")
+               (keyword (name table) "product")
+               (keyword (name table) "version")]]
+    (make-multi-term-clause search (keyword "~~*") field)))
 
 (defn matches-item-columns-expr [search table]
-  [:ilike
-   [:concat_ws " "
-    (keyword (name table) "inventory_code")
-    (keyword (name table) "serial_number")
-    (keyword (name table) "invoice_number")
-    (keyword (name table) "note")
-    (keyword (name table) "name")
-    (keyword (name table) "user_name")
-    (keyword (name table) "properties")]
-   (str "%" search "%")])
+  (let [field [:concat_ws " "
+               (keyword (name table) "inventory_code")
+               (keyword (name table) "serial_number")
+               (keyword (name table) "invoice_number")
+               (keyword (name table) "note")
+               (keyword (name table) "name")
+               (keyword (name table) "user_name")
+               (keyword (name table) "properties")]]
+    (make-multi-term-clause search (keyword "~~*") field)))
 
 (defn matches-children-for-count-expr [search ref-table]
   [:exists

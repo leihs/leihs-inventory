@@ -13,7 +13,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
 
-   [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.client :refer [http-client safe-concat]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
@@ -46,7 +46,7 @@
         disabled (:disabled props)
 
         [search set-search!] (uix/use-state "")
-        debounced-search (hooks/use-debounce search 200)
+        debounced-search (hooks/use-debounce search 300)
 
         set-value (aget form "setValue")
         get-values (aget form "getValues")
@@ -85,7 +85,7 @@
          (let [fetch (fn []
                        (set-loading! true)
                        (-> http-client
-                           (.get (str values-url debounced-search))
+                           (.get (safe-concat values-url debounced-search))
                            (.then (fn [response]
                                     (let [data (jc (.. response -data))]
                                       (if remap

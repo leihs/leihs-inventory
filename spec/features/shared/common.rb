@@ -15,6 +15,10 @@ def assert_unchecked(el)
   expect(el["data-state"]).to eq "unchecked"
 end
 
+def await_debounce
+  sleep 0.3
+end
+
 def assert_field(label, value)
   expect(find_field(label, wait: 10).value).to eq value
 end
