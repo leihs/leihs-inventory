@@ -9,10 +9,11 @@
    [leihs.core.settings :as settings]
    [leihs.inventory.server.middlewares.auth :refer [wrap-session-token-authenticate!]]
    [leihs.inventory.server.middlewares.coercion :refer [wrap-handle-coercion-error]]
-   [leihs.inventory.server.middlewares.csrf-handler :as csrf]
+   [leihs.inventory.server.middlewares.csrf-handler :refer [wrap-csrf]]
    [leihs.inventory.server.middlewares.debug :as debug-mw]
    [leihs.inventory.server.middlewares.enforce-accept :refer [wrap-enforce-accept]]
    [leihs.inventory.server.middlewares.exception-handler :refer [wrap-exception]]
+   [leihs.inventory.server.middlewares.request-params :refer [wrap-parse-request]]
    [leihs.inventory.server.resources.routes :as routes]
    [leihs.inventory.server.swagger :as swagger]
    [leihs.inventory.server.utils.response :refer [custom-not-found-handler]]
@@ -40,11 +41,11 @@
                   core-routing/wrap-canonicalize-params-maps
                   muuntaja/format-middleware
                   ring-audits/wrap
-                  csrf/extract-header
+                  wrap-parse-request
                   wrap-session-token-authenticate!
                   wrap-cookies
                   wrap-enforce-accept
-                  csrf/wrap-csrf
+                  wrap-csrf
                   leihs.core.anti-csrf.back/wrap
                   wrap-params
                   wrap-content-type
