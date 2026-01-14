@@ -20,5 +20,3 @@
 
 (def ACCEPT-CSV "text/csv")
 (def ACCEPT-EXCEL "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
-(defn fe [s] (if false (str "[fe] | " s) s))

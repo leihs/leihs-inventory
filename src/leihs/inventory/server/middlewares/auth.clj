@@ -24,22 +24,4 @@
                     handler)]
       (handler request))))
 
-(defn endpoint-exists?
-  "Check if an endpoint exists for a given method + uri.
-   Returns the route data if it's not a fallback, otherwise nil.
-   Also accepts URIs with/without a trailing slash.
-   Whitelists certain paths like /inventory/ explicitly."
-  [router method uri]
-  (let [whitelist #{"/inventory/" "/inventory"}
-        match-ok? (fn [u]
-                    (when-let [match (r/match-by-path router u)]
-                      (let [route-data (get-in match [:data method])
-                            fallback? (get-in match [:data :fallback?])]
-                        (when (and route-data (not fallback?))
-                          route-data))))]
-    (or (match-ok? uri)
-        (match-ok? (if (.endsWith uri "/")
-                     (subs uri 0 (dec (count uri)))
-                     (str uri "/")))
-        (when (contains? whitelist uri)
-          true))))
+
