@@ -127,6 +127,7 @@ feature "Create item", type: :feature do
     expect(page).to have_content "Inventory List"
 
     fill_in "search", with: model.product
+    await_debounce
 
     within find('[data-row="model"]', text: model.product) do
       click_on "expand-button"

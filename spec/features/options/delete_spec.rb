@@ -30,6 +30,7 @@ feature "Delete option", type: :feature do
     click_on "Inventory type"
     click_on "Option"
     fill_in "search", with: "#{product} #{version}"
+    await_debounce
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product} #{version}")
@@ -43,6 +44,7 @@ feature "Delete option", type: :feature do
     click_on "Delete"
 
     fill_in "search", with: "#{product} #{version}"
+    await_debounce
     expect(page).not_to have_content "#{product} #{version}"
   end
 
@@ -53,6 +55,7 @@ feature "Delete option", type: :feature do
     click_on "Inventory type"
     click_on "Option"
     fill_in "search", with: "#{product} #{version}"
+    await_debounce
 
     within find("tr", text: "#{product} #{version}") do
       click_link("edit", wait: 20)

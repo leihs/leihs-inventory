@@ -129,6 +129,7 @@
         },
         "fields": {
           "protected": "Only the owner can edit this field",
+          "inactive": "Inactive",
           "autocomplete": {
             "select": "Make a selection",
             "search": "Enter search term",
