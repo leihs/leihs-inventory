@@ -1,8 +1,8 @@
-(ns leihs.inventory.server.utils.middleware-handler
+(ns leihs.inventory.server.middlewares.auth
   (:require
    [leihs.core.auth.session :as session]
    [leihs.core.auth.token :as token]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [reitit.core :as r]
    [ring.middleware.accept]))
 

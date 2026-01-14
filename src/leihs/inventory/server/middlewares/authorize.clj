@@ -1,9 +1,9 @@
 (ns leihs.inventory.server.middlewares.authorize
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool
-                                                        AUTHORIZED-ROLES]]
-   [leihs.inventory.server.utils.response-helper :as rh]
+   [leihs.inventory.server.middlewares.authorize.main :refer [authorized-role-for-pool
+                                                              AUTHORIZED-ROLES]]
+   [leihs.inventory.server.utils.response :as rh]
    [ring.util.response :as response]))
 
 (def supported-accepts

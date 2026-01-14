@@ -3,7 +3,7 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.list.main :as list]
    [leihs.inventory.server.resources.pool.list.types :refer [get-response]]
-   [leihs.inventory.server.utils.coercion.core :refer [Date]]
+   [leihs.inventory.server.utils.schema :refer [Date]]
    [reitit.coercion.schema]
    [ring.middleware.accept]
    [schema.core :as s])

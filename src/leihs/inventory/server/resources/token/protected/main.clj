@@ -3,9 +3,9 @@
    [clojure.string :as str]
    [crypto.random]
    [cryptohash-clj.api :refer [verify-with]]
-   [leihs.inventory.server.utils.request-utils :refer [authenticated?
-                                                       AUTHENTICATED_ENTITY
-                                                       get-auth-entity]]
+   [leihs.inventory.server.utils.request :refer [authenticated?
+                                                 AUTHENTICATED_ENTITY
+                                                 get-auth-entity]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response]
    [taoensso.timbre :refer [debug]]))

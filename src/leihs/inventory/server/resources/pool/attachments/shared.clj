@@ -4,12 +4,12 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
+   [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.attachments.constants :refer [config-get CONTENT_DISPOSITION_INLINE_FORMATS]]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64]]
+   [leihs.inventory.server.utils.image :refer [file-to-base64]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params]]
+   [leihs.inventory.server.utils.request :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response :refer [bad-request response status]])
   (:import

@@ -3,8 +3,8 @@
    [clojure.java.io :as io]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [IMAGE_RESPONSE_CACHE_CONTROL]]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
-   [leihs.inventory.server.utils.response-helper :as rh]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
+   [leihs.inventory.server.utils.response :as rh]
    [ring.util.response :refer [response status]])
   (:import
    [java.io ByteArrayInputStream]

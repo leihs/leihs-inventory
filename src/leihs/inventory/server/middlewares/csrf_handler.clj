@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.utils.csrf-handler
+(ns leihs.inventory.server.middlewares.csrf-handler
   (:require
    [byte-streams :as bs]
    [clojure.string :as str]
@@ -7,7 +7,7 @@
    [leihs.core.constants :as constants]
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.constants :as consts]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [ring.util.codec :as codec]
    [ring.util.response :as response]))
 

@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.middlewares.enforce-accept
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.utils.resource-handler :refer [custom-not-found-handler]]))
+   [leihs.inventory.server.utils.response :refer [custom-not-found-handler]]))
 
 (defn wrap-enforce-accept
   "Enforces :accept constraints from matched route data.

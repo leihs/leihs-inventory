@@ -10,7 +10,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.request-utils :refer [query-params]]
+   [leihs.inventory.server.utils.request :refer [query-params]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]

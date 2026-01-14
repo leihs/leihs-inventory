@@ -8,6 +8,7 @@
                                                         APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.middlewares.authorize :refer [wrap-authorize-for-pool wrap-authorize]]
+   [leihs.inventory.server.middlewares.uri-restrict :refer [restrict-uri-middleware]]
    [leihs.inventory.server.resources.main :refer [get-csrf-token get-sign-in
                                                   get-sign-out post-sign-in
                                                   post-sign-out
@@ -48,8 +49,7 @@
    [leihs.inventory.server.resources.token.protected.routes :as token-protected]
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
-   [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
-   [leihs.inventory.server.utils.response-helper :as rh]
+   [leihs.inventory.server.utils.response :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
