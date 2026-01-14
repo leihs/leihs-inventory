@@ -134,6 +134,8 @@ Each route module has:
 11. **Use canonical routes** - Follow established routing patterns
 12. **Prefer threading macros** - Use `->` and `->>` threading macros instead of nested function calls when nesting level > 2 in `.clj`, `.cljs`, and `.cljc` files
 13. **Debug logging** - For `.clj` and `.cljs` files debugging purposes only, use `debug` statement from `taoensso.timbre` library. You may need to add the required lib require in the namespace declaration (e.g., `[taoensso.timbre :refer [debug]]`). Also add the respective namespace to `logging.cljc` file in `shared-clj` project. Server must be restarted after changes.
+14. **Middlewares location** - Always place middlewares in `src/leihs/inventory/server/middlewares`
+15. **Utils location** - Always place utilities/helpers in `src/leihs/inventory/server/utils`
 
 ## Database Schema Notes
 

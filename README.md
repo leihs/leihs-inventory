@@ -116,6 +116,8 @@ See `./bin/build`
   * `utils/coercion/spec_alpha_definition*.clj`
   * `utils/helper.clj` -> `convert-map-if-exist`
 11. _use canonical routes_
+12. _middlewares location_ - always place middlewares in `src/leihs/inventory/server/middlewares`
+13. _utils location_ - always place utilities/helpers in `src/leihs/inventory/server/utils`
 
 ### Create artifact & deploy manually
 
