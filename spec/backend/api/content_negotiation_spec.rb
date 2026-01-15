@@ -97,6 +97,46 @@ describe "Content Negotiation" do
         expect(resp.body).to eq("Not Acceptable")
       end
     end
+
+    describe "Scenario 10: GET /models/ with Chrome Accept header (authenticated)" do
+      it "returns 200 (regression test for GitHub issue #2072)" do
+        # Chrome's default Accept header includes image types with */* fallback
+        chrome_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
+        resp = get_with_accept(authenticated_client, "/inventory/#{pool_id}/models/", chrome_accept)
+        expect(resp.status).to eq(200)
+        expect(resp.headers["Content-Type"]).to match(%r{text/html})
+      end
+    end
+
+    describe "Scenario 11: GET /models/ with Firefox Accept header (authenticated)" do
+      it "returns 200" do
+        # Firefox's Accept header without specific image types
+        firefox_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        resp = get_with_accept(authenticated_client, "/inventory/#{pool_id}/models/", firefox_accept)
+        expect(resp.status).to eq(200)
+        expect(resp.headers["Content-Type"]).to match(%r{text/html})
+      end
+    end
+
+    describe "Scenario 12: GET /models/ with multiple specific image types (authenticated)" do
+      it "returns 406 Not Acceptable (no wildcard fallback)" do
+        # Multiple specific image types without */* should still be rejected
+        resp = get_with_accept(authenticated_client, "/inventory/#{pool_id}/models/", "image/png, image/jpeg, image/webp")
+        expect(resp.status).to eq(406)
+        expect(resp.body).to eq("Not Acceptable")
+      end
+    end
+
+    describe "Scenario 13: POST /sign-out with Chrome Accept header (authenticated)" do
+      it "returns 302 redirect (regression test - sign-out also mentioned in issue #2072)" do
+        chrome_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
+        resp = authenticated_client.post "/sign-out" do |req|
+          req.headers["Accept"] = chrome_accept
+          req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        end
+        expect(resp.status).to eq(302)
+      end
+    end
   end
 
   private

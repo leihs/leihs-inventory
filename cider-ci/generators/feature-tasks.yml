@@ -183,6 +183,11 @@
   environment_variables:
     FEATURE_NAME: "Sign-in / Sign-out works sign-in/out with valid credentials 01"
     FEATURE: './spec/features/sign_in_out_spec.rb[1:1:2:1]'
+'./spec/features/sign_in_out_spec.rb[1:1:2:2]':
+  name: "Sign-in / Sign-out works sign-in/out with valid credentials 02"
+  environment_variables:
+    FEATURE_NAME: "Sign-in / Sign-out works sign-in/out with valid credentials 02"
+    FEATURE: './spec/features/sign_in_out_spec.rb[1:1:2:2]'
 './spec/features/software/create_spec.rb[1:1]':
   name: "Create software 01"
   environment_variables:

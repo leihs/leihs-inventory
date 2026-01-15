@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.middlewares.enforce-accept
   (:require
    [clojure.string :as str]
+   [leihs.inventory.server.utils.accept-parser :as accept-parser]
    [leihs.inventory.server.utils.response :refer [custom-not-found-handler]]))
 
 (defn wrap-enforce-accept
@@ -14,30 +15,36 @@
           route-produces (:produces route-data)
           route-public? (:public route-data)
           authenticated? (some? (:authenticated-entity request))
-          accept-header (str/lower-case
-                         (or (get-in request [:headers "accept"]) "*/*"))
-          has-html? (str/includes? accept-header "text/html")
-          has-json? (str/includes? accept-header "application/json")
-          has-image? (str/includes? accept-header "image/")
-          has-wildcard-only? (and (str/includes? accept-header "*/*")
+
+          ;; Parse Accept header properly
+          accept-header-str (get-in request [:headers "accept"])
+          accept-header-lower (str/lower-case (or accept-header-str "*/*"))
+          parsed-accept (accept-parser/parse-accept-header accept-header-str)
+
+          ;; Literal string checks for backward compatibility with old routing logic
+          has-html? (str/includes? accept-header-lower "text/html")
+          has-json? (str/includes? accept-header-lower "application/json")
+          has-wildcard-only? (and (str/includes? accept-header-lower "*/*")
                                   (not has-html?)
                                   (not has-json?)
-                                  (not has-image?))
+                                  (not (str/includes? accept-header-lower "image/")))
           is-html-request? (or has-html? has-wildcard-only?)
           is-json-only-request? (and has-json? (not has-html?) (not has-wildcard-only?))
-          route-accepts-images? (and route-produces
-                                     (some #(str/includes? % "image/") route-produces))]
+
+          ;; NEW: Proper image-only detection and route satisfaction check
+          is-image-only-request? (accept-parser/is-image-only-request? parsed-accept)
+          can-satisfy? (accept-parser/can-satisfy-any? parsed-accept route-produces)]
 
       (cond
-        ;; Image request to route that doesn't support images
+        ;; Image-ONLY request (no wildcards/html/json) to route that can't satisfy → 406
         ;; If not authenticated and route requires auth, pass through to authorize middleware for 401
         ;; Otherwise return 406
-        (and has-image?
-             (:reitit.core/match request) ; Route exists
-             route-produces ; Route has explicit produces
-             (not route-accepts-images?))
+        (and is-image-only-request?
+             (:reitit.core/match request)
+             route-produces
+             (not can-satisfy?))
         (if (and (not route-public?) (not authenticated?))
-          (handler request) ; Pass through - route-level authorize middleware will return 401
+          (handler request)
           {:status 406
            :headers {"content-type" "text/plain"}
            :body "Not Acceptable"})
