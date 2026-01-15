@@ -1,11 +1,10 @@
 (ns leihs.inventory.server.resources.pool.entitlement-groups.main
   (:require
-   [clojure.set]
+   [clojure.set :as set]
    [clojure.string]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.entitlement-groups.common :refer [create-entitlements
-                                                                            extract-by-keys
                                                                             link-groups-to-entitlement-group
                                                                             link-users-to-entitlement-group]]
    [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query :refer [fetch-users-of-entitlement-group
@@ -15,6 +14,7 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.debug :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.helper :refer [merge-by-id]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [body-params path-params]]
    [next.jdbc :as jdbc]
@@ -58,13 +58,6 @@
                   sql-format)]
     (jdbc/execute! tx query)))
 
-(defn merge-by-id
-  "Merge two vectors of maps by matching :id.
-     Fields from v2 override those from v1 on collision."
-  [v1 v2]
-  (let [m2 (into {} (map (juxt :id identity) v2))]
-    (mapv #(merge % (get m2 (:id %))) v1)))
-
 (defn- create-entitlement-group [tx data pool_id]
   (let [current-time (java.sql.Timestamp/from (java.time.Instant/now))
         new-eg (-> data
@@ -89,7 +82,7 @@
 
           post-fnc (fn [models]
                      (if (not (seq models)) []
-                         (let [ids (to-uuid (mapv :id models))
+                         (let [ids (to-uuid (map :id models))
                                models (merge-by-id models (enrich-with-is-quantity-ok tx pool_id ids))
                                result (merge-by-id models (enrich-with-stats tx ids))]
                            result)))]
@@ -97,42 +90,44 @@
     (catch Exception e
       (exception-handler request ERROR_GET e))))
 
-(defn rename-key [m old new]
-  (let [old-k (keyword old)
-        old-s (name old)
-        v (or (get m old-k)
-              (get m old-s))]
-    (cond-> m
-      v (-> (assoc new v)
-            (dissoc old-k old-s)))))
+(defn- prepare-models [models entitlement-group-id]
+  (->> models
+       (map #(assoc % :entitlement_group_id entitlement-group-id))))
+
+(defn- link-entities [tx data entitlement-group-id]
+  (when-let [user-ids (seq (map :id (:users data)))]
+    (link-users-to-entitlement-group tx user-ids entitlement-group-id))
+  (when-let [group-ids (seq (map :id (:groups data)))]
+    (link-groups-to-entitlement-group tx group-ids entitlement-group-id)))
+
+(defn- fetch-related-entities [tx pool-id entitlement-group-id]
+  (let [users (fetch-users-of-entitlement-group tx entitlement-group-id)
+        groups (fetch-groups-of-entitlement-group tx entitlement-group-id)
+        models (fetch-models-of-entitlement-group tx pool-id entitlement-group-id)]
+    {:users users
+     :groups groups
+     :models models}))
+
+(defn- build-response [entitlement-group related-entities]
+  (response (merge entitlement-group related-entities)))
 
 (defn post-resource [request]
   (try
     (let [tx (:tx request)
-          pool_id (-> request path-params :pool_id)
+          pool-id (-> request path-params :pool_id)
           data (body-params request)
-          models (:models data)
-          models (mapv #(rename-key % :id :model_id) models)
+          models (map #(set/rename-keys % {:id :model_id}) (:models data))
+          eg-data (select-keys data [:name :is_verification_required])
+          entitlement-group (create-entitlement-group tx eg-data pool-id)
+          entitlement-group-id (:id entitlement-group)
+          prepared-models (prepare-models models entitlement-group-id)]
 
-          eg-data (extract-by-keys data [:name :is_verification_required])
+      (link-entities tx data entitlement-group-id)
+      (create-entitlements tx prepared-models)
 
-          entitlement_group (create-entitlement-group tx eg-data pool_id)
-          entitlement-group-id (:id entitlement_group)
+      (let [related-entities (fetch-related-entities tx pool-id entitlement-group-id)]
+        (build-response entitlement-group related-entities)))
 
-          _ (link-users-to-entitlement-group tx (->> (:users data)
-                                                     (mapv :id)) entitlement-group-id)
-          _ (link-groups-to-entitlement-group tx (->> (:groups data)
-                                                      (mapv :id)) entitlement-group-id)
-
-          models-with-id (mapv #(assoc % :entitlement_group_id entitlement-group-id) models)
-          users (fetch-users-of-entitlement-group tx entitlement-group-id)
-          groups (fetch-groups-of-entitlement-group tx entitlement-group-id)]
-
-      (create-entitlements tx models-with-id)
-      (let [models-response (fetch-models-of-entitlement-group tx pool_id entitlement-group-id)]
-        (response (merge entitlement_group {:models models-response
-                                            :users users
-                                            :groups groups}))))
     (catch Exception e
       (log-by-severity ERROR_CREATE e)
       (exception-handler request ERROR_CREATE e))))

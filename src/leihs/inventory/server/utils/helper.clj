@@ -34,3 +34,10 @@
 
 (defn convert-to-map [dict]
   (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) dict)))
+
+(defn merge-by-id
+  "Merge two vectors of maps by matching :id.
+     Fields from v2 override those from v1 on collision."
+  [v1 v2]
+  (let [m2 (into {} (map (juxt :id identity) v2))]
+    (mapv #(merge % (get m2 (:id %))) v1)))

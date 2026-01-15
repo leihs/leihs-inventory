@@ -27,9 +27,8 @@
                 :version (s/maybe s/Str)
                 :quantity s/Int
 
-                ;:available_count s/Int ;remove
                 :entitled_in_other_groups s/Int
-                (s/optional-key :available) s/Int ;:items_count
+                (s/optional-key :available) s/Int
 
                 :is_quantity_ok s/Bool
 

@@ -1,6 +1,6 @@
 (ns leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.query
   (:require
-   [clojure.set]
+   [clojure.set :as set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.entitlement-groups.common :refer [fetch-entitlements]]
@@ -8,7 +8,8 @@
                                                                 model->enrich-with-image-attr]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
-   [next.jdbc :as jdbc]))
+   [next.jdbc :as jdbc]
+   [taoensso.timbre :refer [warn]]))
 
 (defn fetch-entitlement-group [tx request]
   (let [pool-id (-> request path-params :pool_id)
@@ -66,13 +67,13 @@
   [model-ids allocations availables]
   (let [allocations-by-id (into {} (map (fn [row] [(:id row) row]) allocations))
         items-by-id (into {} (map (fn [row] [(:id row) row]) availables))]
-    (mapv (fn [model-id]
-            {:id model-id
-             :entitled_in_other_groups
-             (get-in allocations-by-id [model-id :entitled_in_other_groups] 0)
-             :available
-             (get-in items-by-id [model-id :available] 0)})
-          model-ids)))
+    (map (fn [model-id]
+           {:id model-id
+            :entitled_in_other_groups
+            (get-in allocations-by-id [model-id :entitled_in_other_groups] 0)
+            :available
+            (get-in items-by-id [model-id :available] 0)})
+         model-ids)))
 
 (defn select-entitlements-with-item-count [tx inventory-pool-id model-ids exclude-group-id]
   (let [allocations (select-allocations tx inventory-pool-id model-ids exclude-group-id)
@@ -83,21 +84,26 @@
   (cond
     (nil? v) 0
     (number? v) (long v)
-    (string? v) (try (Long/parseLong v)
-                     (catch Exception _ 0))
+    (string? v)
+    (try
+      (Long/parseLong v)
+      (catch Exception e
+        (warn (format "Failed to parse long from value=%s, error=%s"
+                      v (.getMessage e)))
+        0))
     :else 0))
 
 (defn add-allocation-considered-count [entitlements]
-  (mapv (fn [e]
-          (let [available-raw (:available e)
-                quantity-raw (:quantity e)
-                available (->long available-raw)
-                quantity (->long quantity-raw)
-                e (assoc e :available available
-                         :is_quantity_ok (<= quantity available))
-                result (dissoc e :entitlement_group_id)]
-            result))
-        entitlements))
+  (map (fn [e]
+         (let [available-raw (:available e)
+               quantity-raw (:quantity e)
+               available (->long available-raw)
+               quantity (->long quantity-raw)
+               e (assoc e :available available
+                        :is_quantity_ok (<= quantity available))
+               result (dissoc e :entitlement_group_id)]
+           result))
+       entitlements))
 
 (defn fetch-users-of-entitlement-group [tx entitlement-group-id]
   (let [query (-> (sql/select
@@ -139,7 +145,7 @@
                    (sql/order-by :m.product)
                    sql-format)
          models (jdbc/execute! tx query)
-         model-ids (mapv :id models)]
+         model-ids (map :id models)]
 
      (if (seq model-ids)
        (let [models-with-images (->> models
@@ -159,13 +165,45 @@
          (add-allocation-considered-count models-with-allocation))
        []))))
 
+(defn- fetch-entitlements-for-groups [tx entitlement-group-ids]
+  (-> (sql/select :e.entitlement_group_id :e.model_id :e.quantity)
+      (sql/from [:entitlements :e])
+      (sql/where [:in :e.entitlement_group_id entitlement-group-ids])
+      sql-format
+      (->> (jdbc/execute! tx))))
+
+(defn- fetch-item-counts-for-models [tx pool-id model-ids]
+  (if (empty? model-ids)
+    {}
+    (-> (sql/select :model_id [[:count :id] :count])
+        (sql/from :items)
+        (sql/where [:and
+                    [:= :inventory_pool_id pool-id]
+                    [:in :model_id model-ids]
+                    [:is :retired nil]
+                    [:= :is_borrowable true]
+                    [:is :parent_id nil]])
+        (sql/group-by :model_id)
+        sql-format
+        (->> (jdbc/execute! tx)
+             (map (juxt :model_id :count))
+             (into {})))))
+
 (defn enrich-with-is-quantity-ok [tx pool-id entitlement-group-ids]
-  (let [res (mapv (fn [eg-id]
-                    (let [models (fetch-models-of-entitlement-group tx pool-id eg-id)
-                          all-ok? (every? :is_quantity_ok models)]
-                      {:id eg-id :is_quantity_ok all-ok?}))
-                  entitlement-group-ids)]
-    res))
+  (if (empty? entitlement-group-ids)
+    []
+    (let [entitlements (fetch-entitlements-for-groups tx entitlement-group-ids)
+          model-ids (distinct (map :model_id entitlements))
+          item-counts (fetch-item-counts-for-models tx pool-id model-ids)
+          entitlements-by-group (group-by :entitlement_group_id entitlements)]
+      (map (fn [eg-id]
+             (let [group-entitlements (get entitlements-by-group eg-id)
+                   all-ok? (every? (fn [{:keys [model_id quantity]}]
+                                     (let [available (get item-counts model_id 0)]
+                                       (<= quantity available)))
+                                   group-entitlements)]
+               {:id eg-id :is_quantity_ok (true? all-ok?)}))
+           entitlement-group-ids))))
 
 (defn fetch-groups-of-entitlement-group [tx entitlement-group-id]
   (let [query (-> (sql/select :g.id :g.name :g.searchable)
@@ -187,28 +225,31 @@
         entitlement-group (jdbc/execute-one! tx query)]
     entitlement-group))
 
-(defn rename-key [m old new]
-  (let [old-k (keyword old)
-        old-s (name old)
-        v (or (get m old-k)
-              (get m old-s))]
-    (cond-> m
-      v (-> (assoc new v)
-            (dissoc old-k old-s)))))
-
-(defn analyze-and-prepare-data [tx models entitlement-group-id]
+(defn analyze-and-prepare-data
+  [tx models entitlement-group-id]
   (let [{:keys [db-model-ids]} (fetch-entitlements tx entitlement-group-id)
         db-model-id-set (set db-model-ids)
         incoming-model-ids (set (keep :id models))
 
         model-ids-to-delete (vec (remove incoming-model-ids db-model-ids))
-        entitlements-to-update (mapv #(rename-key % :id :model_id)
-                                     (filterv #(contains? db-model-id-set (:id %)) models))
-        entitlements-to-create (mapv #(-> %
-                                          (rename-key :id :model_id)
-                                          (assoc :entitlement_group_id entitlement-group-id))
-                                     (filterv #(not (contains? db-model-id-set (:id %))) models))]
+
+        entitlements-to-update (->> models
+                                    (filterv #(contains? db-model-id-set (:id %)))
+                                    (map #(set/rename-keys % {:id :model_id})))
+
+        entitlements-to-create (->> models
+                                    (filterv #(not (contains? db-model-id-set (:id %))))
+                                    (map #(-> %
+                                              (set/rename-keys {:id :model_id})
+                                              (assoc :entitlement_group_id entitlement-group-id))))]
 
     {:entitlements-to-update entitlements-to-update
      :entitlements-to-create entitlements-to-create
      :entitlement-ids-to-delete model-ids-to-delete}))
+
+(defn delete-entitlement-group [tx entitlement-group-id]
+  (jdbc/execute-one! tx
+                     (-> (sql/delete-from :entitlement_groups)
+                         (sql/where [:= :id entitlement-group-id])
+                         (sql/returning :*)
+                         sql-format)))
