@@ -27,9 +27,13 @@
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.options.crud.components.fields :as form-fields]
-   [leihs.inventory.client.routes.pools.options.crud.core :as core]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
+
+(def default-values {:product ""
+                     :inventory_code ""
+                     :version ""
+                     :price 0})
 
 (defui page []
   (let [[t] (useTranslation)
@@ -53,8 +57,8 @@
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
                                             (cj (form-helper/replace-nil-values
-                                                 (merge core/default-values (jc data))))
-                                            (cj core/default-values))})
+                                                 (merge default-values (jc data))))
+                                            (cj default-values))})
 
         is-loading (.. form -formState -isLoading)
 
