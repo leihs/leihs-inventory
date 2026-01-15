@@ -100,7 +100,7 @@ function Item({ children, className, file, generatePreview = true }) {
 }
 
 const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
-  const [isInputDisabled, setIsInputDisabled] = React.useState(false)
+  const [isDisabled, setIsDisabled] = React.useState(false)
 
   const filetypes = {
     jpeg: { "image/jpeg": [".jpg", ".jpeg"] },
@@ -133,38 +133,10 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
   // Forward dropzone's input ref to parent (react-hook-form)
   React.useImperativeHandle(ref, () => dropzone.inputRef.current)
 
-  // Observe disabled attribute changes on the input element
-  React.useEffect(() => {
-    const inputElement = dropzone.inputRef.current
-    if (!inputElement) return
-
-    // Set initial disabled state
-    setIsInputDisabled(inputElement.disabled)
-
-    // Observe changes to disabled attribute
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "disabled"
-        ) {
-          setIsInputDisabled(mutation.target.disabled)
-        }
-      })
-    })
-
-    observer.observe(inputElement, {
-      attributes: true,
-      attributeFilter: ["disabled"],
-    })
-
-    return () => observer.disconnect()
-  }, [])
-
   // Also sync props.disabled to state
   React.useEffect(() => {
     if (props.disabled !== undefined) {
-      setIsInputDisabled(props.disabled)
+      setIsDisabled(props.disabled)
     }
   }, [props.disabled])
 
@@ -174,7 +146,7 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
       id={`${props.name}-dropzone`}
       className={cn(
         "flex shadow-sm justify-center items-center w-full h-32 border-dashed border-2 border-gray-200 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all select-none cursor-pointer",
-        isInputDisabled && "opacity-50 cursor-not-allowed hover:bg-transparent",
+        isDisabled && "opacity-50 cursor-not-allowed hover:bg-transparent",
         className,
       )}
     >
