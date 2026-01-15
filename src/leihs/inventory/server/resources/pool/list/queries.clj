@@ -70,22 +70,6 @@
             (cond-> (presence search) (with-search-for-count search :inventory)))
         :items])))
 
-(defn all-items [query pool-id
-                 & {:keys [retired borrowable incomplete broken
-                           inventory_pool_id owned search
-                           in_stock before_last_check]}]
-  (-> query
-      (select-items-count pool-id
-                          :retired retired
-                          :borrowable borrowable
-                          :incomplete incomplete
-                          :broken broken
-                          :inventory_pool_id inventory_pool_id
-                          :owned owned
-                          :in_stock in_stock
-                          :before_last_check before_last_check
-                          :search search)))
-
 (defn with-items [query pool-id
                   & {:keys [retired borrowable incomplete broken
                             inventory_pool_id owned search
@@ -127,6 +111,8 @@
                           (sql/where (items-shared/owner-or-responsible-cond pool-id)))]])))
 
 (hugsql/def-sqlvec-fns "sql/descendent_ids.sql")
+
+(declare descendent-ids-sqlvec)
 
 (defn descendent-ids [tx category-id]
   (-> {:category-id category-id}
