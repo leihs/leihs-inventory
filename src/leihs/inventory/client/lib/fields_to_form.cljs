@@ -129,8 +129,7 @@
                     (contains? field :values) (assoc :options (transform-field-values (:values field) field-type))
                     (contains? field :placeholder) (assoc :placeholder (:placeholder field))
                     (contains? field :required) (assoc :required (:required field))
-                    (contains? field :protected) (assoc :disabled (:protected field)
-                                                        :disabled-reason :protected)
+                    (contains? field :protected) (assoc :disabled (:protected field))
 
                     ;; For autocomplete with values_url, pass the URL
                     (and (= field-type "autocomplete") (:values_url field))
@@ -153,7 +152,8 @@
           (seq props) (assoc :props props)
           (:description field) (assoc :description (:description field))
           visibility-dep (assoc :visibility-dependency visibility-dep)
-          values-dep (assoc :values-dependency values-dep))))))
+          values-dep (assoc :values-dependency values-dep)
+          (:protected field) (assoc :disabled-reason :protected))))))
 
 (defn- group-fields-by-group [fields]
   (reduce (fn [acc field]
@@ -241,30 +241,42 @@
             {}
             implemented-fields)))
 
-(defn update-field-props
-  "Updates props for a specific field in the structure.
+(defn update-field
+  "Updates a specific field in the structure.
    
    Args:
      structure - The form structure (vector of sections)
      field-name - The name of the field to update (string)
-     props-update - Map of props to merge/overwrite
+     updates - Map of updates to apply. Can include:
+               :props - Props to merge into the field's :props
+               :disabled-reason - Reason for disabling (keyword)
+               Any other block-level keys (e.g., :visibility-dependency, :values-dependency)
    
    Returns:
-     Updated structure with the field's props modified.
+     Updated structure with the field modified.
      Returns unchanged structure if field-name not found.
    
    Example:
-     (update-field-props structure \"inventory_code\" {:disabled true
-                                                       :disabled-reason :multiple-items})
-     (update-field-props structure \"model_id\" {:disabled false
-                                                 :disabled-reason nil})"
-  [structure field-name props-update]
+     (update-field structure \"inventory_code\" 
+                   {:props {:disabled true}
+                    :disabled-reason :multiple-items})
+     (update-field structure \"model_id\" 
+                   {:props {:disabled false}
+                    :disabled-reason nil})"
+  [structure field-name updates]
   (mapv (fn [section]
           (update section :blocks
                   (fn [blocks]
                     (mapv (fn [block]
                             (if (= (:name block) field-name)
-                              (update block :props merge props-update)
+                              ;; Separate :props updates from block-level updates
+                              (let [props-updates (:props updates)
+                                    block-updates (dissoc updates :props)]
+                                (cond-> block
+                                  ;; Merge props if provided
+                                  props-updates (update :props merge props-updates)
+                                  ;; Merge block-level updates
+                                  (seq block-updates) (merge block-updates)))
                               block))
                           blocks))))
         structure))

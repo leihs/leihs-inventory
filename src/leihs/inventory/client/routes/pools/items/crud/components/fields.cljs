@@ -204,9 +204,11 @@
                                                ($ FormMessage))}))))))
 
          (when (:disabled (:props block))
-           ($ TooltipContent {:side "left"
+           ($ TooltipContent {:side "top"
+                              ;; :align-offset 10
+                              :align "start"
                               :class-name "w-[150px]"}
-              (case (:disabled-reason (:props block))
+              (case (:disabled-reason block)
                 :protected (t "pool.items.item.fields.disabled.protected")
                 :model-selected (t "pool.items.item.fields.disabled.model-selected")
                 :multiple-items (t "pool.items.item.fields.disabled.multiple-items")

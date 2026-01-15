@@ -222,9 +222,9 @@
        (when (and is-create model (not is-loading))
          (set-value "model_id" (cj {:label (:product model)
                                     :value (:id model)}))
-         (set-structure! #(fields-to-form/update-field-props % "model_id"
-                                                             {:disabled true
-                                                              :disabled-reason :model-selected}))))
+         (set-structure! #(fields-to-form/update-field % "model_id"
+                                                       {:props {:disabled true}
+                                                        :disabled-reason :model-selected}))))
      [is-create is-loading model set-value])
 
     ;; Handle fields disabling/enabling when creating multiple items
@@ -233,35 +233,35 @@
        (if (and (> field-count 1) (not is-loading))
          ;; Disable when count > 1
          (set-structure! #(-> %
-                              (fields-to-form/update-field-props "inventory_code"
-                                                                 {:disabled true
-                                                                  :disabled-reason :multiple-items})
-                              (fields-to-form/update-field-props "attachments"
-                                                                 {:disabled true
-                                                                  :disabled-reason :multiple-items})
-                              (fields-to-form/update-field-props "serial_number"
-                                                                 {:disabled true
-                                                                  :disabled-reason :multiple-items})))
+                              (fields-to-form/update-field "inventory_code"
+                                                           {:props {:disabled true}
+                                                            :disabled-reason :multiple-items})
+                              (fields-to-form/update-field "attachments"
+                                                           {:props {:disabled true}
+                                                            :disabled-reason :multiple-items})
+                              (fields-to-form/update-field "serial_number"
+                                                           {:props {:disabled true}
+                                                            :disabled-reason :multiple-items})))
          ;; Re-enable when count <= 1
          (set-structure! #(-> %
-                              (fields-to-form/update-field-props "inventory_code"
-                                                                 {:disabled false
-                                                                  :disabled-reason nil})
-                              (fields-to-form/update-field-props "attachments"
-                                                                 {:disabled false
-                                                                  :disabled-reason nil})
-                              (fields-to-form/update-field-props "serial_number"
-                                                                 {:disabled false
-                                                                  :disabled-reason nil})))))
+                              (fields-to-form/update-field "inventory_code"
+                                                           {:props {:disabled false}
+                                                            :disabled-reason nil})
+                              (fields-to-form/update-field "attachments"
+                                                           {:props {:disabled false}
+                                                            :disabled-reason nil})
+                              (fields-to-form/update-field "serial_number"
+                                                           {:props {:disabled false}
+                                                            :disabled-reason nil})))))
      [is-loading field-count])
 
     ;; Handle owner_id disabling on create
     (uix/use-effect
      (fn []
        (when (and is-create (not is-loading))
-         (set-structure! #(fields-to-form/update-field-props % "owner_id"
-                                                             {:disabled true
-                                                              :disabled-reason :owner-locked}))))
+         (set-structure! #(fields-to-form/update-field % "owner_id"
+                                                       {:props {:disabled true}
+                                                        :disabled-reason :owner-locked}))))
      [is-create is-loading])
 
     ;; Clear room_id when building changes
