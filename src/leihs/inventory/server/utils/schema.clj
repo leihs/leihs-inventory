@@ -1,8 +1,6 @@
-(ns leihs.inventory.server.utils.coercion.core
+(ns leihs.inventory.server.utils.schema
+  "Schema type definitions for API coercion."
   (:require
-   [reitit.coercion.schema]
-   [reitit.coercion.spec]
-   [ring.middleware.accept]
    [schema.core :as s])
   (:import [java.time.format DateTimeFormatter]))
 

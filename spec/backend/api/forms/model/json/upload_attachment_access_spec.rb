@@ -97,7 +97,7 @@ describe "Inventory Model" do
               expect(@attachment_id).not_to be_nil
             end
 
-            it "with accept application/json" do
+            it "with accept text/html" do
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{@attachment_id}"
               expect(resp.status).to eq(200)
             end
@@ -106,14 +106,18 @@ describe "Inventory Model" do
               non_existing_image_id = "00000000-0000-0000-0000-000000000000"
 
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{non_existing_image_id}"
-              expect_spa_content(resp, 200)
+              expect(resp.status).to eq(404)
+              expect(resp.headers["content-type"]).to eq("text/plain; charset=utf-8")
+              expect(resp.body).to eq("No attachment found")
             end
 
             it "with invalid uuid (coercion)" do
               invalid_uuid_coercion_error = "00000000-0000-0000-0000-00000000000s"
 
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{invalid_uuid_coercion_error}"
-              expect_spa_content(resp, 200)
+              expect(resp.status).to eq(404)
+              expect(resp.headers["content-type"]).to eq("text/plain; charset=utf-8")
+              expect(resp.body).to eq("Request coercion failed")
             end
           end
         end

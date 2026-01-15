@@ -42,11 +42,6 @@ describe "Request " do
     end
 
     context "http-request against /inventory/status" do
-      scenario "invalid status-check for cider" do
-        resp = http_client.get "/inventory/status/"
-        expect(resp.status).to be == 302
-      end
-
       scenario "valid status-check for cider" do
         resp = http_client.get "/inventory/status"
         expect_spa_content(resp, 200)

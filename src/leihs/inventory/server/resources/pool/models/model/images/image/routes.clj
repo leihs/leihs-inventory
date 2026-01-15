@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.pool.models.model.images.image.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [ALLOWED_IMAGE_CONTENT_TYPES]]
    [leihs.inventory.server.resources.pool.models.model.images.image.main :as image]
    [leihs.inventory.server.resources.pool.models.model.images.image.types :refer [delete-response
@@ -14,24 +13,19 @@
 
 (defn routes []
   ["/models/:model_id/images/:image_id"
-   {:get {:summary (fe "")
-          :coercion reitit.coercion.schema/coercion
+   {:get {:coercion reitit.coercion.schema/coercion
           :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}
           :produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :image_id s/Uuid}}
           :handler image/get-resource
-          :responses {200 {:description "OK"
-                           :body (s/->Either [image s/Any])}
-                      404 {:description "Not Found"
-                           :body error-message-structure}
-                      406 {:description "Requested content type not supported"
-                           :body error-message-structure}
+          :responses {200 {:description "OK"}
+                      404 {:description "Not Found"}
+                      406 {:description "Requested content type not supported"}
                       500 {:description "Internal Server Error"}}}
 
     :delete {:accept "application/json"
-             :summary (fe "")
              :coercion reitit.coercion.schema/coercion
              :parameters {:path {:pool_id s/Uuid
                                  :model_id s/Uuid

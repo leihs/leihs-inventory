@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.items.item.types
   (:require
    [leihs.inventory.server.resources.pool.items.types :refer [post-response properties]]
-   [leihs.inventory.server.utils.coercion.core :refer [Date]]
+   [leihs.inventory.server.utils.schema :refer [Date]]
    [schema.core :as s]))
 
 (def patch-request

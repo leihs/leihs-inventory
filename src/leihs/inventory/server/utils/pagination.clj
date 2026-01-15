@@ -2,8 +2,7 @@
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-   [leihs.inventory.server.utils.request-utils :refer [query-params]]
+   [leihs.inventory.server.utils.request :refer [query-params single-entity-get-request?]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]))
 

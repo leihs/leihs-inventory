@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.utils.middleware
+(ns leihs.inventory.server.middlewares.uri-restrict
   (:require
    [ring.util.response :as response]))
 

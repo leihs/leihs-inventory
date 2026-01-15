@@ -174,20 +174,15 @@
     FEATURE_NAME: "Root page renders 01"
     FEATURE: './spec/features/root_page_smoke_spec.rb[1:1:1]'
 './spec/features/sign_in_out_spec.rb[1:1:1:1]':
-  name: "Sign-in / Sign-out works against / 01"
+  name: "Sign-in / Sign-out works sign-in with invalid credentials 01"
   environment_variables:
-    FEATURE_NAME: "Sign-in / Sign-out works against / 01"
+    FEATURE_NAME: "Sign-in / Sign-out works sign-in with invalid credentials 01"
     FEATURE: './spec/features/sign_in_out_spec.rb[1:1:1:1]'
-'./spec/features/sign_in_out_spec.rb[1:1:1:2:1]':
-  name: "Sign-in / Sign-out works against / sign-in with invalid credentials 01"
+'./spec/features/sign_in_out_spec.rb[1:1:2:1]':
+  name: "Sign-in / Sign-out works sign-in/out with valid credentials 01"
   environment_variables:
-    FEATURE_NAME: "Sign-in / Sign-out works against / sign-in with invalid credentials 01"
-    FEATURE: './spec/features/sign_in_out_spec.rb[1:1:1:2:1]'
-'./spec/features/sign_in_out_spec.rb[1:1:1:3:1]':
-  name: "Sign-in / Sign-out works against / sign-in/out with valid credentials 01"
-  environment_variables:
-    FEATURE_NAME: "Sign-in / Sign-out works against / sign-in/out with valid credentials 01"
-    FEATURE: './spec/features/sign_in_out_spec.rb[1:1:1:3:1]'
+    FEATURE_NAME: "Sign-in / Sign-out works sign-in/out with valid credentials 01"
+    FEATURE: './spec/features/sign_in_out_spec.rb[1:1:2:1]'
 './spec/features/software/create_spec.rb[1:1]':
   name: "Create software 01"
   environment_variables:

@@ -1,4 +1,5 @@
-(ns leihs.inventory.server.utils.image-upload-handler
+(ns leihs.inventory.server.utils.image
+  "Image processing utilities for upload handling."
   (:require
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.attachments.constants :refer [config-get]])

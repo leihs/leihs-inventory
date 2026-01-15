@@ -1,25 +1,42 @@
 (ns leihs.inventory.server.middlewares.authorize
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.utils.authorize.main :refer [authorized-role-for-pool
-                                                        AUTHORIZED-ROLES]]
-   [ring.util.codec :as codec]
+   [leihs.inventory.server.middlewares.authorize.main :refer [authorized-role-for-pool
+                                                              AUTHORIZED-ROLES]]
+   [leihs.inventory.server.utils.response :as rh]
    [ring.util.response :as response]))
 
+(def supported-accepts
+  #{"text/html"
+    "application/json"
+    "image/"
+    "text/csv"
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
+
 (defn unauthorized-response [request]
-  (if (str/includes? (get-in request [:headers "accept"] "") "json")
-    (response/status (response/response {:status "failure" :message "Unauthorized"}) 403)
-    (let [uri (:uri request)
-          query-string (:query-string request)
-          full-url (if query-string
-                     (str uri "?" query-string)
-                     uri)
-          encoded-url (codec/url-encode full-url)
-          redirect-url (str "/sign-in?return-to=" encoded-url)]
-      {:status 302
-       :headers {"Location" redirect-url
-                 "Content-Type" "text/html"}
-       :body ""})))
+  (let [authenticated? (-> request :authenticated-entity boolean)
+        accept (str/lower-case (get-in request [:headers "accept"] ""))
+        json-request? (str/includes? accept "json")
+        html-request? (or (str/includes? accept "text/html") (str/includes? accept "*/*"))
+        image-request? (str/includes? accept "image/")
+        supported? (or (= accept "*/*")
+                       (some #(str/includes? accept %) supported-accepts))]
+    (cond
+      ;; Unsupported Accept header → 406
+      (not supported?)
+      (response/status (response/response "Not Acceptable") 406)
+
+      ;; JSON or image or other non-HTML requests
+      (or json-request? image-request? (not html-request?))
+      (if authenticated?
+        ;; Authenticated but lacks permission -> 403
+        (response/status (response/response {:status "failure" :message "Forbidden"}) 403)
+        ;; Not authenticated -> 401
+        (response/status (response/response {:status "failure" :message "Not authenticated"}) 401))
+
+      ;; HTML request -> Always return SPA with 200
+      :else
+      (rh/index-html-response request 200))))
 
 (defn wrap-authorize [handler]
   (fn [{:keys [authenticated-entity request-method]

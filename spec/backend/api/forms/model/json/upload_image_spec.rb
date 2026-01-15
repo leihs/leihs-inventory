@@ -182,7 +182,7 @@ describe "Inventory Model" do
 
           it "with content-negotiation OR correct accept-type" do
             ["image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-              "image/png", "image/*" + "*/*"].each do |accept_type|
+              "image/png", "image/*"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
               expect(resp.status).to eq(200)
@@ -231,7 +231,7 @@ describe "Inventory Model" do
 
           it "with content-negotiation OR correct accept-type" do
             ["image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-              "image/png", "image/*" + "*/*"].each do |accept_type|
+              "image/png", "image/*"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail"
 

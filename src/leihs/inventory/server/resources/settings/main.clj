@@ -3,8 +3,8 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
+   [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [next.jdbc.sql :as jdbc]
    [ring.util.response :refer [response]]
    [taoensso.timbre :refer [debug]]))

@@ -2,12 +2,11 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [dev.routes :refer [get-dev-routes]]
    [hiccup.page :refer [html5]]
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
-                                                        APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.middlewares.authorize :refer [wrap-authorize-for-pool wrap-authorize]]
+   [leihs.inventory.server.middlewares.uri-restrict :refer [restrict-uri-middleware]]
    [leihs.inventory.server.resources.main :refer [get-csrf-token get-sign-in
                                                   get-sign-out post-sign-in
                                                   post-sign-out
@@ -48,15 +47,11 @@
    [leihs.inventory.server.resources.token.protected.routes :as token-protected]
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
-   [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
-   [leihs.inventory.server.utils.middleware-handler :refer [endpoint-exists?]]
-   [leihs.inventory.server.utils.request-utils :refer [authenticated?]]
-   [leihs.inventory.server.utils.response-helper :as rh]
+   [leihs.inventory.server.utils.response :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
-   [ring.util.codec :as codec]
    [schema.core :as s]
    [taoensso.timbre :refer [debug error spy]]))
 
@@ -76,7 +71,7 @@
 (defn sign-in-out-endpoints []
   [[""
     {:no-doc HIDE_BASIC_ENDPOINTS
-     :get {:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+     :get {:accept "text/html"
            :swagger {:produces ["text/html"] :security []}
            :produces ["text/html"]
            :description "Root page"
@@ -170,37 +165,6 @@
                 str/lower-case)]
     (get mime-types ext "application/octet-stream")))
 
-(defn html-endpoints []
-  [""
-   {:swagger {:tags ["Html"]}
-    :no-doc HIDE_BASIC_ENDPOINTS}
-
-   ["{*path}"
-    {:no-doc HIDE_BASIC_ENDPOINTS
-     :fallback? true
-     :get {:description "Public assets like JS, CSS, images"
-           :produces ["text/html"]
-           :handler (fn [request]
-                      (let [router (:reitit.router request)
-                            method (:request-method request)
-                            uri (:uri request)
-                            route-data (endpoint-exists? router method uri)
-                            exists? (boolean route-data)]
-                        (if (authenticated? request)
-                          (if exists?
-                            (rh/index-html-response request 200)
-                            (rh/index-html-response request 404))
-                          (let [query-string (:query-string request)
-                                full-url (if query-string
-                                           (str uri "?" query-string)
-                                           uri)
-                                encoded-url (codec/url-encode full-url)
-                                redirect-url (str "/sign-in?return-to=" encoded-url)]
-                            {:status 302
-                             :headers {"Location" redirect-url
-                                       "Content-Type" "text/html"}
-                             :body ""}))))}}]])
-
 (defn settings-endpoint []
   ["/"
    {:swagger {:tags ["Settings"]}}
@@ -292,10 +256,7 @@
                       (when APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                         [(suppliers/routes)
                          (fields/routes)
-                         (fields/routes)])
-
-                      (when APPLY_DEV_ENDPOINTS
-                        [(get-dev-routes)])]
+                         (fields/routes)])]
 
                      (admin-status/routes)
                      (profile/routes)
@@ -305,6 +266,49 @@
                      (token-public/routes)
                      (token/routes)]]
     (vec core-routes)))
+
+(def supported-accepts
+  #{"text/html"
+    "application/json"
+    "image/"
+    "text/csv"
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
+
+(defn catch-all-handler [request]
+  (let [authenticated? (-> request :authenticated-entity boolean)
+        accept (str/lower-case (or (get-in request [:headers "accept"]) "*/*"))
+        is-html? (or (str/includes? accept "text/html") (str/includes? accept "*/*"))
+        is-image? (str/includes? accept "image/")
+        supported? (or (= accept "*/*")
+                       (some #(str/includes? accept %) supported-accepts))]
+    (cond
+      ;; Unsupported Accept header → 406
+      (not supported?)
+      {:status 406
+       :headers {"content-type" "text/plain"}
+       :body "Not Acceptable"}
+
+      ;; HTML requests → SPA (client-side routing)
+      is-html?
+      (rh/index-html-response request 200)
+
+      ;; Unauthenticated non-HTML → 401
+      (not authenticated?)
+      {:status 401
+       :headers {"content-type" "application/json"}
+       :body "{\"status\":\"failure\",\"message\":\"Not authenticated\"}"}
+
+      ;; Authenticated image requests → 404 text/plain
+      is-image?
+      {:status 404
+       :headers {"content-type" "text/plain"}
+       :body "Not Found"}
+
+      ;; Authenticated other formats → 404 JSON
+      :else
+      {:status 404
+       :headers {"content-type" "application/json"}
+       :body "{\"error\":\"Not Found\"}"})))
 
 (defn all-api-endpoints []
   ["/"
@@ -316,4 +320,11 @@
     (swagger-endpoints)
     (csrf-endpoints)
     (visible-api-endpoints)
-    (html-endpoints)]])
+    ;; Catch-all for unmatched /inventory/* routes
+    ["*path"
+     {:fallback? true
+      :get {:handler catch-all-handler :no-doc true}
+      :post {:handler catch-all-handler :no-doc true}
+      :put {:handler catch-all-handler :no-doc true}
+      :patch {:handler catch-all-handler :no-doc true}
+      :delete {:handler catch-all-handler :no-doc true}}]]])

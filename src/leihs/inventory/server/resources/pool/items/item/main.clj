@@ -2,6 +2,8 @@
   (:require
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
+   [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
    [leihs.inventory.server.resources.pool.items.fields-shared :refer [coerce-field-values
                                                                       in-coercions
@@ -9,8 +11,6 @@
                                                                       flatten-properties
                                                                       split-item-data
                                                                       validate-field-permissions]]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request not-found response status]]

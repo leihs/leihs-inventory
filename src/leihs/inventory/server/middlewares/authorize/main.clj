@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.utils.authorize.main
+(ns leihs.inventory.server.middlewares.authorize.main
   (:require
    [leihs.core.core :refer [detect]]))
 

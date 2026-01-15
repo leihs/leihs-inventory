@@ -1,7 +1,7 @@
 ; This namespace needs to be enabled in logging.cljc in shared-clj
 ; in order to activate app-wide debug stacktraces.
 
-(ns leihs.inventory.server.utils.debug
+(ns leihs.inventory.server.middlewares.debug
   (:require
    [taoensso.timbre :refer [debug error]]))
 

@@ -3,7 +3,7 @@
    [clojure.string :as clj-str]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.types :refer [pagination]]
-   [leihs.inventory.server.utils.coercion.core :refer [Date]]
+   [leihs.inventory.server.utils.schema :refer [Date]]
    [schema.core :as s]))
 
 (s/defschema path-params {:pool_id s/Uuid})

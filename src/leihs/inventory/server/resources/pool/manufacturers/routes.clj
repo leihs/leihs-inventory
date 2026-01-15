@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.pool.manufacturers.routes
   (:require
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.manufacturers.main :as manufacturers]
    [leihs.inventory.server.resources.pool.manufacturers.types :refer [response-schema]]
    [reitit.coercion.schema]
@@ -9,8 +8,7 @@
 
 (defn routes []
   ["/manufacturers/"
-   {:get {:summary (fe "")
-          :accept "application/json"
+   {:get {:accept "application/json"
           :description "'search' works with at least one character, considers:\n
 - manufacturer
 - product
