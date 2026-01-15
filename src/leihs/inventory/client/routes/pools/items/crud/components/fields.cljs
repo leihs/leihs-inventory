@@ -205,7 +205,6 @@
 
          (when (:disabled (:props block))
            ($ TooltipContent {:side "top"
-                              ;; :align-offset 10
                               :align "start"
                               :class-name "w-[150px]"}
               (case (:disabled-reason block)
