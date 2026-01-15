@@ -246,7 +246,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(numbers.last - numbers.first).to eq(2) # count - 1
       end
 
-      it "handles inventory_code collision when generating sequential codes" do
+      it "generates codes from highest numeric value, not latest created_at" do
         # Create item with high number (oldest)
         FactoryBot.create(:item,
           inventory_code: "#{@inventory_pool.shortname}105",
@@ -256,7 +256,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
           owner_id: @inventory_pool.id,
           created_at: 2.days.ago)
 
-        # Create newer item with lower number (will be used by propose)
+        # Create newer item with lower number
         FactoryBot.create(:item,
           inventory_code: "#{@inventory_pool.shortname}103",
           model_id: @model.id,
@@ -275,11 +275,14 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        # Collision occurs when batch-generated code already exists
-        # Latest item is shortname103, so propose returns shortname104
-        # Generated codes: shortname104, shortname105 (collision!), shortname106
-        # Database unique constraint triggers error, wrapped as 409
-        expect(resp.status).to eq(409)
+        # Should find max(103, 105) = 105, propose 106, generate 106-108
+        # No collision because we use highest numeric value, not created_at
+        expect(resp.status).to eq(200)
+        expect(resp.body.length).to eq(3)
+
+        codes = resp.body.map { |item| item["inventory_code"] }
+        numbers = codes.map { |c| c.gsub(/\D/, '').to_i }
+        expect(numbers).to eq([106, 107, 108])
       end
     end
   end

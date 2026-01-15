@@ -20,18 +20,12 @@
         (Integer/parseInt reversed-back)))))
 
 (defn propose
-  "Proposes the next available inventory code based on the pool's shortname and latest item."
+  "Proposes the next available inventory code based on the pool's shortname and highest numeric code."
   [tx pool-id]
   (let [pool (pools/get-by-id tx pool-id), shortname (:shortname pool)]
     (when shortname
-      (let [latest-item (-> (sql/select :inventory_code)
-                            (sql/from :items)
-                            (sql/where [:= :owner_id pool-id])
-                            (sql/order-by [:created_at :desc])
-                            (sql/limit 1)
-                            sql-format
-                            (->> (jdbc/query tx))
-                            first)
-            latest-number (extract-last-number (:inventory_code latest-item))
-            next-number (inc latest-number)]
+      (let [sql-str ["SELECT COALESCE(MAX((NULLIF(regexp_replace(inventory_code, E'\\\\D', '', 'g'), ''))::int), 0) as max_num FROM items WHERE owner_id = ?" pool-id]
+            result (-> (jdbc/query tx sql-str) first)
+            max-number (:max_num result)
+            next-number (inc max-number)]
         (str shortname next-number)))))
