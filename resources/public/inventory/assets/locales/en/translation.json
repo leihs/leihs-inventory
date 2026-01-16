@@ -2,6 +2,7 @@
   "fields": {
     "Mandatory data": {
       "title": "Mandatory data",
+      "count": "Create number of items",
       "inventory_code": "Inventory Code",
       "model_id": "Model"
     },
@@ -128,7 +129,13 @@
           "error": "Item could not be deleted"
         },
         "fields": {
-          "protected": "Only the owner can edit this field",
+          "disabled": {
+            "protected": "Only the owner can edit this field",
+            "model-selected": "This field is locked because a model was selected",
+            "multiple-items": "This field is locked when creating multiple items",
+            "owner-locked": "The owner is automatically assigned",
+            "generic": "This field is currently disabled"
+          },
           "inactive": "Inactive",
           "autocomplete": {
             "select": "Make a selection",

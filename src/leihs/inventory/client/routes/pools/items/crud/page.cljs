@@ -20,6 +20,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
+   ["zod" :as z]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
@@ -44,13 +45,33 @@
 
         {:keys [data model]} (jc (useLoaderData))
 
+        ;; Define custom fields
+        custom-fields [{:id "count"
+                        :type "number"
+                        :component "input"
+                        :group "Mandatory data"
+                        :position 0
+                        :label "Item Count"
+                        :required true
+                        :default 1
+                        :props {:type "number"
+                                :min 0
+                                :max 999999
+                                :step 1}
+                        :validator (-> (.. z -coerce (number))
+                                       (.min 0)
+                                       (.max 999999)
+                                       (.int))}]
+
         ;; Transform fields data to form structure
-        structure (fields-to-form/transform-fields-to-structure data)
+        [structure set-structure!] (uix/use-state
+                                    (fields-to-form/transform-fields-to-structure
+                                     data (when is-create custom-fields)))
 
         ;; Extract default values from fields
-        defaults (fields-to-form/extract-default-values data)
+        defaults (fields-to-form/extract-default-values data (when is-create custom-fields))
 
-        form (useForm (cj {:resolver (zodResolver (fields-to-zod/fields-to-zod-schema data))
+        form (useForm (cj {:resolver (zodResolver (fields-to-zod/fields-to-zod-schema data (when is-create custom-fields)))
                            :defaultValues (if is-create
                                             (cj defaults)
                                             (fn [] (form-helper/process-files defaults :attachments)))}))
@@ -64,10 +85,13 @@
         control (.. form -control)
         params (router/useParams)
 
-        building (useWatch (cj {:control control
-                                :name "building_id.value"}))
+        field-building (useWatch (cj {:control control
+                                      :name "building_id.value"}))
 
         building-is-dirty? (:isDirty (jc (get-field-state "building_id")))
+
+        field-count (useWatch (cj {:control control
+                                   :name "count"}))
 
         on-invalid (fn [data]
                      (let [invalid-fields-count (count (jc data))]
@@ -100,18 +124,21 @@
                             pool-id (aget params "pool-id")
 
                             item-res (if is-create
-                                       (<p! (-> http-client
-                                                (.post (str "/inventory/" pool-id "/items/")
-                                                       (js/JSON.stringify (cj item-data)))
+                                       (let [payload (if (> (:count item-data) 1)
+                                                       (dissoc item-data :inventory_code)
+                                                       item-data)]
+                                         (<p! (-> http-client
+                                                  (.post (str "/inventory/" pool-id "/items/")
+                                                         (js/JSON.stringify (cj payload)))
 
-                                                (.then (fn [res]
-                                                         {:status (.. res -status)
-                                                          :statusText (.. res -statusText)
-                                                          :id (.. res -data -id)}))
-                                                (.catch (fn [err]
-                                                          {:status (.. err -response -status)
-                                                           :data (jc (.. err -response -data))
-                                                           :statusText (.. err -response -statusText)}))))
+                                                  (.then (fn [res]
+                                                           {:status (.. res -status)
+                                                            :statusText (.. res -statusText)
+                                                            :id (.. res -data -id)}))
+                                                  (.catch (fn [err]
+                                                            {:status (.. err -response -status)
+                                                             :data (jc (.. err -response -data))
+                                                             :statusText (.. err -response -statusText)})))))
 
                                        (<p! (let [item-id (aget params "item-id")]
                                               (-> http-client
@@ -187,27 +214,62 @@
                                                  :viewTransition true})))
 
                           ;; default
-                          (.. toast (error :statusText item-res))))))]
+                          (.. toast (error (:statusText item-res)))))))]
 
+    ;; Handle model_id disabling when model is pre-selected
     (uix/use-effect
      (fn []
        (when (and is-create model (not is-loading))
-         (let [model-el (.. js/document (querySelector "[name='model_id']"))]
-           (set-value "model_id" (cj {:label (:product model)
-                                      :value (:id model)}))
-           (set! (.. model-el -disabled) true)))
-
-       (when (and is-create (not is-loading))
-         (let [owner-el (.. js/document (querySelector "[name='owner_id']"))]
-           (set! (.. owner-el -disabled) true))))
+         (set-value "model_id" (cj {:label (:product model)
+                                    :value (:id model)}))
+         (set-structure! #(fields-to-form/update-field % "model_id"
+                                                       {:props {:disabled true}
+                                                        :disabled-reason :model-selected}))))
      [is-create is-loading model set-value])
+
+    ;; Handle fields disabling/enabling when creating multiple items
+    (uix/use-effect
+     (fn []
+       (if (and (> field-count 1) (not is-loading))
+         ;; Disable when count > 1
+         (set-structure! #(-> %
+                              (fields-to-form/update-field "inventory_code"
+                                                           {:props {:disabled true}
+                                                            :disabled-reason :multiple-items})
+                              (fields-to-form/update-field "attachments"
+                                                           {:props {:disabled true}
+                                                            :disabled-reason :multiple-items})
+                              (fields-to-form/update-field "serial_number"
+                                                           {:props {:disabled true}
+                                                            :disabled-reason :multiple-items})))
+         ;; Re-enable when count <= 1
+         (set-structure! #(-> %
+                              (fields-to-form/update-field "inventory_code"
+                                                           {:props {:disabled false}
+                                                            :disabled-reason nil})
+                              (fields-to-form/update-field "attachments"
+                                                           {:props {:disabled false}
+                                                            :disabled-reason nil})
+                              (fields-to-form/update-field "serial_number"
+                                                           {:props {:disabled false}
+                                                            :disabled-reason nil})))))
+     [is-loading field-count])
+
+    ;; Handle owner_id disabling on create
+    (uix/use-effect
+     (fn []
+       (when (and is-create (not is-loading))
+         (set-structure! #(fields-to-form/update-field % "owner_id"
+                                                       {:props {:disabled true}
+                                                        :disabled-reason :owner-locked}))))
+     [is-create is-loading])
 
     ;; Clear room_id when building changes
     (uix/use-effect
      (fn []
-       (when (and building (not is-loading) building-is-dirty?)
+       (when (and field-building (not is-loading) building-is-dirty?)
          (set-value "room_id" nil)))
-     [building is-loading set-value building-is-dirty?])
+     [field-building is-loading set-value building-is-dirty?])
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}

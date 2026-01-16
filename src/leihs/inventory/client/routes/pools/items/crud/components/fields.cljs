@@ -119,9 +119,7 @@
                  "radio-group"
                  ($ FormField {:control (cj control)
                                :name (:name block)
-                               :render #($ FormItem {:class-name "mt-6"
-                                                     :title (when (:disabled (:props block))
-                                                              "This field is disabled/protected.")}
+                               :render #($ FormItem {:class-name "mt-6"}
                                            ($ FormLabel (t (:label block))
                                               (when (-> block :props :required) " *"))
 
@@ -214,7 +212,15 @@
                                                   ($ :<> (:description block)))
 
                                                ($ FormMessage))}))))))
+
          (when (:disabled (:props block))
-           ($ TooltipContent {:side "left"
+           ($ TooltipContent {:side "top"
+                              :align "start"
                               :class-name "w-[150px]"}
-              (t "pool.items.item.fields.protected")))))))
+              (case (:disabled-reason block)
+                :protected (t "pool.items.item.fields.disabled.protected")
+                :model-selected (t "pool.items.item.fields.disabled.model-selected")
+                :multiple-items (t "pool.items.item.fields.disabled.multiple-items")
+                :owner-locked (t "pool.items.item.fields.disabled.owner-locked")
+                ;; Fallback for fields disabled without a reason
+                (t "pool.items.item.fields.disabled.generic"))))))))

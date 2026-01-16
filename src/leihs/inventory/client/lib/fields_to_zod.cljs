@@ -81,7 +81,13 @@
                                (.min 1 "At least one attachment is required"))
                            (z/array (z/any)))
 
-                         (z/string))]
+                         ;; Default for custom/unknown types
+                         (if-let [custom-validator (:validator field)]
+                           custom-validator
+                           ;; Fall back to string validation
+                           (if (and is-required (not treat-as-optional))
+                             (-> (z/string) (.min 1))
+                             (z/string))))]
 
     (if (or (not is-required) (not is-protected) treat-as-optional)
       (z/nullish (z/optional base-validator))
@@ -100,18 +106,20 @@
             (js-obj)
             entries)))
 
-(defn fields-to-zod-schema [fields-response]
+(defn fields-to-zod-schema [fields-response & [custom-fields]]
   (let [fields (-> fields-response :fields)
+        ;; Merge custom fields with API fields
+        all-fields (concat fields (or custom-fields []))
         ;; Filter out protected fields from schema
-        non-protected-fields (filter #(not (:protected %)) fields)
+        non-protected-fields (filter #(not (:protected %)) all-fields)
         schema-obj (reduce (fn [acc field]
                              (let [field-id (:id field)
                                    validator (field->zod-validator field)]
                                (assoc acc field-id validator)))
                            {}
                            non-protected-fields)
-        excluded-fields (set (map :id (filter :exclude_from_submit fields)))
-        protected-fields (set (map :id (filter :protected fields)))
+        excluded-fields (set (map :id (filter :exclude_from_submit all-fields)))
+        protected-fields (set (map :id (filter :protected all-fields)))
         base-schema (z/object (clj->js schema-obj))
 
         ;; Add conditional cross-field refinements:
