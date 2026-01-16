@@ -4,47 +4,44 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
-   [next.jdbc.sql :as jdbc]))
-
-(defn- last-number-sql-expression
-  "Returns SQL expression to extract last number from inventory_code (mirroring Ruby legacy logic)"
-  []
-  "CASE 
-     WHEN inventory_code ~ '\\\\d' THEN
-       (regexp_replace(
-         reverse(
-           regexp_replace(
-             reverse(inventory_code), 
-             '^[^\\\\d]*', 
-             ''
-           )
-         ),
-         '[^\\\\d]+.*$', 
-         ''
-       )::int
-     ELSE 0 
-   END")
+   [next.jdbc.sql :as jdbc]
+   [taoensso.timbre :as timbre :refer [spy]]))
 
 (defn extract-last-number
-  "Extract last number sequence from inventory code using SQL (mirroring Ruby legacy logic)"
+  "Extract last number from inventory code, supporting floats. Finds all numbers, chooses last, rounds up."
   [tx inventory-code]
   (if (nil? inventory-code)
     0
-    (let [sql-str [(str "SELECT " 
-                      (str/replace (last-number-sql-expression) "inventory_code" "?") 
-                      " as last_num") inventory-code]
-          result (-> (jdbc/query tx sql-str) first)
-          last-num (:last_num result)]
-      last-num)))
+    (let [number-pattern #"\d+\.?\d*"
+          matches (re-seq number-pattern inventory-code)]
+      (if (empty? matches)
+        0
+        (let [last-match (last matches)
+              number (Double/parseDouble last-match)]
+          (int (Math/ceil number)))))))
 
 (defn propose
-  "Proposes the next available inventory code based on the pool's shortname and highest numeric code."
+  "Proposes next inventory code. Fetches latest 1000 items matching shortname prefix, extracts numbers (incl floats), returns shortname + (max+1)."
   [tx pool-id]
-  (let [pool (pools/get-by-id tx pool-id), shortname (:shortname pool)]
+  (let [pool (pools/get-by-id tx pool-id)
+        shortname (:shortname pool)]
     (when shortname
-      (let [sql-str [(str "SELECT COALESCE(MAX(" (last-number-sql-expression) "), 0) as max_num "
-                          "FROM items WHERE owner_id = ?") pool-id]
-            result (-> (jdbc/query tx sql-str) first)
-            max-number (:max_num result)
+      (let [query (-> (sql/select :inventory_code)
+                      (sql/from :items)
+                      (sql/where [:= :owner_id pool-id]
+                                 [:ilike :inventory_code (str shortname "%")])
+                      (sql/order-by [:created_at :desc])
+                      (sql/limit 1000))
+            results (jdbc/query tx (sql-format query))
+            max-number (->> results
+                            (map :inventory_code)
+                            (map #(extract-last-number tx %))
+                            (apply max 0))
             next-number (inc max-number)]
         (str shortname next-number)))))
+
+(comment
+  (require '[leihs.core.db :as db])
+  (let [tx (db/get-ds)
+        pool-id #uuid "8bd16d45-056d-5590-bc7f-12849f034351"]
+    (propose tx pool-id)))
