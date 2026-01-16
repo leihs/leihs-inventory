@@ -1,9 +1,8 @@
 (ns leihs.inventory.server.resources.pool.list.routes
   (:require
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.list.main :as list]
    [leihs.inventory.server.resources.pool.list.types :refer [get-response]]
-   [leihs.inventory.server.utils.coercion.core :refer [Date]]
+   [leihs.inventory.server.utils.schema :refer [Date]]
    [reitit.coercion.schema]
    [ring.middleware.accept]
    [schema.core :as s])
@@ -12,7 +11,7 @@
 (defn routes []
   ["/list/"
    {:get {:accept "application/json"
-          :summary (fe "InventoryList-Endpoint with filters for models, software, options and packages")
+          :summary "InventoryList-Endpoint with filters for models, software, options and packages"
           :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
           :coercion reitit.coercion.schema/coercion
           :produces ["application/json"

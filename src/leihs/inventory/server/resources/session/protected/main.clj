@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.session.protected.main
   (:require
-   [leihs.inventory.server.utils.request-utils :refer [authenticated?
-                                                       get-auth-entity]]
+   [leihs.inventory.server.utils.request :refer [authenticated? get-auth-entity]]
    [taoensso.timbre :refer [debug]]))
 
 (defn get-resource [request]
@@ -13,4 +12,4 @@
               :token (get-auth-entity request)}})
     (do
       (debug "User not authenticated")
-      {:status 403 :body "Forbidden"})))
+      {:status 401 :body "Not authenticated"})))

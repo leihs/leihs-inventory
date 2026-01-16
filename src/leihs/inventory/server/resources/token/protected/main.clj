@@ -3,9 +3,9 @@
    [clojure.string :as str]
    [crypto.random]
    [cryptohash-clj.api :refer [verify-with]]
-   [leihs.inventory.server.utils.request-utils :refer [authenticated?
-                                                       AUTHENTICATED_ENTITY
-                                                       get-auth-entity]]
+   [leihs.inventory.server.utils.request :refer [authenticated?
+                                                 AUTHENTICATED_ENTITY
+                                                 get-auth-entity]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response]
    [taoensso.timbre :refer [debug]]))
@@ -19,7 +19,7 @@
               :token (get-auth-entity request)}})
     (do
       (debug "User not authenticated")
-      {:status 403 :body "Forbidden"})))
+      {:status 401 :body "Not authenticated"})))
 
 (defn extract-scope-attributes [data]
   (select-keys data (filter #(str/starts-with? (name %) "scope_") (keys data))))

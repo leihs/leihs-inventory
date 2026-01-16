@@ -3,15 +3,15 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
+   [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation]]
    [leihs.inventory.server.resources.pool.templates.common :refer [analyze-datasets
                                                                    fetch-template-with-models!
                                                                    process-create-template-models
                                                                    process-delete-template-models
                                                                    process-update-template-models]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.transform :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [not-found response]]
    [taoensso.timbre :refer [debug]]))

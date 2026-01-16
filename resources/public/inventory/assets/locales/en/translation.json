@@ -136,6 +136,7 @@
             "owner-locked": "The owner is automatically assigned",
             "generic": "This field is currently disabled"
           },
+          "inactive": "Inactive",
           "autocomplete": {
             "select": "Make a selection",
             "search": "Enter search term",

@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.settings.routes
   (:require
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.settings.main :as settings]
    [leihs.inventory.server.resources.settings.types :refer [response-schema]]
    [reitit.coercion.schema]))
@@ -8,7 +7,7 @@
 (defn routes []
   ["settings/"
    {:get {:accept "application/json"
-          :summary (fe "Get settings")
+          :summary "Get settings"
           :description "Settings are defined in admin app"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}

@@ -68,7 +68,17 @@
         ;; Check if field should show based on values dependency
         has-dependency-value (if values-dep
                                (has-value? watched-dependency)
-                               true)]
+                               true)
+
+        label-inactive (fn [props]
+                         (let [without-options (dissoc props :options)
+                               text (t "pool.items.item.fields.inactive")
+                               annotated (map #(if (and (boolean? (:is_active %))
+                                                        (true? (:is_active %)))
+                                                 %
+                                                 (assoc % :label (str (:label %) " ( " text " )")))
+                                              (-> props :options))]
+                           (assoc without-options :options annotated)))]
 
     (when (and is-visible has-dependency-value)
       ($ Tooltip
@@ -101,9 +111,9 @@
                                                   (let [values-url (-> block :props :values-url)
                                                         dep (:field values-dep)]
                                                     {:remap (fn [item] {:value (str (:id item))
-                                                                        :label (:name item)})
+                                                                        :label (str (:name item))})
                                                      :values-url (str values-url "?" dep "=" (.-value watched-dependency))})
-                                                  (:props block)))})
+                                                  (label-inactive (:props block))))})
 
                  ;; Radiogroup field
                  "radio-group"

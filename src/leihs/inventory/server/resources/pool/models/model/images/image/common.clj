@@ -3,7 +3,8 @@
    [clojure.java.io :as io]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [IMAGE_RESPONSE_CACHE_CONTROL]]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
+   [leihs.inventory.server.utils.response :as rh]
    [ring.util.response :refer [response status]])
   (:import
    [java.io ByteArrayInputStream]
@@ -57,11 +58,19 @@
       (> (count accepts) 1)
       {:accept-header nil :negotiation? true}
 
-      ;; Firefox quirk → negotiation
+      ;; Single text/html → HTML-only request (not content negotiation)
+      (and (= 1 (count accepts))
+           (= (first accepts) "text/html"))
+      {:accept-header "text/html" :negotiation? false}
+
+      ;; Multiple types with text/html → Firefox quirk → negotiation
       (some #{"text/html"} accepts)
       {:accept-header nil :negotiation? true}
 
       (some #{"image/*"} accepts)
+      {:accept-header nil :negotiation? true}
+
+      (some #{"*/*"} accepts)
       {:accept-header nil :negotiation? true}
 
       (some #{"application/json"} accepts)
@@ -80,9 +89,14 @@
   [request image-data]
   (let [raw-accept (get-in request [:headers "accept"])
         {:keys [accept-header negotiation?]} (parse-accept raw-accept)
-        json-request? (= accept-header "application/json")]
+        json-request? (= accept-header "application/json")
+        html-request? (= accept-header "text/html")]
 
     (cond
+      ;; HTML-only request → return SPA with appropriate status
+      html-request?
+      (rh/index-html-response request (if image-data 200 404))
+
       (nil? image-data)
       (status (response {:status "failure" :message "No image found"}) 404)
 

@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.pool.models.model.images.routes
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.attachments.constants :refer [config-get]]
    [leihs.inventory.server.resources.pool.models.model.images.main :as images]
    [leihs.inventory.server.resources.pool.models.model.images.types :refer [get-images-response
@@ -13,7 +12,6 @@
 (defn routes []
   ["/models/:model_id/images/"
    {:post {:accept "application/json"
-           :summary (fe "")
            :description (str "- Limitations: " (config-get :api :images :max-size-mb) " MB\n"
                              "- Allowed File types: " (str/join ", " (config-get :api :images :allowed-file-types)) "\n"
                              "- Creates automatically a thumbnail (" (config-get :api :images :thumbnail :width-px)

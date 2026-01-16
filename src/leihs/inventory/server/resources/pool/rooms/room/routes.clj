@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.pool.rooms.room.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.rooms.room.main :as room]
    [leihs.inventory.server.resources.pool.rooms.types :refer [get-response]]
    [reitit.coercion.schema]
@@ -11,8 +10,7 @@
 
 (defn routes []
   ["/rooms/:room_id"
-   {:get {:summary (fe "")
-          :accept "application/json"
+   {:get {:accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :produces ["application/json"]

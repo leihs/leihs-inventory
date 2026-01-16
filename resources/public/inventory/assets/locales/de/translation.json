@@ -135,6 +135,7 @@
             "owner-locked": "Der Besitzer wird automatisch zugewiesen",
             "generic": "Dieses Feld ist derzeit deaktiviert"
           },
+          "inactive": "Inaktiv",
           "autocomplete": {
             "select": "Auswahl treffen",
             "search": "Suchbegriff eingeben",

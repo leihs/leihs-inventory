@@ -24,11 +24,24 @@
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.models.crud.components.fields :as form-fields]
-   [leihs.inventory.client.routes.pools.models.crud.core :as core]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
+
+(def default-values {:product ""
+                     :is_package false
+                     :manufacturer ""
+                     :description ""
+                     :internal_description ""
+                     :technical_detail ""
+                     :hand_over_note ""
+                     :version ""
+                     :categories []
+                     :entitlements []
+                     :properties []
+                     :accessories []})
 
 (defui page []
   (let [[t] (useTranslation)
@@ -51,8 +64,8 @@
         {:keys [data]} (jc (useLoaderData))
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
-                                            (fn [] (core/prepare-default-values data))
-                                            (cj core/default-values))})
+                                            (fn [] (form-helper/process-files data :attachments :images))
+                                            (cj default-values))})
 
         is-loading (.. form -formState -isLoading)
 

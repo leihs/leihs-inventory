@@ -75,6 +75,32 @@ jobs:
       Code checks: static checks and metrics: complexity, duplication, and format,
         also other consistency checks.
     priority: 3
+    depends_on:
+      feature specs have passed:
+        type: job
+        job_key: feature-specs
+        states: [passed]
+      backend specs have passed:
+        type: job
+        job_key: backend-specs
+        states: [passed]
+      clojure-tests have passed:
+        type: job
+        job_key: clojure-tests
+        states: [passed]
+    run_when:
+      feature specs have passed:
+        type: job
+        job_key: feature-specs
+        states: [passed]
+      backend specs have passed:
+        type: job
+        job_key: backend-specs
+        states: [passed]
+      clojure-tests have passed:
+        type: job
+        job_key: clojure-tests
+        states: [passed]
     context:
       task_defaults:
         environment_variables:

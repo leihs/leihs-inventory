@@ -1,6 +1,7 @@
 (ns leihs.inventory.client.routes.pools.inventory.list.components.table.skeleton-row
   (:require
    ["@@/button" :refer [Button]]
+   ["@@/button-group" :refer [ButtonGroup]]
    ["@@/skeleton" :refer [Skeleton]]
    ["@@/table" :refer [TableCell TableRow]]
    ["lucide-react" :refer [Ellipsis Image ChevronDown]]
@@ -30,10 +31,7 @@
 
        ($ TableCell
           ($ Skeleton {:className ""}
-             ($ :div {:class-name
-                      "flex [&>*]:rounded-none 
-                   [&>a:first-child]:rounded-l-md 
-                   [&>button:last-child]:rounded-r-md invisible"}
+             ($ ButtonGroup {:class-name "invisible"}
                 ($ Button {:variant "outline"
                            :class-name ""}
                    (t "pool.models.list.actions.edit"))

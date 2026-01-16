@@ -2,6 +2,7 @@
   (:require
    ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
+   ["@@/button-group" :refer [ButtonGroup]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell]]
@@ -133,10 +134,7 @@
                                   ": " (-> model :rentable str))))))))
 
        ($ TableCell {:className "fit-content"}
-          ($ :div {:class-name
-                   "flex [&>*]:rounded-none 
-                   [&>a:first-child]:rounded-l-md 
-                   [&>button:last-child]:rounded-r-md"}
+          ($ ButtonGroup
              ($ Button {:variant "outline"
                         :class-name ""
                         :asChild true}

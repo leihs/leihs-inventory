@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.utils.authenticate.session
+(ns leihs.inventory.server.middlewares.authenticate.session
   (:require
    [clojure.walk :refer [keywordize-keys]]
    [next.jdbc :as jdbc]))
@@ -64,6 +64,3 @@
 (defn wrap-session-authorize! [handler]
   (fn [request]
     (handle request handler)))
-
-;### Debug ####################################################################
-;(debug/debug-ns *ns*)

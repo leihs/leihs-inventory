@@ -1,15 +1,15 @@
-(ns leihs.inventory.server.utils.helper
+(ns leihs.inventory.server.utils.transform
+  "Data transformation utilities."
   (:require
    [clojure.string :as str]
    [clojure.walk :as walk]
-   [taoensso.timbre :refer [error debug]]))
+   [taoensso.timbre :refer [debug]])
+  (:import
+   [java.util UUID]))
 
 (defn- ->snake-case
   "Converts a string `s` to snake_case."
   [s]
-  ;; 1. Insert underscores before any capital letters in CamelCase.
-  ;; 2. Lower-case everything.
-  ;; 3. Replace dashes with underscores.
   (-> s
       (str/replace #"([A-Z])" "_$1")
       str/lower-case
@@ -25,7 +25,6 @@
        (map? x)
        (into {}
              (map (fn [[k v]]
-                 ;; k might be a keyword, symbol, or string, so coerce to string first
                     [(keyword (->snake-case (name k))) v]))
              x)
 
@@ -34,3 +33,10 @@
 
 (defn convert-to-map [dict]
   (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) dict)))
+
+(defn to-uuid [value]
+  (try
+    (if (instance? String value) (UUID/fromString value) value)
+    (catch Exception e
+      (debug e)
+      value)))

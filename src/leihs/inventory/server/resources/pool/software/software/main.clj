@@ -3,6 +3,8 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
+   [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
                                                          is-deletable?
                                                          str-to-bool]]
@@ -11,9 +13,7 @@
    [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation
                                                                     filter-keys]]
    [leihs.inventory.server.resources.pool.software.software.types :as types]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.transform :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [not-found response]])
   (:import

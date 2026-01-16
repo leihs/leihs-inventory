@@ -2,7 +2,7 @@
   (:require
    [cider-ci.open-session.bcrypt :refer [hashpw]]
    [crypto.random]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
