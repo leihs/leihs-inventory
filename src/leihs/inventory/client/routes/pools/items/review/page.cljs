@@ -1,22 +1,22 @@
 (ns leihs.inventory.client.routes.pools.items.review.page
-
   (:require
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent]]
-   ["@@/item" :refer [Item ItemGroup ItemSeparator ItemTitle ItemDescription ItemContent]]
+   ["@@/item" :refer [Item ItemContent ItemGroup ItemSeparator]]
    ["@@/label" :refer [Label]]
    ["@@/separator" :refer [Separator]]
    ["@@/switch" :refer [Switch]]
-   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader TableRow TableCaption]]
+   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
+                       TableRow]]
    ["@@/typo" :refer [Typo]]
+   ["lucide-react" :refer [ArrowLeft Download]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
-
    [leihs.inventory.client.components.barcode :refer [Barcode]]
-   [leihs.inventory.client.lib.utils :refer [cj]]
-   [uix.core :as uix :refer [defui $]]))
+   [leihs.inventory.client.routes.pools.items.review.components.serial-number :refer [SerialNumber]]
+   [uix.core :as uix :refer [$ defui]]))
 
-(defui page [{:keys [item]}]
+(defui page []
   (let [{:keys [data model]} (router/useLoaderData)
         params (router/useParams)
         pool-id (aget params "pool-id")
@@ -29,7 +29,7 @@
 
     ($ :div {:class-name "p-4"}
        ($ Typo {:class-name "my-8"
-                :variant "h1"} "hello")
+                :variant "h1"} "Gegenstände erfolgreich erstellt")
 
        ($ Card {:class-name "py-8 mb-12"}
           ($ CardContent
@@ -58,11 +58,11 @@
 
              ($ Button {:class-name "mt-6 shadow-md"
                         :variant "outline"}
-                "Export")
+                ($ Download) "Export")
 
              ($ Separator {:class-name "my-8"})
 
-             ($ Typo {:variant "h3"} "Details")
+             ($ Typo {:variant "h3"} "Liste der erstellten Gegenstände")
 
              ($ :div {:class-name "mt-4 space-y-2"}
                 ($ :div {:class-name "flex items-center space-x-2"}
@@ -104,7 +104,8 @@
                                                                      :height 30}))
                                             ($ TableCell (:inventory_code item)))
 
-                                          ($ TableCell (:id item))
+                                          ($ SerialNumber {:item item
+                                                           :pool-id pool-id})
 
                                           (if urls?
                                             ($ TableCell
@@ -119,9 +120,8 @@
                                                      (:id item))))))))
                                    data))))
              ($ Button {:class-name "mt-6"
+                        :as-child true
                         :variant "outline"}
-                "Back to Inventory"))))))
-
-
-
-
+                ($ Link {:to (str "/inventory/" pool-id "/list")
+                         :viewTransition true}
+                   ($ ArrowLeft) "Back to Inventory")))))))

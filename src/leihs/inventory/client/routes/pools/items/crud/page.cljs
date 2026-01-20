@@ -211,7 +211,7 @@
                                   (let [get-ids (fn [data] (mapv (fn [item] [:id (:id item)]) data))
                                         model-id (->> item-res :data first :model_id)
                                         params (router/createSearchParams (cj (conj (get-ids (:data item-res))
-                                                                                    [:model-id model-id])))]
+                                                                                    [:mid model-id])))]
 
                                     (navigate (str "/inventory/" pool-id "/items/review?" params)
                                               #js {:state state

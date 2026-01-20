@@ -123,9 +123,10 @@
                :loader loader/items-crud-page
                :element ($ items-crud-page)}
 
-              {:path "items/review"
-               :loader loader/items-review-page
-               :element ($ items-review-page)}
+               {:path "items/review"
+                :loader loader/items-review-page
+                :action actions/items-review-page
+                :element ($ items-review-page)}
 
               {:path "items/:item-id/delete?"
                :loader loader/items-crud-page

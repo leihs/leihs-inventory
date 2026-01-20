@@ -157,7 +157,7 @@
                          (.-search)
                          (js/URLSearchParams.))
         ids (.getAll query-params "id")
-        model-id (.get query-params "model-id")
+        model-id (.get query-params "mid")
 
         model (-> http-client
                   (.get (str "/inventory/" pool-id "/models/" model-id)
