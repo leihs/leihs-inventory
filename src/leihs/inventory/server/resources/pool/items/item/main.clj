@@ -16,6 +16,7 @@
    [ring.util.response :refer [bad-request not-found response status]]
    [taoensso.timbre :refer [debug spy]]))
 
+(def ERROR_GET_ITEM "Failed to fetch item")
 (def ERROR_UPDATE_ITEM "Failed to update item")
 
 (defn get-one [tx item-id]
@@ -34,6 +35,21 @@
                   sql-format)]
     (-> (jdbc/execute-one! tx query)
         some?)))
+
+(defn get-resource [{:keys [tx]
+                     {{:keys [item_id]} :path} :parameters
+                     :as request}]
+  (try
+    (if-let [item (get-one tx item_id)]
+      (if item
+        (response (-> item
+                      flatten-properties
+                      (coerce-field-values out-coercions)))
+        (bad-request {:error ERROR_GET_ITEM}))
+      (not-found {:error "Item not found"}))
+    (catch Exception e
+      (log-by-severity ERROR_GET_ITEM e)
+      (exception-handler request ERROR_GET_ITEM e))))
 
 (defn patch-resource [{:keys [tx]
                        {{:keys [item_id pool_id]} :path

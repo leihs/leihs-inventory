@@ -92,6 +92,7 @@
 
         field-count (useWatch (cj {:control control
                                    :name "count"}))
+        batch? (> field-count 1)
 
         on-invalid (fn [data]
                      (let [invalid-fields-count (count (jc data))]
@@ -109,7 +110,7 @@
         on-submit (fn [submit-data event]
                     (go
                       (let [attachments (if is-create
-                                          (:attachments (jc submit-data))
+                                          (if batch? nil (:attachments (jc submit-data)))
                                           (filter (fn [el] (= (:id el) nil))
                                                   (:attachments (jc submit-data))))
 
@@ -119,26 +120,28 @@
                                                          (remove (set (map :id (:attachments (jc submit-data))))))
                                                     nil)
 
-                            item-data (into {} (dissoc (jc submit-data) :attachments))
+                            item-data (-> submit-data
+                                          jc
+                                          (cond-> batch? (dissoc :serial_number :inventory_code))
+                                          (dissoc :attachments)
+                                          (into {}))
 
                             pool-id (aget params "pool-id")
 
                             item-res (if is-create
-                                       (let [payload (if (> (:count item-data) 1)
-                                                       (dissoc item-data :inventory_code)
-                                                       item-data)]
-                                         (<p! (-> http-client
-                                                  (.post (str "/inventory/" pool-id "/items/")
-                                                         (js/JSON.stringify (cj payload)))
+                                       (<p! (-> http-client
+                                                (.post (str "/inventory/" pool-id "/items/")
+                                                       (js/JSON.stringify (cj item-data)))
 
-                                                  (.then (fn [res]
-                                                           {:status (.. res -status)
-                                                            :statusText (.. res -statusText)
-                                                            :id (.. res -data -id)}))
-                                                  (.catch (fn [err]
-                                                            {:status (.. err -response -status)
-                                                             :data (jc (.. err -response -data))
-                                                             :statusText (.. err -response -statusText)})))))
+                                                (.then (fn [res]
+                                                         {:status (.. res -status)
+                                                          :statusText (.. res -statusText)
+                                                          :data (jc (.. res -data))
+                                                          :id (.. res -data -id)}))
+                                                (.catch (fn [err]
+                                                          {:status (.. err -response -status)
+                                                           :data (jc (.. err -response -data))
+                                                           :statusText (.. err -response -statusText)}))))
 
                                        (<p! (let [item-id (aget params "item-id")]
                                               (-> http-client
@@ -201,13 +204,25 @@
                                                      (t "pool.items.item.create.success")
                                                      (t "pool.items.item.edit.success"))))
 
+                                (js/console.debug "item-res" item-res)
                                 ;; state needs to be forwarded for back navigation
-                                (if is-create
+                                (cond
+                                  batch?
+                                  (let [get-ids (fn [data] (mapv (fn [item] [:id (:id item)]) data))
+                                        model-id (->> item-res :data first :model_id)
+                                        params (router/createSearchParams (cj (conj (get-ids (:data item-res))
+                                                                                    [:model-id model-id])))]
+
+                                    (navigate (str "/inventory/" pool-id "/items/review?" params)
+                                              #js {:state state
+                                                   :viewTransition true}))
+                                  is-create
                                   (navigate (str "/inventory/" pool-id "/list"
                                                  (some-> state .-searchParams))
                                             #js {:state state
                                                  :viewTransition true})
 
+                                  is-edit
                                   (navigate (str "/inventory/" pool-id "/list"
                                                  (some-> state .-searchParams))
                                             #js {:state state
@@ -316,7 +331,9 @@
                      ($ Button {:type "submit"
                                 :form "item-form"}
                         (if is-create
-                          (t "pool.items.item.create.submit")
+                          (str (when batch?
+                                 (str field-count " x "))
+                               (t "pool.items.item.create.submit"))
                           (t "pool.items.item.edit.submit")))
 
                      ($ ButtonGroupSeparator)
@@ -338,7 +355,7 @@
                                       (t "pool.items.item.create.cancel")
                                       (t "pool.items.item.edit.cancel")))))
 
-                              ;; prepared for "ausmustern"
+                           ;; prepared for "ausmustern"
                            #_($ DropdownMenuSeparator)
 
                            #_($ DropdownMenuGroup
