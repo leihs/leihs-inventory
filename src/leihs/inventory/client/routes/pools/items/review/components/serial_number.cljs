@@ -5,6 +5,7 @@
    ["@@/input" :refer [Input]]
    ["@@/table" :refer [TableCell]]
    ["lucide-react" :refer [Save]]
+   ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    ["sonner" :refer [toast]]
    [uix.core :as uix :refer [$ defui]]))
@@ -13,7 +14,9 @@
   (let [fetcher (router/useFetcher)
         state (.-state fetcher)
         data (.-data fetcher)
-        is-submitting (= (.-state fetcher) "submitting")]
+        is-submitting (= (.-state fetcher) "submitting")
+
+        [t] (useTranslation)]
 
     ;; Watch fetcher state for completion and show toast
     (uix/use-effect
@@ -22,10 +25,10 @@
                   (some? (.-data fetcher)))
          (let [result (.-data fetcher)]
            (if (= (aget result "status") "ok")
-             (.. toast (success "Serial number updated"))
-             (.. toast (error "Failed to update serial number")))))
+             (.. toast (success (t "pool.items.review.serial_number.success")))
+             (.. toast (error (t "pool.items.review.serial_number.error"))))))
        js/undefined)
-     [state data fetcher])
+     [state data fetcher t])
 
     ($ TableCell
        ($ fetcher.Form {:method "patch"}
@@ -33,7 +36,7 @@
              ($ :<>
                 ($ Input {:type "text"
                           :name "serial_number"
-                          :placeholder "Enter serial number"
+                          :placeholder (t "pool.items.review.serial_number.placeholder")
                           :defaultValue (:serial_number item)
                           :auto-complete "off"
                           :disabled is-submitting

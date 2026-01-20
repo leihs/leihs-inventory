@@ -143,6 +143,37 @@
             "empty": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
           }
         }
+      },
+      "review": {
+        "title": "Gegenstände erfolgreich erstellt",
+        "summary": {
+          "title": "Zusammenfassung",
+          "count": "Anzahl",
+          "name": "Name",
+          "date": "Datum"
+        },
+        "export": "Export",
+        "list_title": "Liste der erstellten Gegenstände",
+        "toggles": {
+          "show_barcodes": "Zeige Barcodes",
+          "show_urls": "Zeige URLs"
+        },
+        "table": {
+          "headers": {
+            "number": "#",
+            "barcode": "Barcode",
+            "inventory_code": "Inventarcode",
+            "serial_number": "Seriennummer",
+            "url": "URL",
+            "uuid": "UUID"
+          }
+        },
+        "serial_number": {
+          "placeholder": "Seriennummer eingeben",
+          "success": "Seriennummer aktualisiert",
+          "error": "Seriennummer konnte nicht aktualisiert werden"
+        },
+        "back_to_inventory": "Zurück zum Inventar"
       }
     },
     "models": {

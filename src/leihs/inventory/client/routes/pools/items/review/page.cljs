@@ -29,66 +29,86 @@
 
     ($ :div {:class-name "p-4"}
        ($ Typo {:class-name "my-8"
-                :variant "h1"} "Gegenstände erfolgreich erstellt")
+                :variant "h1"}
+          (t "pool.items.review.title"))
 
        ($ Card {:class-name "py-8 mb-12"}
           ($ CardContent
-             ($ Typo {:variant "h3"} "Zusammenfassung")
+             ($ Typo {:variant "h3"}
+                (t "pool.items.review.summary.title"))
              ($ ItemGroup {:class-name "w-max mt-4"}
 
                 ($ Item
                    ($ ItemContent {:class-name "flex flex-row"}
-                      ($ :div {:class-name "w-32 text-muted-foreground"} "Anzahl")
+                      ($ :div {:class-name "w-32 text-muted-foreground"}
+                         (t "pool.items.review.summary.count"))
                       ($ :div item-count)))
                 ($ ItemSeparator)
 
                 ($ Item
                    ($ ItemContent {:class-name "flex flex-row"}
-                      ($ :div {:class-name "w-32 text-muted-foreground"} "Name")
+                      ($ :div {:class-name "w-32 text-muted-foreground"}
+                         (t "pool.items.review.summary.name"))
                       ($ Link {:to (str "/inventory/" pool-id "/models/" (:id model))}
                          ($ Typo {:variant "link"}
                             (:product model)))))
 
                 ($ ItemSeparator)
+
                 ($ Item
                    ($ ItemContent {:class-name "flex flex-row"}
-                      ($ :div {:class-name "w-32 text-muted-foreground"} "Datum")
+                      ($ :div {:class-name "w-32 text-muted-foreground"}
+                         (t "pool.items.review.summary.date"))
                       ($ :div (t "intlDateTime" #js {:val (js/Date. (-> data first :created_at))}))))
                 ($ ItemSeparator))
 
              ($ Button {:class-name "mt-6 shadow-md"
                         :variant "outline"}
-                ($ Download) "Export")
+                ($ Download)
+                (t "pool.items.review.export"))
 
              ($ Separator {:class-name "my-8"})
 
-             ($ Typo {:variant "h3"} "Liste der erstellten Gegenstände")
+             ($ Typo {:variant "h3"}
+                (t "pool.items.review.list_title"))
 
              ($ :div {:class-name "mt-4 space-y-2"}
                 ($ :div {:class-name "flex items-center space-x-2"}
                    ($ Switch {:id "barcode"
                               :checked barcode?
                               :on-checked-change #(set-barcode! %)})
-                   ($ Label {:for "barcode"} "Zeige Barcodes"))
+                   ($ Label {:for "barcode"}
+                      (t "pool.items.review.toggles.show_barcodes")))
 
                 ($ :div {:class-name "flex items-center space-x-2 "}
                    ($ Switch {:id "urls"
                               :checked urls?
                               :on-checked-change #(set-urls! %)})
-                   ($ Label {:for "urls"} "Zeige URLs")))
+                   ($ Label {:for "urls"}
+                      (t "pool.items.review.toggles.show_urls"))))
 
              ($ :div {:class-name "rounded-lg border mt-6"}
                 ($ Table
                    ($ TableHeader
                       ($ TableRow
-                         ($ TableHead "#")
+
+                         ($ TableHead
+                            (t "pool.items.review.table.headers.number"))
+
                          (if barcode?
-                           ($ TableHead "Barcode")
-                           ($ TableHead "Inventory code"))
-                         ($ TableHead "Serialnumber")
+                           ($ TableHead
+                              (t "pool.items.review.table.headers.barcode"))
+                           ($ TableHead
+                              (t "pool.items.review.table.headers.inventory_code")))
+
+                         ($ TableHead
+                            (t "pool.items.review.table.headers.serial_number"))
+
                          (if urls?
-                           ($ TableHead "URL")
-                           ($ TableHead "UUID"))))
+                           ($ TableHead
+                              (t "pool.items.review.table.headers.url"))
+                           ($ TableHead
+                              (t "pool.items.review.table.headers.uuid")))))
 
                    ($ TableBody
                       (map-indexed (fn [idx item]
@@ -96,7 +116,9 @@
                                                                     #js {:pool-id pool-id
                                                                          :item-id (:id item)})]
                                        ($ TableRow {:key (str "item-" (:id item))}
+
                                           ($ TableCell (inc idx))
+
                                           (if barcode?
                                             ($ TableCell ($ Barcode {:value (:inventory_code item)
                                                                      :font-size 12
@@ -124,4 +146,5 @@
                         :variant "outline"}
                 ($ Link {:to (str "/inventory/" pool-id "/list")
                          :viewTransition true}
-                   ($ ArrowLeft) "Back to Inventory")))))))
+                   ($ ArrowLeft) (t "pool.items.review.back_to_inventory"))))))))
+
