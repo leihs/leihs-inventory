@@ -89,6 +89,7 @@
       }
     }
   },
+  "intlDateTime": "{{- val, datetime}}",
   "pool": {
     "inventory": {
       "breadcrumbs": {
