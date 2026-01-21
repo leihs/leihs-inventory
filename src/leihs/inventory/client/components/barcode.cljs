@@ -77,10 +77,13 @@
     ;; Render appropriate element type
     (case elementType
       "canvas" ($ :canvas {:ref element-ref
+                           :data-test-id (str "barcode-" value)
                            :class-name className})
       "img" ($ :img {:ref element-ref
+                     :data-test-id (str "barcode-" value)
                      :class-name className})
       "svg" ($ :svg {:ref element-ref
+                     :data-test-id (str "barcode-" value)
                      :class-name className}))))
 
 ;; Export React-compatible version
