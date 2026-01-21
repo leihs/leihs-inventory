@@ -36,17 +36,17 @@
           ($ CardContent
              ($ Typo {:variant "h3"}
                 (t "pool.items.review.summary.title"))
-             ($ ItemGroup {:class-name "w-max mt-4"}
+             ($ ItemGroup {:class-name "w-full md:w-max mt-4"}
 
                 ($ Item
-                   ($ ItemContent {:class-name "flex flex-row"}
+                   ($ ItemContent {:class-name "flex md:flex-row"}
                       ($ :div {:class-name "w-32 text-muted-foreground"}
                          (t "pool.items.review.summary.count"))
                       ($ :div item-count)))
                 ($ ItemSeparator)
 
                 ($ Item
-                   ($ ItemContent {:class-name "flex flex-row"}
+                   ($ ItemContent {:class-name "flex md:flex-row"}
                       ($ :div {:class-name "w-32 text-muted-foreground"}
                          (t "pool.items.review.summary.name"))
                       ($ Link {:to (str "/inventory/" pool-id "/models/" (:id model))}
@@ -56,7 +56,7 @@
                 ($ ItemSeparator)
 
                 ($ Item
-                   ($ ItemContent {:class-name "flex flex-row"}
+                   ($ ItemContent {:class-name "flex md:flex-row"}
                       ($ :div {:class-name "w-32 text-muted-foreground"}
                          (t "pool.items.review.summary.date"))
                       ($ :div (t "intlDateTime" #js {:val (js/Date. (-> data first :created_at))}))))
@@ -87,7 +87,7 @@
                    ($ Label {:for "urls"}
                       (t "pool.items.review.toggles.show_urls"))))
 
-             ($ :div {:class-name "rounded-lg border mt-6"}
+             ($ :div {:class-name "rounded-lg border mt-6 w-full overflow-x-auto"}
                 ($ Table
                    ($ TableHeader
                       ($ TableRow
@@ -117,25 +117,27 @@
                                                                          :item-id (:id item)})]
                                        ($ TableRow {:key (str "item-" (:id item))}
 
-                                          ($ TableCell (inc idx))
+                                          ($ TableCell {:class-name "text-muted-foreground"}
+                                             (inc idx))
 
                                           (if barcode?
-                                            ($ TableCell ($ Barcode {:value (:inventory_code item)
-                                                                     :font-size 12
-                                                                     :width 1
-                                                                     :height 30}))
+                                            ($ TableCell
+                                               ($ Barcode {:value (:inventory_code item)
+                                                           :font-size 12
+                                                           :width 1
+                                                           :height 30}))
                                             ($ TableCell (:inventory_code item)))
 
                                           ($ SerialNumber {:item item
                                                            :pool-id pool-id})
 
                                           (if urls?
-                                            ($ TableCell
+                                            ($ TableCell {:class-name "min-w-96"}
                                                ($ Link {:to url
                                                         :viewTransition true}
                                                   ($ Typo {:variant "link"}
                                                      url)))
-                                            ($ TableCell
+                                            ($ TableCell {:class-name "whitespace-nowrap"}
                                                ($ Link {:to url
                                                         :viewTransition true}
                                                   ($ Typo {:variant "link"}
