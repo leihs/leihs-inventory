@@ -184,6 +184,19 @@ feature 'Batch create items', type: :feature do
     # Wait for success toast
     expect(page).to have_text('Serial number updated', wait: 5)
 
+    # Verify checkmark appears in the saved field (row 2)
+    within 'table tbody tr:nth-child(2)' do
+      # Look for the CircleCheck SVG icon with green color
+      checkmark = find('svg.lucide-circle-check.text-green-500')
+      expect(checkmark).to be_present
+    end
+
+    # Verify the next input field (row 3) is now focused
+    within 'table tbody tr:nth-child(3)' do
+      serial_input = find("input[name='serial_number']")
+      expect(serial_input).to match_css(':focus')
+    end
+
     # Store the second item's data
     second_item = item_ids[1]
 

@@ -64,8 +64,7 @@
       (-> http-client
           (.patch (str "/inventory/" pool-id "/items/" item-id)
                   (js/JSON.stringify (cj {:serial_number serial-number}))
-                  (cj {:cache
-                       {:update {(keyword item-id) "delete"}}}))
+                  (cj {:cache false}))
           (.then (fn [_]
                    #js {:status "ok"}))
           (.catch (fn [error]

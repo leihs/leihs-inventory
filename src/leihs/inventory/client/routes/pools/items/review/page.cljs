@@ -25,7 +25,16 @@
         [t] (useTranslation)
 
         [barcode? set-barcode!] (uix/use-state false)
-        [urls? set-urls!] (uix/use-state false)]
+        [urls? set-urls!] (uix/use-state false)
+
+        handle-save (fn [index]
+                      (let [next (inc index)
+                            query-selector (if (< next item-count)
+                                             (str "[data-sn-id='" (:id (nth data next)) "']")
+                                             nil)
+                            next-input (.. js/document (querySelector query-selector))]
+                        (when next-input
+                          (.focus next-input))))]
 
     ($ :div {:class-name "p-4"}
        ($ Typo {:class-name "my-8"
@@ -88,26 +97,24 @@
                       (t "pool.items.review.toggles.show_urls"))))
 
              ($ :div {:class-name "rounded-lg border mt-6 w-full overflow-x-auto"}
-                ($ Table
+                ($ Table {:class-name "table-fixed"}
                    ($ TableHeader
                       ($ TableRow
 
-                         ($ TableHead
+                         ($ TableHead {:class-name "w-[50px]"}
                             (t "pool.items.review.table.headers.number"))
 
-                         (if barcode?
-                           ($ TableHead
-                              (t "pool.items.review.table.headers.barcode"))
-                           ($ TableHead
+                         ($ TableHead {:class-name "w-[220px]"}
+                            (if barcode?
+                              (t "pool.items.review.table.headers.barcode")
                               (t "pool.items.review.table.headers.inventory_code")))
 
-                         ($ TableHead
+                         ($ TableHead {:class-name "w-[300px]"}
                             (t "pool.items.review.table.headers.serial_number"))
 
-                         (if urls?
-                           ($ TableHead
-                              (t "pool.items.review.table.headers.url"))
-                           ($ TableHead
+                         ($ TableHead {:class-name "w-[500px]"}
+                            (if urls?
+                              (t "pool.items.review.table.headers.url")
                               (t "pool.items.review.table.headers.uuid")))))
 
                    ($ TableBody
@@ -120,24 +127,24 @@
                                           ($ TableCell {:class-name "text-muted-foreground"}
                                              (inc idx))
 
-                                          (if barcode?
-                                            ($ TableCell
+                                          ($ TableCell
+                                             (if barcode?
                                                ($ Barcode {:value (:inventory_code item)
                                                            :font-size 12
-                                                           :width 1
-                                                           :height 30}))
-                                            ($ TableCell (:inventory_code item)))
+                                                           :width 1.5
+                                                           :height 30})
+                                               (:inventory_code item)))
 
                                           ($ SerialNumber {:item item
+                                                           :on-save #(handle-save idx)
                                                            :pool-id pool-id})
 
-                                          (if urls?
-                                            ($ TableCell {:class-name "min-w-96"}
+                                          ($ TableCell
+                                             (if urls?
                                                ($ Link {:to url
                                                         :viewTransition true}
                                                   ($ Typo {:variant "link"}
-                                                     url)))
-                                            ($ TableCell {:class-name "whitespace-nowrap"}
+                                                     url))
                                                ($ Link {:to url
                                                         :viewTransition true}
                                                   ($ Typo {:variant "link"}
