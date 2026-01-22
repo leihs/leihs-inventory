@@ -337,5 +337,8 @@ feature 'Batch create items', type: :feature do
         expect(uuid_text).not_to include('/inventory/') # Should NOT show full URL
       end
     end
+
+    click_on "Back to Inventory"
+    expect(page).to have_content "Inventory List"
   end
 end
