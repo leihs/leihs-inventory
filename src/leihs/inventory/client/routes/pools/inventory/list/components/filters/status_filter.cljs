@@ -13,7 +13,7 @@
    ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [class-name]}]
+(defui main [{:keys [className]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
         [t] (useTranslation)
         with_items (.. search-params (get "with_items"))
@@ -82,7 +82,7 @@
           ($ Button {:variant "outline"
                      :disabled (or (= with_items "false")
                                    (= type "option"))
-                     :class-name (str "min-w-48 max-w-48 " class-name)}
+                     :class-name (str "min-w-48 max-w-48 " className)}
 
              ($ CirclePlus {:className "h-4 w-4"})
              (t "pool.models.filters.status.title")

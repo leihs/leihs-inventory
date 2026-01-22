@@ -102,12 +102,15 @@
                                    :to (str (.. location -pathname)
                                             "?"
                                             (gen-page-str prev-page))}
-               ($ :span (t "pagination.previous")))
+               ($ :span {:class-name "hidden md:inline"}
+                  (t "pagination.previous")))
 
             ($ Button {:data-test-id "pagination-previous"
                        :variant "link"
                        :disabled true}
-               ($ ChevronLeft) (t "pagination.previous")))
+               ($ ChevronLeft)
+               ($ :span {:class-name "hidden md:inline"}
+                  (t "pagination.previous"))))
 
           ($ PaginationContent
              ;; first page when current page is greater than 2
@@ -171,14 +174,17 @@
                                :to (str (.. location -pathname)
                                         "?"
                                         (gen-page-str next-page))}
-               ($ :span (t "pagination.next")))
+               ($ :span {:class-name "hidden md:inline"}
+                  (t "pagination.next")))
 
             ($ Button {:data-test-id "pagination-next"
                        :variant "link"
                        :disabled true}
-               (t "pagination.next") ($ ChevronRight))))
+               ($ :span {:class-name "hidden md:inline"}
+                  (t "pagination.next"))
+               ($ ChevronRight))))
 
-       ($ :div {:class-name "flex items-center"}
+       ($ :div {:class-name "items-center hidden sm:flex"}
           ($ :span {:data-test-id "pagination-range"
                     :class-name "text-muted-foreground text-sm mr-2"
                     ;; random key fixes a strange Safari repaint issue
@@ -188,7 +194,7 @@
 
        ($ :div {:class-name "flex items-center ml-auto"}
 
-          ($ :span {:class-name "mr-2"}
+          ($ :span {:class-name "mr-2 hidden md:inline"}
              (t "pagination.per-page"))
 
           ($ DropdownMenu

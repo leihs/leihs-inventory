@@ -11,7 +11,7 @@
    ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [class-name]}]
+(defui main [{:keys [className]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
         type (.. search-params (get "type"))
         [open set-open!] (uix/use-state false)
@@ -33,7 +33,7 @@
                 :on-open-change set-open!}
        ($ PopoverTrigger {:asChild true}
           ($ Button {:variant "outline"
-                     :className (str "min-w-48 max-w-48 " class-name)
+                     :className (str "min-w-48 max-w-48 " className)
                      :data-test-id "before-last-check-filter-button"
                      :disabled (or (= type "software")
                                    (= type "option"))}
