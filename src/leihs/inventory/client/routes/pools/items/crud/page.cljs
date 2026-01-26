@@ -204,7 +204,6 @@
                                                      (t "pool.items.item.create.success")
                                                      (t "pool.items.item.edit.success"))))
 
-                                (js/console.debug "item-res" item-res)
                                 ;; state needs to be forwarded for back navigation
                                 (cond
                                   batch?
