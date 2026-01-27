@@ -9,7 +9,7 @@
 
 (defn extract-last-number
   "Extract last number from inventory code, supporting floats. Finds all numbers, chooses last, rounds up."
-  [tx inventory-code]
+  [inventory-code]
   (if (nil? inventory-code)
     0
     (let [number-pattern #"\d+\.?\d*"
@@ -35,7 +35,7 @@
             results (jdbc/query tx (sql-format query))
             max-number (->> results
                             (map :inventory_code)
-                            (map #(extract-last-number tx %))
+                            (map extract-last-number)
                             (apply max 0))
             next-number (inc max-number)]
         (str shortname next-number)))))

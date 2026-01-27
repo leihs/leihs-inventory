@@ -40,16 +40,14 @@
                      {{:keys [item_id]} :path} :parameters
                      :as request}]
   (try
-    (if-let [item (get-one tx item_id)]
-      (if item
-        (response (-> item
-                      flatten-properties
-                      (coerce-field-values out-coercions)))
-        (bad-request {:error ERROR_GET_ITEM}))
-      (not-found {:error "Item not found"}))
-    (catch Exception e
-      (log-by-severity ERROR_GET_ITEM e)
-      (exception-handler request ERROR_GET_ITEM e))))
+   (if-let [item (get-one tx item_id)]
+     (response (-> item
+                   flatten-properties
+                   (coerce-field-values out-coercions)))
+     (not-found {:error "Item not found"}))
+   (catch Exception e
+     (log-by-severity ERROR_GET_ITEM e)
+     (exception-handler request ERROR_GET_ITEM e))))
 
 (defn patch-resource [{:keys [tx]
                        {{:keys [item_id pool_id]} :path

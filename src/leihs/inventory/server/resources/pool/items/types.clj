@@ -68,7 +68,7 @@
           :owner_id s/Uuid
           :room_id s/Uuid}
          {(s/optional-key :inventory_code) s/Str
-          (s/optional-key :count) (s/constrained s/Int #(>= % 1))
+          (s/optional-key :count) (s/constrained s/Int pos-int?)
           (s/optional-key :insurance_number) (s/maybe s/Str)
           (s/optional-key :inventory_pool_id) (s/maybe s/Uuid)
           (s/optional-key :invoice_date) (s/maybe Date)

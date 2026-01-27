@@ -159,7 +159,7 @@
 
 (defn generate-inventory-codes [tx pool-id n]
   (let [starting-code (inv-code/propose tx pool-id)
-        starting-number (inv-code/extract-last-number tx starting-code)
+        starting-number (inv-code/extract-last-number starting-code)
         shortname (:shortname (pools/get-by-id tx pool-id))]
     (map #(str shortname (+ starting-number %)) (range n))))
 
