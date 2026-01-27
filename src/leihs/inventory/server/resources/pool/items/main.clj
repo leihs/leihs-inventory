@@ -185,34 +185,34 @@
           {:keys [inventory_code count]} body-params
           validation-error (validate-field-permissions request)]
       (bcond
-        validation-error
-        (bad-request validation-error)
+       validation-error
+       (bad-request validation-error)
 
-        (and inventory_code count)
-        (bad-request {:error "Cannot provide both inventory_code and count"})
+       (and inventory_code count (> count 1))
+       (bad-request {:error "Cannot provide both inventory_code and count when count > 1"})
 
-        (and (not inventory_code) (not count))
-        (bad-request {:error "Must provide either inventory_code or count"})
+       (and (not inventory_code) (not count))
+       (bad-request {:error "Must provide either inventory_code or count"})
 
-        :let [{:keys [item-data properties]} (split-item-data
-                                              (cond-> body-params count (dissoc :count)))
-              item-data-coerced (coerce-field-values item-data in-coercions)
-              properties-json (or (not-empty properties) {})]
+       :let [{:keys [item-data properties]} (split-item-data
+                                             (dissoc body-params :count))
+             item-data-coerced (coerce-field-values item-data in-coercions)
+             properties-json (or (not-empty properties) {})]
 
-        count
-        (let [codes (generate-inventory-codes tx pool_id count)
-              created-items (doall (map #(create-item tx
-                                                      (assoc item-data-coerced :inventory_code %)
-                                                      properties-json)
-                                        codes))]
-          (response created-items))
+       (and count (> count 1))
+       (let [codes (generate-inventory-codes tx pool_id count)
+             created-items (doall (map #(create-item tx
+                                                     (assoc item-data-coerced :inventory_code %)
+                                                     properties-json)
+                                       codes))]
+         (response created-items))
 
-        (inventory-code-exists? tx inventory_code nil)
-        (status {:body {:error "Inventory code already exists"
-                        :proposed_code (inv-code/propose tx pool_id)}}
-                409)
+       (inventory-code-exists? tx inventory_code nil)
+       (status {:body {:error "Inventory code already exists"
+                       :proposed_code (inv-code/propose tx pool_id)}}
+               409)
 
-        (response (create-item tx item-data-coerced properties-json))))
+       (response (create-item tx item-data-coerced properties-json))))
     (catch Exception e
       (log-by-severity ERROR_CREATE_ITEM e)
       (exception-handler request ERROR_CREATE_ITEM e))))
