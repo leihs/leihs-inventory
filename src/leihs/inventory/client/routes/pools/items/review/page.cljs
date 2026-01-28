@@ -8,17 +8,19 @@
    ["@@/switch" :refer [Switch]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
-   ["@@/typo" :refer [Typo]]
    ["lucide-react" :refer [ArrowLeft Download]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    [leihs.inventory.client.components.barcode :refer [Barcode]]
+   [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.routes.pools.items.review.components.serial-number :refer [SerialNumber]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui page []
   (let [{:keys [data model]} (router/useLoaderData)
         params (router/useParams)
+        location (router/useLocation)
+        state (.. location -state)
         pool-id (aget params "pool-id")
         item-count (count data)
 
@@ -153,7 +155,8 @@
              ($ Button {:class-name "mt-6"
                         :as-child true
                         :variant "outline"}
-                ($ Link {:to (str "/inventory/" pool-id "/list")
+                ($ Link {:to (str "/inventory/" pool-id "/list"
+                                  (some-> state .-searchParams))
                          :viewTransition true}
                    ($ ArrowLeft) (t "pool.items.review.back_to_inventory"))))))))
 
