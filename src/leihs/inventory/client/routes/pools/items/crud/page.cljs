@@ -2,16 +2,12 @@
   (:require
    ["@/components/react/scrollspy/scrollspy" :refer [Scrollspy ScrollspyItem
                                                      ScrollspyMenu]]
-   ["@@/alert-dialog" :refer [AlertDialog AlertDialogAction AlertDialogCancel
-                              AlertDialogContent AlertDialogDescription
-                              AlertDialogFooter AlertDialogHeader
-                              AlertDialogTitle]]
    ["@@/button" :refer [Button]]
    ["@@/button-group" :refer [ButtonGroup ButtonGroupSeparator]]
    ["@@/card" :refer [Card CardContent]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuGroup DropdownMenuItem
-                               DropdownMenuSeparator DropdownMenuTrigger]]
+                               DropdownMenuTrigger]]
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
@@ -94,7 +90,7 @@
                                    :name "count"}))
         batch? (> field-count 1)
 
-        ;; Transform fields data to form structure
+        ;; Transform fields data to derived form structure
         structure (uix/use-memo
                    (fn []
                      (cond-> (dynamic-form/fields->structure fields)
@@ -133,8 +129,6 @@
                                              #js {:count invalid-fields-count}))))
 
                        (js/console.debug "is invalid: " data)))
-
-        ;; handle-decommission (fn [] (go))
 
         handle-submit (.. form -handleSubmit)
         on-submit (fn [submit-data event]
@@ -342,35 +336,4 @@
                                           :viewTransition true}
                                     (if is-create
                                       (t "pool.items.item.create.cancel")
-                                      (t "pool.items.item.edit.cancel")))))
-
-                           ;; prepared for "ausmustern"
-                           #_($ DropdownMenuSeparator)
-
-                           #_($ DropdownMenuGroup
-                                (when (not is-create)
-                                  ($ DropdownMenuItem {:variant "destructive"
-                                                       :asChild true}
-                                     ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
-                                              :state state}
-                                        "Delete")))))))
-
-                  ;; prepared for "ausmustern"
-                  #_(when (not is-create)
-                      ($ AlertDialog {:open is-delete}
-                         ($ AlertDialogContent
-
-                            ($ AlertDialogHeader
-                               ($ AlertDialogTitle (t "pool.items.item.delete.title"))
-                               ($ AlertDialogDescription (t "pool.items.item.delete.description")))
-
-                            ($ AlertDialogFooter
-                               ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
-                                                    hover:bg-destructive hover:text-destructive-foreground"
-                                                     :onClick handle-delete}
-                                  (t "pool.items.item.delete.confirm"))
-                               ($ AlertDialogCancel
-                                  ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id" params)
-                                           :state state}
-
-                                     (t "pool.items.item.delete.cancel"))))))))))))))
+                                      (t "pool.items.item.edit.cancel")))))))))))))))
