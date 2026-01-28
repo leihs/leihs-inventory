@@ -45,7 +45,7 @@
 
        ($ Card {:class-name "py-8 mb-12"}
           ($ CardContent
-             ($ Typo {:variant "h3"}
+             ($ Typo {:variant :h3}
                 (t "pool.items.review.summary.title"))
              ($ ItemGroup {:class-name "w-full md:w-max mt-4"}
 
@@ -61,7 +61,7 @@
                       ($ :div {:class-name "w-32 text-muted-foreground"}
                          (t "pool.items.review.summary.name"))
                       ($ Link {:to (str "/inventory/" pool-id "/models/" (:id model))}
-                         ($ Typo {:variant "link"}
+                         ($ Typo {:variant :link}
                             (:product model)))))
 
                 ($ ItemSeparator)
@@ -80,7 +80,7 @@
 
              ($ Separator {:class-name "my-8"})
 
-             ($ Typo {:variant "h3"}
+             ($ Typo {:variant :h3}
                 (t "pool.items.review.list_title"))
 
              ($ :div {:class-name "mt-4 space-y-2"}
@@ -145,11 +145,11 @@
                                              (if urls?
                                                ($ Link {:to url
                                                         :viewTransition true}
-                                                  ($ Typo {:variant "link"}
+                                                  ($ Typo {:variant :link}
                                                      url))
                                                ($ Link {:to url
                                                         :viewTransition true}
-                                                  ($ Typo {:variant "link"}
+                                                  ($ Typo {:variant :link}
                                                      (:id item))))))))
                                    data))))
              ($ Button {:class-name "mt-6"
