@@ -20,7 +20,7 @@
                     (= (.-state fetcher) "loading"))
 
         serial-number (:serial_number item)
-        [input set-input!] (uix/use-state serial-number)
+        [input set-input!] (uix/use-state (or serial-number ""))
 
         last-submission-data (uix/use-ref nil)
         button-ref (uix/use-ref nil)
@@ -62,7 +62,6 @@
                                     :name "serial_number"
                                     :data-sn-id (:id item)
                                     :placeholder (t "pool.items.review.serial_number.placeholder")
-                                    :defaultValue (:serial_number item)
                                     :auto-complete "off"
                                     :value input
                                     :on-change #(set-input! (.. % -target -value))
