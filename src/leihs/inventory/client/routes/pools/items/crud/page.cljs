@@ -24,8 +24,8 @@
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.fields-to-form :as fields-to-form]
-   [leihs.inventory.client.lib.fields-to-zod :as fields-to-zod]
+   [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
+   [leihs.inventory.client.lib.dynamic-validation :as dynamic-validation]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.items.crud.components.fields :as form-fields]
@@ -45,33 +45,37 @@
 
         {:keys [data model]} (jc (useLoaderData))
 
-        ;; Define custom fields
-        custom-fields [{:id "count"
-                        :type "number"
-                        :component "input"
-                        :group "Mandatory data"
-                        :position 0
-                        :label "Item Count"
-                        :required true
-                        :default 1
-                        :props {:type "number"
-                                :min 0
-                                :max 999999
-                                :step 1}
-                        :validator (-> (.. z -coerce (number))
-                                       (.min 0)
-                                       (.max 999999)
-                                       (.int))}]
+        ;; Define custom fields for create mode only
+        custom-fields (if is-create
+                        [{:id "count"
+                          :type "number"
+                          :component "input"
+                          :group "Mandatory data"
+                          :position 0
+                          :label "Item Count"
+                          :required true
+                          :default 1
+                          :props {:type "number"
+                                  :min 0
+                                  :max 999999
+                                  :step 1}
+                          :validator (-> (.. z -coerce (number))
+                                         (.min 0)
+                                         (.max 999999)
+                                         (.int))}]
+                        nil)
+
+        ;; Merge API fields with custom fields
+        fields (concat (:fields data) custom-fields)
 
         ;; Transform fields data to form structure
         [structure set-structure!] (uix/use-state
-                                    (fields-to-form/transform-fields-to-structure
-                                     data (when is-create custom-fields)))
+                                    (dynamic-form/fields->structure fields))
 
         ;; Extract default values from fields
-        defaults (fields-to-form/extract-default-values data (when is-create custom-fields))
+        defaults (dynamic-form/fields->defaults fields)
 
-        form (useForm (cj {:resolver (zodResolver (fields-to-zod/fields-to-zod-schema data (when is-create custom-fields)))
+        form (useForm (cj {:resolver (zodResolver (dynamic-validation/fields->schema fields))
                            :defaultValues (if is-create
                                             (cj defaults)
                                             (fn [] (form-helper/process-files defaults :attachments)))}))
@@ -236,9 +240,9 @@
        (when (and is-create model (not is-loading))
          (set-value "model_id" (cj {:label (:product model)
                                     :value (:id model)}))
-         (set-structure! #(fields-to-form/update-field % "model_id"
-                                                       {:props {:disabled true}
-                                                        :disabled-reason :model-selected}))))
+         (set-structure! #(dynamic-form/update-field % "model_id"
+                                                     {:props {:disabled true}
+                                                      :disabled-reason :model-selected}))))
      [is-create is-loading model set-value])
 
     ;; Handle fields disabling/enabling when creating multiple items
@@ -247,37 +251,37 @@
        (when is-create
          (if (and (> field-count 1)
                   (not is-loading))
-         ;; Disable when count > 1
+          ;; Disable when count > 1
            (set-structure! #(-> %
-                                (fields-to-form/update-field "inventory_code"
-                                                             {:props {:disabled true}
-                                                              :disabled-reason :multiple-items})
-                                (fields-to-form/update-field "attachments"
-                                                             {:props {:disabled true}
-                                                              :disabled-reason :multiple-items})
-                                (fields-to-form/update-field "serial_number"
-                                                             {:props {:disabled true}
-                                                              :disabled-reason :multiple-items})))
-         ;; Re-enable when count <= 1
+                                (dynamic-form/update-field "inventory_code"
+                                                           {:props {:disabled true}
+                                                            :disabled-reason :multiple-items})
+                                (dynamic-form/update-field "attachments"
+                                                           {:props {:disabled true}
+                                                            :disabled-reason :multiple-items})
+                                (dynamic-form/update-field "serial_number"
+                                                           {:props {:disabled true}
+                                                            :disabled-reason :multiple-items})))
+          ;; Re-enable when count <= 1
            (set-structure! #(-> %
-                                (fields-to-form/update-field "inventory_code"
-                                                             {:props {:disabled false}
-                                                              :disabled-reason nil})
-                                (fields-to-form/update-field "attachments"
-                                                             {:props {:disabled false}
-                                                              :disabled-reason nil})
-                                (fields-to-form/update-field "serial_number"
-                                                             {:props {:disabled false}
-                                                              :disabled-reason nil}))))))
+                                (dynamic-form/update-field "inventory_code"
+                                                           {:props {:disabled false}
+                                                            :disabled-reason nil})
+                                (dynamic-form/update-field "attachments"
+                                                           {:props {:disabled false}
+                                                            :disabled-reason nil})
+                                (dynamic-form/update-field "serial_number"
+                                                           {:props {:disabled false}
+                                                            :disabled-reason nil}))))))
      [is-loading is-create field-count])
 
     ;; Handle owner_id disabling on create
     (uix/use-effect
      (fn []
        (when (and is-create (not is-loading))
-         (set-structure! #(fields-to-form/update-field % "owner_id"
-                                                       {:props {:disabled true}
-                                                        :disabled-reason :owner-locked}))))
+         (set-structure! #(dynamic-form/update-field % "owner_id"
+                                                     {:props {:disabled true}
+                                                      :disabled-reason :owner-locked}))))
      [is-create is-loading])
 
     ;; Clear room_id when building changes
@@ -286,6 +290,8 @@
        (when (and field-building (not is-loading) building-is-dirty?)
          (set-value "room_id" nil)))
      [field-building is-loading set-value building-is-dirty?])
+
+    (js/console.debug structure)
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}

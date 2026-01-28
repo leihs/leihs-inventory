@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.lib.fields-to-zod
+(ns leihs.inventory.client.lib.dynamic-validation
   (:require
    ["zod" :as z]
    [clojure.set]))
@@ -106,20 +106,17 @@
             (js-obj)
             entries)))
 
-(defn fields-to-zod-schema [fields-response & [custom-fields]]
-  (let [fields (-> fields-response :fields)
-        ;; Merge custom fields with API fields
-        all-fields (concat fields (or custom-fields []))
-        ;; Filter out protected fields from schema
-        non-protected-fields (filter #(not (:protected %)) all-fields)
+(defn fields->schema [fields]
+  (let [;; Filter out protected fields from schema
+        non-protected-fields (filter #(not (:protected %)) fields)
         schema-obj (reduce (fn [acc field]
                              (let [field-id (:id field)
                                    validator (field->zod-validator field)]
                                (assoc acc field-id validator)))
                            {}
                            non-protected-fields)
-        excluded-fields (set (map :id (filter :exclude_from_submit all-fields)))
-        protected-fields (set (map :id (filter :protected all-fields)))
+        excluded-fields (set (map :id (filter :exclude_from_submit fields)))
+        protected-fields (set (map :id (filter :protected fields)))
         base-schema (z/object (clj->js schema-obj))
 
         ;; Add conditional cross-field refinements:

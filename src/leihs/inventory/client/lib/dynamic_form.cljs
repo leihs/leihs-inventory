@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.lib.fields-to-form)
+(ns leihs.inventory.client.lib.dynamic-form)
 
 (def implemented-field-types
   #{"text"
@@ -13,8 +13,8 @@
 
 ;; Custom Fields Structure
 ;; =======================
-;; Custom fields can be passed to transform-fields-to-structure, extract-default-values,
-;; and fields-to-zod-schema to add frontend-defined fields alongside API fields.
+;; Custom fields can be passed to fields->structure, fields->defaults,
+;; and fields->schema to add frontend-defined fields alongside API fields.
 ;;
 ;; Custom field structure:
 ;; {:id "unique_field_id"           ;; REQUIRED: Unique field identifier (used as form key)
@@ -67,9 +67,10 @@
 ;;
 ;; Usage:
 ;; (def custom-fields [{...}])
-;; (transform-fields-to-structure api-response custom-fields)
-;; (extract-default-values api-response custom-fields)
-;; (fields-to-zod-schema api-response custom-fields)
+;; (def all-fields (concat (:fields api-response) custom-fields))
+;; (dynamic-form/fields->structure all-fields)
+;; (dynamic-form/fields->defaults all-fields)
+;; (dynamic-validation/fields->schema all-fields)
 
 (defn- field-type->component [field]
   ;; If field has explicit component, use it (for custom fields)
@@ -162,14 +163,11 @@
           {}
           fields))
 
-(defn transform-fields-to-structure [fields-response & [custom-fields]]
-  (let [fields (-> fields-response :fields)
-        ;; Merge custom fields with API fields
-        all-fields (concat fields (or custom-fields []))
-        ;; Filter only implemented field types or fields with custom component
+(defn fields->structure [fields]
+  (let [;; Filter only implemented field types or fields with custom component
         implemented-fields (filter #(or (implemented-field-types (:type %))
                                         (:component %))
-                                   all-fields)
+                                   fields)
         grouped (group-fields-by-group implemented-fields)]
 
     (mapv (fn [[group-name group-fields]]
@@ -181,14 +179,11 @@
                           vec)})
           grouped)))
 
-(defn extract-default-values [fields-response & [custom-fields]]
-  (let [fields (-> fields-response :fields)
-        ;; Merge custom fields with API fields
-        all-fields (concat fields (or custom-fields []))
-        ;; Filter only implemented field types or fields with custom component
+(defn fields->defaults [fields]
+  (let [;; Filter only implemented field types or fields with custom component
         implemented-fields (filter #(or (implemented-field-types (:type %))
                                         (:component %))
-                                   all-fields)]
+                                   fields)]
     (reduce (fn [acc field]
               (let [field-id (keyword (:id field))
                     field-type (:type field)
