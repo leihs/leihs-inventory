@@ -3,8 +3,8 @@ require "pry"
 require "#{File.dirname(__FILE__)}/_shared"
 require_relative "_shared"
 
-describe "Inventory API Endpoints - Model Links" do
-  context "when fetching model links for a specific inventory pool" do
+describe "Inventory API Endpoints" do
+  context "when fetching entitlement-groups for a specific inventory pool" do
     include_context :setup_models_api, "inventory_manager"
 
     before :each do
@@ -16,7 +16,7 @@ describe "Inventory API Endpoints - Model Links" do
     let(:resp) { client.get url }
     let(:model_id) { resp.body[0]["id"] }
 
-    context "GET /inventory/models-compatibles" do
+    context "GET /inventory/:pool-id/entitlement-groups/" do
       it "retrieves all compatible models and returns status 200" do
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(2)

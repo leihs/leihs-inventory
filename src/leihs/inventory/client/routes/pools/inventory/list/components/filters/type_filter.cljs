@@ -12,7 +12,7 @@
    [clojure.string :as str]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [class-name]}]
+(defui main [{:keys [className]}]
   (let [[search-params set-search-params!] (router/useSearchParams) [t] (useTranslation)
         type (.. search-params (get "type"))
         handle-type (fn [selected-type]
@@ -25,7 +25,7 @@
 
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
-          ($ Button {:class-name (str "min-w-48 w-48 " class-name)
+          ($ Button {:class-name (str "min-w-48 w-48 " className)
                      :variant "outline"}
 
              ($ Tags {:className "h-4 w-4"})

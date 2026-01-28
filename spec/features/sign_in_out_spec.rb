@@ -61,8 +61,8 @@ feature "Sign-in / Sign-out" do
         # After logout, navigate to a page that requires auth to verify we're signed out
         visit "/inventory/"
 
-        # Should show not authenticated message (no redirect, just JSON response)
-        expect(page).to have_content("Not authenticated")
+        # Should show 401 error dialog in SPA (localized)
+        expect(page).to have_content("Status: 401")
       end
     end
   end

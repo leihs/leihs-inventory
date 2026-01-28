@@ -66,14 +66,12 @@ RSpec.configure do |config|
     set_capybara_values
   end
 
-  config.before :each do |example|
+  config.before :each do |_example|
     set_capybara_values
   end
 
   config.after(:each) do |example|
-    unless example.exception.nil?
-      take_screenshot screenshot_dir
-    end
+    take_screenshot screenshot_dir unless example.exception.nil?
   end
 
   config.before :all do

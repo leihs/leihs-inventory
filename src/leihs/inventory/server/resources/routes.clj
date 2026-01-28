@@ -2,7 +2,6 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [hiccup.page :refer [html5]]
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.middlewares.authorize :refer [wrap-authorize-for-pool wrap-authorize]]
@@ -14,8 +13,10 @@
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
+   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.routes :as entitlement-group]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :as entitlement-groups]
    [leihs.inventory.server.resources.pool.fields.routes :as fields]
+   [leihs.inventory.server.resources.pool.groups.routes :as groups]
    [leihs.inventory.server.resources.pool.inventory-pools.routes :as inventory-pools]
    [leihs.inventory.server.resources.pool.items.item.attachments.attachment.routes :as i-attachment]
    [leihs.inventory.server.resources.pool.items.item.attachments.routes :as i-attachments]
@@ -39,6 +40,7 @@
    [leihs.inventory.server.resources.pool.suppliers.routes :as suppliers]
    [leihs.inventory.server.resources.pool.templates.routes :as templates]
    [leihs.inventory.server.resources.pool.templates.template.routes :as template]
+   [leihs.inventory.server.resources.pool.users.routes :as users]
    [leihs.inventory.server.resources.profile.routes :as profile]
    [leihs.inventory.server.resources.session.protected.routes :as session-protected]
    [leihs.inventory.server.resources.session.public.routes :as session-public]
@@ -53,20 +55,7 @@
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [schema.core :as s]
-   [taoensso.timbre :refer [debug error spy]]))
-
-(defn- create-root-page [_]
-  {:status 200
-   :headers {"Content-Type" "text/html"}
-   :body (html5
-          [:head
-           [:link {:rel "stylesheet" :href "/inventory/assets/css/additional.css"}]]
-          [:body
-           [:div {:class "max-width"}
-            [:img {:src "/inventory/assets/zhdk-logo.svg"
-                   :alt "ZHdK Logo"
-                   :style "margin-bottom:4em"}]
-            [:h1 "Overview _> go to " [:a {:href "/inventory"} "go to /inventory"]]]])})
+   [taoensso.timbre :refer [debug error]]))
 
 (defn sign-in-out-endpoints []
   [[""
@@ -77,7 +66,7 @@
            :description "Root page"
            :handler (fn [request]
                       (debug "Processing root request...")
-                      (create-root-page request))}}]
+                      (rh/index-html-response request 200))}}]
 
    ["sign-in"
     {:swagger {:tags ["Login / Logout"]}
@@ -240,6 +229,8 @@
                       (items/routes)
                       (i-attachment/routes)
                       (i-attachments/routes)
+                      (groups/routes)
+                      (users/routes)
                       (templates/routes)
                       (template/routes)
                       (building/routes)
@@ -248,6 +239,7 @@
                       (rooms/routes)
                       (category-tree/routes)
                       (entitlement-groups/routes)
+                      (entitlement-group/routes)
 
                       (manufacturers/routes)
                       (inventory-pools/routes)

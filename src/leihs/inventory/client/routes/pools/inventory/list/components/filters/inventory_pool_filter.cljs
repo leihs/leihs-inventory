@@ -9,7 +9,7 @@
    ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [class-name]}]
+(defui main [{:keys [className]}]
   (let [inventory-pools (:responsible-pools (router/useRouteLoaderData "models-page"))
         [search-params set-search-params!] (router/useSearchParams)
         buttonRef (uix/use-ref nil)
@@ -36,7 +36,7 @@
           ($ Button {:ref buttonRef
                      :disabled (= type "option")
                      :on-click #(set-open! (not open))
-                     :class-name (str "min-w-48 max-w-48 " class-name)
+                     :class-name (str "min-w-48 max-w-48 " className)
                      :variant "outline"
                      :role "combobox"}
              ($ Building {:className "h-4 w-4"})

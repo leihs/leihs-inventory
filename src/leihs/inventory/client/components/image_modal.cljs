@@ -9,7 +9,7 @@
      ($ DialogTrigger {:asChild true}
         ($ :button {:type "button"}
            ($ :img {:class-name (str (when (not className) "min-w-12 h-12 ")
-                                     "object-contain rounded border p-1 " className)
+                                     "object-contain rounded border p-1 bg-white " className)
                     :src (str url "/thumbnail")
                     :loading "lazy"
                     :alt alt})))

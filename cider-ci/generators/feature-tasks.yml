@@ -13,6 +13,41 @@
   environment_variables:
     FEATURE_NAME: "Theme 03"
     FEATURE: './spec/features/appearance/theme_spec.rb[1:3]'
+'./spec/features/entitlement-groups/create_spec.rb[1:1]':
+  name: "Create entitlement group 01"
+  environment_variables:
+    FEATURE_NAME: "Create entitlement group 01"
+    FEATURE: './spec/features/entitlement-groups/create_spec.rb[1:1]'
+'./spec/features/entitlement-groups/create_spec.rb[1:2]':
+  name: "Create entitlement group 02"
+  environment_variables:
+    FEATURE_NAME: "Create entitlement group 02"
+    FEATURE: './spec/features/entitlement-groups/create_spec.rb[1:2]'
+'./spec/features/entitlement-groups/create_spec.rb[1:3]':
+  name: "Create entitlement group 03"
+  environment_variables:
+    FEATURE_NAME: "Create entitlement group 03"
+    FEATURE: './spec/features/entitlement-groups/create_spec.rb[1:3]'
+'./spec/features/entitlement-groups/delete_spec.rb[1:1]':
+  name: "Delete entitlement group 01"
+  environment_variables:
+    FEATURE_NAME: "Delete entitlement group 01"
+    FEATURE: './spec/features/entitlement-groups/delete_spec.rb[1:1]'
+'./spec/features/entitlement-groups/delete_spec.rb[1:2]':
+  name: "Delete entitlement group 02"
+  environment_variables:
+    FEATURE_NAME: "Delete entitlement group 02"
+    FEATURE: './spec/features/entitlement-groups/delete_spec.rb[1:2]'
+'./spec/features/entitlement-groups/list_spec.rb[1:1]':
+  name: "List entitlement groups 01"
+  environment_variables:
+    FEATURE_NAME: "List entitlement groups 01"
+    FEATURE: './spec/features/entitlement-groups/list_spec.rb[1:1]'
+'./spec/features/entitlement-groups/update_spec.rb[1:1]':
+  name: "Update entitlement group 01"
+  environment_variables:
+    FEATURE_NAME: "Update entitlement group 01"
+    FEATURE: './spec/features/entitlement-groups/update_spec.rb[1:1]'
 './spec/features/error-handling/application_errors_spec.rb[1:1]':
   name: "Application Errors 01"
   environment_variables:

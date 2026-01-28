@@ -3,7 +3,6 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.core.db :as db]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]

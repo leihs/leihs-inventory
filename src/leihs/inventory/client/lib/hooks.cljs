@@ -138,3 +138,24 @@
      use-network-state-subscribe
      get-snapshot
      get-network-state-server-snapshot)))
+
+;; NOTE: docs https://usehooks.com/usemediaquery
+(defn use-media-query [query]
+  (let [subscribe (uix/use-callback
+                   (fn [callback]
+                     (let [match-media (.matchMedia js/window query)]
+                       (.addEventListener match-media "change" callback)
+                       (fn []
+                         (.removeEventListener match-media "change" callback))))
+                   [query])
+
+        get-snapshot (fn []
+                       (.-matches (.matchMedia js/window query)))
+
+        get-server-snapshot (fn []
+                              (throw (js/Error. "useMediaQuery is a client-only hook")))]
+
+    (uix/use-sync-external-store
+     subscribe
+     get-snapshot
+     get-server-snapshot)))
