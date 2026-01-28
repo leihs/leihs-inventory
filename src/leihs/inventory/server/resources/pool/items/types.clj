@@ -64,11 +64,12 @@
                   #(clj-str/starts-with? (name %) PROPERTIES_PREFIX)) s/Any})
 
 (def post-request
-  (merge {:inventory_code s/Str
-          :model_id s/Uuid
+  (merge {:model_id s/Uuid
           :owner_id s/Uuid
           :room_id s/Uuid}
-         {(s/optional-key :insurance_number) (s/maybe s/Str)
+         {(s/optional-key :inventory_code) s/Str
+          (s/optional-key :count) (s/constrained s/Int pos-int?)
+          (s/optional-key :insurance_number) (s/maybe s/Str)
           (s/optional-key :inventory_pool_id) (s/maybe s/Uuid)
           (s/optional-key :invoice_date) (s/maybe Date)
           (s/optional-key :invoice_number) (s/maybe s/Str)
@@ -93,7 +94,7 @@
           (s/optional-key :user_name) (s/maybe s/Str)}
          properties))
 
-(def post-response
+(def post-response-item
   (merge {:id s/Uuid
           :inventory_code s/Str
           :model_id s/Uuid
@@ -125,6 +126,9 @@
           :created_at java.util.Date
           :updated_at java.util.Date}
          properties))
+
+(def post-response
+  (s/->Either [[post-response-item] post-response-item]))
 
 (s/defschema index-item
   {(s/optional-key :building_code) (s/maybe s/Str)

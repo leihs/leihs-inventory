@@ -1,10 +1,12 @@
 (ns leihs.inventory.server.resources.pool.items.main
   (:require
+   [better-cond.core :refer [cond] :rename {cond bcond}]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
+   [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
    [leihs.inventory.server.resources.pool.items.fields-shared :refer [coerce-field-values
                                                                       flatten-properties
                                                                       in-coercions
@@ -155,34 +157,62 @@
     (-> (jdbc/execute-one! tx query)
         some?)))
 
+(defn generate-inventory-codes [tx pool-id n]
+  (let [starting-code (inv-code/propose tx pool-id)
+        starting-number (inv-code/extract-last-number starting-code)
+        shortname (:shortname (pools/get-by-id tx pool-id))]
+    (map #(str shortname (+ starting-number %)) (range n))))
+
+(defn create-item [tx item-data-coerced properties-json]
+  (let [item-data-with-properties (assoc item-data-coerced
+                                         :properties [:lift properties-json])
+        sql-query (-> (sql/insert-into :items)
+                      (sql/values [item-data-with-properties])
+                      (sql/returning :*)
+                      sql-format)
+        result (jdbc/execute-one! tx sql-query)]
+    (when-not result
+      (throw (ex-info ERROR_CREATE_ITEM {:item-data item-data-coerced})))
+    (-> result
+        flatten-properties
+        (coerce-field-values out-coercions))))
+
 (defn post-resource [request]
   (try
     (let [tx (:tx request)
           {:keys [pool_id]} (path-params request)
           body-params (body-params request)
+          {:keys [inventory_code count]} body-params
           validation-error (validate-field-permissions request)]
-      (if validation-error
-        (bad-request validation-error)
-        (let [{:keys [item-data properties]} (split-item-data body-params)
-              inventory-code (:inventory_code item-data)]
-          (if (inventory-code-exists? tx inventory-code nil)
-            (status {:body {:error "Inventory code already exists"
-                            :proposed_code (inv-code/propose tx pool_id)}}
-                    409)
-            (let [item-data-coerced (coerce-field-values item-data in-coercions)
-                  properties-json (or (not-empty properties) {})
-                  item-data-with-properties (assoc item-data-coerced
-                                                   :properties [:lift properties-json])
-                  sql-query (-> (sql/insert-into :items)
-                                (sql/values [item-data-with-properties])
-                                (sql/returning :*)
-                                sql-format)
-                  result (jdbc/execute-one! tx sql-query)]
-              (if result
-                (response (-> result
-                              flatten-properties
-                              (coerce-field-values out-coercions)))
-                (bad-request {:error ERROR_CREATE_ITEM})))))))
+      (bcond
+       validation-error
+       (bad-request validation-error)
+
+       (and inventory_code count (> count 1))
+       (bad-request {:error "Cannot provide both inventory_code and count when count > 1"})
+
+       (and (not inventory_code) (not count))
+       (bad-request {:error "Must provide either inventory_code or count"})
+
+       :let [{:keys [item-data properties]} (split-item-data
+                                             (dissoc body-params :count))
+             item-data-coerced (coerce-field-values item-data in-coercions)
+             properties-json (or (not-empty properties) {})]
+
+       (and count (> count 1))
+       (let [codes (generate-inventory-codes tx pool_id count)
+             created-items (doall (map #(create-item tx
+                                                     (assoc item-data-coerced :inventory_code %)
+                                                     properties-json)
+                                       codes))]
+         (response created-items))
+
+       (inventory-code-exists? tx inventory_code nil)
+       (status {:body {:error "Inventory code already exists"
+                       :proposed_code (inv-code/propose tx pool_id)}}
+               409)
+
+       (response (create-item tx item-data-coerced properties-json))))
     (catch Exception e
       (log-by-severity ERROR_CREATE_ITEM e)
       (exception-handler request ERROR_CREATE_ITEM e))))
