@@ -26,17 +26,17 @@
       (not supported?)
       (response/status (response/response "Not Acceptable") 406)
 
+      ;; HTML request -> Always return SPA with 200
+      html-request?
+      (rh/index-html-response request 200)
+
       ;; JSON or image or other non-HTML requests
       (or json-request? image-request? (not html-request?))
       (if authenticated?
         ;; Authenticated but lacks permission -> 403
         (response/status (response/response {:status "failure" :message "Forbidden"}) 403)
         ;; Not authenticated -> 401
-        (response/status (response/response {:status "failure" :message "Not authenticated"}) 401))
-
-      ;; HTML request -> Always return SPA with 200
-      :else
-      (rh/index-html-response request 200))))
+        (response/status (response/response {:status "failure" :message "Not authenticated"}) 401)))))
 
 (defn wrap-authorize [handler]
   (fn [{:keys [authenticated-entity request-method]
