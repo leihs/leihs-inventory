@@ -23,6 +23,7 @@
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
+   [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -271,12 +272,13 @@
          ($ Spinner))
 
       ($ :article
-         ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
+         ($ Typo {:variant :h1}
             (if is-create
               (t "pool.model.create.title")
               (t "pool.model.title")))
 
-         ($ :h3 {:className "text-sm mb-6 text-gray-500"}
+         ($ Typo {:variant :description
+                  :class-name "mb-6"}
             (if is-create
               (t "pool.model.create.description")
               (t "pool.model.description")))
