@@ -236,8 +236,8 @@
             {}
             implemented-fields)))
 
-(defn update-field
-  "Updates a specific field in the structure.
+(defn patch
+  "Patches a specific field in the structure.
    
    Args:
      structure - The form structure (vector of sections)
@@ -248,14 +248,14 @@
                Any other block-level keys (e.g., :visibility-dependency, :values-dependency)
    
    Returns:
-     Updated structure with the field modified.
+     Patched structure with the field modified.
      Returns unchanged structure if field-name not found.
    
    Example:
-     (update-field structure \"inventory_code\" 
+     (patch structure \"inventory_code\" 
                    {:props {:disabled true}
                     :disabled-reason :multiple-items})
-     (update-field structure \"model_id\" 
+     (patch structure \"model_id\" 
                    {:props {:disabled false}
                     :disabled-reason nil})"
   [structure field-name updates]

@@ -69,8 +69,7 @@
         fields (concat (:fields data) custom-fields)
 
         ;; Transform fields data to form structure
-        [structure set-structure!] (uix/use-state
-                                    (dynamic-form/fields->structure fields))
+        [structure set-structure!] (uix/use-state (dynamic-form/fields->structure fields))
 
         ;; Extract default values from fields
         defaults (dynamic-form/fields->defaults fields)
@@ -240,9 +239,9 @@
        (when (and is-create model (not is-loading))
          (set-value "model_id" (cj {:label (:product model)
                                     :value (:id model)}))
-         (set-structure! #(dynamic-form/update-field % "model_id"
-                                                     {:props {:disabled true}
-                                                      :disabled-reason :model-selected}))))
+         (set-structure! #(dynamic-form/patch % "model_id"
+                                              {:props {:disabled true}
+                                               :disabled-reason :model-selected}))))
      [is-create is-loading model set-value])
 
     ;; Handle fields disabling/enabling when creating multiple items
@@ -253,35 +252,35 @@
                   (not is-loading))
           ;; Disable when count > 1
            (set-structure! #(-> %
-                                (dynamic-form/update-field "inventory_code"
-                                                           {:props {:disabled true}
-                                                            :disabled-reason :multiple-items})
-                                (dynamic-form/update-field "attachments"
-                                                           {:props {:disabled true}
-                                                            :disabled-reason :multiple-items})
-                                (dynamic-form/update-field "serial_number"
-                                                           {:props {:disabled true}
-                                                            :disabled-reason :multiple-items})))
+                                (dynamic-form/patch "inventory_code"
+                                                    {:props {:disabled true}
+                                                     :disabled-reason :multiple-items})
+                                (dynamic-form/patch "attachments"
+                                                    {:props {:disabled true}
+                                                     :disabled-reason :multiple-items})
+                                (dynamic-form/patch "serial_number"
+                                                    {:props {:disabled true}
+                                                     :disabled-reason :multiple-items})))
           ;; Re-enable when count <= 1
            (set-structure! #(-> %
-                                (dynamic-form/update-field "inventory_code"
-                                                           {:props {:disabled false}
-                                                            :disabled-reason nil})
-                                (dynamic-form/update-field "attachments"
-                                                           {:props {:disabled false}
-                                                            :disabled-reason nil})
-                                (dynamic-form/update-field "serial_number"
-                                                           {:props {:disabled false}
-                                                            :disabled-reason nil}))))))
+                                (dynamic-form/patch "inventory_code"
+                                                    {:props {:disabled false}
+                                                     :disabled-reason nil})
+                                (dynamic-form/patch "attachments"
+                                                    {:props {:disabled false}
+                                                     :disabled-reason nil})
+                                (dynamic-form/patch "serial_number"
+                                                    {:props {:disabled false}
+                                                     :disabled-reason nil}))))))
      [is-loading is-create field-count])
 
     ;; Handle owner_id disabling on create
     (uix/use-effect
      (fn []
        (when (and is-create (not is-loading))
-         (set-structure! #(dynamic-form/update-field % "owner_id"
-                                                     {:props {:disabled true}
-                                                      :disabled-reason :owner-locked}))))
+         (set-structure! #(dynamic-form/patch % "owner_id"
+                                              {:props {:disabled true}
+                                               :disabled-reason :owner-locked}))))
      [is-create is-loading])
 
     ;; Clear room_id when building changes
@@ -290,8 +289,6 @@
        (when (and field-building (not is-loading) building-is-dirty?)
          (set-value "room_id" nil)))
      [field-building is-loading set-value building-is-dirty?])
-
-    (js/console.debug structure)
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
