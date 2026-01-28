@@ -8,19 +8,19 @@
    
    Props:
    - value: The barcode value to encode (required)
-   - element-type: 'svg', 'canvas', or 'img' (default: 'svg')
+   - elementType: 'svg', 'canvas', or 'img' (default: 'svg')
    - format: Barcode format like CODE128, EAN13, CODE39, etc.
    - width: Width of individual bars (default: 2)
    - height: Height of barcode (default: 100)
-   - display-value: Show text below barcode (default: true)
-   - font-size: Font size for text (default: 20)
+   - displayValue: Show text below barcode (default: true)
+   - fontSize: Font size for text (default: 20)
    - margin: Margin around barcode (default: 10)
-   - class-name: Additional CSS classes
+   - className: Additional CSS classes
    - background: Background color (default: '#ffffff')
-   - line-color: Bar color (default: '#000000')
+   - lineColor: Bar color (default: '#000000')
    
-   Additional options: text, text-margin, font, font-options, 
-   text-align, text-position, valid (callback)"
+   Additional options: text, textMargin, font, fontOptions, 
+   textAlign, textPosition, valid (callback)"
 
   [{:keys [value elementType format width height displayValue
            fontSize margin className background lineColor
@@ -37,7 +37,10 @@
          background "#ffffff"
          lineColor "#000000"}}]
 
-  (let [element-ref (uix/use-ref nil)]
+  (let [element-ref (uix/use-ref nil)
+        element-props {:ref element-ref
+                       :data-test-id (str "barcode-" value)
+                       :class-name className}]
 
     ;; Render barcode when component mounts or props change
     (uix/use-effect
@@ -76,15 +79,9 @@
 
     ;; Render appropriate element type
     (case elementType
-      "canvas" ($ :canvas {:ref element-ref
-                           :data-test-id (str "barcode-" value)
-                           :class-name className})
-      "img" ($ :img {:ref element-ref
-                     :data-test-id (str "barcode-" value)
-                     :class-name className})
-      "svg" ($ :svg {:ref element-ref
-                     :data-test-id (str "barcode-" value)
-                     :class-name className}))))
+      "canvas" ($ :canvas element-props)
+      "img" ($ :img element-props)
+      "svg" ($ :svg element-props))))
 
 ;; Export React-compatible version
 (def Barcode
