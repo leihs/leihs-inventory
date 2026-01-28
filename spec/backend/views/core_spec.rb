@@ -31,8 +31,7 @@ describe "Request " do
     context "against /" do
       scenario "json response is correct" do
         resp = http_client.get "/"
-        expect(resp.status).to be == 200
-        expect(resp.body).to include("Overview _> go to")
+        expect_spa_content(resp, 200)
       end
 
       scenario "json response is correct" do

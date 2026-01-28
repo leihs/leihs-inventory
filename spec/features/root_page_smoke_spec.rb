@@ -8,7 +8,7 @@ feature "Root page" do
     end
 
     scenario "Contains expected elements" do
-      expect(page).to have_content "Overview"
+      expect(page).to have_title "Inventory"
     end
   end
 end

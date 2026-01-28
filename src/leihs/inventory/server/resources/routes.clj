@@ -2,7 +2,6 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [hiccup.page :refer [html5]]
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.middlewares.authorize :refer [wrap-authorize-for-pool wrap-authorize]]
@@ -58,19 +57,6 @@
    [schema.core :as s]
    [taoensso.timbre :refer [debug error]]))
 
-(defn- create-root-page [_]
-  {:status 200
-   :headers {"Content-Type" "text/html"}
-   :body (html5
-          [:head
-           [:link {:rel "stylesheet" :href "/inventory/assets/css/additional.css"}]]
-          [:body
-           [:div {:class "max-width"}
-            [:img {:src "/inventory/assets/zhdk-logo.svg"
-                   :alt "ZHdK Logo"
-                   :style "margin-bottom:4em"}]
-            [:h1 "Overview _> go to " [:a {:href "/inventory"} "go to /inventory"]]]])})
-
 (defn sign-in-out-endpoints []
   [[""
     {:no-doc HIDE_BASIC_ENDPOINTS
@@ -80,7 +66,7 @@
            :description "Root page"
            :handler (fn [request]
                       (debug "Processing root request...")
-                      (create-root-page request))}}]
+                      (rh/index-html-response request 200))}}]
 
    ["sign-in"
     {:swagger {:tags ["Login / Logout"]}
