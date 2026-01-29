@@ -1,4 +1,4 @@
-require "spec_helper"
+require "features_helper"
 require "pry"
 
 feature "Root page" do

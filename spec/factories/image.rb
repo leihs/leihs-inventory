@@ -1,3 +1,5 @@
+require "base64"
+
 class Image < Sequel::Model
   many_to_one(:category, key: :target_id)
   many_to_one(:leihs_model, key: :target_id)

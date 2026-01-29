@@ -4,7 +4,6 @@ require "pry"
 require_relative "../database/spec/config/database"
 require "config/factories"
 
-require "config/browser"
 require "config/web"
 
 require "helpers/global"
@@ -15,10 +14,6 @@ require "helpers/user"
 RSpec.configure do |config|
   config.include Helpers::Global
   config.include Helpers::User
-
-  config.before(type: :feature) do
-    page.driver.browser.manage.window.resize_to(1280, 1200)
-  end
 
   config.before(:example) do |example|
     srand 1

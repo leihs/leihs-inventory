@@ -11,7 +11,7 @@ describe "Request " do
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     context "against public endpoint /inventory/status" do
-      scenario "status-check for cider" do
+      it "status-check for cider" do
         resp = client.get "/inventory/status"
         expect(resp.status).to be == 200
         expect(resp.body.keys).to eq(["memory", "db-pool", "health-checks"])
@@ -29,19 +29,19 @@ describe "Request " do
     end
 
     context "against /" do
-      scenario "json response is correct" do
+      it "json response is correct" do
         resp = http_client.get "/"
         expect_spa_content(resp, 200)
       end
 
-      scenario "json response is correct" do
+      it "json response is correct" do
         resp = json_client.get "/"
         expect(resp.status).to be == 404
       end
     end
 
     context "http-request against /inventory/status" do
-      scenario "valid status-check for cider" do
+      it "valid status-check for cider" do
         resp = http_client.get "/inventory/status"
         expect_spa_content(resp, 200)
       end
