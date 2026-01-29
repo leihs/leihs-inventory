@@ -103,6 +103,11 @@
   environment_variables:
     FEATURE_NAME: "Inventory Pagination 02"
     FEATURE: './spec/features/inventory-list/pagination_spec.rb[1:2]'
+'./spec/features/items/batch_create_spec.rb[1:1]':
+  name: "Batch create items 01"
+  environment_variables:
+    FEATURE_NAME: "Batch create items 01"
+    FEATURE: './spec/features/items/batch_create_spec.rb[1:1]'
 './spec/features/items/create_spec.rb[1:1]':
   name: "Create item 01"
   environment_variables:
