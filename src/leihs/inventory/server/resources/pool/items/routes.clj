@@ -22,15 +22,16 @@
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
-    :post {:description "Create a new item. Fields starting with 'properties_' are stored in the properties JSONB column, others in their respective item columns."
+    :post {:description "Create one or more items. When 'count' is provided, creates multiple items with auto-generated sequential inventory codes. Otherwise, creates a single item with the provided inventory_code. Fields starting with 'properties_' are stored in the properties JSONB column, others in their respective item columns."
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json"]}
            :parameters {:path {:pool_id s/Uuid}
                         :body types/post-request}
            :handler items/post-resource
-           :responses {200 {:description "OK"
+           :responses {200 {:description "OK - Returns single item or array of items"
                             :body types/post-response}
                        400 {:description "Bad Request"}
                        404 {:description "Not Found"}
+                       409 {:description "Conflict - Inventory code already exists"}
                        500 {:description "Internal Server Error"}}}}])
