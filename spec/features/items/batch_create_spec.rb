@@ -33,18 +33,19 @@ feature "Batch create items", type: :feature do
     # Check that inventory_code is disabled
     inventory_code_field = find_field("Inventory Code", disabled: true)
     expect(inventory_code_field).to be_disabled
-    inventory_code_field.hover
+
+    click_on "inventory_code-disabled-info"
     expect(page).to have_content("This field is locked when creating multiple items")
 
     # Check that serial_number is disabled
     serial_number_field = find_field("Serial Number", disabled: true)
     expect(serial_number_field).to be_disabled
-    serial_number_field.hover
+
+    click_on "serial_number-disabled-info"
     expect(page).to have_content("This field is locked when creating multiple items")
 
     # Check that attachments is disabled
-    attachments_label = find("label", text: "Attachments")
-    attachments_label.hover
+    click_on "attachments-disabled-info"
     expect(page).to have_content("This field is locked when creating multiple items")
 
     # Phase 5: Select Required Fields

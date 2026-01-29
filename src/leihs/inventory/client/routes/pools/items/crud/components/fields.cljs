@@ -84,8 +84,10 @@
          ($ :div {:class-name "relative"}
             (when (:disabled (:props block))
               ($ PopoverTrigger {:asChild true
-                                 :class-name "absolute right-0 z-10 top-1/2 cursor-help"}
-                 ($ Lock {:class-name "h-6 w-6 p-1 m-1 rounded text-muted-foreground bg-muted"})))
+                                 :class-name "absolute right-0 z-10 top-1/2 m-1"}
+                 ($ :button {:class-name " rounded text-muted-foreground bg-muted cursor-help"
+                             :data-test-id (str (:name block) "-disabled-info")}
+                    ($ Lock {:class-name "h-6 w-6 p-1"}))))
             (case (:component block)
               "attachments"
               ($ Attachments {:form form
