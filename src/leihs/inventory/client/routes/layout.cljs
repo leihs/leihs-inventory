@@ -35,7 +35,7 @@
        ($ TooltipProvider
           ($ :<>
              ($ header/main profile)
-             ($ :main {:className "container"}
+             ($ :main {:className "md:container"}
                 ($ Outlet)
                 ($ Toaster {:position "top-center"
                             :closeButton true

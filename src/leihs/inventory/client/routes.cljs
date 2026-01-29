@@ -18,6 +18,7 @@
    [leihs.inventory.client.routes.pools.inventory.templates.crud.page :rename {page template-crud-page}]
    [leihs.inventory.client.routes.pools.inventory.templates.page :rename {page templates-page}]
    [leihs.inventory.client.routes.pools.items.crud.page :rename {page items-crud-page}]
+   [leihs.inventory.client.routes.pools.items.review.page :rename {page items-review-page}]
    [leihs.inventory.client.routes.pools.models.crud.page :rename {page models-crud-page}]
    [leihs.inventory.client.routes.pools.options.crud.page :rename {page options-crud-page}]
    [leihs.inventory.client.routes.pools.software.crud.page :rename {page software-crud-page}]
@@ -132,6 +133,11 @@
               {:path "items/create"
                :loader loader/items-crud-page
                :element ($ items-crud-page)}
+
+              {:path "items/review"
+               :loader loader/items-review-page
+               :action actions/items-review-page
+               :element ($ items-review-page)}
 
               {:path "items/:item-id/delete?"
                :loader loader/items-crud-page

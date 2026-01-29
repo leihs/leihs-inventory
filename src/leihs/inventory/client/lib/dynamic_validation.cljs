@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.lib.fields-to-zod
+(ns leihs.inventory.client.lib.dynamic-validation
   (:require
    ["zod" :as z]
    [clojure.set]))
@@ -81,7 +81,13 @@
                                (.min 1 "At least one attachment is required"))
                            (z/array (z/any)))
 
-                         (z/string))]
+                         ;; Default for custom/unknown types
+                         (if-let [custom-validator (:validator field)]
+                           custom-validator
+                           ;; Fall back to string validation
+                           (if (and is-required (not treat-as-optional))
+                             (-> (z/string) (.min 1))
+                             (z/string))))]
 
     (if (or (not is-required) (not is-protected) treat-as-optional)
       (z/nullish (z/optional base-validator))
@@ -100,9 +106,8 @@
             (js-obj)
             entries)))
 
-(defn fields-to-zod-schema [fields-response]
-  (let [fields (-> fields-response :fields)
-        ;; Filter out protected fields from schema
+(defn fields->schema [fields]
+  (let [;; Filter out protected fields from schema
         non-protected-fields (filter #(not (:protected %)) fields)
         schema-obj (reduce (fn [acc field]
                              (let [field-id (:id field)

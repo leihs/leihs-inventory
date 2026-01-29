@@ -290,7 +290,8 @@ feature "Update item", type: :feature do
 
     inventory_code_field = find_field("Inventory Code", disabled: true)
     expect(inventory_code_field).to be_disabled
-    inventory_code_field.hover
+
+    click_on "inventory_code-disabled-info"
     expect(page).to have_content("Only the owner can edit this field")
 
     click_on "Save"

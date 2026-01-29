@@ -73,7 +73,10 @@
                          ($ FormLabel {:class-name "mt-6"} label))
                        ($ FormControl
                           ($ DropzoneArea (merge
-                                           {:disabled (:disabled props)
+                                           {:ref (aget % "field" "ref")
+                                            :onBlur (aget % "field" "onBlur")
+                                            :name (aget % "field" "name")
+                                            :disabled (:disabled props)
                                             :multiple (:multiple props)
                                             ;; :filetypes (:filetypes props)
                                             :onDrop handle-drop})))

@@ -100,6 +100,8 @@ function Item({ children, className, file, generatePreview = true }) {
 }
 
 const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
+  const [isDisabled, setIsDisabled] = React.useState(false)
+
   const filetypes = {
     jpeg: { "image/jpeg": [".jpg", ".jpeg"] },
     png: { "image/png": [".png"] },
@@ -128,24 +130,35 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
     },
   })
 
+  // Forward dropzone's input ref to parent (react-hook-form)
+  React.useImperativeHandle(ref, () => dropzone.inputRef.current)
+
+  // Also sync props.disabled to state
+  React.useEffect(() => {
+    if (props.disabled !== undefined) {
+      setIsDisabled(props.disabled)
+    }
+  }, [props.disabled])
+
   return (
     <div
       {...dropzone.getRootProps()}
+      id={`${props.name}-dropzone`}
       className={cn(
         "flex shadow-sm justify-center items-center w-full h-32 border-dashed border-2 border-gray-200 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all select-none cursor-pointer",
-        props.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent",
+        isDisabled && "opacity-50 cursor-not-allowed hover:bg-transparent",
         className,
       )}
     >
       <input
-        ref={ref}
-        {...dropzone.getInputProps()}
-        id={props.id}
-        multiple={props.multiple}
-        onBlur={props.onBlur}
-        aria-describedby={props["aria-describedby"]}
-        aria-invalid={props["aria-invalid"]}
-        name={props.name}
+        {...dropzone.getInputProps({
+          id: props.id,
+          multiple: props.multiple,
+          onBlur: props.onBlur,
+          "aria-describedby": props["aria-describedby"],
+          "aria-invalid": props["aria-invalid"],
+          name: props.name,
+        })}
       />
 
       {dropzone.isDragAccept ? (

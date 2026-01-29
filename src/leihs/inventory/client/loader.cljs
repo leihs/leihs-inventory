@@ -2,6 +2,8 @@
   (:require
    ["react-router-dom" :as router]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
+   [cljs.core.async :as async :refer [go]]
+   [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [jc cj]]))
 
@@ -145,6 +147,34 @@
         (then (fn [[data & [model]]]
                 {:data data
                  :model (if model model nil)}))
+        (catch (fn [err]
+                 (handle-error err))))))
+
+(defn items-review-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        query-params (-> (js/URL. (.. route-data -request -url))
+                         (.-search)
+                         (js/URLSearchParams.))
+        ids (.getAll query-params "id")
+        model-id (.get query-params "mid")
+
+        model (-> http-client
+                  (.get (str "/inventory/" pool-id "/models/" model-id)
+                        #js {:cache false})
+                  (.then #(jc (.. % -data))))
+
+        data (js/Promise.all (map (fn [id]
+                                    (-> http-client
+                                        (.get (str "/inventory/" pool-id "/items/" id)
+                                              #js {:cache false})
+                                        (.then #(jc (.. % -data)))))
+                                  ids))]
+
+    (.. (js/Promise.all (cj [data model]))
+        (then (fn [[data model]]
+                {:data data
+                 :model model}))
         (catch (fn [err]
                  (handle-error err))))))
 
