@@ -68,10 +68,13 @@
         is-inventory? (and uri (str/includes? uri "/inventory"))]
     (cond
       (instance? PSQLException e)
-      (create-response-by-accept request accept 409 {:status "failure"
-                                                     :message message
-                                                     :type (str (class e))
-                                                     :details (.getMessage e)})
+      (let [sql-state (.getSQLState e)
+            ;; 23505 = unique violation, 23503 = foreign key violation
+            status (if (#{"23505" "23503"} sql-state) 409 500)]
+        (create-response-by-accept request accept status {:status "failure"
+                                                          :message message
+                                                          :type (str (class e))
+                                                          :details (.getMessage e)}))
 
       ;; Response coercion on image/* to /inventory when not authenticated → 401
       (and (instance? ExceptionInfo e)
@@ -102,7 +105,7 @@
                                                           :type (str (class e))
                                                           :details msg}))
 
-      :else (create-response-by-accept request accept 400 {:status "failure"
+      :else (create-response-by-accept request accept 500 {:status "failure"
                                                            :message message
                                                            :type (str (class e))
                                                            :details (.getMessage e)}))))
