@@ -241,7 +241,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         # Verify sequential codes
         codes = resp.body.map { |item| item["inventory_code"] }
-        numbers = codes.map { |c| c.gsub(/\D/, '').to_i }
+        numbers = codes.map { |c| c.gsub(/\D/, "").to_i }
         expect(numbers).to eq(numbers.sort)
         expect(numbers.last - numbers.first).to eq(2) # count - 1
       end
@@ -281,7 +281,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.body.length).to eq(3)
 
         codes = resp.body.map { |item| item["inventory_code"] }
-        numbers = codes.map { |c| c.gsub(/\D/, '').to_i }
+        numbers = codes.map { |c| c.gsub(/\D/, "").to_i }
         expect(numbers).to eq([106, 107, 108])
       end
     end
