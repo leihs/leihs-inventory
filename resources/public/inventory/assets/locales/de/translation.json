@@ -2,6 +2,7 @@
   "fields": {
     "Mandatory data": {
       "title": "Pflichtangaben",
+      "count": "Anzahl Gegenstände erstellen",
       "inventory_code": "Inventarcode",
       "model_id": "Modell"
     },
@@ -88,6 +89,7 @@
       }
     }
   },
+  "intlDateTime": "{{val, datetime}}",
   "pool": {
     "inventory": {
       "breadcrumbs": {
@@ -127,7 +129,13 @@
           "error": "Gegenstand konnte nicht gelöscht werden"
         },
         "fields": {
-          "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
+          "disabled": {
+            "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
+            "model-selected": "Dieses Feld ist gesperrt, da ein Modell ausgewählt wurde",
+            "multiple-items": "Dieses Feld ist gesperrt beim Erstellen mehrerer Gegenstände",
+            "owner-locked": "Der Besitzer wird automatisch zugewiesen",
+            "generic": "Dieses Feld ist derzeit deaktiviert"
+          },
           "inactive": "Inaktiv",
           "autocomplete": {
             "select": "Auswahl treffen",
@@ -135,6 +143,37 @@
             "empty": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
           }
         }
+      },
+      "review": {
+        "title": "Gegenstände erfolgreich erstellt",
+        "summary": {
+          "title": "Zusammenfassung",
+          "count": "Anzahl",
+          "name": "Name",
+          "date": "Datum"
+        },
+        "export": "Export",
+        "list_title": "Liste der erstellten Gegenstände",
+        "toggles": {
+          "show_barcodes": "Zeige Barcodes",
+          "show_urls": "Zeige URLs"
+        },
+        "table": {
+          "headers": {
+            "number": "#",
+            "barcode": "Barcode",
+            "inventory_code": "Inventarcode",
+            "serial_number": "Seriennummer",
+            "url": "URL",
+            "uuid": "UUID"
+          }
+        },
+        "serial_number": {
+          "placeholder": "Seriennummer eingeben",
+          "success": "Seriennummer aktualisiert",
+          "error": "Seriennummer konnte nicht aktualisiert werden"
+        },
+        "back_to_inventory": "Zurück zum Inventar"
       }
     },
     "models": {

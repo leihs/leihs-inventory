@@ -2,6 +2,7 @@
   "fields": {
     "Mandatory data": {
       "title": "Mandatory data",
+      "count": "Create number of items",
       "inventory_code": "Inventory Code",
       "model_id": "Model"
     },
@@ -88,6 +89,7 @@
       }
     }
   },
+  "intlDateTime": "{{- val, datetime}}",
   "pool": {
     "inventory": {
       "breadcrumbs": {
@@ -128,7 +130,13 @@
           "error": "Item could not be deleted"
         },
         "fields": {
-          "protected": "Only the owner can edit this field",
+          "disabled": {
+            "protected": "Only the owner can edit this field",
+            "model-selected": "This field is locked because a model was selected",
+            "multiple-items": "This field is locked when creating multiple items",
+            "owner-locked": "The owner is automatically assigned",
+            "generic": "This field is currently disabled"
+          },
           "inactive": "Inactive",
           "autocomplete": {
             "select": "Make a selection",
@@ -136,6 +144,37 @@
             "empty": "No results found for this search term"
           }
         }
+      },
+      "review": {
+        "title": "Items successfully created",
+        "summary": {
+          "title": "Summary",
+          "count": "Count",
+          "name": "Name",
+          "date": "Date"
+        },
+        "export": "Export",
+        "list_title": "List of created items",
+        "toggles": {
+          "show_barcodes": "Show barcodes",
+          "show_urls": "Show URLs"
+        },
+        "table": {
+          "headers": {
+            "number": "#",
+            "barcode": "Barcode",
+            "inventory_code": "Inventory code",
+            "serial_number": "Serial number",
+            "url": "URL",
+            "uuid": "UUID"
+          }
+        },
+        "serial_number": {
+          "placeholder": "Enter serial number",
+          "success": "Serial number updated",
+          "error": "Failed to update serial number"
+        },
+        "back_to_inventory": "Back to Inventory"
       }
     },
     "models": {
