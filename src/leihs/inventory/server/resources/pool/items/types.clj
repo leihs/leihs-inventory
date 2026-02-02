@@ -8,13 +8,22 @@
 
 (s/defschema path-params {:pool_id s/Uuid})
 
+(s/defschema error-body {:status s/Str
+                         :message s/Str
+                         :type s/Any
+                         :details s/Str})
+
 (s/defschema query-params {(s/optional-key :fields) s/Str
                            (s/optional-key :ids) [s/Uuid]
                            (s/optional-key :model_id) s/Uuid
                            (s/optional-key :parent_id) s/Uuid
+                           (s/optional-key :search) s/Str
                            (s/optional-key :search_term) s/Str
 
+                           (s/optional-key :filter_q) s/Str
+
                            ;; item filters
+                           (s/optional-key :before_last_check) s/Str
                            (s/optional-key :borrowable) s/Bool
                            (s/optional-key :broken) s/Bool
                            (s/optional-key :in_stock) s/Bool
@@ -134,6 +143,7 @@
 (s/defschema index-item
   {(s/optional-key :building_code) (s/maybe s/Str)
    (s/optional-key :building_name) (s/maybe s/Str)
+   (s/optional-key :content_type) (s/maybe s/Str)
    (s/optional-key :cover_image_id) (s/maybe s/Str)
    (s/optional-key :id) s/Uuid
    (s/optional-key :image_id) (s/maybe s/Str)

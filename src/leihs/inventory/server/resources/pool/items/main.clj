@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.pool.items.main
   (:require
-   [better-cond.core :refer [cond] :rename {cond bcond}]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [ACCEPT-CSV ACCEPT-EXCEL]]
@@ -14,7 +13,9 @@
                                                                       in-coercions
                                                                       out-coercions
                                                                       split-item-data
-                                                                      validate-field-permissions]]
+                                                                      validate-field-permissions
+                                                                      validate-retired-reason-requires-retired!]]
+   [leihs.inventory.server.resources.pool.items.filter-handler :refer [create-filter-query-and-validate!]]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
    [leihs.inventory.server.resources.pool.items.types :as types]
    [leihs.inventory.server.resources.pool.list.search :refer [with-search]]
@@ -47,7 +48,7 @@
                  model_id parent_id
                  retired borrowable
                  incomplete broken owned
-                 inventory_pool_id
+                 inventory_pool_id filter_q
                  in_stock before_last_check]} (query-params request) ; query params of reitit
          ; getting ids from query params of ring. it handles both single and multiple ids.
          ids-raw (or (get (:query-params request) "ids[]")
@@ -115,6 +116,10 @@
                    (cond-> parent_id (sql/where [:= :items.parent_id parent_id]))
                    (cond-> (seq ids) (sql/where [:in :items.id ids]))
 
+                   ;; Advanced filter support (filter_q: URL-encoded EDN, MQL-style)
+                   (cond-> (and filter_q (seq (str filter_q)))
+                     (create-filter-query-and-validate! request filter_q))
+
                    ; in legacy no query params are passed down to the children,
                    ; speaking: all children are always showed.
                    (cond-> (not parent_id)
@@ -130,21 +135,19 @@
                          (cond-> (seq search) (with-search search :models)))))
 
          post-fnc (fn [items]
-                    ;; Prepare items for thumbnail fetching by using model_id as id
-                    (let [items-for-fetch (map (fn [item]
-                                                 (assoc item :id (:model_id item)))
-                                               items)
-                          ;; Fetch thumbnails using model data
+                    (let [items-for-fetch (mapv (fn [item]
+                                                  (assoc item :id (:model_id item)))
+                                                items)
                           items-with-images (fetch-thumbnails-for-ids tx items-for-fetch)]
-                      ;; Merge back with original items and add image URLs
-                      (map-indexed (fn [idx item-with-img]
-                                     (let [original-item (nth items idx)]
-                                       (cond-> original-item
-                                         (:image_id item-with-img)
-                                         (assoc :image_id (:image_id item-with-img)
-                                                :url (str "/inventory/" pool_id "/models/" (:model_id original-item) "/images/" (:image_id item-with-img))
-                                                :content_type (:content_type item-with-img)))))
-                                   items-with-images)))]
+                      (vec (map-indexed (fn [idx item-with-img]
+                                          (let [original-item (nth items idx)
+                                                img-id (:image_id item-with-img)]
+                                            (cond-> original-item
+                                              img-id
+                                              (assoc :image_id (str img-id)
+                                                     :url (str "/inventory/" pool_id "/models/" (:model_id original-item) "/images/" img-id)
+                                                     :content_type (:content_type item-with-img)))))
+                                        items-with-images))))]
 
      (debug (sql-format query :inline true))
      (try
@@ -212,38 +215,44 @@
   (try
     (let [tx (:tx request)
           {:keys [pool_id]} (path-params request)
-          body-params (body-params request)
-          {:keys [inventory_code count]} body-params
-          validation-error (validate-field-permissions request)]
-      (bcond
-       validation-error
-       (bad-request validation-error)
+          body (body-params request)
+          {:keys [inventory_code count]} body]
+      (if-let [validation-error (validate-field-permissions request)]
+        (bad-request validation-error)
 
-       (and inventory_code count (> count 1))
-       (bad-request {:error "Cannot provide both inventory_code and count when count > 1"})
+        (cond
+          (and inventory_code count (> count 1))
+          (bad-request {:error "Cannot provide both inventory_code and count when count > 1"})
 
-       (and (not inventory_code) (not count))
-       (bad-request {:error "Must provide either inventory_code or count"})
+          (and (nil? inventory_code) (nil? count))
+          (bad-request {:error "Must provide either inventory_code or count"})
 
-       :let [{:keys [item-data properties]} (split-item-data
-                                             (dissoc body-params :count))
-             item-data-coerced (coerce-field-values item-data in-coercions)
-             properties-json (or (not-empty properties) {})]
+          :else
+          (let [{:keys [item-data properties]}
+                (split-item-data (dissoc body :count))
 
-       (and count (> count 1))
-       (let [codes (generate-inventory-codes tx pool_id count)
-             created-items (doall (map #(create-item tx
-                                                     (assoc item-data-coerced :inventory_code %)
-                                                     properties-json)
-                                       codes))]
-         (response created-items))
+                item-data-coerced
+                (doto (coerce-field-values item-data in-coercions)
+                  validate-retired-reason-requires-retired!)
 
-       (inventory-code-exists? tx inventory_code nil)
-       (status {:body {:error "Inventory code already exists"
-                       :proposed_code (inv-code/propose tx pool_id)}}
-               409)
+                properties-json (or (not-empty properties) {})]
+            (cond
+              (and count (> count 1))
+              (let [codes (generate-inventory-codes tx pool_id count)
+                    created-items (doall
+                                   (map #(create-item tx
+                                                      (assoc item-data-coerced :inventory_code %)
+                                                      properties-json)
+                                        codes))]
+                (response created-items))
 
-       (response (create-item tx item-data-coerced properties-json))))
+              (inventory-code-exists? tx inventory_code nil)
+              (-> (response {:error "Inventory code already exists"
+                             :proposed_code (inv-code/propose tx pool_id)})
+                  (status 409))
+
+              :else
+              (response (create-item tx item-data-coerced properties-json)))))))
     (catch Exception e
       (log-by-severity ERROR_CREATE_ITEM e)
       (exception-handler request ERROR_CREATE_ITEM e))))
