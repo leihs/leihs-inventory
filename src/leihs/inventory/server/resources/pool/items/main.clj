@@ -15,6 +15,7 @@
                                                                       out-coercions
                                                                       split-item-data
                                                                       validate-field-permissions]]
+   [leihs.inventory.server.resources.pool.items.filter-handler :refer [create-filter-query-and-validate!]]
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
    [leihs.inventory.server.resources.pool.items.types :as types]
    [leihs.inventory.server.resources.pool.list.search :refer [with-search]]
@@ -43,12 +44,13 @@
   ([request]
    (let [tx (:tx request)
          {:keys [pool_id]} (path-params request)
-         {:keys [fields search
+         {:keys [fields search search_term
                  model_id parent_id
                  retired borrowable
                  incomplete broken owned
-                 inventory_pool_id
+                 inventory_pool_id filter_q
                  in_stock before_last_check]} (query-params request) ; query params of reitit
+         search_term (or search search_term) ; search_term needed for fields
          ; getting ids from query params of ring. it handles both single and multiple ids.
          ids-raw (or (get (:query-params request) "ids[]")
                      (get (:query-params request) "ids"))
@@ -115,6 +117,10 @@
                    (cond-> parent_id (sql/where [:= :items.parent_id parent_id]))
                    (cond-> (seq ids) (sql/where [:in :items.id ids]))
 
+                   ;; Advanced filter support (filter_q: URL-encoded EDN, MQL-style)
+                   (cond-> (and filter_q (seq (str filter_q)))
+                     (create-filter-query-and-validate! request filter_q {:rooms "rs"}))
+
                    ; in legacy no query params are passed down to the children,
                    ; speaking: all children are always showed.
                    (cond-> (not parent_id)
@@ -127,24 +133,22 @@
                                                          :borrowable borrowable
                                                          :broken broken
                                                          :incomplete incomplete)
-                         (cond-> (seq search) (with-search search :models)))))
+                         (cond-> (seq search_term) (with-search search_term :models)))))
 
          post-fnc (fn [items]
-                    ;; Prepare items for thumbnail fetching by using model_id as id
-                    (let [items-for-fetch (map (fn [item]
-                                                 (assoc item :id (:model_id item)))
-                                               items)
-                          ;; Fetch thumbnails using model data
+                    (let [items-for-fetch (mapv (fn [item]
+                                                  (assoc item :id (:model_id item)))
+                                                items)
                           items-with-images (fetch-thumbnails-for-ids tx items-for-fetch)]
-                      ;; Merge back with original items and add image URLs
-                      (map-indexed (fn [idx item-with-img]
-                                     (let [original-item (nth items idx)]
-                                       (cond-> original-item
-                                         (:image_id item-with-img)
-                                         (assoc :image_id (:image_id item-with-img)
-                                                :url (str "/inventory/" pool_id "/models/" (:model_id original-item) "/images/" (:image_id item-with-img))
-                                                :content_type (:content_type item-with-img)))))
-                                   items-with-images)))]
+                      (vec (map-indexed (fn [idx item-with-img]
+                                          (let [original-item (nth items idx)
+                                                img-id (:image_id item-with-img)]
+                                            (cond-> original-item
+                                              img-id
+                                              (assoc :image_id (str img-id)
+                                                     :url (str "/inventory/" pool_id "/models/" (:model_id original-item) "/images/" img-id)
+                                                     :content_type (:content_type item-with-img)))))
+                                        items-with-images))))]
 
      (debug (sql-format query :inline true))
      (try

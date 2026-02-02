@@ -129,7 +129,7 @@ Each route module has:
 6. **No route versioning** - Until production release
 7. **Flat Swagger routes** - No grouping, alphabetically sorted
 8. **Use structured logging** - `debug`, `warn`, `error` from `taoensso.timbre`, never `println`
-9. **Eliminate dead code** - Remove unused vars and requires
+9. **Eliminate dead code** - Remove unused vars and requires. Unused `taoensso.timbre` imports (e.g., `error`, `info`, `warn`, `debug`) are allowed to remain, as they are commonly needed during development and debugging.
 10. **Context-local field definitions** - Keep schemas near their usage, not centralized
 11. **Use canonical routes** - Follow established routing patterns
 12. **Prefer threading macros** - Use `->` and `->>` threading macros instead of nested function calls when nesting level > 2 in `.clj`, `.cljs`, and `.cljc` files
@@ -137,6 +137,7 @@ Each route module has:
 14. **Middlewares location** - Always place middlewares in `src/leihs/inventory/server/middlewares`
 15. **Utils location** - Always place utilities/helpers in `src/leihs/inventory/server/utils`
 16. **Format before commit** - Always run `./bin/cljfmt fix` after modifying any Clojure backend code (`.clj` and `.cljc` files) and before committing
+17. **No variable shadowing in let** - Never shadow same variable in let binding (e.g., `(let [x 1 x (inc x)])` not allowed), use unique names or threading macros
 
 ## Database Schema Notes
 

@@ -14,6 +14,15 @@
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]))
 
+(def RETIRED_REASON_REQUIRES_RETIRED "If retired_reason is set then retired must be set as well.")
+
+(defn validate-retired-reason-requires-retired!
+  "Throws if item-data has retired_reason set (non-blank) but retired is nil."
+  [item-data]
+  (when (and (not (string/blank? (str (get item-data :retired_reason))))
+             (nil? (get item-data :retired)))
+    (throw (ex-info RETIRED_REASON_REQUIRES_RETIRED {:status 400}))))
+
 (defn split-item-data [body-params]
   (let [field-keys (keys body-params)
         properties-keys (filter #(string/starts-with? (name %) PROPERTIES_PREFIX)
