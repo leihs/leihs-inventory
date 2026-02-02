@@ -19,6 +19,8 @@
           :produces ["application/json"]
           :responses {200 {:description "OK"
                            :body types/get-items-response}
+                      400 {:description "Bad Request (e.g. invalid filter_q EDN or disallowed filter key)"
+                           :body types/error-body}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 

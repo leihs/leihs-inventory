@@ -10,7 +10,8 @@
                                                                       out-coercions
                                                                       flatten-properties
                                                                       split-item-data
-                                                                      validate-field-permissions]]
+                                                                      validate-field-permissions
+                                                                      validate-retired-reason-requires-retired!]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request not-found response status]]
@@ -60,7 +61,9 @@
         (let [{:keys [item-data properties]} (-> update-params
                                                  (dissoc :id)
                                                  split-item-data)
-              inventory-code (:inventory_code item-data)]
+              inventory-code (:inventory_code item-data)
+              merged-item-data (merge (select-keys item [:retired :retired_reason]) item-data)]
+          (validate-retired-reason-requires-retired! merged-item-data)
           (if (and inventory-code (inventory-code-exists? tx inventory-code item_id))
             (status {:body {:error "Inventory code already exists"
                             :proposed_code (inv-code/propose tx pool_id)}}
