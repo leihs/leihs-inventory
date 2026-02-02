@@ -14,10 +14,15 @@ const resources = {
 // Initialize i18n synchronously with default language
 i18n.use(initReactI18next).init({
   resources,
-  lng: "de-CH",
-  supportedLngs: ["de", "de-CH", "en", "en-GB"],
+  lng: "en",
+  supportedLngs: ["de", "de-CH", "gsw", "gsw-CH", "en", "en-GB", "es"],
   load: "languageOnly",
-  fallbackLng: ["de"],
+  fallbackLng: {
+    gsw: ["de"],
+    "gsw-CH": ["de"],
+    "de-CH": ["de"],
+    default: ["en"],
+  },
   debug: true,
 })
 

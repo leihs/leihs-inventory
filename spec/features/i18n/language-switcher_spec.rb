@@ -1,4 +1,4 @@
-require "spec_helper"
+require "features_helper"
 require "pry"
 require_relative "../shared/common"
 

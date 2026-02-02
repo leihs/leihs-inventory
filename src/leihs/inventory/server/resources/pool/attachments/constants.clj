@@ -3,7 +3,7 @@
 (def ACCEPT_TYPES_ATTACHMENT
   ["application/json" "application/octet-stream" "application/pdf" "application/zip"
    "image/png" "image/jpeg" "image/jpg" "image/gif" "image/vnd.dwg"
-   "text/rtf" "text/plain"
+   "text/rtf" "text/plain" "text/html"
    "*/*"])
 
 (def CONTENT_DISPOSITION_INLINE_FORMATS ["text/html"

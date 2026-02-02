@@ -2,6 +2,7 @@
   "fields": {
     "Mandatory data": {
       "title": "Mandatory data",
+      "count": "Create number of items",
       "inventory_code": "Inventory Code",
       "model_id": "Model"
     },
@@ -79,9 +80,16 @@
       "user-data": "User data",
       "my-documents": "My documents",
       "logout": "Logout",
-      "language": "Language"
+      "language": "Language",
+      "theme": {
+        "title": "Appearance",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      }
     }
   },
+  "intlDateTime": "{{- val, datetime}}",
   "pool": {
     "inventory": {
       "breadcrumbs": {
@@ -122,13 +130,51 @@
           "error": "Item could not be deleted"
         },
         "fields": {
-          "protected": "Only the owner can edit this field",
+          "disabled": {
+            "protected": "Only the owner can edit this field",
+            "model-selected": "This field is locked because a model was selected",
+            "multiple-items": "This field is locked when creating multiple items",
+            "owner-locked": "The owner is automatically assigned",
+            "generic": "This field is currently disabled"
+          },
+          "inactive": "Inactive",
           "autocomplete": {
             "select": "Make a selection",
             "search": "Enter search term",
             "empty": "No results found for this search term"
           }
         }
+      },
+      "review": {
+        "title": "Items successfully created",
+        "summary": {
+          "title": "Summary",
+          "count": "Count",
+          "name": "Name",
+          "date": "Date"
+        },
+        "export": "Export",
+        "list_title": "List of created items",
+        "toggles": {
+          "show_barcodes": "Show barcodes",
+          "show_urls": "Show URLs"
+        },
+        "table": {
+          "headers": {
+            "number": "#",
+            "barcode": "Barcode",
+            "inventory_code": "Inventory code",
+            "serial_number": "Serial number",
+            "url": "URL",
+            "uuid": "UUID"
+          }
+        },
+        "serial_number": {
+          "placeholder": "Enter serial number",
+          "success": "Serial number updated",
+          "error": "Failed to update serial number"
+        },
+        "back_to_inventory": "Back to Inventory"
       }
     },
     "packages": {
@@ -231,6 +277,7 @@
         "add_option": "New option",
         "add_software": "New software"
       },
+      "add_entitlement_group": "New entitlement group",
       "add_template": "New template",
       "tabs": {
         "inventory_list": "Inventory List",
@@ -263,6 +310,110 @@
         "actions": {
           "edit": "edit",
           "add_item": "Add Item"
+        }
+      }
+    },
+    "entitlement_groups": {
+      "title": "Entitlement Groups",
+      "description": "Edit the entitlement groups and assign the models and their allocations",
+      "add": "Add entitlement group",
+      "list": {
+        "quantity_error": "Quantity exceeds availability",
+        "empty": "No entitlement groups found",
+        "header": {
+          "name": "Name",
+          "number_of_users": "Number of users",
+          "number_of_models": "Number of models",
+          "number_of_allocations": "Number of allocations"
+        },
+        "actions": {
+          "edit": "edit"
+        },
+        "misc": {
+          "is_verification_required": "Verification required"
+        }
+      },
+      "entitlement_group": {
+        "quantity_error": "Quantity exceeds availability",
+        "title": "Entitlement group",
+        "create": {
+          "description": "Provide all required information",
+          "submit": "Create",
+          "cancel": "Cancel",
+          "success": "Entitlement group was successfully created",
+          "invalid_one": "Entitlement group could not be created because one field is invalid",
+          "invalid_other": "Entitlement group could not be created because {{count}} fields are invalid",
+          "conflict": "Entitlement group could not be created because a entitlement group with the same name already exists",
+          "error": "An error occurred while creating"
+        },
+        "edit": {
+          "description": "Make changes and save them afterward",
+          "submit": "Save",
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "success": "Entitlement group was successfully saved",
+          "invalid_one": "Entitlement group could not be saved because one field is invalid",
+          "invalid_other": "Entitlement group could not be saved because {{count}} fields are invalid"
+        },
+        "delete": {
+          "title": "Delete",
+          "description": "Are you sure you want to delete this entitlement group?",
+          "confirm": "Delete",
+          "cancel": "Cancel",
+          "success": "Entitlement group was successfully deleted",
+          "error": "Entitlement group could not be deleted"
+        },
+        "top_section": {
+          "blocks": {
+            "name": {
+              "label": "Entitlement group name"
+            },
+            "is_verification_required": {
+              "label": "Verification required",
+              "yes": "Yes",
+              "no": "No"
+            }
+          }
+        },
+        "models": {
+          "title": "Assignments",
+          "blocks": {
+            "models": {
+              "label": "Select model and assign quantity",
+              "not_found": "Model not found",
+              "select": "Select model",
+              "placeholder": "Search model",
+              "search_empty": "Type at least 2 characters to search",
+              "searching": "Searching...",
+              "available_count_tooltip": "Allocations in other entitlement groups considered - still available quantity of borrowable and not retired items",
+              "items_count_tooltip": "Total quantity of borrowable and not retired items"
+            }
+          }
+        },
+        "users": {
+          "title": "Authorized users",
+          "blocks": {
+            "users": {
+              "not_found": "User not found",
+              "select": "Select user",
+              "placeholder": "Search user",
+              "search_empty": "Type at least 2 characters to search",
+              "searching": "Searching...",
+              "account_disabled": "inactive"
+            }
+          }
+        },
+        "groups": {
+          "title": "Authorized groups",
+          "blocks": {
+            "groups": {
+              "not_found": "Group not found",
+              "select": "Select group",
+              "placeholder": "Search group",
+              "search_empty": "Type at least 2 characters to search",
+              "searching": "Searching..."
+            }
+          }
         }
       }
     },
@@ -491,8 +642,8 @@
         "blocks": {
           "entitlements": {
             "label": "Allocations (max {{amount}})",
-            "select": "Select Entitlement-Group",
-            "not_found": "Entitlement-Group not found"
+            "select": "Select entitlement group",
+            "not_found": "Entitlement group not found"
           }
         }
       },
@@ -549,7 +700,7 @@
             "label": "Select model",
             "not_found": "Model not found",
             "select": "Select model",
-            "placeholder": "Search model",
+            "search": "Search model",
             "search_empty": "Type at least 2 characters to search",
             "searching": "Searching..."
           }
@@ -598,7 +749,7 @@
   "models": {
     "title": "Inventory List - Lending Toni Areal Localized",
     "tabs": {
-      "entitlement-groups": "Entitlement Groups"
+      "entitlement-groups": "Entitlement groups"
     }
   },
   "debug": {
@@ -613,5 +764,59 @@
   },
   "notfound": {
     "back-to-home": "Back to Home"
+  },
+  "error": {
+    "alerts": {
+      "offline": {
+        "title": "No Internet Connection",
+        "description": "It seems you are offline. Please check your Internet connection."
+      }
+    },
+    "boundary": {
+      "not_found": {
+        "title": "Page Not Found",
+        "description": "The page you're looking for doesn't exist."
+      },
+      "unauthorized": {
+        "title": "Unauthorized",
+        "description": "You need to log in to access this page."
+      },
+      "forbidden": {
+        "title": "Access Forbidden",
+        "description": "You don't have permission to access this page."
+      },
+      "bad_request": {
+        "title": "Bad Request",
+        "description": "The server was unable to process your request."
+      },
+      "server_error": {
+        "title": "Server Error",
+        "description": "Something went wrong on the Server. Please try again later."
+      },
+      "client_error": {
+        "title": "Client Error",
+        "description": "The client failed to communicate with the server. Please try again."
+      },
+      "loader_error": {
+        "title": "Loader Error",
+        "description": "The client couldn't load the data for this page. Please try again or navigate back to the home page."
+      },
+      "application_error": {
+        "title": "Application Error",
+        "description": "An error occurred during rendering of the application."
+      },
+      "unknown": {
+        "title": "Something Went Wrong",
+        "description": "An unexpected error occurred. Please try again or contact support if the problem persists."
+      },
+      "open": "Open error message",
+      "actions": {
+        "close": "Close",
+        "go_back": "Go Back",
+        "go_home": "Go to Home",
+        "go_signin": "Go to sign in",
+        "retry": "Retry"
+      }
+    }
   }
 }

@@ -17,8 +17,7 @@
                                                                 model->enrich-with-image-attr]]
    [leihs.inventory.server.utils.export :as export]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params
-                                                       query-params]]
+   [leihs.inventory.server.utils.request :refer [path-params query-params]]
    [ring.util.response :refer [response]]
    [taoensso.timbre :refer [debug spy]]))
 

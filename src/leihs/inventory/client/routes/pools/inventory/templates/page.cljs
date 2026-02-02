@@ -23,6 +23,7 @@
 (defui page []
   (let [{:keys [data]} (router/useLoaderData)
         params (router/useParams)
+        location (router/useLocation)
         templates (:data data)
         pagination (:pagination data)
         [delete-id set-delete-id!] (uix/use-state nil)
@@ -65,7 +66,7 @@
 
                ($ Table
                   ($ TableHeader
-                     ($ TableRow
+                     ($ TableRow {:class-name "hover:bg-white"}
                         ($ TableHead "")
                         ($ TableHead (t "pool.templates.list.header.name"))
                         ($ TableHead "")
@@ -95,7 +96,8 @@
                           ($ TableCell {:className "text-right"}
                              ($ Button {:asChild true
                                         :variant "outline"}
-                                ($ Link {:to (:id template)}
+                                ($ Link {:state #js {:searchParams (.. location -search)}
+                                         :to (:id template)}
                                    (t "pool.templates.list.actions.edit"))))
 
                           ($ TableCell {:className "text-right"}
@@ -106,7 +108,7 @@
                                 ($ Trash {:className "h-4 w-4"}))))))))))
 
        ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-xl pt-6 overflow-auto"
-                      :style {:background "linear-gradient(to top, white 80%, transparent 100%)"}}
+                      :style {:background "linear-gradient(to top, hsl(var(--background)) 80%, transparent 100%)"}}
           ($ pagination/main {:pagination pagination
                               :class-name "justify-start w-full"}))
 

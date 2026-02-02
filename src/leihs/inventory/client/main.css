@@ -1,9 +1,31 @@
+/* Inter Variable Font - Self-hosted */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/inventory/assets/fonts/InterVariable.woff2")
+    format("woff2-variations");
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/inventory/assets/fonts/InterVariable-Italic.woff2")
+    format("woff2-variations");
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    --app-background: 214 33% 91%;
+    --shadow: 0 0% 0% / 0.1;
+
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -39,6 +61,9 @@
   }
 
   .dark {
+    --app-background: 215 20.2% 25.1%;
+    --shadow: 0 0% 0% / 0.3;
+
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -74,6 +99,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-app-background text-foreground;
   }
 }

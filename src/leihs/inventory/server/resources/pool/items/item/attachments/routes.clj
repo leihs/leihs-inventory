@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.pool.items.item.attachments.routes
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.attachments.constants :refer [config-get]]
    [leihs.inventory.server.resources.pool.attachments.shared :refer [index-resources
                                                                      post-resource]]
@@ -28,7 +27,6 @@
                       500 {:description "Internal Server Error"}}}
 
     :post {:accept "application/json"
-           :summary (fe "")
            :description (str "- Limitations: " (config-get :api :attachments :max-size-mb) " MB\n"
                              "- Allowed File types: " (str/join ", " (config-get :api :attachments :allowed-file-types)))
            :coercion reitit.coercion.schema/coercion

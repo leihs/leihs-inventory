@@ -31,10 +31,13 @@
         location (router/useLocation)
         [search-params set-search-params!] (router/useSearchParams)
         size (js/parseInt (or (.. search-params (get "size")) 10))
-        total-pages (:total_pages pagination)
-        total-rows (:total_rows pagination)
-        current-page (:page pagination)
-        page-range (page-range current-page size total-rows)
+        total-pages (or (:total_pages pagination) 0)
+        total-rows (or (:total_rows pagination) 0)
+        current-page (or (:page pagination) 0)
+
+        page-range (if pagination
+                     (page-range current-page size total-rows)
+                     {:start 0 :end 0})
 
         next-page (if (not= current-page
                             total-pages)
@@ -93,21 +96,23 @@
                       :data-test-id "pagination"}
 
           ;; previous link
-          (if prev-page
+          (if (> prev-page 0)
             ($ PaginationPrevious {:ref ref-prev
                                    :data-test-id "pagination-previous"
                                    :to (str (.. location -pathname)
                                             "?"
                                             (gen-page-str prev-page))}
-               ($ :span (t "pagination.previous")))
+               ($ :span {:class-name "hidden md:inline"}
+                  (t "pagination.previous")))
 
             ($ Button {:data-test-id "pagination-previous"
                        :variant "link"
                        :disabled true}
-               ($ ChevronLeft) (t "pagination.previous")))
+               ($ ChevronLeft)
+               ($ :span {:class-name "hidden md:inline"}
+                  (t "pagination.previous"))))
 
           ($ PaginationContent
-
              ;; first page when current page is greater than 2
              (when (> current-page 2)
                ($ :<>
@@ -120,7 +125,7 @@
                   ($ PaginationEllipsis)))
 
              ;; previous link
-             (when prev-page
+             (when (> prev-page 0)
                ($ PaginationItem
                   ($ PaginationLink {:data-test-id "pagination-previous-page"
                                      :to (str (.. location -pathname)
@@ -169,27 +174,33 @@
                                :to (str (.. location -pathname)
                                         "?"
                                         (gen-page-str next-page))}
-               ($ :span (t "pagination.next")))
+               ($ :span {:class-name "hidden md:inline"}
+                  (t "pagination.next")))
 
             ($ Button {:data-test-id "pagination-next"
                        :variant "link"
                        :disabled true}
-               (t "pagination.next") ($ ChevronRight))))
+               ($ :span {:class-name "hidden md:inline"}
+                  (t "pagination.next"))
+               ($ ChevronRight))))
 
-       ($ :div {:class-name "flex items-center"}
+       ($ :div {:class-name "items-center hidden sm:flex"}
           ($ :span {:data-test-id "pagination-range"
-                    :class-name "text-muted-foreground text-sm mr-2"}
+                    :class-name "text-muted-foreground text-sm mr-2"
+                    ;; random key fixes a strange Safari repaint issue
+                    :key (js/Math.random)}
              (t "pagination.range" #js {:range (str (:start page-range) "-" (:end page-range))
                                         :total total-rows})))
 
        ($ :div {:class-name "flex items-center ml-auto"}
 
-          ($ :span {:class-name "mr-2"}
+          ($ :span {:class-name "mr-2 hidden md:inline"}
              (t "pagination.per-page"))
 
           ($ DropdownMenu
              ($ DropdownMenuTrigger {:asChild "true"}
                 ($ Button {:data-test-id "pagination-size-button"
+                           :disabled (<= total-rows 10)
                            :variant "outline"}
                    size ($ ChevronDown {:class-name "ml-1 h-4 w-4"})))
 

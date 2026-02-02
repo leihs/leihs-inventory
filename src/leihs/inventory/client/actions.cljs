@@ -51,3 +51,22 @@
         (.catch (fn [error]
                   (js/console.error "Export error:" error)
                   #js {:error (.-message error)})))))
+
+(defn items-review-page [action]
+  (p/let [form-data (.. action -request (formData))
+          item-id (.get form-data "item-id")
+          pool-id (.get form-data "pool-id")
+          serial-number (.get form-data "serial_number")
+          method (aget action "request" "method")]
+
+    (case method
+      "PATCH"
+      (-> http-client
+          (.patch (str "/inventory/" pool-id "/items/" item-id)
+                  (js/JSON.stringify (cj {:serial_number serial-number}))
+                  (cj {:cache false}))
+          (.then (fn [_]
+                   #js {:status "ok"}))
+          (.catch (fn [error]
+                    (js/console.error "Serial number update error:" error)
+                    #js {:error (.-message error)}))))))

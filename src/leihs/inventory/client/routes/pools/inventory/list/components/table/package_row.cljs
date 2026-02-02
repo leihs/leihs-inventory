@@ -2,6 +2,7 @@
   (:require
    ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
+   ["@@/button-group" :refer [ButtonGroup]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell]]
@@ -57,13 +58,13 @@
                       :data-row "package"
                       :subrow-count (:package_items package)
                       :class-name (str
-                                    ;; checks if next sibling is a model or item 
-                                    ;; item -> inset shadow 
-                                    ;; model -> dropshadow
+                                   ;; checks if next sibling is a model or item 
+                                   ;; item -> inset shadow 
+                                   ;; model -> dropshadow
                                    "[&>*]:px2 [&>*]:py-1 "
-                                   "[&+tr[data-row=item]]:shadow-[0_-0.5px_0_hsl(var(--border)),inset_0_4px_4px_-2px_hsl(var(--border))] "
-                                   "[&+tr[data-row=model]]:shadow-[0_-0.5px_0_hsl(var(--border)),0_-4px_4px_-2px_hsl(var(--border))] "
-                                   "shadow-[0_-0.5px_0_hsl(var(--border))] bg-destructive-foreground/50")
+                                   "[&+tr[data-row=item]]:shadow-[0_-0.5px_0_hsl(var(--shadow)),inset_0_4px_4px_-2px_hsl(var(--shadow))] "
+                                   "[&+tr[data-row=model]]:shadow-[0_-0.5px_0_hsl(var(--shadow)),0_-4px_4px_-2px_hsl(var(--shadow))] "
+                                   "bg-secondary/50")
                       :on-expand handle-expand
                       :subrows (when (and result (= (:status result) 200))
                                  (when (seq (:data result))
@@ -92,10 +93,7 @@
           ($ ItemStatus {:item package}))
 
        ($ TableCell {:className "fit-content"}
-          ($ :div {:class-name
-                   "flex [&>*]:rounded-none 
-                   [&>a:first-child]:rounded-l-md 
-                   [&>button:last-child]:rounded-r-md"}
+          ($ ButtonGroup
              ($ Button {:variant "outline"
                         :asChild true}
                 ($ Link {:state #js {:searchParams (.. location -search)}

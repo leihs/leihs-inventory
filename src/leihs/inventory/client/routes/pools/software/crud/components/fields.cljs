@@ -27,7 +27,10 @@
       ($ Autocomplete {:form form
                        :name (:name block)
                        :label (:label block)
-                       :props (:props block)})
+                       :props (merge
+                               {:remap (fn [item] {:value item
+                                                   :label item})}
+                               (:props block))})
 
       ;; "default case - this renders a component from the component map"
       :else

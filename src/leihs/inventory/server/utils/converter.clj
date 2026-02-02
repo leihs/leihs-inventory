@@ -1,13 +1,15 @@
 (ns leihs.inventory.server.utils.converter
   (:require
-   [ring.middleware.accept]
-   [taoensso.timbre :refer [debug]])
+   [ring.middleware.accept])
   (:import
    [java.util UUID]))
 
-(defn to-uuid [value]
-  (try
-    (if (instance? String value) (UUID/fromString value) value)
-    (catch Exception e
-      (debug e)
-      value)))
+(defn to-uuid [x]
+  (cond
+    (nil? x) nil
+    (uuid? x) x
+    (string? x) (UUID/fromString x)
+    (sequential? x) (mapv to-uuid x)
+    :else (throw (ex-info "Unsupported type for uuid conversion"
+                          {:value x
+                           :type (type x)}))))

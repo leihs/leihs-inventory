@@ -2,16 +2,12 @@
   (:require
    ["@/components/react/scrollspy/scrollspy" :refer [Scrollspy ScrollspyItem
                                                      ScrollspyMenu]]
-   ["@@/alert-dialog" :refer [AlertDialog AlertDialogAction AlertDialogCancel
-                              AlertDialogContent AlertDialogDescription
-                              AlertDialogFooter AlertDialogHeader
-                              AlertDialogTitle]]
    ["@@/button" :refer [Button]]
    ["@@/button-group" :refer [ButtonGroup ButtonGroupSeparator]]
    ["@@/card" :refer [Card CardContent]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuGroup DropdownMenuItem
-                               DropdownMenuSeparator DropdownMenuTrigger]]
+                               DropdownMenuTrigger]]
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
@@ -20,11 +16,12 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
+   ["zod" :as z]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.fields-to-form :as fields-to-form]
-   [leihs.inventory.client.lib.fields-to-zod :as fields-to-zod]
+   [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
+   [leihs.inventory.client.lib.dynamic-validation :as dynamic-validation]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.items.crud.components.fields :as form-fields]
@@ -44,13 +41,33 @@
 
         {:keys [data model]} (jc (useLoaderData))
 
-        ;; Transform fields data to form structure
-        structure (fields-to-form/transform-fields-to-structure data)
+        ;; Define custom fields for create mode only
+        custom-fields (if is-create
+                        [{:id "count"
+                          :type "number"
+                          :component "input"
+                          :group "Mandatory data"
+                          :position 0
+                          :label "Item Count"
+                          :required true
+                          :default 1
+                          :props {:type "number"
+                                  :min 0
+                                  :max 999999
+                                  :step 1}
+                          :validator (-> (.. z -coerce (number))
+                                         (.min 0)
+                                         (.max 999999)
+                                         (.int))}]
+                        nil)
+
+        ;; Merge API fields with custom fields
+        fields (concat (:fields data) custom-fields)
 
         ;; Extract default values from fields
-        defaults (fields-to-form/extract-default-values data)
+        defaults (dynamic-form/fields->defaults fields)
 
-        form (useForm (cj {:resolver (zodResolver (fields-to-zod/fields-to-zod-schema data))
+        form (useForm (cj {:resolver (zodResolver (dynamic-validation/fields->schema fields))
                            :defaultValues (if is-create
                                             (cj defaults)
                                             (fn [] (form-helper/process-files defaults :attachments)))}))
@@ -64,10 +81,44 @@
         control (.. form -control)
         params (router/useParams)
 
-        building (useWatch (cj {:control control
-                                :name "building_id.value"}))
+        field-building (useWatch (cj {:control control
+                                      :name "building_id.value"}))
 
         building-is-dirty? (:isDirty (jc (get-field-state "building_id")))
+
+        field-count (useWatch (cj {:control control
+                                   :name "count"}))
+        batch? (> field-count 1)
+
+        ;; Transform fields data to derived form structure
+        structure (uix/use-memo
+                   (fn []
+                     (cond-> (dynamic-form/fields->structure fields)
+
+                       ;; Disable model_id when set via path param
+                       (and is-create model (not is-loading))
+                       (dynamic-form/patch "model_id"
+                                           {:props {:disabled true}
+                                            :disabled-reason :model-selected})
+
+                       ;; Disable fields when batch creating (count > 1)                                                  
+                       (and is-create (> field-count 1) (not is-loading))
+                       (-> (dynamic-form/patch "inventory_code"
+                                               {:props {:disabled true}
+                                                :disabled-reason :multiple-items})
+                           (dynamic-form/patch "attachments"
+                                               {:props {:disabled true}
+                                                :disabled-reason :multiple-items})
+                           (dynamic-form/patch "serial_number"
+                                               {:props {:disabled true}
+                                                :disabled-reason :multiple-items}))
+
+                       ;; Disable owner_id on create                                                                      
+                       (and is-create (not is-loading))
+                       (dynamic-form/patch "owner_id"
+                                           {:props {:disabled true}
+                                            :disabled-reason :owner-locked})))
+                   [fields is-create model is-loading field-count])
 
         on-invalid (fn [data]
                      (let [invalid-fields-count (count (jc data))]
@@ -79,13 +130,11 @@
 
                        (js/console.debug "is invalid: " data)))
 
-        ;; handle-decommission (fn [] (go))
-
         handle-submit (.. form -handleSubmit)
         on-submit (fn [submit-data event]
                     (go
                       (let [attachments (if is-create
-                                          (:attachments (jc submit-data))
+                                          (if batch? nil (:attachments (jc submit-data)))
                                           (filter (fn [el] (= (:id el) nil))
                                                   (:attachments (jc submit-data))))
 
@@ -95,7 +144,11 @@
                                                          (remove (set (map :id (:attachments (jc submit-data))))))
                                                     nil)
 
-                            item-data (into {} (dissoc (jc submit-data) :attachments))
+                            item-data (-> submit-data
+                                          jc
+                                          (cond-> batch? (dissoc :serial_number :inventory_code))
+                                          (dissoc :attachments)
+                                          (into {}))
 
                             pool-id (aget params "pool-id")
 
@@ -107,6 +160,7 @@
                                                 (.then (fn [res]
                                                          {:status (.. res -status)
                                                           :statusText (.. res -statusText)
+                                                          :data (jc (.. res -data))
                                                           :id (.. res -data -id)}))
                                                 (.catch (fn [err]
                                                           {:status (.. err -response -status)
@@ -175,39 +229,45 @@
                                                      (t "pool.items.item.edit.success"))))
 
                                 ;; state needs to be forwarded for back navigation
-                                (if is-create
+                                (cond
+                                  batch?
+                                  (let [get-ids (fn [data] (mapv (fn [item] [:id (:id item)]) data))
+                                        model-id (->> item-res :data first :model_id)
+                                        params (router/createSearchParams (cj (conj (get-ids (:data item-res))
+                                                                                    [:mid model-id])))]
+
+                                    (navigate (str "/inventory/" pool-id "/items/review?" params)
+                                              #js {:state state
+                                                   :viewTransition true}))
+                                  is-create
                                   (navigate (str "/inventory/" pool-id "/list"
                                                  (some-> state .-searchParams))
                                             #js {:state state
                                                  :viewTransition true})
 
+                                  is-edit
                                   (navigate (str "/inventory/" pool-id "/list"
                                                  (some-> state .-searchParams))
                                             #js {:state state
                                                  :viewTransition true})))
 
                           ;; default
-                          (.. toast (error :statusText item-res))))))]
+                          (.. toast (error (:statusText item-res)))))))]
 
+    ;; Handle model_id disabling when model is pre-selected
     (uix/use-effect
      (fn []
        (when (and is-create model (not is-loading))
-         (let [model-el (.. js/document (querySelector "[name='model_id']"))]
-           (set-value "model_id" (cj {:label (:product model)
-                                      :value (:id model)}))
-           (set! (.. model-el -disabled) true)))
-
-       (when (and is-create (not is-loading))
-         (let [owner-el (.. js/document (querySelector "[name='owner_id']"))]
-           (set! (.. owner-el -disabled) true))))
+         (set-value "model_id" (cj {:label (:product model)
+                                    :value (:id model)}))))
      [is-create is-loading model set-value])
 
     ;; Clear room_id when building changes
     (uix/use-effect
      (fn []
-       (when (and building (not is-loading) building-is-dirty?)
+       (when (and field-building (not is-loading) building-is-dirty?)
          (set-value "room_id" nil)))
-     [building is-loading set-value building-is-dirty?])
+     [field-building is-loading set-value building-is-dirty?])
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
@@ -254,7 +314,9 @@
                      ($ Button {:type "submit"
                                 :form "item-form"}
                         (if is-create
-                          (t "pool.items.item.create.submit")
+                          (str (when batch?
+                                 (str field-count " x "))
+                               (t "pool.items.item.create.submit"))
                           (t "pool.items.item.edit.submit")))
 
                      ($ ButtonGroupSeparator)
@@ -274,35 +336,4 @@
                                           :viewTransition true}
                                     (if is-create
                                       (t "pool.items.item.create.cancel")
-                                      (t "pool.items.item.edit.cancel")))))
-
-                              ;; prepared for "ausmustern"
-                           #_($ DropdownMenuSeparator)
-
-                           #_($ DropdownMenuGroup
-                                (when (not is-create)
-                                  ($ DropdownMenuItem {:variant "destructive"
-                                                       :asChild true}
-                                     ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id/delete" params)
-                                              :state state}
-                                        "Delete")))))))
-
-                  ;; prepared for "ausmustern"
-                  #_(when (not is-create)
-                      ($ AlertDialog {:open is-delete}
-                         ($ AlertDialogContent
-
-                            ($ AlertDialogHeader
-                               ($ AlertDialogTitle (t "pool.items.item.delete.title"))
-                               ($ AlertDialogDescription (t "pool.items.item.delete.description")))
-
-                            ($ AlertDialogFooter
-                               ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
-                                                    hover:bg-destructive hover:text-destructive-foreground"
-                                                     :onClick handle-delete}
-                                  (t "pool.items.item.delete.confirm"))
-                               ($ AlertDialogCancel
-                                  ($ Link {:to (router/generatePath "/inventory/:pool-id/items/:item-id" params)
-                                           :state state}
-
-                                     (t "pool.items.item.delete.cancel"))))))))))))))
+                                      (t "pool.items.item.edit.cancel")))))))))))))))

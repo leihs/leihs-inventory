@@ -1,4 +1,4 @@
-require "spec_helper"
+require "features_helper"
 require_relative "../shared/common"
 
 feature "Update item", type: :feature do
@@ -111,6 +111,7 @@ feature "Update item", type: :feature do
     visit "/inventory/#{pool.id}/list"
 
     fill_in "search", with: model_old.product
+    await_debounce
 
     within find('[data-row="model"]', text: model_old.product) do
       click_on "expand-button"
@@ -209,6 +210,7 @@ feature "Update item", type: :feature do
     expect(page).to have_text("Inventory List")
 
     fill_in "search", with: model_new.product
+    await_debounce
 
     within find('[data-row="model"]', text: model_new.product) do
       click_on "expand-button"
@@ -276,6 +278,7 @@ feature "Update item", type: :feature do
     visit "/inventory/#{pool.id}/list"
 
     fill_in "search", with: model_old.product
+    await_debounce
 
     within find('[data-row="model"]', text: model_old.product) do
       click_on "expand-button"
@@ -287,7 +290,8 @@ feature "Update item", type: :feature do
 
     inventory_code_field = find_field("Inventory Code", disabled: true)
     expect(inventory_code_field).to be_disabled
-    inventory_code_field.hover
+
+    click_on "inventory_code-disabled-info"
     expect(page).to have_content("Only the owner can edit this field")
 
     click_on "Save"

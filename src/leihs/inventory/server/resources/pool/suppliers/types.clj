@@ -1,6 +1,6 @@
 (ns leihs.inventory.server.resources.pool.suppliers.types
   (:require
-   [leihs.inventory.server.utils.coercion.core :refer [pagination]]
+   [leihs.inventory.server.utils.schema :refer [pagination]]
    [schema.core :as s]))
 
 (s/defschema resp-supplier [{:id s/Uuid

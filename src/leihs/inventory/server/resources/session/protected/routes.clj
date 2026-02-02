@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.resources.session.protected.routes
   (:require
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
+   [leihs.inventory.server.middlewares.authenticate.session :as ab]
    [leihs.inventory.server.resources.session.protected.main :as session-protected]
-   [leihs.inventory.server.utils.authenticate.session :as ab]
    [reitit.coercion.schema]))
 
 (defn routes []

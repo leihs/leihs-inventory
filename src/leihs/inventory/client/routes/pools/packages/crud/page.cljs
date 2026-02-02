@@ -23,8 +23,8 @@
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.fields-to-form :as fields-to-form]
-   [leihs.inventory.client.lib.fields-to-zod :as fields-to-zod]
+   [leihs.inventory.client.lib.dynamic-form :as fields-to-form]
+   [leihs.inventory.client.lib.dynamic-validation :as fields-to-zod]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.packages.crud.components.fields :as form-fields]
@@ -231,11 +231,11 @@
                ($ Scrollspy {:className "flex gap-4"}
                   ($ ScrollspyMenu)
 
-                 ($ Form (merge form)
-                    ($ :form {:id "package-form"
-                              :className "space-y-12 w-full lg:w-3/5"
-                              :no-validate true
-                              :on-submit (handle-submit on-submit on-invalid)}
+                  ($ Form (merge form)
+                     ($ :form {:id "package-form"
+                               :className "space-y-12 w-full lg:w-3/5"
+                               :no-validate true
+                               :on-submit (handle-submit on-submit on-invalid)}
 
                         (for [section structure]
                           ($ ScrollspyItem {:className "scroll-mt-[10vh]"

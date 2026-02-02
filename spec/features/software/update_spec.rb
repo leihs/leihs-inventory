@@ -1,4 +1,4 @@
-require "spec_helper"
+require "features_helper"
 require_relative "../shared/common"
 
 feature "Update software", type: :feature do
@@ -47,6 +47,7 @@ feature "Update software", type: :feature do
     click_on "Inventory type"
     click_on "Software"
     fill_in "search", with: "#{product_old} #{version_old}"
+    await_debounce
     find("a", text: "edit").click
 
     fill_in "Product", with: product_new
@@ -67,6 +68,7 @@ feature "Update software", type: :feature do
 
     expect(page).to have_text("Inventory List")
     select_value("with_items", "all")
+    await_debounce
     fill_in "search", with: "#{product_new} #{version_new}"
 
     # because there is a debounce on the search its necessary to wait a bit

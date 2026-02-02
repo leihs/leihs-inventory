@@ -7,7 +7,7 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/tabs" :refer [Tabs TabsContent TabsList TabsTrigger]]
-   ["lucide-react" :refer [CirclePlus House]]
+   ["lucide-react" :refer [CirclePlus House List Search Users LayoutTemplate ChartArea]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [generatePath Link Outlet]]
    [clojure.string :as str]
@@ -112,7 +112,15 @@
                           {:to (str (:segment tab) "/" (:search tab))
                            :state #js {:searchParams (.. location -search)}
                            :viewTransition true}
-                          (:label tab))))))
+                          ($ :span {:class-name "inline md:hidden"}
+                             (case (:segment tab)
+                               "list" ($ List {:className "h-4 w-4"})
+                               "advanced-search" ($ Search {:className "h-4 w-4"})
+                               "statistics" ($ ChartArea {:className "h-4 w-4"})
+                               "entitlement-groups" ($ Users {:className "h-4 w-4"})
+                               "templates" ($ LayoutTemplate {:className "h-4 w-4"})))
+                          ($ :span {:class-name "hidden md:inline"}
+                             (:label tab)))))))
 
              ($ :div {:className "ml-auto"}
                 (case last-segment
@@ -123,7 +131,8 @@
                         ($ Button {:ref ref
                                    :on-click #(set-open! (not open?))}
                            ($ CirclePlus {:className "h-4 w-4"})
-                           (t "pool.models.dropdown.title")))
+                           ($ :span {:class-name "hidden md:inline"}
+                              (t "pool.models.dropdown.title"))))
 
                      ($ DropdownMenuContent {:data-test-id "add-inventory-dropdown"
                                              :align "start"}
@@ -162,14 +171,24 @@
                                                       (cj {:pool-id pool-id}))
                                     :viewTransition true}
                               (t "pool.models.dropdown.add_software")))))
+                  "entitlement-groups"
+                  ($ Button {:asChild true}
+                     ($ Link {:state #js {:searchParams (.. location -search)}
+                              :to (generatePath "/inventory/:pool-id/entitlement-groups/create"
+                                                (cj {:pool-id pool-id}))
+                              :viewTransition true}
+                        ($ CirclePlus {:className "h-4 w-4"})
+                        (t "pool.models.add_entitlement_group")))
+
                   "templates"
                   ($ Button {:asChild true}
                      ($ Link {:state #js {:searchParams (.. location -search)}
                               :to (generatePath "/inventory/:pool-id/templates/create"
                                                 (cj {:pool-id pool-id}))
                               :viewTransition true}
-                        ($ CirclePlus {:className "mr-2 h-4 w-4"})
+                        ($ CirclePlus {:className "h-4 w-4"})
                         (t "pool.models.add_template")))
+
                   ($ :<>))))
 
           ($ TabsContent {:forceMount true

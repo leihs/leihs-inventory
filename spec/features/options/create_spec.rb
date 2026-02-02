@@ -1,4 +1,4 @@
-require "spec_helper"
+require "features_helper"
 require_relative "../shared/common"
 
 feature "Create option", type: :feature do
@@ -34,6 +34,7 @@ feature "Create option", type: :feature do
     expect(page).to have_content "Inventory List"
 
     fill_in "search", with: "#{product} #{version}"
+    await_debounce
     expect(page).to have_content "#{product} #{version}"
 
     find("a", text: "edit").click

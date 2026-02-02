@@ -6,7 +6,7 @@
    ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [class-name]}]
+(defui main [{:keys [className]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
         type (.. search-params (get "type"))
         [t] (useTranslation)
@@ -24,7 +24,7 @@
                :disabled (= type "option")
                :onValueChange handle-with-items}
        ($ SelectTrigger {:name "with_items"
-                         :className (str "w-[260px] " class-name)}
+                         :className (str "w-[260px] " className)}
           ($ SelectValue))
        ($ SelectContent
           ($ SelectItem {:data-test-id "all"

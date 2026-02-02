@@ -3,8 +3,9 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.core.db :as db]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
+   [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.attachments.main :as attachments]
    [leihs.inventory.server.resources.pool.buildings.main :as buildings]
    [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
@@ -13,10 +14,7 @@
    [leihs.inventory.server.resources.pool.rooms.main :as rooms]
    [leihs.inventory.server.resources.pool.software.main :as software]
    [leihs.inventory.server.resources.pool.suppliers.main :as suppliers]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params
-                                                       query-params]]
+   [leihs.inventory.server.utils.request :refer [path-params query-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [response]]
@@ -46,7 +44,7 @@
   (let [pools-hook (fn [f & {:keys [tx resource-id user-id pool]}]
                      (-> f
                          (assoc :values
-                                (-> pools/base-query (dissoc :select)
+                                (-> pools/base-query (dissoc :select :where)
                                     (sql/select [:id :value] [:name :label] :is_active)
                                     (cond-> resource-id
                                       (pools/for-inventory-manager user-id))

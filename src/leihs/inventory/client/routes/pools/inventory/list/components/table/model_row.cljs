@@ -2,6 +2,7 @@
   (:require
    ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
+   ["@@/button-group" :refer [ButtonGroup]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell]]
@@ -69,12 +70,10 @@
     ($ ExpandableRow {:key (-> model :id)
                       :data-row "model"
                       :subrow-count (:items model)
-                      ;; checks if next sibling is a item or package row and applies a inset shadow to them
                       :class-name (str
-                                   "[&+tr[data-row='item']]:shadow-[0_-0.5px_0_hsl(var(--border)),inset_0_4px_4px_-2px_hsl(var(--border))] "
-                                   "[&+tr[data-row='package']]:shadow-[0_-0.5px_0_hsl(var(--border)),inset_0_4px_4px_-2px_hsl(var(--border))] "
-                                   "shadow-[0_-0.5px_0_hsl(var(--border))] "
-                                   (if result "bg-accent/70 " " ")
+                                   "[&+tr[data-row='item']]:shadow-[0_-0.5px_0_hsl(var(--shadow)),inset_0_4px_4px_-2px_hsl(var(--shadow))] "
+                                   "[&+tr[data-row='package']]:shadow-[0_-0.5px_0_hsl(var(--shadow)),inset_0_4px_4px_-2px_hsl(var(--shadow))] "
+                                   (if result "bg-secondary/75 " " ")
                                    className)
                       :on-expand handle-expand
                       :subrows (when (and result (= (:status result) 200))
@@ -133,10 +132,7 @@
                                   ": " (-> model :rentable str))))))))
 
        ($ TableCell {:className "fit-content"}
-          ($ :div {:class-name
-                   "flex [&>*]:rounded-none 
-                   [&>a:first-child]:rounded-l-md 
-                   [&>button:last-child]:rounded-r-md"}
+          ($ ButtonGroup
              ($ Button {:variant "outline"
                         :class-name ""
                         :asChild true}

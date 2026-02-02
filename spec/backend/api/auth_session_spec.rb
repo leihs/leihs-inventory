@@ -32,7 +32,7 @@ describe "Call swagger-endpoints" do
 
     it "accesses protected resource with valid session cookie" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
-      expect(resp.status).to eq(403)
+      expect(resp.status).to eq(401)
 
       resp = sign_in client
       expect(resp.status).to eq(200)

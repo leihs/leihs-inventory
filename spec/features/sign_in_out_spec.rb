@@ -1,4 +1,4 @@
-require "spec_helper"
+require "features_helper"
 require "pry"
 require_relative "../backend/api/_shared"
 
@@ -8,54 +8,61 @@ feature "Sign-in / Sign-out" do
       visit "/sign-in"
     end
 
-    context "against /" do
-      scenario "json response is correct" do
-        visit "/"
-        expect(page).to have_content("Overview _> go to")
+    context "sign-in with invalid credentials" do
+      scenario "user can fill out and submit the login form successfully" do
+        visit "/sign-in"
+        expect(page).to have_selector("form.ui-form-signin")
+
+        fill_in "user", with: "testuser"
+        fill_in "password", with: "password123"
+        click_button "Continue"
+
+        expect(page).to have_content("error: sign_in_wrong_password_flash_message")
+        expect(page).to have_selector("form.ui-form-signin")
+      end
+    end
+
+    context "sign-in/out with valid credentials" do
+      include_context :setup_models_api_base
+
+      scenario "user can fill out and submit the login form successfully" do
+        visit "/sign-in"
+        expect(page).to have_content("Leihs Simple Login")
+        expect(page).to have_selector("form.ui-form-signin")
+
+        fill_in "user", with: @user.login
+        fill_in "password", with: @user.password
+        click_button "Continue"
       end
 
-      context "sign-in with invalid credentials" do
-        scenario "user can fill out and submit the login form successfully" do
-          visit "/sign-in"
-          expect(page).to have_selector("form.ui-form-signin")
+      scenario "user can sign out successfully" do
+        visit "/sign-in"
+        expect(page).to have_selector("form.ui-form-signin")
 
-          fill_in "user", with: "testuser"
-          fill_in "password", with: "password123"
-          click_button "Continue"
+        fill_in "user", with: @user.login
+        fill_in "password", with: @user.password
+        click_button "Continue"
 
-          expect(page).to have_content("error: sign_in_wrong_password_flash_message")
-          expect(page).to have_selector("form.ui-form-signin")
+        # Wait for successful sign-in - header should appear
+        expect(page).not_to have_selector("form.ui-form-signin")
+        expect(page).to have_selector("header")
+
+        # Open user menu by clicking button containing user's name
+        within("header") do
+          # Find and click the user menu button (contains firstname and lastname)
+          user_name = "#{@user.firstname} #{@user.lastname}"
+          user_menu_button = find("button", text: user_name)
+          user_menu_button.click
         end
-      end
 
-      context "sign-in/out with valid credentials" do
-        include_context :setup_models_api_base
+        # Click logout button in the dropdown menu
+        click_button "Logout"
 
-        scenario "user can fill out and submit the login form successfully" do
-          visit "/sign-in"
-          expect(page).to have_content("Leihs Simple Login")
-          expect(page).to have_selector("form.ui-form-signin")
+        # After logout, navigate to a page that requires auth to verify we're signed out
+        visit "/inventory/"
 
-          fill_in "user", with: @user.login
-          fill_in "password", with: @user.password
-          click_button "Continue"
-
-          # test accessible endpoints
-          # process sign-out
-          visit "/sign-out"
-          expect(page).to have_content("Sign out")
-          click_button "Sign out"
-
-          # test redirect to sign-in page after logout
-          visit "/inventory"
-          expect(page).to have_content("Leihs Simple Login")
-
-          visit "/inventory"
-          expect(page).to have_content("Leihs Simple Login")
-
-          visit "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models"
-          expect(page).to have_content("Leihs Simple Login")
-        end
+        # Should show 401 error dialog in SPA (localized)
+        expect(page).to have_content("Status: 401")
       end
     end
   end

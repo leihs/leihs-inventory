@@ -7,21 +7,22 @@
    [leihs.core.routing.back :as core-routing]
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
    [leihs.core.settings :as settings]
+   [leihs.inventory.server.middlewares.auth :refer [wrap-session-token-authenticate!]]
+   [leihs.inventory.server.middlewares.coercion :refer [wrap-handle-coercion-error]]
+   [leihs.inventory.server.middlewares.csrf-handler :refer [wrap-csrf]]
+   [leihs.inventory.server.middlewares.debug :as debug-mw]
+   [leihs.inventory.server.middlewares.enforce-accept :refer [wrap-enforce-accept]]
+   [leihs.inventory.server.middlewares.exception-handler :refer [wrap-exception]]
+   [leihs.inventory.server.middlewares.request-params :refer [wrap-parse-request]]
    [leihs.inventory.server.resources.routes :as routes]
    [leihs.inventory.server.swagger :as swagger]
-   [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
-   [leihs.inventory.server.utils.csrf-handler :as csrf]
-   [leihs.inventory.server.utils.debug :as debug-mw]
-   [leihs.inventory.server.utils.exception-handler :refer [wrap-exception]]
-   [leihs.inventory.server.utils.middleware-handler :refer [wrap-html-40x
-                                                            wrap-session-token-authenticate!
-                                                            wrap-strict-format-negotiate]]
-   [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
+   [leihs.inventory.server.utils.response :refer [custom-not-found-handler]]
    [muuntaja.core :as m]
+   [muuntaja.format.json :as json-format]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.dev.pretty :as pretty]
-   [reitit.ring :as ring]
+   [reitit.ring :as reitit-ring]
    [reitit.ring.coercion :as coercion]
    [reitit.ring.middleware.multipart :as multipart]
    [reitit.ring.middleware.muuntaja :as muuntaja]
@@ -33,35 +34,26 @@
    [ring.middleware.params :refer [wrap-params]]))
 
 (def middlewares [debug-mw/wrap-debug
-                  #(wrap-html-40x % [#"/inventory/.+"])
-                  muuntaja/format-response-middleware
                   wrap-exception
-
-                  wrap-strict-format-negotiate
                   wrap-handle-coercion-error
                   db/wrap-tx
                   settings/wrap
                   core-routing/wrap-canonicalize-params-maps
                   muuntaja/format-middleware
                   ring-audits/wrap
-
-                  csrf/extract-header
-
+                  wrap-parse-request
                   wrap-session-token-authenticate!
-
                   wrap-cookies
-                  csrf/wrap-csrf
+                  wrap-enforce-accept
+                  wrap-csrf
                   leihs.core.anti-csrf.back/wrap
-
                   wrap-params
                   wrap-content-type
                   dispatch-content-type/wrap-accept
-
                   reitit.swagger/swagger-feature
                   parameters/parameters-middleware
                   muuntaja/format-negotiate-middleware
                   muuntaja/format-response-middleware
-
                   muuntaja/format-request-middleware
                   coercion/coerce-response-middleware
                   coercion/coerce-request-middleware
@@ -80,20 +72,21 @@
           :muuntaja m/instance
           :middleware middlewares}})
 
-(defn- wrap-router [handler router]
+(def default-handler
+  (reitit-ring/create-default-handler {:not-found custom-not-found-handler
+                                       :method-not-allowed custom-not-found-handler}))
+
+(defn- wrap-attach-router-to-request [handler router]
   (fn [request]
     (handler (assoc request :reitit.router router))))
 
 (defn init []
-  (let [router (ring/router (routes/all-api-endpoints)
-                            default-router-config)
-        app (ring/routes (swagger/init)
-                         (ring/ring-handler router
-                                            (ring/create-default-handler
-                                             {:not-found custom-not-found-handler
-                                              :method-not-allowed custom-not-found-handler})))
-        app (wrap-router app router)]
-    (-> app
+  (let [router (reitit-ring/router (routes/all-api-endpoints)
+                                   default-router-config)]
+    (-> router
+        (reitit-ring/ring-handler default-handler)
+        (->> (reitit-ring/routes (swagger/init)))
+        (wrap-attach-router-to-request router)
         (cache-buster2/wrap-resource "public" cache-bust-options)
         (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
         (wrap-default-charset "utf-8"))))

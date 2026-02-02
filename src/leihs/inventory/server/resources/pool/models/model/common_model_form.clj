@@ -5,7 +5,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.transform :refer [to-uuid]]
    [next.jdbc :as jdbc])
   (:import
    (java.time LocalDateTime)))

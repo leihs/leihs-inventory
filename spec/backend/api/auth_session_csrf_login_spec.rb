@@ -7,7 +7,7 @@ describe "Call swagger-endpoints" do
       resp = plain_faraday_json_client.get("/inventory/session/protected") do |req|
         req.headers["Referer"] = "/inventory"
       end
-      expect(resp.status).to eq(403)
+      expect(resp.status).to eq(401)
     end
 
     it "returns correct result 200 SPA that results in a 404" do
@@ -15,16 +15,16 @@ describe "Call swagger-endpoints" do
       expect_spa_content(resp, 200)
     end
 
-    it "returns correct result 403" do
+    it "returns correct result 401" do
       resp = plain_faraday_html_client.get("/inventory/session/protected") do |req|
         req.headers["Accept"] = "application/json"
       end
-      expect(resp.status).to eq(403)
+      expect(resp.status).to eq(401)
     end
 
     it "denies access to protected resource without login" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
-      expect(resp.status).to eq(403)
+      expect(resp.status).to eq(401)
     end
   end
 
@@ -38,7 +38,7 @@ describe "Call swagger-endpoints" do
 
     it "denies access to protected resource without login" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
-      expect(resp.status).to eq(403)
+      expect(resp.status).to eq(401)
     end
 
     context "login flow" do

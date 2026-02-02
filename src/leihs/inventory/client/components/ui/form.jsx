@@ -115,6 +115,9 @@ const FormMessage = React.forwardRef(
       } else if (error.value && error.value.message) {
         // Handle nested errors for autocomplete fields
         body = String(error.value.message)
+      } else if (Array.isArray(error)) {
+        // Errors are to be handled by nested components
+        body = null
       } else {
         body = String(error)
       }

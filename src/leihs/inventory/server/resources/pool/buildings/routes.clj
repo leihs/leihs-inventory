@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.pool.buildings.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.buildings.main :as buildings]
    [leihs.inventory.server.resources.pool.buildings.types :refer [response-body]]
    [reitit.coercion.schema]
@@ -11,8 +10,7 @@
 
 (defn routes []
   ["/buildings/"
-   {:get {:summary (fe "")
-          :accept "application/json"
+   {:get {:accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :produces ["application/json"]

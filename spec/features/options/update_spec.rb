@@ -1,4 +1,4 @@
-require "spec_helper"
+require "features_helper"
 require_relative "../shared/common"
 
 feature "Update option", type: :feature do
@@ -37,6 +37,7 @@ feature "Update option", type: :feature do
     click_on "Inventory type"
     click_on "Option"
     fill_in "search", with: "#{product_old} #{version_old}"
+    await_debounce
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_old} #{version_old}", visible: true)
@@ -55,6 +56,7 @@ feature "Update option", type: :feature do
     expect(page.find("body", visible: :all).text).to include("Option successfully saved")
 
     expect(page).to have_content "Inventory List"
+    await_debounce
     fill_in "search", with: "#{product_new} #{version_new}"
 
     within "table" do

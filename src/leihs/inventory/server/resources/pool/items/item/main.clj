@@ -2,6 +2,8 @@
   (:require
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
+   [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
    [leihs.inventory.server.resources.pool.items.fields-shared :refer [coerce-field-values
                                                                       in-coercions
@@ -9,13 +11,12 @@
                                                                       flatten-properties
                                                                       split-item-data
                                                                       validate-field-permissions]]
-   [leihs.inventory.server.utils.debug :refer [log-by-severity]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request not-found response status]]
    [taoensso.timbre :refer [debug spy]]))
 
+(def ERROR_GET_ITEM "Failed to fetch item")
 (def ERROR_UPDATE_ITEM "Failed to update item")
 
 (defn get-one [tx item-id]
@@ -34,6 +35,19 @@
                   sql-format)]
     (-> (jdbc/execute-one! tx query)
         some?)))
+
+(defn get-resource [{:keys [tx]
+                     {{:keys [item_id]} :path} :parameters
+                     :as request}]
+  (try
+    (if-let [item (get-one tx item_id)]
+      (response (-> item
+                    flatten-properties
+                    (coerce-field-values out-coercions)))
+      (not-found {:error "Item not found"}))
+    (catch Exception e
+      (log-by-severity ERROR_GET_ITEM e)
+      (exception-handler request ERROR_GET_ITEM e))))
 
 (defn patch-resource [{:keys [tx]
                        {{:keys [item_id pool_id]} :path

@@ -12,10 +12,26 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: [
+          "Inter Variable",
+          "Inter",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif",
+        ],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        shadow: "hsl(var(--shadow))",
+        app: {
+          background: "hsl(var(--app-background))",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {

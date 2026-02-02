@@ -22,10 +22,11 @@
                      :className (str "ml-auto " className)}
 
              (if (= (.-state fetcher) "idle")
-               ($ Download {:className "h-4 w-4 mr-2"})
-               ($ Spinner {:className "h-4 w-4 mr-2"}))
-             "Export"
-             ($ ChevronDown {:className "h-4 w-4 ml-2"})))
+               ($ Download {:className "h-4 w-4 xl:mr-2"})
+               ($ Spinner {:className "h-4 w-4 xl:mr-2"}))
+             ($ :div {:class-name "hidden xl:flex items-center"}
+                "Export"
+                ($ ChevronDown {:className "h-4 w-4 ml-2"}))))
 
        ($ DropdownMenuContent
           ($ fetcher.Form {:method "post"

@@ -1,4 +1,4 @@
-require "spec_helper"
+require "features_helper"
 require_relative "../shared/common"
 
 feature "Update model", type: :feature do
@@ -143,6 +143,7 @@ feature "Update model", type: :feature do
     visit "/inventory/#{pool.id}"
     select_value("with_items", "without_items")
     fill_in "search", with: "#{product_old} #{version_old}"
+    await_debounce
     find("a", text: "edit").click
 
     fill_in "Product", with: product_new
@@ -158,7 +159,7 @@ feature "Update model", type: :feature do
     fill_in "Important notes for hand over", with: hand_over_note_new
 
     find("tr", text: entitlement_group_1.name).find("button").click
-    click_on "Select Entitlement-Group"
+    click_on "Select entitlement group"
     click_on entitlement_group_3.name
     fill_in "entitlements.1.quantity", with: 1
 
@@ -207,6 +208,7 @@ feature "Update model", type: :feature do
     expect(page).to have_content "Inventory List"
     select_value("with_items", "without_items")
     fill_in "search", with: "#{product_new} #{version_new}"
+    await_debounce
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)

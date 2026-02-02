@@ -13,7 +13,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
 
-   [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.client :refer [http-client safe-concat]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
@@ -25,6 +25,7 @@
         [width set-width!] (uix/use-state nil)
 
         params (router/useParams)
+        size (hooks/use-window-size)
 
         control (cj (.-control form))
         buttonRef (uix/use-ref nil)
@@ -45,7 +46,7 @@
         disabled (:disabled props)
 
         [search set-search!] (uix/use-state "")
-        debounced-search (hooks/use-debounce search 200)
+        debounced-search (hooks/use-debounce search 300)
 
         set-value (aget form "setValue")
         get-values (aget form "getValues")
@@ -84,7 +85,7 @@
          (let [fetch (fn []
                        (set-loading! true)
                        (-> http-client
-                           (.get (str values-url debounced-search))
+                           (.get (safe-concat values-url debounced-search))
                            (.then (fn [response]
                                     (let [data (jc (.. response -data))]
                                       (if remap
@@ -98,7 +99,7 @@
      (fn []
        (when (.. buttonRef -current)
          (set-width! (.. buttonRef -current -offsetWidth))))
-     [])
+     [size])
 
     ;; initial fetch of options if not instant
     ;; when options are delivered via url
@@ -121,7 +122,8 @@
         :name name
         :render #($ FormItem {:class-name "mt-6"}
                     (when label
-                      ($ FormLabel (t label)))
+                      ($ FormLabel (t label)
+                         (when (-> props :required) "*")))
                     ($ Popover {:open open
                                 :on-open-change handle-open-change}
 
@@ -148,7 +150,7 @@
                        ($ PopoverContent {:class-name "p-0"
                                           :style {:width (str width "px")}}
 
-                          ($ Command {:should-filter false
+                          ($ Command {:should-filter (if instant? false true)
                                       :on-change (fn [e] (set-search! (.. e -target -value)))}
                              ($ CommandInput {:placeholder (t (-> props :text :search))
                                               :data-test-id (str name "-input")})
