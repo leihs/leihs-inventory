@@ -245,13 +245,14 @@
        :let [{:keys [item-data properties]} (split-item-data
                                              (dissoc body-params :count))
              model-id (:model_id item-data)
-             _ (when (= type "package")
-                 (validate-package-model tx model-id))
              item-data-coerced (coerce-field-values item-data in-coercions)
              properties-json (or (not-empty properties) {})]
 
+       :do (when (= type "package")
+             (validate-package-model tx model-id))
+
        (and count (> count 1))
-        (let [codes (generate-inventory-codes tx pool_id count (= type "package"))
+       (let [codes (generate-inventory-codes tx pool_id count (= type "package"))
              created-items (doall (map #(create-item tx
                                                      (assoc item-data-coerced :inventory_code %)
                                                      properties-json)
@@ -263,9 +264,8 @@
                        :proposed_code (inv-code/propose tx pool_id (= type "package"))}}
                409)
 
-       :let [result (create-item tx item-data-coerced properties-json)]
-
-       (do
+       :else
+       (let [result (create-item tx item-data-coerced properties-json)]
          (when (= type "package")
            (assign-items-to-package tx (:id result) item_ids))
          (response (cond-> result
