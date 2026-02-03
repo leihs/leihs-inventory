@@ -231,8 +231,8 @@
       (exception-handler request ERROR_GET e))))
 
 (comment
- (require '[leihs.core.db :as db])
- (let [tx (db/get-ds)]
-   (-> (base-query "package" "inventory_manager" #uuid "11111111-1111-1111-1111-111111111111")
-       sql-format
-       (->> (jdbc/query tx)))))
+  (require '[leihs.core.db :as db])
+  (let [tx (db/get-ds)]
+    (-> (base-query "package" "inventory_manager" #uuid "11111111-1111-1111-1111-111111111111")
+        sql-format
+        (->> (jdbc/query tx)))))
