@@ -21,24 +21,30 @@
           (int (Math/ceil number)))))))
 
 (defn propose
-  "Proposes next inventory code. Fetches latest 1000 items matching shortname prefix, extracts numbers (incl floats), returns shortname + (max+1)."
-  [tx pool-id]
-  (let [pool (pools/get-by-id tx pool-id)
-        shortname (:shortname pool)]
-    (when shortname
-      (let [query (-> (sql/select :inventory_code)
-                      (sql/from :items)
-                      (sql/where [:= :owner_id pool-id]
-                                 [:ilike :inventory_code (str shortname "%")])
-                      (sql/order-by [:created_at :desc])
-                      (sql/limit 1000))
-            results (jdbc/query tx (sql-format query))
-            max-number (->> results
-                            (map :inventory_code)
-                            (map extract-last-number)
-                            (apply max 0))
-            next-number (inc max-number)]
-        (str shortname next-number)))))
+  "Proposes next inventory code. Fetches latest 1000 items matching shortname prefix,
+   extracts numbers (incl floats), returns shortname + (max+1). For packages, adds P- prefix."
+  ([tx pool-id]
+   (propose tx pool-id false))
+  ([tx pool-id is-package]
+   (let [pool (pools/get-by-id tx pool-id)
+         shortname (:shortname pool)]
+     (when shortname
+       (let [query (-> (sql/select :inventory_code)
+                       (sql/from :items)
+                       (sql/where [:= :owner_id pool-id]
+                                  [:ilike :inventory_code (str shortname "%")])
+                       (sql/order-by [:created_at :desc])
+                       (sql/limit 1000))
+             results (jdbc/query tx (sql-format query))
+             max-number (->> results
+                             (map :inventory_code)
+                             (map extract-last-number)
+                             (apply max 0))
+             next-number (inc max-number)
+             base-code (str shortname next-number)]
+         (if is-package
+           (str "P-" base-code)
+           base-code))))))
 
 (comment
   (require '[leihs.core.db :as db])

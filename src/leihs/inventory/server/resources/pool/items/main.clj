@@ -201,11 +201,12 @@
       sql-format
       (->> (jdbc/execute! tx))))
 
-(defn generate-inventory-codes [tx pool-id n]
-  (let [starting-code (inv-code/propose tx pool-id)
+(defn generate-inventory-codes [tx pool-id n is-package]
+  (let [starting-code (inv-code/propose tx pool-id is-package)
         starting-number (inv-code/extract-last-number starting-code)
         shortname (:shortname (pools/get-by-id tx pool-id))]
-    (map #(str shortname (+ starting-number %)) (range n))))
+    (map #(str (when is-package "P-") shortname (+ starting-number %))
+         (range n))))
 
 (defn create-item [tx item-data-coerced properties-json]
   (let [item-data-with-properties (assoc item-data-coerced
@@ -250,7 +251,7 @@
              properties-json (or (not-empty properties) {})]
 
        (and count (> count 1))
-       (let [codes (generate-inventory-codes tx pool_id count)
+        (let [codes (generate-inventory-codes tx pool_id count (= type "package"))
              created-items (doall (map #(create-item tx
                                                      (assoc item-data-coerced :inventory_code %)
                                                      properties-json)
@@ -259,7 +260,7 @@
 
        (inventory-code-exists? tx inventory_code nil)
        (status {:body {:error "Inventory code already exists"
-                       :proposed_code (inv-code/propose tx pool_id)}}
+                       :proposed_code (inv-code/propose tx pool_id (= type "package"))}}
                409)
 
        :let [result (create-item tx item-data-coerced properties-json)]
