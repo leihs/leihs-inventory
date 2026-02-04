@@ -18,7 +18,10 @@
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.attachments :refer [Attachments]]
    [leihs.inventory.client.components.form.autocomplete :refer [Autocomplete]]
+   [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray FormFieldArrayItems]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.routes.pools.packages.crud.components.item-item :refer [ItemItem]]
+   [leihs.inventory.client.routes.pools.packages.crud.components.select-items :refer [SelectItems]]
 
    [uix.core :as uix :refer [$ defui]]))
 
@@ -75,6 +78,25 @@
          ($ TooltipTrigger {:asChild true}
             ($ :div
                (case (:component block)
+                 "items"
+                 ($ FormFieldArray {:form form
+                                    :name "item_ids"}
+                    ($ FormItem {:class-name "mt-6"}
+                       ($ FormLabel (t (:label block))
+                          (when (:required (:props block)) "*"))
+                       ($ SelectItems {:form form
+                                       :name (:name block)
+                                       :props (:props block)})
+
+                       ($ FormDescription
+                          ($ :<> (:description block)))
+
+                       ($ FormMessage))
+
+                    ($ FormFieldArrayItems {:form form
+                                            :name (:name block)}
+                       ($ ItemItem)))
+
                  "attachments"
                  ($ Attachments {:form form
                                  :label (t (:label block))

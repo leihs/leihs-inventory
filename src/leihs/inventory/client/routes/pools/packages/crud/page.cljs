@@ -20,11 +20,12 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
+   ["zod" :as z]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.dynamic-form :as fields-to-form]
-   [leihs.inventory.client.lib.dynamic-validation :as fields-to-zod]
+   [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
+   [leihs.inventory.client.lib.dynamic-validation :as dynamic-validation]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.packages.crud.components.fields :as form-fields]
@@ -44,13 +45,32 @@
 
         {:keys [data model]} (jc (useLoaderData))
 
+        ;; Define custom fields for items selection
+        custom-fields [{:id "item_ids"
+                        :type "array"
+                        :component "items"
+                        :group "Content"
+                        :position 0
+                        :label "pool.packages.package.fields.items.label"
+                        :required false
+                        :default []
+                        :props {:text {:select "pool.packages.package.fields.items.select"
+                                       :search "pool.packages.package.fields.items.search"
+                                       :searching "pool.packages.package.fields.items.searching"
+                                       :search_empty "pool.packages.package.fields.items.search_empty"
+                                       :not_found "pool.packages.package.fields.items.not_found"}}
+                        :validator (-> (z/array (z/object (cj {:id (z/guid)})))
+                                       (.transform (fn [arr] (mapv (fn [item] (.-id item)) arr))))}]
+
+        ;; Merge custom fields with API fields
+        fields (concat (:fields data) custom-fields)
         ;; Transform fields data to form structure
-        structure (fields-to-form/transform-fields-to-structure data)
+        structure (dynamic-form/fields->structure fields)
 
         ;; Extract default values from fields
-        defaults (fields-to-form/extract-default-values data)
+        defaults (dynamic-form/fields->defaults fields)
 
-        form (useForm (cj {:resolver (zodResolver (fields-to-zod/fields-to-zod-schema data))
+        form (useForm (cj {:resolver (zodResolver (dynamic-validation/fields->schema fields))
                            :defaultValues (if is-create
                                             (cj defaults)
                                             (fn [] (form-helper/process-files defaults :attachments)))}))
@@ -83,6 +103,8 @@
 
         handle-submit (.. form -handleSubmit)
         on-submit (fn [submit-data event]
+                    (js/console.debug (jc submit-data))
+
                     (go
                       (let [attachments (if is-create
                                           (:attachments (jc submit-data))
@@ -95,7 +117,21 @@
                                                          (remove (set (map :id (:attachments (jc submit-data))))))
                                                     nil)
 
-                            item-data (into {} (dissoc (jc submit-data) :attachments))
+                            item-data (jc submit-data)
+
+                            ;; ;; Extract item IDs for package creation
+                            ;; item-ids (when is-create
+                            ;;            (let [items-data (:item_ids (jc submit-data))]
+                            ;;              (when (seq items-data)
+                            ;;                (mapv :id items-data))))
+                            ;;
+                            ;; ;; Remove items array and attachments, add item_ids for backend
+                            ;; item-data (-> submit-data
+                            ;;               jc
+                            ;;               (dissoc :attachments :items)
+                            ;;               (cond-> (seq item-ids)
+                            ;;                 (assoc :item_ids item-ids))
+                            ;;               (into {}))
 
                             pool-id (aget params "pool-id")
                             package-id (aget params "package-id")
@@ -191,18 +227,18 @@
                           ;; default
                           (.. toast (error :statusText item-res))))))]
 
-    (uix/use-effect
-     (fn []
-       (when (and is-create model (not is-loading))
-         (let [model-el (.. js/document (querySelector "[name='model_id']"))]
-           (set-value "model_id" (cj {:label (:product model)
-                                      :value (:id model)}))
-           (set! (.. model-el -disabled) true)))
-
-       (when (and is-create (not is-loading))
-         (let [owner-el (.. js/document (querySelector "[name='owner_id']"))]
-           (set! (.. owner-el -disabled) true))))
-     [is-create is-loading model set-value])
+    ;; (uix/use-effect
+    ;;  (fn []
+    ;;    (when (and is-create model (not is-loading))
+    ;;      (let [model-el (.. js/document (querySelector "[name='model_id']"))]
+    ;;        (set-value "model_id" (cj {:label (:product model)
+    ;;                                   :value (:id model)}))
+    ;;        (set! (.. model-el -disabled) true)))
+    ;;
+    ;;    (when (and is-create (not is-loading))
+    ;;      (let [owner-el (.. js/document (querySelector "[name='owner_id']"))]
+    ;;        (set! (.. owner-el -disabled) true))))
+    ;;  [is-create is-loading model set-value])
 
     ;; Clear room_id when building changes
     (uix/use-effect
