@@ -25,7 +25,7 @@
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug]]))
+   [taoensso.timbre :refer [debug spy]]))
 
 (def ERROR_GET_ITEMS "Failed to get items")
 
@@ -133,16 +133,15 @@
                       ;; Merge back with original items and add image URLs
                       (map-indexed (fn [idx item-with-img]
                                      (let [original-item (nth items idx)]
-                                       (cond-> original-item
-                                         (:image_id item-with-img)
-                                         (assoc :image_id (:image_id item-with-img)
-                                                :url (str "/inventory/"
-                                                          pool_id
-                                                          "/models/"
-                                                          (:model_id original-item)
-                                                          "/images/"
-                                                          (:image_id item-with-img))
-                                                :content_type (:content_type item-with-img)))))
+                                        (cond-> original-item
+                                          (:image_id item-with-img)
+                                          (assoc :image_id (:image_id item-with-img)
+                                                 :url (str "/inventory/"
+                                                           pool_id
+                                                           "/models/"
+                                                           (:model_id original-item)
+                                                           "/images/"
+                                                           (:image_id item-with-img))))))
                                    items-with-images)))]
 
      (debug (sql-format query :inline true))

@@ -138,7 +138,7 @@
    (s/optional-key :building_name) (s/maybe s/Str)
    (s/optional-key :cover_image_id) (s/maybe s/Str)
    (s/optional-key :id) s/Uuid
-   (s/optional-key :image_id) (s/maybe s/Str)
+   (s/optional-key :image_id) (s/maybe s/Uuid)
    (s/optional-key :insurance_number) (s/maybe s/Str)
    (s/optional-key :inventory_code) s/Str
    (s/optional-key :inventory_pool_id) s/Uuid

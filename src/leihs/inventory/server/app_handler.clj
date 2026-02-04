@@ -18,7 +18,6 @@
    [leihs.inventory.server.swagger :as swagger]
    [leihs.inventory.server.utils.response :refer [custom-not-found-handler]]
    [muuntaja.core :as m]
-   [muuntaja.format.json :as json-format]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.dev.pretty :as pretty]
