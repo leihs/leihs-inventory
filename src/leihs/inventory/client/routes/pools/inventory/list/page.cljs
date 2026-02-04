@@ -8,9 +8,9 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    [clojure.string :as str]
+   [leihs.inventory.client.components.export :refer [Export]]
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.lib.hooks :as hooks]
-   [leihs.inventory.client.routes.pools.inventory.list.components.export :refer [Export]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.before-last-check-filter :refer [BeforeLastCheckFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.borrowable-filter :refer [BorrowableFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.category-filter :refer [CategoryFilter]]
@@ -34,6 +34,9 @@
                          (if (zero? mod-result)
                            (:size pagination)
                            mod-result))
+        params (router/useParams)
+        pool-id (aget params "pool-id")
+
         [to-last-page? set-to-last-page!] (uix/use-state false)
         [t] (useTranslation)
         navigate (router/useNavigate)
@@ -84,7 +87,7 @@
                         ($ BeforeLastCheckFilter {:class-name "!max-w-full"})
                         ($ Reset {:class-name "mt-2 w-full"
                                   :on-reset handle-reset}))))
-               ($ Export)))
+               ($ Export {:url (str "/inventory/" pool-id "/list/")})))
 
           ;; Desktop filters
           (when is-desktop?
@@ -105,7 +108,7 @@
                      ($ BeforeLastCheckFilter)
                      ($ Reset {:on-reset handle-reset})))
 
-               ($ Export))))
+               ($ Export {:url (str "/inventory/" pool-id "/list/")}))))
 
        ($ CardContent {:class-name "pb-0"}
           ($ :div {:class-name "border rounded-md"}

@@ -12,6 +12,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    [leihs.inventory.client.components.barcode :refer [Barcode]]
+   [leihs.inventory.client.components.export :refer [Export]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.routes.pools.items.review.components.serial-number :refer [SerialNumber]]
    [uix.core :as uix :refer [$ defui]]))
@@ -73,10 +74,8 @@
                       ($ :div (t "intlDateTime" #js {:val (js/Date. (-> data first :created_at))}))))
                 ($ ItemSeparator))
 
-             ($ Button {:class-name "mt-6 shadow-md"
-                        :variant "outline"}
-                ($ Download)
-                (t "pool.items.review.export"))
+             ($ Export {:class-name "mt-6 shadow-md"
+                        :url (str "/inventory/" pool-id "/items/")})
 
              ($ Separator {:class-name "my-8"})
 

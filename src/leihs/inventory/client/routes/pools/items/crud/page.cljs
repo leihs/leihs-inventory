@@ -231,7 +231,7 @@
                                 ;; state needs to be forwarded for back navigation
                                 (cond
                                   batch?
-                                  (let [get-ids (fn [data] (mapv (fn [item] [:id (:id item)]) data))
+                                  (let [get-ids (fn [data] (mapv (fn [item] [:ids (:id item)]) data))
                                         model-id (->> item-res :data first :model_id)
                                         params (router/createSearchParams (cj (conj (get-ids (:data item-res))
                                                                                     [:mid model-id])))]
