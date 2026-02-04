@@ -43,6 +43,7 @@
          {:keys [pool_id]} (path-params request)
          {:keys [fields search
                  model_id parent_id only_items
+                 for_package
                  retired borrowable
                  incomplete broken owned
                  inventory_pool_id
@@ -93,11 +94,11 @@
                                    [:= :r.item_id :items.id]
                                    [:= :r.returned_date nil]])
 
-                    ;; Join users
+                   ;; Join users
                    (sql/left-join [:users :u]
                                   [:= :u.id :r.user_id])
 
-                    ;; Filters
+                   ;; Filters
                    (sql/where [:or
                                [:= :items.inventory_pool_id pool_id]
                                [:= :items.owner_id pool_id]])
@@ -108,6 +109,22 @@
                                                   [:not= :models.is_package true]
                                                   [:= :items.parent_id nil]
                                                   [:not= :models.type "Software"]]))
+
+                   ;; for_package=true: exclude packages and items in packages (but not software)
+                   (cond-> (true? for_package)
+                     (sql/where [:and
+                                 [:not= :models.is_package true]
+                                 [:= :items.parent_id nil]]))
+
+                   ;; for_package=false: exclude standalone items, show only packages and items in packages
+                   (cond-> (false? for_package)
+                     (sql/where [:or
+                                 [:= :models.is_package true]
+                                 [:not= :items.parent_id nil]]))
+
+                   ;; when both for_package and only_items are present, exclude software
+                   (cond-> (and (true? for_package) only_items)
+                     (sql/where [:not= :models.type "Software"]))
 
                    ; in legacy no query params are passed down to the children,
                    ; speaking: all children are always showed.
@@ -133,26 +150,26 @@
                       ;; Merge back with original items and add image URLs
                       (map-indexed (fn [idx item-with-img]
                                      (let [original-item (nth items idx)]
-                                        (cond-> original-item
-                                          (:image_id item-with-img)
-                                          (assoc :image_id (:image_id item-with-img)
-                                                 :url (str "/inventory/"
-                                                           pool_id
-                                                           "/models/"
-                                                           (:model_id original-item)
-                                                           "/images/"
-                                                           (:image_id item-with-img))))))
+                                       (cond-> original-item
+                                         (:image_id item-with-img)
+                                         (assoc :image_id (:image_id item-with-img)
+                                                :url (str "/inventory/"
+                                                          pool_id
+                                                          "/models/"
+                                                          (:model_id original-item)
+                                                          "/images/"
+                                                          (:image_id item-with-img))))))
                                    items-with-images)))]
 
      (debug (sql-format query :inline true))
      (try
-       (-> request
-           (create-pagination-response query nil post-fnc)
-           (pick-fields fields types/index-item)
-           response)
-       (catch Exception e
-         (log-by-severity ERROR_GET_ITEMS e)
-         (exception-handler request ERROR_GET_ITEMS e))))))
+      (-> request
+          (create-pagination-response query nil post-fnc)
+          (pick-fields fields types/index-item)
+          response)
+      (catch Exception e
+        (log-by-severity ERROR_GET_ITEMS e)
+        (exception-handler request ERROR_GET_ITEMS e))))))
 
 (def ERROR_CREATE_ITEM "Failed to create item")
 
@@ -223,53 +240,53 @@
 
 (defn post-resource [request]
   (try
-    (let [tx (:tx request)
-          {:keys [pool_id]} (path-params request)
-          body-params (body-params request)
-          {:keys [inventory_code count type item_ids]} body-params
-          validation-error (validate-field-permissions request)]
-      (bcond
-       validation-error
-       (bad-request validation-error)
+   (let [tx (:tx request)
+         {:keys [pool_id]} (path-params request)
+         body-params (body-params request)
+         {:keys [inventory_code count type item_ids]} body-params
+         validation-error (validate-field-permissions request)]
+     (bcond
+      validation-error
+      (bad-request validation-error)
 
-       (and inventory_code count (> count 1))
-       (bad-request {:error "Cannot provide both inventory_code and count when count > 1"})
+      (and inventory_code count (> count 1))
+      (bad-request {:error "Cannot provide both inventory_code and count when count > 1"})
 
-       (and (= type "package") count (> count 1))
-       (bad-request {:error "Cannot create multiple packages at once"})
+      (and (= type "package") count (> count 1))
+      (bad-request {:error "Cannot create multiple packages at once"})
 
-       (and (not inventory_code) (not count))
-       (bad-request {:error "Must provide either inventory_code or count"})
+      (and (not inventory_code) (not count))
+      (bad-request {:error "Must provide either inventory_code or count"})
 
-       :let [{:keys [item-data properties]} (split-item-data
-                                             (dissoc body-params :count))
-             model-id (:model_id item-data)
-             item-data-coerced (coerce-field-values item-data in-coercions)
-             properties-json (or (not-empty properties) {})]
+      :let [{:keys [item-data properties]} (split-item-data
+                                            (dissoc body-params :count))
+            model-id (:model_id item-data)
+            item-data-coerced (coerce-field-values item-data in-coercions)
+            properties-json (or (not-empty properties) {})]
 
-       :do (when (= type "package")
-             (validate-package-model tx model-id))
+      :do (when (= type "package")
+            (validate-package-model tx model-id))
 
-       (and count (> count 1))
-       (let [codes (generate-inventory-codes tx pool_id count (= type "package"))
-             created-items (doall (map #(create-item tx
-                                                     (assoc item-data-coerced :inventory_code %)
-                                                     properties-json)
-                                       codes))]
-         (response created-items))
+      (and count (> count 1))
+      (let [codes (generate-inventory-codes tx pool_id count (= type "package"))
+            created-items (doall (map #(create-item tx
+                                                    (assoc item-data-coerced :inventory_code %)
+                                                    properties-json)
+                                      codes))]
+        (response created-items))
 
-       (inventory-code-exists? tx inventory_code nil)
-       (status {:body {:error "Inventory code already exists"
-                       :proposed_code (inv-code/propose tx pool_id (= type "package"))}}
-               409)
+      (inventory-code-exists? tx inventory_code nil)
+      (status {:body {:error "Inventory code already exists"
+                      :proposed_code (inv-code/propose tx pool_id (= type "package"))}}
+              409)
 
-       :else
-       (let [result (create-item tx item-data-coerced properties-json)]
-         (when (= type "package")
-           (assign-items-to-package tx (:id result) item_ids))
-         (response (cond-> result
-                     (= type "package")
-                     (assoc :item_ids item_ids))))))
-    (catch Exception e
-      (log-by-severity ERROR_CREATE_ITEM e)
-      (exception-handler request ERROR_CREATE_ITEM e))))
+      :else
+      (let [result (create-item tx item-data-coerced properties-json)]
+        (when (= type "package")
+          (assign-items-to-package tx (:id result) item_ids))
+        (response (cond-> result
+                    (= type "package")
+                    (assoc :item_ids item_ids))))))
+   (catch Exception e
+     (log-by-severity ERROR_CREATE_ITEM e)
+     (exception-handler request ERROR_CREATE_ITEM e))))
