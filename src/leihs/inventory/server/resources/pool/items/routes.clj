@@ -5,20 +5,28 @@
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
-   [schema.core :as s]))
+   [schema.core :as s])
+  (:import [java.io InputStream]))
 
 (defn routes []
   ["/items/"
    {:get {:accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          :swagger {:produces ["application/json"]}
+          :swagger {:produces ["application/json"
+                               "text/csv"
+                               "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]}
           :summary "Returns all items/packages of a pool filtered by query parameters"
           :parameters {:path types/path-params
                        :query types/query-params}
           :handler items/index-resources
-          :produces ["application/json"]
+          :produces ["application/json"
+                     "text/csv"
+                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
           :responses {200 {:description "OK"
-                           :body types/get-items-response}
+                           :body (s/conditional
+                                  string? s/Str
+                                  #(instance? InputStream %) s/Any
+                                  :else types/get-items-response)}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
