@@ -5,7 +5,7 @@
    [clojure.walk]
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [ring.util.response :as resp :refer [content-type response]]
-   [taoensso.timbre :refer [warn]])
+   [taoensso.timbre :refer [debug warn]])
   (:import
    [clojure.lang ExceptionInfo]
    [org.postgresql.util PSQLException]))
@@ -51,6 +51,7 @@
                   :uri (str method " " uri)}
         accept (get-in request [:headers "accept"])
         is-attachment? (str/includes? uri "/attachments/")]
+    (debug e)
     (warn (pretty-print-json resp-map))
     (if (and (= accept "text/html") is-attachment?)
       (-> (response message)
