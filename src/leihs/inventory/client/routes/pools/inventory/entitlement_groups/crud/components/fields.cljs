@@ -3,13 +3,15 @@
    ["@@/form" :refer [FormField FormItem FormLabel FormControl FormDescription FormMessage]]
    ["@@/input" :refer [Input]]
    ["@@/radio-group" :refer [RadioGroup RadioGroupItem]]
-   ["@@/table" :refer [TableCell]]
-   ["@@/tooltip" :refer [Tooltip TooltipTrigger TooltipContent]]
    ["react-i18next" :refer [useTranslation]]
-   [leihs.inventory.client.components.form.groups :refer [Groups]]
-   [leihs.inventory.client.components.form.models :refer [Models]]
-   [leihs.inventory.client.components.form.users :refer [Users]]
+   [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray FormFieldArrayItems]]
+   [leihs.inventory.client.components.form.select-model :refer [SelectModel]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.group-item :refer [GroupItem]]
+   [leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.model-item :refer [ModelItem]]
+   [leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.select-group :refer [SelectGroup]]
+   [leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.select-user :refer [SelectUser]]
+   [leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.user-item :refer [UserItem]]
    [uix.core :as uix :refer [defui $]]))
 
 (defui field [{:keys [control form block]}]
@@ -41,72 +43,58 @@
                                               (t (:label option))))))))})
 
       "models"
-      ($ Models {:form form
-                 :name (:name block)
-                 :label (:label block)
-                 :required (:required block)
-                 :props (:props block)}
-         (fn [update index field]
-           ;; cells to be inserted into the generic model row component
-           (let [available (:available field)
-                 entitled-in-groups (or (:entitled_in_other_groups field) (:entitled_in_groups field))
-                 net-available (- available entitled-in-groups)
-                 quantity (:quantity field)
-                 quantity-exceeds-availability? (and quantity (> quantity net-available))
-                 quantity-too-low? (and quantity (< quantity 1))]
-             ($ :<>
-                ($ TableCell {:class-name "w-1/5"}
-                   (cond
-                     quantity-exceeds-availability?
-                     ($ :span {:class-name "text-red-500"}
-                        (t "pool.entitlement_groups.entitlement_group.quantity_error"))
+      ($ FormFieldArray {:form form
+                         :name (:name block)}
+         ($ FormItem {:class-name "mt-6"}
+            ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
+            ($ SelectModel {:form form
+                            :name (:name block)
+                            :props (:props block)})
 
-                     quantity-too-low?
-                     (let [models-err (aget (aget form "formState" "errors") "models")]
-                       (when (and models-err (aget models-err index))
-                         ($ :span {:class-name "text-red-500"}
-                            (aget models-err index "quantity" "message"))))))
+            ($ FormDescription
+               ($ :<> (:description block)))
 
-                ($ TableCell {:class-name "w-[5rem]"}
-                   ($ Input {:class-name "text-right"
-                             :type "number"
-                             :data-test-id "quantity"
-                             :value (if (:quantity field)
-                                      (:quantity field)
-                                      1)
-                             :onChange (fn [event]
-                                         (update
-                                          index
-                                          (cj (merge field
-                                                     {:quantity (.. event -target -value)}))))}))
-                ($ TableCell {:class-name "px-0"} "/")
-                ($ TableCell
-                   ($ Tooltip
-                      ($ TooltipTrigger {:asChild true}
-                         ($ :span {:data-test-id "entitled_in_other_groups"} net-available))
-                      ($ TooltipContent {:className "max-w-[20rem]"}
-                         (t "pool.entitlement_groups.entitlement_group.models.blocks.models.available_count_tooltip"))))
-                ($ TableCell {:class-name "px-0"} "/")
-                ($ TableCell
-                   ($ Tooltip
-                      ($ TooltipTrigger {:asChild true}
-                         ($ :span {:data-test-id "available"} available))
-                      ($ TooltipContent {:className "max-w-[20rem]"}
-                         (t "pool.entitlement_groups.entitlement_group.models.blocks.models.items_count_tooltip"))))))))
+            ($ FormMessage))
+
+         ($ FormFieldArrayItems {:form form
+                                 :name (:name block)}
+            ($ ModelItem)))
 
       "users"
-      ($ Users {:form form
-                :name (:name block)
-                :label (:label block)
-                :required (:required block)
-                :props (:props block)})
+      ($ FormFieldArray {:form form
+                         :name (:name block)}
+         ($ FormItem {:class-name "mt-6"}
+            ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
+            ($ SelectUser {:form form
+                           :name (:name block)
+                           :props (:props block)})
+
+            ($ FormDescription
+               ($ :<> (:description block)))
+
+            ($ FormMessage))
+
+         ($ FormFieldArrayItems {:form form
+                                 :name (:name block)}
+            ($ UserItem)))
 
       "groups"
-      ($ Groups {:form form
-                 :name (:name block)
-                 :label (:label block)
-                 :required (:required block)
-                 :props (:props block)})
+      ($ FormFieldArray {:form form
+                         :name (:name block)}
+         ($ FormItem {:class-name "mt-6"}
+            ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
+            ($ SelectGroup {:form form
+                            :name (:name block)
+                            :props (:props block)})
+
+            ($ FormDescription
+               ($ :<> (:description block)))
+
+            ($ FormMessage))
+
+         ($ FormFieldArrayItems {:form form
+                                 :name (:name block)}
+            ($ GroupItem)))
 
       ;; default case - render a plain component according to the map
       (let [field-map {"input" Input}

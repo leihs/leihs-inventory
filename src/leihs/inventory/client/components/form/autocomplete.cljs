@@ -1,18 +1,14 @@
 (ns leihs.inventory.client.components.form.autocomplete
   (:require
-   ["@/components/ui/command" :refer [Command CommandEmpty CommandGroup CommandSeparator
-                                      CommandInput CommandItem CommandList]]
+   ["@/components/ui/command" :refer [Command CommandEmpty CommandInput
+                                      CommandItem CommandList CommandSeparator]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
-   ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
-   ["@@/form" :refer [FormField FormItem FormLabel
-                      FormControl FormMessage]]
-
+   ["@@/form" :refer [FormControl FormField FormItem FormLabel FormMessage]]
    ["@@/spinner" :refer [Spinner]]
    ["lucide-react" :refer [Check ChevronsUpDown FilePlusCorner]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
-
    [leihs.inventory.client.lib.client :refer [http-client safe-concat]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
