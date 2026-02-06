@@ -96,14 +96,9 @@ describe "Swagger Inventory Endpoints - Items Workflow (fields, filter_q/search_
         ids = filtered.map { |i| i["id"].to_s }
         expect(ids).to contain_exactly(@items[0].id.to_s, @items[1].id.to_s, @items[2].id.to_s)
 
-        # 3. PATCH each of the 3 items (e.g. set status_note)
+        # 3. PATCH each of the 3 items (only send the field being modified)
         filtered.each_with_index do |item, idx|
           patch_resp = patch_item(item["id"], {
-            inventory_code: item["inventory_code"],
-            model_id: item["model_id"],
-            room_id: item["room_id"],
-            inventory_pool_id: item["inventory_pool_id"],
-            owner_id: item["owner_id"],
             status_note: "updated-by-workflow-#{idx}"
           })
           expect(patch_resp.status).to eq(200), "PATCH item #{item["id"]}: #{patch_resp.body}"
@@ -126,14 +121,9 @@ describe "Swagger Inventory Endpoints - Items Workflow (fields, filter_q/search_
         ids = searched.map { |i| i["id"].to_s }
         expect(ids).to contain_exactly(@items[0].id.to_s, @items[1].id.to_s, @items[2].id.to_s)
 
-        # 2. PATCH each of the 3 items
+        # 2. PATCH each of the 3 items (only send the field being modified)
         searched.each_with_index do |item, idx|
           patch_resp = patch_item(item["id"], {
-            inventory_code: item["inventory_code"],
-            model_id: item["model_id"],
-            room_id: item["room_id"],
-            inventory_pool_id: item["inventory_pool_id"],
-            owner_id: item["owner_id"],
             note: "szenario2-update-#{idx}"
           })
           expect(patch_resp.status).to eq(200), "PATCH item #{item["id"]}: #{patch_resp.body}"
