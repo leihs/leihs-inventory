@@ -26,6 +26,14 @@ require_relative "_shared"
 #   - Logical operators:   $and, $or (including nested combinations)
 #   - Search parameter:    text search across multiple fields
 #
+# SUPPORTED OPERATORS:
+#   $eq, $gte, $lte, $ilike, $and, $or
+#
+# REMOVED OPERATORS (design decision - not required by frontend UI):
+#   $gt, $lt   - UI uses ranges with $gte/$lte only (inclusive boundaries)
+#   $ne        - UI doesn't need "not equal" filtering
+#   $exists    - UI doesn't filter by field presence/absence
+#
 # PROPERTIES FIELD LIMITATION:
 #   Properties fields (properties_*) are validated against the /fields API.
 #   Only fields configured in /fields will work; others return 400.
@@ -82,15 +90,6 @@ describe "Swagger Inventory Endpoints - Items List (pagination)" do
       expect(resp.body).to have_key("pagination")
       expect(resp.body["data"]).to be_an(Array)
       resp.body["data"]
-    end
-
-    def post_with_headers(client, url, data)
-      client.post url do |req|
-        req.body = data.to_json
-        req.headers["Content-Type"] = "application/json"
-        req.headers["Accept"] = "application/json"
-        req.headers["x-csrf-token"] = X_CSRF_TOKEN
-      end
     end
 
     context "GET /inventory/:pool-id/items?page=1&filter_q= (EDN filter)" do
