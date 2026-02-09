@@ -137,6 +137,7 @@ Each route module has:
 14. **Middlewares location** - Always place middlewares in `src/leihs/inventory/server/middlewares`
 15. **Utils location** - Always place utilities/helpers in `src/leihs/inventory/server/utils`
 16. **Format before commit** - Always run `./bin/cljfmt fix` after modifying any Clojure backend code (`.clj` and `.cljc` files) and before committing
+17. **No variable shadowing in let** - Never shadow same variable in let binding (e.g., `(let [x 1 x (inc x)])` not allowed), use unique names or threading macros
 
 ## Database Schema Notes
 
