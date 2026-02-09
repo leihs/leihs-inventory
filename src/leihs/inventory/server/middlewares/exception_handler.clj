@@ -100,10 +100,10 @@
       (instance? ExceptionInfo e)
       (let [{:keys [status]} (ex-data e)
             msg (ex-message e)]
-        (create-response-by-accept request accept (or status 500) {:status "failure"
-                                                                   :message message
-                                                                   :type (str (class e))
-                                                                   :details msg}))
+        (create-response-by-accept request accept status {:status "failure"
+                                                          :message message
+                                                          :type (str (class e))
+                                                          :details msg}))
 
       :else (create-response-by-accept request accept 500 {:status "failure"
                                                            :message message

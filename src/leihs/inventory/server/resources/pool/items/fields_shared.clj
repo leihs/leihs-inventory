@@ -12,9 +12,7 @@
    [leihs.inventory.server.utils.schema :refer [instant-to-date-string]]
    [next.jdbc :as jdbc]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
-   [ring.middleware.accept])
-  (:import [java.time LocalDate]
-           [java.util UUID]))
+   [ring.middleware.accept]))
 
 (def RETIRED_REASON_REQUIRES_RETIRED "If retired_reason is set then retired must be set as well.")
 
@@ -105,25 +103,10 @@
         item-without-properties (dissoc item :properties)]
     (merge item-without-properties properties-with-prefix)))
 
-(defn parse-date-input [v]
-  (when (and v (not (string/blank? (str v))))
-    (LocalDate/parse (str v))))
-
-(defn parse-uuid-input [v]
-  (when (and v (not (string/blank? (str v))))
-    (if (instance? UUID v) v (UUID/fromString (str v)))))
-
 (def in-coercions
   {:retired (fn [v _] (when (true? v) (java.util.Date.)))
-   :inventory_pool_id (fn [v i] (parse-uuid-input (or v (:owner_id i))))
-   :owner_id (fn [v _] (parse-uuid-input v))
-   :supplier_id (fn [v _] (parse-uuid-input v))
-   :model_id (fn [v _] (parse-uuid-input v))
-   :room_id (fn [v _] (parse-uuid-input v))
-   :parent_id (fn [v _] (parse-uuid-input v))
-   :price (fn [v _] (parse-to-bigdecimal-or-nil v))
-   :last_check (fn [v _] (parse-date-input v))
-   :invoice_date (fn [v _] (parse-date-input v))})
+   :inventory_pool_id (fn [v i] (or v (:owner_id i)))
+   :price (fn [v _] (parse-to-bigdecimal-or-nil v))})
 
 (def out-coercions
   {:retired (fn [v _] (some? v))

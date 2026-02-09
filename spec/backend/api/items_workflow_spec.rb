@@ -5,7 +5,7 @@ require_relative "_shared"
 describe "Swagger Inventory Endpoints - Items Workflow (fields, filter_q/search_term, PATCH)" do
   # End-to-end workflows: create 5 items, filter/search to get 3, then update those entries.
   # Szenario1: GET /fields?target_type=item → GET /items?filter_q= → PATCH /items/{id}
-  # Szenario2: GET /items?search= (inventory_code / item columns) → PATCH /items/{id}
+  # Szenario2: GET /items?search_term= (inventory_code / item columns) → PATCH /items/{id}
   #
   context "when managing items in an inventory pool" do
     include_context :setup_models_min_api
@@ -107,17 +107,17 @@ describe "Swagger Inventory Endpoints - Items Workflow (fields, filter_q/search_
       end
     end
 
-    context "Szenario2: GET /items?search= (inventory_code) → PATCH /items/{itemId}" do
-      it "searches items by search (inventory_code), gets 3, then updates each of the 3" do
-        # 1. GET /items?search=WF-A (matches inventory_code, serial_number, etc. → 3 items)
+    context "Szenario2: GET /items?search_term= (inventory_code) → PATCH /items/{itemId}" do
+      it "searches items by search_term (inventory_code), gets 3, then updates each of the 3" do
+        # 1. GET /items?search_term=WF-A (matches inventory_code, serial_number, etc. → 3 items)
         search_resp = client.get items_url do |req|
-          req.params["search"] = "WF-A"
+          req.params["search_term"] = "WF-A"
           req.headers["Accept"] = "application/json"
         end
         expect(search_resp.status).to eq(200)
         expect(search_resp.body).to be_an(Array)
         searched = search_resp.body
-        expect(searched.size).to eq(3), "search=WF-A should return 3 items, got #{searched.size}: #{searched.map { |i| i["inventory_code"] }}"
+        expect(searched.size).to eq(3), "search_term=WF-A should return 3 items, got #{searched.size}: #{searched.map { |i| i["inventory_code"] }}"
         ids = searched.map { |i| i["id"].to_s }
         expect(ids).to contain_exactly(@items[0].id.to_s, @items[1].id.to_s, @items[2].id.to_s)
 

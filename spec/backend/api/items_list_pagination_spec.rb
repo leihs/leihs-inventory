@@ -1,5 +1,4 @@
 require "spec_helper"
-require "pry"
 require "cgi"
 require_relative "_shared"
 
@@ -409,20 +408,20 @@ describe "Swagger Inventory Endpoints - Items List (pagination)" do
         end
 
         it "filters by inventory_code (:$ilike partial)" do
-          data = fetch_filtered('{:inventory_code {:$ilike "ITZ211"}')
+          data = fetch_filtered('{:inventory_code {:$ilike "ITZ211"}}')
           expect(data.map { |i| i["id"] }).to include(entry[:id].to_s)
         end
 
         it "filters by supplier_id (:$eq)" do
-          data = fetch_filtered('{:supplier_id {:$eq "d20338d8-1182-5ea6-91da-ea96c3a0a76a"}')
+          data = fetch_filtered('{:supplier_id {:$eq "d20338d8-1182-5ea6-91da-ea96c3a0a76a"}}')
           expect(data.map { |i| i["id"] }).to include(entry[:id].to_s)
         end
 
         it "supplier_id: returned items have that supplier_id and wrong supplier returns none" do
-          data = fetch_filtered('{:supplier_id {:$eq "d20338d8-1182-5ea6-91da-ea96c3a0a76a"}')
+          data = fetch_filtered('{:supplier_id {:$eq "d20338d8-1182-5ea6-91da-ea96c3a0a76a"}}')
           expect(data).not_to be_empty
           data.each { |i| expect(i["supplier_id"]).to eq("d20338d8-1182-5ea6-91da-ea96c3a0a76a") }
-          other = fetch_filtered('{:supplier_id {:$eq "00000000-0000-0000-0000-000000000000"}')
+          other = fetch_filtered('{:supplier_id {:$eq "00000000-0000-0000-0000-000000000000"}}')
           expect(other).to be_empty,
             "filter_q must restrict results. Got #{other.size} item(s). " \
             "On CI: ensure backend applies filter (create-filter-query-and-validate! returns modified query)."
@@ -434,19 +433,19 @@ describe "Swagger Inventory Endpoints - Items List (pagination)" do
         end
 
         it "filters by user_name (:$ilike)" do
-          data = fetch_filtered('{:user_name {:$ilike "itz"}')
+          data = fetch_filtered('{:user_name {:$ilike "itz"}}')
           expect(data.map { |i| i["id"] }).to include(entry[:id].to_s)
         end
       end
 
       describe "invalid filters (should return 400)" do
         it "rejects invalid properties_ field" do
-          resp = client.get(filter_url('{:properties_abc {:$eq "12"}'))
+          resp = client.get(filter_url('{:properties_abc {:$eq "12"}}'))
           expect(resp.status).to eq(400)
         end
 
         it "rejects invalid key" do
-          resp = client.get(filter_url('{:invalid_key {:$eq "value"}'))
+          resp = client.get(filter_url('{:invalid_key {:$eq "value"}}'))
           expect(resp.status).to eq(400)
         end
 
@@ -648,6 +647,46 @@ describe "Swagger Inventory Endpoints - Items List (pagination)" do
             expect(ids).to include(entry[:id].to_s)
             expect(ids).to include(entry_borrowable[:id].to_s)
             expect(ids).to include(entry_low_price[:id].to_s)
+          end
+
+          # Map boolean form: {:retired {:$eq true/false}}
+          it "retired ({:$eq true}) map form returns items with retirement date set" do
+            data = fetch_filtered("{:retired {:$eq true}}")
+            ids = data.map { |i| i["id"] }
+            # All test items have retired=nil, so none should match
+            expect(ids).not_to include(entry[:id].to_s)
+            expect(ids).not_to include(entry_borrowable[:id].to_s)
+            expect(ids).not_to include(entry_low_price[:id].to_s)
+          end
+
+          it "retired ({:$eq false}) map form returns items without retirement date" do
+            data = fetch_filtered("{:retired {:$eq false}}")
+            ids = data.map { |i| i["id"] }
+            # All test items have retired=nil, so all should match
+            expect(ids).to include(entry[:id].to_s)
+            expect(ids).to include(entry_borrowable[:id].to_s)
+            expect(ids).to include(entry_low_price[:id].to_s)
+          end
+
+          # Date operators on retired are rejected — only boolean predicates allowed
+          it "retired (:$gte date) returns 400 — date operators not supported" do
+            resp = client.get(filter_url('{:retired {:$gte "2024-01-01"}}'))
+            expect(resp.status).to eq(400)
+          end
+
+          it "retired (:$lte date) returns 400 — date operators not supported" do
+            resp = client.get(filter_url('{:retired {:$lte "2025-12-31"}}'))
+            expect(resp.status).to eq(400)
+          end
+
+          it "retired (:$eq date) returns 400 — date operators not supported" do
+            resp = client.get(filter_url('{:retired {:$eq "2024-06-15"}}'))
+            expect(resp.status).to eq(400)
+          end
+
+          it "retired (:$ilike string) returns 400 — not a valid operator for retired" do
+            resp = client.get(filter_url('{:retired {:$ilike "2024"}}'))
+            expect(resp.status).to eq(400)
           end
         end
 
@@ -1090,10 +1129,10 @@ describe "Swagger Inventory Endpoints - Items List (pagination)" do
 
     # ==========================================================================
     # SEARCH PARAMETER TESTS
-    # The 'search' parameter provides simple text search across multiple fields
+    # The 'search_term' parameter provides simple text search across multiple fields
     # (different from filter_q which uses EDN-based precise filtering)
     # ==========================================================================
-    context "GET /inventory/:pool-id/items?page=1&search= (text search)" do
+    context "GET /inventory/:pool-id/items?page=1&search_term= (text search)" do
       let!(:search_entry) {
         model = FactoryBot.create(:leihs_model, id: SecureRandom.uuid, product: "SearchableProduct")
         FactoryBot.create(:item,
@@ -1107,7 +1146,7 @@ describe "Swagger Inventory Endpoints - Items List (pagination)" do
       }
 
       def search_url(term)
-        "#{base_url}?page=1&search=#{CGI.escape(term)}"
+        "#{base_url}?page=1&search_term=#{CGI.escape(term)}"
       end
 
       def fetch_searched(term)
@@ -1158,10 +1197,10 @@ describe "Swagger Inventory Endpoints - Items List (pagination)" do
         end
       end
 
-      describe "search combined with filter_q" do
-        it "applies both search and filter" do
+      describe "search_term combined with filter_q" do
+        it "applies both search_term and filter" do
           # Search for inventory_code and filter by model_id
-          url = "#{base_url}?page=1&search=SEARCH&filter_q=#{CGI.escape("{:model_id {:$eq \"#{search_entry[:model_id]}\"}}")}"
+          url = "#{base_url}?page=1&search_term=SEARCH&filter_q=#{CGI.escape("{:model_id {:$eq \"#{search_entry[:model_id]}\"}}")}"
           resp = client.get(url)
           expect(resp.status).to eq(200)
           ids = resp.body["data"].map { |i| i["id"] }

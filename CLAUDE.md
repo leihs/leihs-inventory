@@ -129,7 +129,7 @@ Each route module has:
 6. **No route versioning** - Until production release
 7. **Flat Swagger routes** - No grouping, alphabetically sorted
 8. **Use structured logging** - `debug`, `warn`, `error` from `taoensso.timbre`, never `println`
-9. **Eliminate dead code** - Remove unused vars and requires
+9. **Eliminate dead code** - Remove unused vars and requires. Unused `taoensso.timbre` imports (e.g., `error`, `info`, `warn`, `debug`) are allowed to remain, as they are commonly needed during development and debugging.
 10. **Context-local field definitions** - Keep schemas near their usage, not centralized
 11. **Use canonical routes** - Follow established routing patterns
 12. **Prefer threading macros** - Use `->` and `->>` threading macros instead of nested function calls when nesting level > 2 in `.clj`, `.cljs`, and `.cljc` files
