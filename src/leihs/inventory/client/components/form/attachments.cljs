@@ -3,13 +3,9 @@
    ["@@/button" :refer [Button]]
    ["@@/dropzone" :refer [Dropzone DropzoneArea DropzoneFiles ErrorMessages
                           Item]]
-   ["@@/form" :refer [FormField FormItem FormLabel
-                      FormControl FormMessage]]
-   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
-                       TableRow]]
-   ["lucide-react" :refer [Trash Eye]]
-   ["react-i18next" :refer [useTranslation]]
-
+   ["@@/form" :refer [FormControl FormField FormItem FormLabel]]
+   ["@@/table" :refer [Table TableBody TableCell TableRow]]
+   ["lucide-react" :refer [Eye Trash]]
    ["react-router-dom" :as router :refer [useLoaderData]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
@@ -26,7 +22,6 @@
 (defui main [{:keys [form name label props]}]
   (let [set-value (aget form "setValue")
         get-values (aget form "getValues")
-        [t] (useTranslation)
         {:keys [data]} (useLoaderData)
 
         control (cj (.-control form))

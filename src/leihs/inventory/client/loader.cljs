@@ -1,9 +1,6 @@
 (ns leihs.inventory.client.loader
   (:require
    ["react-router-dom" :as router]
-   ["~/i18n.config.js" :as i18n :refer [i18n]]
-   [cljs.core.async :as async :refer [go]]
-   [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [jc cj]]))
 
@@ -156,7 +153,7 @@
         query-params (-> (js/URL. (.. route-data -request -url))
                          (.-search)
                          (js/URLSearchParams.))
-        ids (.getAll query-params "id")
+        ids (.getAll query-params "ids")
         model-id (.get query-params "mid")
 
         model (-> http-client

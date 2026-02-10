@@ -9,6 +9,7 @@
 (s/defschema path-params {:pool_id s/Uuid})
 
 (s/defschema query-params {(s/optional-key :fields) s/Str
+                           (s/optional-key :ids) [s/Uuid]
                            (s/optional-key :model_id) s/Uuid
                            (s/optional-key :only_items) s/Bool
                            (s/optional-key :parent_id) s/Uuid

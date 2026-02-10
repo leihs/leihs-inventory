@@ -3,10 +3,12 @@
    [better-cond.core :refer [cond] :rename {cond bcond}]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.constants :refer [ACCEPT-CSV ACCEPT-EXCEL]]
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
    [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
+   [leihs.inventory.server.resources.pool.items.export :as items-export]
    [leihs.inventory.server.resources.pool.items.fields-shared :refer [coerce-field-values
                                                                       flatten-properties
                                                                       in-coercions
@@ -17,6 +19,7 @@
    [leihs.inventory.server.resources.pool.items.types :as types]
    [leihs.inventory.server.resources.pool.list.search :refer [with-search]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
+   [leihs.inventory.server.utils.export :as export]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.pick-fields :refer [pick-fields]]
    [leihs.inventory.server.utils.request :refer [body-params path-params
@@ -47,7 +50,14 @@
                  retired borrowable
                  incomplete broken owned
                  inventory_pool_id
-                 in_stock before_last_check]} (query-params request)
+                 in_stock before_last_check]} (query-params request) ; query params of reitit
+         ; getting ids from query params of ring. it handles both single and multiple ids.
+         ids-raw (or (get (:query-params request) "ids[]")
+                     (get (:query-params request) "ids"))
+         ids (when ids-raw
+               (->> (if (string? ids-raw) [ids-raw] ids-raw)
+                    (map #(java.util.UUID/fromString %))))
+         accept-header (get-in request [:headers "accept"])
 
          extra-columns [[:ip.name :inventory_pool_name]
                         [:r.end_date :reservation_end_date]
@@ -105,6 +115,7 @@
 
                    (cond-> model_id (sql/where [:= :items.model_id model_id]))
                    (cond-> parent_id (sql/where [:= :items.parent_id parent_id]))
+                   (cond-> (seq ids) (sql/where [:in :items.id ids]))
                    (cond-> only_items (sql/where [:and
                                                   [:not= :models.is_package true]
                                                   [:= :items.parent_id nil]
@@ -165,10 +176,30 @@
 
      (debug (sql-format query :inline true))
      (try
-       (-> request
-           (create-pagination-response query nil post-fnc)
-           (pick-fields fields types/index-item)
-           response)
+       (cond
+         (and accept-header (re-find (re-pattern ACCEPT-CSV) accept-header))
+         (let [data (-> query
+                        (#(items-export/sql-prepare tx % pool_id))
+                        sql-format
+                        (->> (export/jdbc-execute! tx)))]
+           (export/csv-response data :filename "items.csv"))
+
+         (and accept-header (re-find (re-pattern ACCEPT-EXCEL) accept-header))
+         (let [array-data (-> query
+                              (#(items-export/sql-prepare tx % pool_id))
+                              sql-format
+                              (->> (export/jdbc-execute! tx)))
+               [header & _] array-data
+               data (export/arrays-to-maps array-data)]
+           (export/excel-response data
+                                  :keys (map keyword header)
+                                  :filename "items.xlsx"))
+
+         :else
+         (-> request
+             (create-pagination-response query nil post-fnc)
+             (pick-fields fields types/index-item)
+             response))
        (catch Exception e
          (log-by-severity ERROR_GET_ITEMS e)
          (exception-handler request ERROR_GET_ITEMS e))))))

@@ -75,10 +75,10 @@ feature "Batch create items", type: :feature do
     expect(page).to have_text "Items successfully created"
 
     # Verify we're on the review page
-    expect(page).to have_current_path(%r{/inventory/#{pool.id}/items/review\?.*id=.*&id=.*&id=.*&mid=.*})
+    expect(page).to have_current_path(%r{/inventory/#{pool.id}/items/review\?.*ids=.*&ids=.*&ids=.*&mid=.*})
 
     # More specific: verify query params structure
-    expect(current_url).to match(/id=[0-9a-f-]{36}/)
+    expect(current_url).to match(/ids=[0-9a-f-]{36}/)
     expect(current_url).to match(/mid=[0-9a-f-]{36}/)
 
     # Phase 7: Review Page - Header Checks

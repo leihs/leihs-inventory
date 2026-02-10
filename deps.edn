@@ -1,7 +1,6 @@
 {:paths ["src" "shared-clj/src" "resources" "shared-clj/resources"]
  :deps
- {org.clojure/clojure {:mvn/version "1.11.4"}
-  better-cond/better-cond {:mvn/version "2.1.5"}
+ {better-cond/better-cond {:mvn/version "2.1.5"}
   cheshire/cheshire {:mvn/version "5.13.0"}
   clj-http/clj-http {:mvn/version "3.13.0"}
   cljsjs/react-dom {:mvn/version "18.2.0-1"}
@@ -12,18 +11,20 @@
   fi.metosin/reitit-openapi {:mvn/version "0.7.1"}
   leihs-core/leihs-core {:local/root "./shared-clj"}
   metosin/reitit {:mvn/version "0.7.1"}
+  org.clojure/clojure {:mvn/version "1.11.4"}
   org.clojure/data.generators {:mvn/version "1.1.0"}
   org.clojure/spec.alpha {:mvn/version "0.5.238"}
   org.threeten/threeten-extra {:mvn/version "1.8.0"}
-  ring/ring-core {:mvn/version "1.12.2"}
+  ring/ring-core {:mvn/version "1.15.2"}
   ring/ring-defaults {:mvn/version "0.5.0"}
-  ring/ring-jetty-adapter {:mvn/version "1.12.2"}
+  ring/ring-jetty-adapter {:mvn/version "1.15.2"}
   org.clj-commons/byte-streams {:mvn/version "0.3.4"}
   org.clojure/data.csv {:mvn/version "1.1.0"}
-  dk.ative/docjure {:mvn/version "1.15.0"}
-  hickory/hickory {:mvn/version "0.7.1"}
+  org.jsoup/jsoup {:mvn/version "1.15.3"} ; CVE-2021-37714, CVE-2022-36033 (see hickory/hickory)
+  dk.ative/docjure {:mvn/version "1.22.0"}
+  hickory/hickory {:mvn/version "0.7.1" :exclusions [org.jsoup/jsoup]}
   drtom/clj-uuid {:mvn/version "0.1.7"}
-  org.apache.commons/commons-lang3 {:mvn/version "3.14.0"}
+  org.apache.commons/commons-lang3 {:mvn/version "3.20.0"}
   org.im4java/im4java {:mvn/version "1.4.0"}
   clj-yaml/clj-yaml {:mvn/version "0.4.0"}
   cider-ci/open-session {:mvn/version "2.0.0-beta.1"} ; upgrade will break
@@ -31,7 +32,6 @@
   buddy/buddy-auth {:mvn/version "2.2.0"}
   metosin/spec-tools {:mvn/version "0.10.7"}
   metosin/ring-swagger-ui {:mvn/version "4.19.1"}
-  com.novemberain/pantomime {:mvn/version "2.11.0"}
   metosin/reitit-swagger-ui {:mvn/version "0.7.1"}
   digest/digest {:mvn/version "1.4.10"}
   cryptohash-clj/cryptohash-clj {:mvn/version "0.1.11"}
@@ -67,4 +67,9 @@
                           thheller/shadow-cljs {:mvn/version "2.28.23"}}}
 
   :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "2.9.1221"}}
-             :main-opts ["-m" "antq.core"]}}}
+             :main-opts ["-m" "antq.core"]}
+
+  :clj-watson {:replace-deps
+               {io.github.clj-holmes/clj-watson
+                {:git/tag "v6.0.1" :git/sha "b520351"}}
+               :main-opts ["-m" "clj-watson.cli"]}}}

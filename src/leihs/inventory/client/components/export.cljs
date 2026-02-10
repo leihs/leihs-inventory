@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.list.components.export
+(ns leihs.inventory.client.components.export
   (:require
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuTrigger
@@ -9,10 +9,9 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defui main [{:keys [className]}]
+(defui main [{:keys [url className]}]
   (let [location (router/useLocation)
         fetcher (router/useFetcher)
-        current-path (.-pathname location)
         search-params (.-search location)]
 
     ($ DropdownMenu
@@ -30,10 +29,10 @@
 
        ($ DropdownMenuContent
           ($ fetcher.Form {:method "post"
-                           :action current-path}
+                           :action "/export"}
              ($ :input {:type "hidden"
                         :name "url"
-                        :value (str current-path search-params)})
+                        :value (str url search-params)})
              ($ :input {:type "hidden"
                         :name "format"
                         :value "csv"})
@@ -43,10 +42,10 @@
                    "CSV")))
 
           ($ fetcher.Form {:method "post"
-                           :action current-path}
+                           :action "/export"}
              ($ :input {:type "hidden"
                         :name "url"
-                        :value (str current-path search-params)})
+                        :value (str url search-params)})
              ($ :input {:type "hidden"
                         :name "format"
                         :value "excel"})

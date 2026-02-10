@@ -39,6 +39,10 @@
       :id "profile"
       :action actions/profile}
 
+     {:path "/export"
+      :id "export"
+      :action actions/export}
+
      {:path "/inventory"
       :id "root"
       :element ($ root-layout)
@@ -67,7 +71,6 @@
 
                  {:path "list"
                   :loader loader/list-page
-                  :action actions/list-page
                   :id "models-page"
                   :element ($ list-page)}
 

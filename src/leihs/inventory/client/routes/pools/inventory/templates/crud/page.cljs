@@ -56,8 +56,6 @@
                                                  (merge default-values (jc data))))
                                             (cj default-values))})
 
-        get-values (aget form "getValues")
-
         is-loading (.. form -formState -isLoading)
 
         control (.. form -control)
