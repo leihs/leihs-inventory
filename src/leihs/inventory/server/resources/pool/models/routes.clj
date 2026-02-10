@@ -25,7 +25,8 @@
                                (s/optional-key :size) s/Int
                                (s/optional-key :search) s/Str
                                (s/optional-key :search_term) s/Str
-                               (s/optional-key :type) (s/enum "model")}}
+                               (s/optional-key :type) (s/enum "model")
+                               (s/optional-key :is_package) s/Bool}}
           :handler models/index-resources
           :responses {200 {:description "OK"
                            :body get-compatible-response}
