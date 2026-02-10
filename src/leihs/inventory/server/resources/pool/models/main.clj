@@ -51,26 +51,24 @@
   (try
     (let [tx (:tx request)
           pool-id (-> request path-params :pool_id)
-          {:keys [search search_term type is_package]} (query-params request)
+          {:keys [search search_term type]} (query-params request)
           term (or search search_term) ; search_term needed for fields
-          query (-> base-query
-                    (sql/select [[:count :i.id] :available])
-                    (sql/left-join [:items :i]
-                                   [:and
-                                    [:= :i.model_id :models.id]
-                                    [:= :i.inventory_pool_id pool-id]
-                                    [:= :i.is_borrowable true]
-                                    [:= :i.retired nil]
-                                    [:= :i.parent_id nil]])
-                    (cond-> term
-                      (sql/where (make-multi-term-clause term :ilike :models.name)))
-                    (cond-> type
-                      (sql/where [:= :type (string/capitalize type)]))
-                    (cond-> (true? is_package)
-                      (sql/where [:= :is_package true]))
-                    (sql/group-by :models.id
-                                  :models.name
-                                  :models.cover_image_id))
+          base-query (-> base-query
+                         (sql/select [[:count :i.id] :available])
+                         (sql/left-join [:items :i]
+                                        [:and
+                                         [:= :i.model_id :models.id]
+                                         [:= :i.inventory_pool_id pool-id]
+                                         [:= :i.is_borrowable true]
+                                         [:= :i.retired nil]
+                                         [:= :i.parent_id nil]])
+                         (cond-> term
+                           (sql/where (make-multi-term-clause term :ilike :models.name)))
+                         (cond-> type
+                           (sql/where [:= :type (string/capitalize type)]))
+                         (sql/group-by :models.id
+                                       :models.name
+                                       :models.cover_image_id))
 
           post-fnc (fn [models]
                      (let [model-ids (->> models
@@ -85,7 +83,7 @@
                             (fetch-thumbnails-for-ids tx)
                             (map (model->enrich-with-image-attr pool-id)))))]
 
-      (response (create-pagination-response request query nil post-fnc)))
+      (response (create-pagination-response request base-query nil post-fnc)))
 
     (catch Exception e
       (log-by-severity ERROR_GET_MODEL e)
