@@ -294,13 +294,15 @@
        (bad-request {:error "Must provide either inventory_code or count"})
 
        :let [{:keys [item-data properties]} (split-item-data
-                                             (dissoc body-params :count))
+                                             (dissoc body-params :count :item_ids :type))
              model-id (:model_id item-data)
              item-data-coerced (coerce-field-values item-data in-coercions)
              properties-json (or (not-empty properties) {})]
 
        :do (when (= type "package")
-             (validate-package-model tx model-id))
+             (validate-package-model tx model-id)
+             (when-not (seq item_ids)
+               (throw (ex-info "Package must have at least one item" {}))))
 
        (and count (> count 1))
        (let [codes (generate-inventory-codes tx pool_id count (= type "package"))
@@ -317,7 +319,7 @@
 
        :else
        (let [result (create-item tx item-data-coerced properties-json)]
-         (when (= type "package")
+         (when (and (= type "package") (seq item_ids))
            (assign-items-to-package tx (:id result) item_ids))
          (response (cond-> result
                      (= type "package")

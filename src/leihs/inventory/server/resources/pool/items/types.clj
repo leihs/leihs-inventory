@@ -113,6 +113,7 @@
           :is_broken s/Bool
           :is_incomplete s/Bool
           :is_inventory_relevant s/Bool
+          (s/optional-key :item_ids) [s/Uuid]
           :item_version (s/maybe s/Str)
           :last_check (s/maybe s/Str)
           :name (s/maybe s/Str)

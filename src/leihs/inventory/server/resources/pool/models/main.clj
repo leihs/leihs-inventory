@@ -65,9 +65,9 @@
                          (cond-> term
                            (sql/where (make-multi-term-clause term :ilike :models.name)))
                          (cond->
-                           (= type "package") (sql/where [:= :is_package true])
+                          (= type "package") (sql/where [:= :is_package true])
                            ; in this case either `model` or `software`
-                           (not= type "package") (sql/where [:= :type (string/capitalize type)]))
+                          (not= type "package") (sql/where [:= :type (string/capitalize type)]))
                          (sql/group-by :models.id
                                        :models.name
                                        :models.cover_image_id))
