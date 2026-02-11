@@ -13,6 +13,7 @@
                            (s/optional-key :model_id) s/Uuid
                            (s/optional-key :only_items) s/Bool
                            (s/optional-key :parent_id) s/Uuid
+                           (s/optional-key :search) s/Str
                            (s/optional-key :search_term) s/Str
                            (s/optional-key :for_package) s/Bool
 

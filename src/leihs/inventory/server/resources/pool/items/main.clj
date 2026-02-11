@@ -44,13 +44,14 @@
   ([request]
    (let [tx (:tx request)
          {:keys [pool_id]} (path-params request)
-         {:keys [fields search_term
+         {:keys [fields search search_term
                  model_id parent_id only_items
                  for_package
                  retired borrowable
                  incomplete broken owned
                  inventory_pool_id
                  in_stock before_last_check]} (query-params request) ; query params of reitit
+         search_term (or search search_term)
          ; getting ids from query params of ring. it handles both single and multiple ids.
          ids-raw (or (get (:query-params request) "ids[]")
                      (get (:query-params request) "ids"))
