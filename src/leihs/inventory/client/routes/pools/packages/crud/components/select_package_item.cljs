@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.packages.crud.components.select-items
+(ns leihs.inventory.client.routes.pools.packages.crud.components.select-package-item
   (:require
    ["@/components/ui/command" :refer [Command CommandEmpty CommandInput
                                       CommandItem CommandList]]
@@ -64,7 +64,7 @@
           (item-display-name data)))))
 
 ;; Select component - handles search and selection UI
-(defui SelectItems [{:keys [name props]}]
+(defui SelectPackageItem [{:keys [name props]}]
   (let [[t] (useTranslation)
         params (router/useParams)
         path (router/generatePath "/inventory/:pool-id/items/" params)

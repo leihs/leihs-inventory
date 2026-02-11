@@ -19,9 +19,8 @@
    [leihs.inventory.client.components.form.autocomplete :refer [Autocomplete]]
    [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray FormFieldArrayItems]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.packages.crud.components.item-item :refer [ItemItem]]
-   [leihs.inventory.client.routes.pools.packages.crud.components.select-items :refer [SelectItems]]
-
+   [leihs.inventory.client.routes.pools.packages.crud.components.package-item :refer [PackageItem]]
+   [leihs.inventory.client.routes.pools.packages.crud.components.select-package-item :refer [SelectPackageItem]]
    [uix.core :as uix :refer [$ defui]]))
 
 (def fields-map
@@ -84,21 +83,23 @@
 
             (case (:component block)
               "items"
-              ($ FormFieldArray {:form form
-                                 :name "item_ids"}
-                 ($ FormItem
-                    ($ SelectItems {:form form
-                                    :name (:name block)
-                                    :props (:props block)})
+              ($ FormField {:control (cj control)
+                            :name (:name block)
+                            :render #($ FormFieldArray {:form form
+                                                        :name "item_ids"}
+                                        ($ FormItem
+                                           ($ SelectPackageItem {:form form
+                                                                 :name (:name block)
+                                                                 :props (:props block)})
 
-                    ($ FormDescription
-                       ($ :<> (:description block)))
+                                           ($ FormDescription
+                                              ($ :<> (:description block)))
 
-                    ($ FormMessage))
+                                           ($ FormMessage))
 
-                 ($ FormFieldArrayItems {:form form
-                                         :name (:name block)}
-                    ($ ItemItem)))
+                                        ($ FormFieldArrayItems {:form form
+                                                                :name (:name block)}
+                                           ($ PackageItem)))})
 
               "attachments"
               ($ Attachments {:form form
