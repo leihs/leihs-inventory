@@ -58,7 +58,7 @@
                                        :search_empty "pool.packages.package.fields.items.search_empty"
                                        :not_found "pool.packages.package.fields.items.not_found"}}
                         :validator (-> (z/array (z/object (cj {:id (z/guid)})))
-                                       (.min 2)
+                                       (.min 1)
                                        (.transform (fn [arr] (mapv (fn [item] (.-id item)) arr))))}]
 
         ;; Merge custom fields with API fields

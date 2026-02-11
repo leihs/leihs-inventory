@@ -24,7 +24,6 @@
 ;;  ;; Optional - Standard field attributes
 ;;  :group "Group Name"             ;; Group name (default: "Mandatory data")
 ;;  :position 50                    ;; Position for sorting (supports floats like 5.1, 5.2 for fine-grained control)
-;;  :label "Field Label"            ;; Display label for the field
 ;;  :required false                 ;; Is field required? (default: false)
 ;;  :default "default-value"        ;; Default value (type depends on field type)
 ;;  :description "Help text"        ;; Description/help text shown below field
@@ -53,7 +52,7 @@
 ;;   :component "input"
 ;;   :group "Mandatory data"
 ;;   :position 3
-;;   :label "Item Count"
+;;   :label -> will be generated from id "item_count" as "fields.Mandatory data.item_count"
 ;;   :required true
 ;;   :default 1
 ;;   :props {:type "number"
@@ -70,8 +69,8 @@
 ;;   :type "text"
 ;;   :component "input"
 ;;   :group "My Custom Group"           ;; New group name
-;;   :position 5.1                       ;; Places group after position 5, before position 6+
-;;   :label "Custom Field"}]
+;;   :position 5.1                       ;; Places group after position 5, before position 6+ 
+;;   }]
 ;;
 ;; Group Ordering:
 ;; - Groups are automatically ordered by the minimum :position of fields within each group

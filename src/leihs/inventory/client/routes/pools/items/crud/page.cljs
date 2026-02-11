@@ -52,11 +52,9 @@
         ;; Define custom fields for create mode only
         custom-fields (if is-create
                         [{:id "count"
-                          :type "number"
                           :component "input"
                           :group "Mandatory data"
                           :position 0
-                          :label "Item Count"
                           :required true
                           :default 1
                           :props {:type "number"
