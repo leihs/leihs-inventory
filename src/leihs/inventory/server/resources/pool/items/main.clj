@@ -44,7 +44,7 @@
   ([request]
    (let [tx (:tx request)
          {:keys [pool_id]} (path-params request)
-         {:keys [fields search
+         {:keys [fields search_term
                  model_id parent_id only_items
                  for_package
                  retired borrowable
@@ -139,6 +139,8 @@
 
                        (sql/limit 100))
 
+                   (cond-> (seq search_term) (with-search search_term :models))
+
                    ; in legacy no query params are passed down to the children,
                    ; speaking: all children are always showed.
                    (cond-> (not parent_id)
@@ -151,7 +153,7 @@
                                                          :borrowable borrowable
                                                          :broken broken
                                                          :incomplete incomplete)
-                         (cond-> (seq search) (with-search search :models)))))
+                         (cond-> (seq search_term) (with-search search_term :models)))))
 
          post-fnc (fn [items]
                     ;; Prepare items for thumbnail fetching by using model_id as id
