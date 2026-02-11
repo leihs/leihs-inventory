@@ -70,9 +70,10 @@
                 (assoc f :values_url
                        (str "/inventory/" (:id pool) "/rooms/")))
      :model_id (fn [f & {:keys [pool target-type]}]
-                 (assoc f :values_url
-                        (str "/inventory/" (:id pool)
-                             "/models/?type=" target-type)))
+                 (let [model-type (if (= target-type "item") "model" target-type)]
+                   (assoc f :values_url
+                          (str "/inventory/" (:id pool)
+                               "/models/?type=" model-type))))
      :software_model_id (fn [f & {:keys [pool]}]
                           (assoc f :values_url
                                  (str "/inventory/" (:id pool) "/software/")))

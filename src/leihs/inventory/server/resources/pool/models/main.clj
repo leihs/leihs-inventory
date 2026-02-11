@@ -67,10 +67,7 @@
                          (cond->
                           (= type "package") (sql/where [:= :models.is_package true])
                            ; in this case either `model` or `software`
-                           ; "item" is mapped to "Model" type
-                          (and type (not= type "package")) (sql/where [:= :models.type (if (= type "item")
-                                                                                         "Model"
-                                                                                         (string/capitalize type))]))
+                          (and type (not= type "package")) (sql/where [:= :models.type (string/capitalize type)]))
                          (sql/group-by :models.id
                                        :models.name
                                        :models.cover_image_id))
