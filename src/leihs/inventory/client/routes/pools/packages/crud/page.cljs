@@ -2,16 +2,12 @@
   (:require
    ["@/components/react/scrollspy/scrollspy" :refer [Scrollspy ScrollspyItem
                                                      ScrollspyMenu]]
-   ["@@/alert-dialog" :refer [AlertDialog AlertDialogAction AlertDialogCancel
-                              AlertDialogContent AlertDialogDescription
-                              AlertDialogFooter AlertDialogHeader
-                              AlertDialogTitle]]
    ["@@/button" :refer [Button]]
    ["@@/button-group" :refer [ButtonGroup ButtonGroupSeparator]]
    ["@@/card" :refer [Card CardContent]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuGroup DropdownMenuItem
-                               DropdownMenuSeparator DropdownMenuTrigger]]
+                               DropdownMenuTrigger]]
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
@@ -50,8 +46,7 @@
                         :type "array"
                         :component "items"
                         :group "Content"
-                        :position 0
-                        :label "pool.packages.package.fields.items.label"
+                        :group-after "Mandatory data"
                         :required false
                         :default []
                         :props {:text {:select "pool.packages.package.fields.items.select"
@@ -99,8 +94,6 @@
 
                        (js/console.debug "is invalid: " data)))
 
-        ;; handle-decommission (fn [] (go))
-
         handle-submit (.. form -handleSubmit)
         on-submit (fn [submit-data event]
                     (js/console.debug (jc submit-data))
@@ -118,20 +111,6 @@
                                                     nil)
 
                             item-data (jc submit-data)
-
-                            ;; ;; Extract item IDs for package creation
-                            ;; item-ids (when is-create
-                            ;;            (let [items-data (:item_ids (jc submit-data))]
-                            ;;              (when (seq items-data)
-                            ;;                (mapv :id items-data))))
-                            ;;
-                            ;; ;; Remove items array and attachments, add item_ids for backend
-                            ;; item-data (-> submit-data
-                            ;;               jc
-                            ;;               (dissoc :attachments :items)
-                            ;;               (cond-> (seq item-ids)
-                            ;;                 (assoc :item_ids item-ids))
-                            ;;               (into {}))
 
                             pool-id (aget params "pool-id")
                             package-id (aget params "package-id")
@@ -227,20 +206,7 @@
                           ;; default
                           (.. toast (error :statusText item-res))))))]
 
-    ;; (uix/use-effect
-    ;;  (fn []
-    ;;    (when (and is-create model (not is-loading))
-    ;;      (let [model-el (.. js/document (querySelector "[name='model_id']"))]
-    ;;        (set-value "model_id" (cj {:label (:product model)
-    ;;                                   :value (:id model)}))
-    ;;        (set! (.. model-el -disabled) true)))
-    ;;
-    ;;    (when (and is-create (not is-loading))
-    ;;      (let [owner-el (.. js/document (querySelector "[name='owner_id']"))]
-    ;;        (set! (.. owner-el -disabled) true))))
-    ;;  [is-create is-loading model set-value])
-
-    ;; Clear room_id when building changes
+;; Clear room_id when building changes
     (uix/use-effect
      (fn []
        (when (and building (not is-loading) building-is-dirty?)
@@ -312,35 +278,4 @@
                                           :viewTransition true}
                                     (if is-create
                                       (t "pool.packages.package.create.cancel")
-                                      (t "pool.packages.package.edit.cancel")))))
-
-                              ;; prepared for "ausmustern"
-                           #_($ DropdownMenuSeparator)
-
-                           #_($ DropdownMenuGroup
-                                (when (not is-create)
-                                  ($ DropdownMenuItem {:variant "destructive"
-                                                       :asChild true}
-                                     ($ Link {:to (router/generatePath "/inventory/:pool-id/packages/:package-id/delete" params)
-                                              :state state}
-                                        "Delete")))))))
-
-                  ;; prepared for "ausmustern"
-                  #_(when (not is-create)
-                      ($ AlertDialog {:open is-delete}
-                         ($ AlertDialogContent
-
-                            ($ AlertDialogHeader
-                               ($ AlertDialogTitle (t "pool.packages.package.delete.title"))
-                               ($ AlertDialogDescription (t "pool.packages.package.delete.description")))
-
-                            ($ AlertDialogFooter
-                               ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
-                                                    hover:bg-destructive hover:text-destructive-foreground"
-                                                     :onClick handle-delete}
-                                  (t "pool.packages.package.delete.confirm"))
-                               ($ AlertDialogCancel
-                                  ($ Link {:to (router/generatePath "/inventory/:pool-id/packages/:package-id" params)
-                                           :state state}
-
-                                     (t "pool.packages.package.delete.cancel"))))))))))))))
+                                      (t "pool.packages.package.edit.cancel")))))))))))))))

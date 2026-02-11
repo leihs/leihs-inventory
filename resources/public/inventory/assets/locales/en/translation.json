@@ -6,6 +6,9 @@
       "inventory_code": "Inventory Code",
       "model_id": "Model"
     },
+    "Content": {
+      "title": "Content"
+    },
     "Inventory": {
       "title": "Inventory",
       "last_check": "Last Checked",
@@ -216,6 +219,13 @@
             "select": "Make a selection",
             "search": "Enter search term",
             "empty": "No results found for this search term"
+          },
+          "items": {
+            "select": "Select items",
+            "search": "Search items",
+            "searching": "Searching...",
+            "search_empty": "Type at least 2 characters to search",
+            "not_found": "No items found"
           }
         }
       }

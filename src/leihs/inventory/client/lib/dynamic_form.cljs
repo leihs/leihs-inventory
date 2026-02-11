@@ -23,6 +23,7 @@
 ;;  
 ;;  ;; Optional - Standard field attributes
 ;;  :group "Group Name"             ;; Group name (default: "Mandatory data")
+;;  :group-after "Other Group"      ;; Insert this group after "Other Group" (only applies to new groups)
 ;;  :position 50                    ;; Position for sorting within group (lower = earlier)
 ;;  :label "Field Label"            ;; Display label for the field
 ;;  :required false                 ;; Is field required? (default: false)
@@ -64,6 +65,21 @@
 ;;                (.min 0 "Must be at least 0")
 ;;                (.max 999999 "Must be less than 1,000,000")
 ;;                (.int "Must be a whole number"))}]
+;;
+;; Example - Custom group positioned after existing group:
+;; [{:id "custom_field"
+;;   :type "text"
+;;   :component "input"
+;;   :group "My Custom Group"           ;; New group name
+;;   :group-after "Mandatory data"      ;; Insert after "Mandatory data" group
+;;   :position 10
+;;   :label "Custom Field"}]
+;;
+;; Group Ordering:
+;; - Groups are ordered by the minimum :position of fields within each group
+;; - Use :group-after on any field in a custom group to position that group after a specific existing group
+;; - If :group-after references a non-existent group, the group will be placed at the end
+;; - Fields within each group are sorted by their :position value
 ;;
 ;; Usage:
 ;; (def custom-fields [{...}])
@@ -163,21 +179,97 @@
           {}
           fields))
 
+(defn- calculate-group-metadata
+  "Calculates metadata for each group including min position and group-after directive.
+   Returns a map of {group-name {:fields [...] :min-position N :group-after \"name\"}}"
+  [grouped]
+  (reduce (fn [acc [group-name group-fields]]
+            (let [min-pos (apply min (map #(or (:position %) 999999) group-fields))
+                  group-after (some :group-after group-fields)]
+              (assoc acc group-name {:fields group-fields
+                                     :min-position min-pos
+                                     :group-after group-after})))
+          {}
+          grouped))
+
+(defn- order-groups
+  "Orders groups based on min position and :group-after directives.
+   Returns ordered vector of [group-name group-metadata]."
+  [group-metadata]
+  (let [;; First, sort all groups by their min position
+        sorted-by-position (sort-by (fn [[_ meta]] (:min-position meta))
+                                    group-metadata)
+
+        ;; Build a map for quick lookup of group positions
+        position-map (into {} (map-indexed (fn [idx [name _]] [name idx])
+                                           sorted-by-position))
+
+        ;; Separate groups with :group-after from those without
+        [with-after without-after] (reduce (fn [[wa woa] [name meta :as entry]]
+                                             (if (:group-after meta)
+                                               [(conj wa entry) woa]
+                                               [wa (conj woa entry)]))
+                                           [[] []]
+                                           sorted-by-position)
+
+        ;; Process groups with :group-after directives
+        groups-to-insert (reduce (fn [acc [name meta]]
+                                   (let [target-group (:group-after meta)]
+                                     (if (contains? position-map target-group)
+                                       (conj acc {:name name
+                                                  :meta meta
+                                                  :insert-after target-group})
+                                       (do
+                                         (js/console.warn
+                                          (str "Group '" name "' has :group-after '"
+                                               target-group "' but that group doesn't exist. "
+                                               "Placing at end."))
+                                         acc))))
+                                 []
+                                 with-after)
+
+        ;; Start with base groups (those without :group-after)
+        base-groups (vec without-after)
+
+        ;; Insert groups at their specified positions
+        final-groups (reduce (fn [groups {:keys [name meta insert-after]}]
+                               (let [;; Find position of target group in current groups vector
+                                     target-idx (some (fn [[idx [g-name _]]]
+                                                        (when (= g-name insert-after) idx))
+                                                      (map-indexed vector groups))]
+                                 (if target-idx
+                                   ;; Insert after the target group
+                                   (let [insert-pos (inc target-idx)]
+                                     (vec (concat (take insert-pos groups)
+                                                  [[name meta]]
+                                                  (drop insert-pos groups))))
+                                   ;; Target not found, append at end
+                                   (conj groups [name meta]))))
+                             base-groups
+                             groups-to-insert)]
+    final-groups))
+
 (defn fields->structure [fields]
   (let [;; Filter only implemented field types or fields with custom component
         implemented-fields (filter #(or (implemented-field-types (:type %))
                                         (:component %))
                                    fields)
-        grouped (group-fields-by-group implemented-fields)]
+        ;; Group fields by group name
+        grouped (group-fields-by-group implemented-fields)
+        ;; Calculate metadata (min position, group-after) for each group
+        group-metadata (calculate-group-metadata grouped)
+        ;; Order groups based on position and :group-after directives
+        ordered-groups (order-groups group-metadata)]
 
-    (mapv (fn [[group-name group-fields]]
+    ;; Map ordered groups to structure format
+    (mapv (fn [[group-name meta]]
             {:title (str "fields." group-name ".title")
-             :blocks (->> group-fields
+             :blocks (->> (:fields meta)
                           (sort-by :position)
                           (map transform-field)
                           (filter some?)
                           vec)})
-          grouped)))
+          ordered-groups)))
 
 (defn fields->defaults [fields]
   (let [;; Filter only implemented field types or fields with custom component

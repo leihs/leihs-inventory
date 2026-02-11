@@ -81,9 +81,7 @@
                  "items"
                  ($ FormFieldArray {:form form
                                     :name "item_ids"}
-                    ($ FormItem {:class-name "mt-6"}
-                       ($ FormLabel (t (:label block))
-                          (when (:required (:props block)) "*"))
+                    ($ FormItem
                        ($ SelectItems {:form form
                                        :name (:name block)
                                        :props (:props block)})

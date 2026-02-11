@@ -12,9 +12,7 @@
        ($ ImageCell {:field field})
 
        ;; Inventory Code cell
-       ($ TableCell {:class-name ""}
-          (or (:inventory_code field) "—"))
-
-       ;; Model Name cell
-       ($ TableCell {:class-name ""}
-          (:model_name field)))))
+       ($ TableCell
+          ($ :div {:class-name "flex flex-col"}
+             ($ :strong (:inventory_code field))
+             (:model_name field))))))

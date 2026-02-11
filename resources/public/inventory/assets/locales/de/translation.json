@@ -6,6 +6,9 @@
       "inventory_code": "Inventarcode",
       "model_id": "Modell"
     },
+    "Content": {
+      "title": "Inhalt"
+    },
     "Inventory": {
       "title": "Inventar",
       "last_check": "Letzte Inventur",
@@ -215,6 +218,14 @@
             "select": "Auswahl treffen",
             "search": "Suchbegriff eingeben",
             "empty": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
+          },
+          "items": {
+            "label": "Gegenstände",
+            "select": "Gegenstände auswählen",
+            "search": "Gegenstände suchen",
+            "searching": "Suche läuft...",
+            "search_empty": "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
+            "not_found": "Keine Gegenstände gefunden"
           }
         }
       }

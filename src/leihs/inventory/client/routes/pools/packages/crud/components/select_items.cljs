@@ -131,15 +131,14 @@
                 :on-open-change handle-open-change}
 
        ($ PopoverTrigger {:as-child true}
-          ($ FormControl
-             ($ Button {:variant "outline"
-                        :role "combobox"
-                        :ref buttonRef
-                        :name name
-                        :on-click (fn [] (set-open! (not open)))
-                        :class-name "w-full justify-between"}
-                (t (-> props :text :select))
-                ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"}))))
+          ($ Button {:variant "outline"
+                     :role "combobox"
+                     :ref buttonRef
+                     :name name
+                     :on-click (fn [] (set-open! (not open)))
+                     :class-name "w-full justify-between"}
+             (t (-> props :text :select))
+             ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
 
        ($ PopoverContent {:class-name "p-0"
                           :style {:width (str width "px")}}
