@@ -28,6 +28,10 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
+(def groups ["Package" "Content" "Status"
+             "Inventory" "General Information"
+             "Location" "Invoice Information"])
+
 (defui page []
   (let [[t] (useTranslation)
         location (router/useLocation)
@@ -46,7 +50,6 @@
                         :type "array"
                         :component "items"
                         :group "Content"
-                        :group-after "Mandatory data"
                         :required true
                         :default []
                         :props {:text {:select "pool.packages.package.fields.items.select"
@@ -61,7 +64,8 @@
         ;; Merge custom fields with API fields
         fields (concat (:fields data) custom-fields)
         ;; Transform fields data to form structure
-        structure (dynamic-form/fields->structure fields)
+        structure (dynamic-form/fields->structure fields {:group-order groups
+                                                          :main-group "Package"})
 
         ;; Extract default values from fields
         defaults (dynamic-form/fields->defaults fields)

@@ -9,6 +9,9 @@
     "Content": {
       "title": "Content"
     },
+    "Package": {
+      "title": "Package"
+    },
     "Inventory": {
       "title": "Inventory",
       "last_check": "Last Checked",

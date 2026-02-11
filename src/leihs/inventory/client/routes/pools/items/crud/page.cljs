@@ -28,6 +28,14 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
+(def groups ["Mandatory data"
+             "Status"
+             "Inventory"
+             "Eigenschaften"
+             "General Information"
+             "Location"
+             "Invoice Information"])
+
 (defui page []
   (let [[t] (useTranslation)
         location (router/useLocation)
@@ -93,7 +101,7 @@
         ;; Transform fields data to derived form structure
         structure (uix/use-memo
                    (fn []
-                     (cond-> (dynamic-form/fields->structure fields)
+                     (cond-> (dynamic-form/fields->structure fields {:group-order groups})
 
                        ;; Disable model_id when set via path param
                        (and is-create model (not is-loading))
