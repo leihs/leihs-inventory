@@ -136,21 +136,19 @@
                          (cond-> (seq search_term) (with-search search_term :models)))))
 
          post-fnc (fn [items]
-                    ;; Prepare items for thumbnail fetching by using model_id as id
-                    (let [items-for-fetch (map (fn [item]
-                                                 (assoc item :id (:model_id item)))
-                                               items)
-                          ;; Fetch thumbnails using model data
+                    (let [items-for-fetch (mapv (fn [item]
+                                                  (assoc item :id (:model_id item)))
+                                                items)
                           items-with-images (fetch-thumbnails-for-ids tx items-for-fetch)]
-                      ;; Merge back with original items and add image URLs
-                      (map-indexed (fn [idx item-with-img]
-                                     (let [original-item (nth items idx)]
-                                       (cond-> original-item
-                                         (:image_id item-with-img)
-                                         (assoc :image_id (:image_id item-with-img)
-                                                :url (str "/inventory/" pool_id "/models/" (:model_id original-item) "/images/" (:image_id item-with-img))
-                                                :content_type (:content_type item-with-img)))))
-                                   items-with-images)))]
+                      (vec (map-indexed (fn [idx item-with-img]
+                                          (let [original-item (nth items idx)
+                                                img-id (:image_id item-with-img)]
+                                            (cond-> original-item
+                                              img-id
+                                              (assoc :image_id (str img-id)
+                                                     :url (str "/inventory/" pool_id "/models/" (:model_id original-item) "/images/" img-id)
+                                                     :content_type (:content_type item-with-img)))))
+                                        items-with-images))))]
 
      (debug (sql-format query :inline true))
      (try

@@ -179,6 +179,7 @@
    (s/optional-key :supplier_id) (s/maybe s/Uuid)
    (s/optional-key :url) (s/maybe s/Str)
    (s/optional-key :user_name) (s/maybe s/Str)
+   (s/optional-key :content_type) (s/maybe s/Str)
 
    (s/optional-key :created_at) java.util.Date
    (s/optional-key :updated_at) java.util.Date})
