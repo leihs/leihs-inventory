@@ -139,8 +139,6 @@
 
                        (sql/limit 100))
 
-                   (cond-> (seq search_term) (with-search search_term :models))
-
                    ; in legacy no query params are passed down to the children,
                    ; speaking: all children are always showed.
                    (cond-> (not parent_id)
