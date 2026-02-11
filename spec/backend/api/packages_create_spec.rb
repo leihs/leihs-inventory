@@ -69,6 +69,140 @@ describe "Swagger Inventory Endpoints - Packages Create" do
         @item.reload
         expect(@item.parent_id).to eq(resp.body["id"])
       end
+
+      it "creates a package with multiple items and returns status 200" do
+        item2 = FactoryBot.create(:item,
+          model_id: @regular_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        item3 = FactoryBot.create(:item,
+          model_id: @regular_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        package_data = {
+          inventory_code: "P-TEST-#{SecureRandom.hex(4)}",
+          model_id: @package_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          type: "package",
+          item_ids: [@item.id, item2.id, item3.id]
+        }
+
+        resp = post_with_headers(client, url, package_data)
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["item_ids"]).to eq([@item.id, item2.id, item3.id])
+
+        # Verify all items were assigned to package
+        [@item, item2, item3].each do |item|
+          item.reload
+          expect(item.parent_id).to eq(resp.body["id"])
+        end
+      end
+
+      it "rejects package creation with non-package model and returns status 500" do
+        package_data = {
+          inventory_code: "P-TEST-#{SecureRandom.hex(4)}",
+          model_id: @regular_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          type: "package",
+          item_ids: [@item.id]
+        }
+
+        resp = post_with_headers(client, url, package_data)
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["details"]).to include("Model must have is_package=true")
+      end
+
+      it "rejects adding already-assigned items to package and returns status 500" do
+        existing_package = FactoryBot.create(:item,
+          model_id: @package_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        @item.update(parent_id: existing_package.id)
+
+        package_data = {
+          inventory_code: "P-TEST-#{SecureRandom.hex(4)}",
+          model_id: @package_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          type: "package",
+          item_ids: [@item.id]
+        }
+
+        resp = post_with_headers(client, url, package_data)
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["details"]).to include("Cannot add packages or already assigned items")
+      end
+
+      it "rejects adding package items to another package and returns status 500" do
+        package_item = FactoryBot.create(:item,
+          model_id: @package_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        package_data = {
+          inventory_code: "P-TEST-#{SecureRandom.hex(4)}",
+          model_id: @package_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          type: "package",
+          item_ids: [package_item.id]
+        }
+
+        resp = post_with_headers(client, url, package_data)
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["details"]).to include("Cannot add packages or already assigned items")
+      end
+
+      it "rejects creating multiple packages at once and returns status 400" do
+        package_data = {
+          count: 3,
+          model_id: @package_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          type: "package",
+          item_ids: [@item.id]
+        }
+
+        resp = post_with_headers(client, url, package_data)
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["error"]).to eq("Cannot create multiple packages at once")
+      end
+
+      it "rejects package without items and returns status 500" do
+        package_data = {
+          inventory_code: "P-TEST-#{SecureRandom.hex(4)}",
+          model_id: @package_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          type: "package",
+          item_ids: []
+        }
+
+        resp = post_with_headers(client, url, package_data)
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["details"]).to include("Package must have at least one item")
+      end
     end
   end
 end

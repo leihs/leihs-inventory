@@ -237,15 +237,15 @@
                   (->> (jdbc/execute-one! tx)))]
     (when-not (:is_package model)
       (throw (ex-info "Model must have is_package=true for package type"
-                      {:model_id model-id})))))
+                      {:status 400 :model_id model-id})))))
 
 (defn assign-items-to-package [tx package-id item-ids]
   (when-not (seq item-ids)
-    (throw (ex-info "item_ids is required for package" {})))
+    (throw (ex-info "item_ids is required for package" {:status 400})))
   (let [invalid-items (validate-item-ids-for-package tx item-ids)]
     (when (seq invalid-items)
       (throw (ex-info "Cannot add packages or already assigned items to package"
-                      {:invalid_item_ids (map :id invalid-items)}))))
+                      {:status 400 :invalid_item_ids (map :id invalid-items)}))))
   (-> (sql/update :items)
       (sql/set {:parent_id package-id})
       (sql/where [:in :id item-ids])
@@ -302,7 +302,7 @@
        :do (when (= type "package")
              (validate-package-model tx model-id)
              (when-not (seq item_ids)
-               (throw (ex-info "Package must have at least one item" {}))))
+               (throw (ex-info "Package must have at least one item" {:status 400}))))
 
        (and count (> count 1))
        (let [codes (generate-inventory-codes tx pool_id count (= type "package"))
