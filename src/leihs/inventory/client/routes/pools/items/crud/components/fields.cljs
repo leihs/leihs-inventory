@@ -219,7 +219,7 @@
 
          (when (:disabled (:props block))
            ($ PopoverContent {:side "top"
-                              :class-name "w-[150px]"}
+                              :class-name "w-[150px] text-sm"}
               (case (:disabled-reason block)
                 :protected (t "pool.items.item.fields.disabled.protected")
                 :model-selected (t "pool.items.item.fields.disabled.model-selected")

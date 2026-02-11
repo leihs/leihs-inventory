@@ -39,7 +39,7 @@
 
         is-edit (not (or is-create is-delete))
 
-        {:keys [data model]} (jc (useLoaderData))
+        {:keys [data]} (jc (useLoaderData))
 
         ;; Define custom fields for items selection
         custom-fields [{:id "item_ids"
@@ -206,7 +206,7 @@
                           ;; default
                           (.. toast (error :statusText item-res))))))]
 
-;; Clear room_id when building changes
+    ;; Clear room_id when building changes
     (uix/use-effect
      (fn []
        (when (and building (not is-loading) building-is-dirty?)

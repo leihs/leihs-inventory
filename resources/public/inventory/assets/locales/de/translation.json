@@ -213,7 +213,10 @@
           "error": "Paket konnte nicht gelöscht werden"
         },
         "fields": {
-          "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
+          "disabled": {
+            "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
+            "generic": "Dieses Feld ist derzeit deaktiviert"
+          },
           "autocomplete": {
             "select": "Auswahl treffen",
             "search": "Suchbegriff eingeben",

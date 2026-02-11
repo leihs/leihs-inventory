@@ -11,9 +11,8 @@
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
    ["@@/textarea" :refer [Textarea]]
-   ["@@/tooltip" :refer [Tooltip TooltipContent TooltipTrigger]]
    ["date-fns" :refer [format]]
-   ["lucide-react" :refer [CalendarIcon]]
+   ["lucide-react" :refer [CalendarIcon Lock]]
    ["react-hook-form" :refer [useWatch]]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.attachments :refer [Attachments]]
@@ -74,157 +73,165 @@
                                true)]
 
     (when (and is-visible has-dependency-value)
-      ($ Tooltip
-         ($ TooltipTrigger {:asChild true}
-            ($ :div
-               (case (:component block)
-                 "items"
-                 ($ FormFieldArray {:form form
-                                    :name "item_ids"}
-                    ($ FormItem
-                       ($ SelectItems {:form form
-                                       :name (:name block)
-                                       :props (:props block)})
+      ($ Popover
+         ($ :div {:class-name "relative"}
+            (when (:disabled (:props block))
+              ($ PopoverTrigger {:asChild true
+                                 :class-name "absolute right-0 z-10 top-1/2 m-1"}
+                 ($ :button {:class-name "rounded text-muted-foreground bg-muted cursor-help"
+                             :data-test-id (str (:name block) "-disabled-info")}
+                    ($ Lock {:class-name "h-6 w-6 p-1"}))))
 
-                       ($ FormDescription
-                          ($ :<> (:description block)))
+            (case (:component block)
+              "items"
+              ($ FormFieldArray {:form form
+                                 :name "item_ids"}
+                 ($ FormItem
+                    ($ SelectItems {:form form
+                                    :name (:name block)
+                                    :props (:props block)})
 
-                       ($ FormMessage))
+                    ($ FormDescription
+                       ($ :<> (:description block)))
 
-                    ($ FormFieldArrayItems {:form form
-                                            :name (:name block)}
-                       ($ ItemItem)))
+                    ($ FormMessage))
 
-                 "attachments"
-                 ($ Attachments {:form form
-                                 :label (t (:label block))
-                                 :name (:name block)
-                                 :props (:props block)})
+                 ($ FormFieldArrayItems {:form form
+                                         :name (:name block)}
+                    ($ ItemItem)))
+
+              "attachments"
+              ($ Attachments {:form form
+                              :label (t (:label block))
+                              :name (:name block)
+                              :props (:props block)})
 
                  ;; instant search via values-url
-                 "autocomplete-search"
-                 ($ Autocomplete {:form form
-                                  :name (:name block)
-                                  :label (:label block)
-                                  :props (merge
-                                          translations
-                                          {:remap (fn [item] {:value (str (:id item))
-                                                              :label (:name item)})}
-                                          (:props block))})
+              "autocomplete-search"
+              ($ Autocomplete {:form form
+                               :name (:name block)
+                               :label (:label block)
+                               :props (merge
+                                       translations
+                                       {:remap (fn [item] {:value (str (:id item))
+                                                           :label (:name item)})}
+                                       (:props block))})
 
-                 "autocomplete"
-                 ($ Autocomplete {:form form
-                                  :name (:name block)
-                                  :label (:label block)
-                                  :props (merge translations
-                                                (if values-dep
-                                                  (let [values-url (-> block :props :values-url)
-                                                        dep (:field values-dep)]
-                                                    {:remap (fn [item] {:value (str (:id item))
-                                                                        :label (:name item)})
-                                                     :values-url (str values-url "?" dep "=" (.-value watched-dependency))})
-                                                  (:props block)))})
+              "autocomplete"
+              ($ Autocomplete {:form form
+                               :name (:name block)
+                               :label (:label block)
+                               :props (merge translations
+                                             (if values-dep
+                                               (let [values-url (-> block :props :values-url)
+                                                     dep (:field values-dep)]
+                                                 {:remap (fn [item] {:value (str (:id item))
+                                                                     :label (:name item)})
+                                                  :values-url (str values-url "?" dep "=" (.-value watched-dependency))})
+                                               (:props block)))})
 
                  ;; Radiogroup field
-                 "radio-group"
-                 ($ FormField {:control (cj control)
-                               :name (:name block)
-                               :render #($ FormItem {:class-name "mt-6"
-                                                     :title (when (:disabled (:props block))
-                                                              "This field is disabled/protected.")}
-                                           ($ FormLabel (t (:label block))
-                                              (when (-> block :props :required) " *"))
+              "radio-group"
+              ($ FormField {:control (cj control)
+                            :name (:name block)
+                            :render #($ FormItem {:class-name "mt-6"}
+                                        ($ FormLabel (t (:label block))
+                                           (when (-> block :props :required) " *"))
 
-                                           ($ FormControl
-                                              ($ RadioGroup {:onValueChange (aget % "field" "onChange")
-                                                             :defaultValue (aget % "field" "value")
-                                                             :class-name "flex space-x-1"
-                                                             :name (:name block)}
+                                        ($ FormControl
+                                           ($ RadioGroup {:onValueChange (aget % "field" "onChange")
+                                                          :defaultValue (aget % "field" "value")
+                                                          :class-name "flex space-x-1"
+                                                          :name (:name block)}
 
-                                                 (for [option (:options (:props block))]
-                                                   ($ FormItem {:key (:value option)
-                                                                :class-name "flex items-center space-x-2 space-y-0"}
-                                                      ($ FormControl
-                                                         ($ RadioGroupItem {:data-test-id (str (:name block) "-" (:value option))
-                                                                            :disabled (:disabled (:props block))
-                                                                            :value (:value option)}))
-                                                      ($ FormLabel {:class-name "font-normal"}
-                                                         (:label option)))))))})
+                                              (for [option (:options (:props block))]
+                                                ($ FormItem {:key (:value option)
+                                                             :class-name "flex items-center space-x-2 space-y-0"}
+                                                   ($ FormControl
+                                                      ($ RadioGroupItem {:data-test-id (str (:name block) "-" (:value option))
+                                                                         :disabled (:disabled (:props block))
+                                                                         :value (:value option)}))
+                                                   ($ FormLabel {:class-name "font-normal"}
+                                                      (:label option)))))))})
 
                  ;; Select field
-                 "select"
-                 ($ FormField {:control (cj control)
-                               :name (:name block)
-                               :render #($ FormItem {:class-name "mt-6"}
-                                           ($ FormLabel (t (:label block))
-                                              (when (-> block :props :required) "*"))
+              "select"
+              ($ FormField {:control (cj control)
+                            :name (:name block)
+                            :render #($ FormItem {:class-name "mt-6"}
+                                        ($ FormLabel (t (:label block))
+                                           (when (-> block :props :required) "*"))
 
-                                           ($ Select {:name (:name block)
-                                                      :disabled (:disabled (:props block))
-                                                      :onValueChange (aget % "field" "onChange")
-                                                      :defaultValue (aget % "field" "value")}
+                                        ($ Select {:name (:name block)
+                                                   :disabled (:disabled (:props block))
+                                                   :onValueChange (aget % "field" "onChange")
+                                                   :defaultValue (aget % "field" "value")}
 
-                                              ($ FormControl
-                                                 ($ SelectTrigger {:name (:name block)}
-                                                    ($ SelectValue {:placeholder (:placeholder (:props block))})))
+                                           ($ FormControl
+                                              ($ SelectTrigger {:name (:name block)}
+                                                 ($ SelectValue {:placeholder (:placeholder (:props block))})))
 
-                                              ($ SelectContent {:data-test-id (str (:name block) "-options")}
-                                                 (for [option (:options (:props block))]
-                                                   ($ SelectItem {:key (:value option)
-                                                                  :value (:value option)
-                                                                  :class-name "cursor-pointer"}
-                                                      ($ :button {:type "button"}
-                                                         (:label option)))))
-                                              ($ FormMessage)))})
+                                           ($ SelectContent {:data-test-id (str (:name block) "-options")}
+                                              (for [option (:options (:props block))]
+                                                ($ SelectItem {:key (:value option)
+                                                               :value (:value option)
+                                                               :class-name "cursor-pointer"}
+                                                   ($ :button {:type "button"}
+                                                      (:label option)))))
+                                           ($ FormMessage)))})
 
                  ;; Calendar field 
-                 "calendar"
-                 ($ FormField {:control (cj control)
-                               :name (:name block)
-                               :render #($ FormItem {:class-name "flex flex-col mt-6"}
-                                           ($ FormLabel (t (:label block))
-                                              (when (-> block :props :required) "*"))
-                                           (let [field-value (aget % "field" "value")]
-                                             ($ Popover
-                                                ($ PopoverTrigger {:asChild true}
-                                                   ($ FormControl
-                                                      ($ Button {:name (:name block)
-                                                                 :disabled (:disabled (:props block))
-                                                                 :variant "outline"
-                                                                 :class-name "w-[240px] pl-3 text-left font-normal disabled:cursor-not-allowed"}
-                                                         (if field-value
-                                                           (format field-value "yyyy-MM-dd")
-                                                           ($ :span {:class-name "text-muted-foreground"}
-                                                              "Select date"))
-                                                         ($ CalendarIcon {:class-name "ml-auto h-4 w-4 opacity-50"}))))
+              "calendar"
+              ($ FormField {:control (cj control)
+                            :name (:name block)
+                            :render #($ FormItem {:class-name "flex flex-col mt-6"}
+                                        ($ FormLabel (t (:label block))
+                                           (when (-> block :props :required) "*"))
+                                        (let [field-value (aget % "field" "value")]
+                                          ($ Popover
+                                             ($ PopoverTrigger {:asChild true}
+                                                ($ FormControl
+                                                   ($ Button {:name (:name block)
+                                                              :disabled (:disabled (:props block))
+                                                              :variant "outline"
+                                                              :class-name "w-[240px] pl-3 text-left font-normal disabled:cursor-not-allowed"}
+                                                      (if field-value
+                                                        (format field-value "yyyy-MM-dd")
+                                                        ($ :span {:class-name "text-muted-foreground"}
+                                                           "Select date"))
+                                                      ($ CalendarIcon {:class-name "ml-auto h-4 w-4 opacity-50"}))))
 
-                                                ($ PopoverContent {:class-name "w-auto p-0"
-                                                                   :align "start"}
-                                                   ($ Calendar (merge {:captionLayout "dropdown"
-                                                                       :onSelect (aget % "field" "onChange")
-                                                                       :selected (aget % "field" "value")}
-                                                                      (:props block))))))
+                                             ($ PopoverContent {:class-name "w-auto p-0"
+                                                                :align "start"}
+                                                ($ Calendar (merge {:captionLayout "dropdown"
+                                                                    :onSelect (aget % "field" "onChange")
+                                                                    :selected (aget % "field" "value")}
+                                                                   (:props block))))))
 
-                                           ($ FormMessage))})
+                                        ($ FormMessage))})
 
                  ;; "default case - this renders a component from the component map"
-                 (let [comp (get fields-map (:component block))]
-                   (when comp
-                     ($ FormField {:control (cj control)
-                                   :name (:name block)
-                                   :render #($ FormItem {:class-name "mt-6"}
-                                               ($ FormLabel (t (:label block))
-                                                  (when (-> block :props :required) "*"))
-                                               ($ FormControl
-                                                  ($ comp (merge
-                                                           (:props block)
-                                                           (:field (jc %)))))
+              (let [comp (get fields-map (:component block))]
+                (when comp
+                  ($ FormField {:control (cj control)
+                                :name (:name block)
+                                :render #($ FormItem {:class-name "mt-6"}
+                                            ($ FormLabel (t (:label block))
+                                               (when (-> block :props :required) "*"))
+                                            ($ FormControl
+                                               ($ comp (merge
+                                                        (:props block)
+                                                        (:field (jc %)))))
 
-                                               ($ FormDescription
-                                                  ($ :<> (:description block)))
+                                            ($ FormDescription
+                                               ($ :<> (:description block)))
 
-                                               ($ FormMessage))}))))))
+                                            ($ FormMessage))})))))
+
          (when (:disabled (:props block))
-           ($ TooltipContent {:side "left"
-                              :class-name "w-[150px]"}
-              (t "pool.packages.package.fields.protected")))))))
+           ($ PopoverContent {:side "top"
+                              :class-name "w-[150px] text-sm"}
+              (case (:disabled-reason block)
+                :protected (t "pool.packages.package.fields.disabled.protected")
+                ;; Fallback for fields disabled without a reason
+                (t "pool.packages.package.fields.disabled.generic"))))))))

@@ -214,7 +214,10 @@
           "error": "Package could not be deleted"
         },
         "fields": {
-          "protected": "Only the owner can edit this field",
+          "disabled": {
+            "protected": "Only the owner can edit this field",
+            "generic": "This field is currently disabled"
+          },
           "autocomplete": {
             "select": "Make a selection",
             "search": "Enter search term",
