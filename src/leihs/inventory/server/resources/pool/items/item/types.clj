@@ -19,6 +19,7 @@
           (s/optional-key :is_broken) s/Bool
           (s/optional-key :is_incomplete) s/Bool
           (s/optional-key :is_inventory_relevant) s/Bool
+          (s/optional-key :item_ids) [s/Uuid]
           (s/optional-key :item_version) (s/maybe s/Str)
           (s/optional-key :last_check) (s/maybe Date)
           (s/optional-key :name) (s/maybe s/Str)
