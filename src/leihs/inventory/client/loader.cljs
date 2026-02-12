@@ -189,6 +189,12 @@
                     (.get (str "/inventory/" pool-id "/models/" model-id))
                     (.then #(jc (.-data %)))))
 
+        items (when package-id
+                (-> http-client
+                    (.get (str "/inventory/" pool-id "/items/?parent_id=" package-id)
+                          #js {:cache false})
+                    (.then #(jc (.-data %)))))
+
         data (if item-path
                (-> http-client
                    (.get (str "/inventory/" pool-id "/fields/?resource_id=" package-id "&target_type=package")
@@ -200,9 +206,13 @@
                          #js {:cache false})
                    (.then #(jc (.-data %)))))]
 
-    (.. (js/Promise.all (cond-> [data] model (conj model)))
-        (then (fn [[data & [model]]]
+    ;; destructuring for model is probably broken at the moment
+    (.. (js/Promise.all (cond-> [data]
+                          items (conj items)
+                          model (conj model)))
+        (then (fn [[data & [items model]]]
                 {:data data
+                 :items (if items items nil)
                  :model (if model model nil)})))))
 
 (defn models-crud-page [route-data]

@@ -43,7 +43,7 @@
 
         is-edit (not (or is-create is-delete))
 
-        {:keys [data]} (jc (useLoaderData))
+        {:keys [data items]} (jc (useLoaderData))
 
         ;; Define custom fields for items selection
         custom-fields [{:id "item_ids"
@@ -51,7 +51,7 @@
                         :component "items"
                         :group "Content"
                         :required true
-                        :default []
+                        :default (if items items [])
                         :props {:text {:select "pool.packages.package.fields.items.select"
                                        :search "pool.packages.package.fields.items.search"
                                        :searching "pool.packages.package.fields.items.searching"
