@@ -139,6 +139,7 @@ feature "Create model", type: :feature do
 
     click_on "Create"
 
+    expect(page).to have_content "Model successfully created"
     expect(page).to have_content "Inventory List"
     expect(page).to have_content "#{product} #{version}"
 

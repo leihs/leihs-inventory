@@ -1,15 +1,16 @@
-(ns leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.select-group
+(ns leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.fields.groups-field
   (:require
    ["@/components/ui/command" :refer [Command CommandEmpty CommandInput
                                       CommandItem CommandList]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
-   ["@@/form" :refer [FormControl]]
+   ["@@/form" :refer [FormControl FormItem FormLabel FormDescription FormMessage]]
    ["@@/spinner" :refer [Spinner]]
+   ["@@/table" :refer [TableCell]]
    ["lucide-react" :refer [Check ChevronsUpDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
-   [leihs.inventory.client.components.form.form-field-array :refer [use-array-items]]
+   [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray FormFieldArrayItems use-array-item use-array-items]]
    [leihs.inventory.client.lib.client :refer [http-client safe-query]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -25,6 +26,11 @@
           (when (= id (:id item))
             idx))
         (map-indexed vector items)))
+
+(defui GroupItem []
+  (let [{:keys [field]} (use-array-item)]
+    ($ TableCell {:class-name "pl-4"}
+       (:name field))))
 
 ;; Select component - handles search and selection UI
 (defui SelectGroup [{:keys [name props]}]
@@ -140,3 +146,22 @@
                                           (when (= 2 (:level element)) " font-medium ")
                                           " truncate")}
                         (:name element))))))))))
+
+(defui GroupsField [{:keys [form block]}]
+  (let [[t] (useTranslation)]
+    ($ FormFieldArray {:form form
+                       :name (:name block)}
+       ($ FormItem {:class-name "mt-6"}
+          ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
+          ($ SelectGroup {:form form
+                          :name (:name block)
+                          :props (:props block)})
+
+          ($ FormDescription
+             ($ :<> (:description block)))
+
+          ($ FormMessage))
+
+       ($ FormFieldArrayItems {:form form
+                               :name (:name block)}
+          ($ GroupItem)))))

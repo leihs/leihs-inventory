@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.components.form.attachments
+(ns leihs.inventory.client.components.form.fields.attachments-field
   (:require
    ["@@/button" :refer [Button]]
    ["@@/dropzone" :refer [Dropzone DropzoneArea DropzoneFiles ErrorMessages
@@ -109,7 +109,7 @@
 
                                                    ($ Trash {:className "w-4 h-4"})))))))))))))})))
 
-(def Attachments
+(def AttachmentsField
   (uix/as-react
    (fn [props]
      (main props))))

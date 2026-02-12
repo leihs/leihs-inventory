@@ -1,16 +1,23 @@
-(ns leihs.inventory.client.routes.pools.packages.crud.components.select-package-item
+(ns leihs.inventory.client.routes.pools.packages.crud.components.fields.items-field
   (:require
    ["@/components/ui/command" :refer [Command CommandEmpty CommandInput
                                       CommandItem CommandList]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@/components/ui/tooltip" :refer [Tooltip TooltipContent TooltipTrigger]]
    ["@@/button" :refer [Button]]
-   ["@@/form" :refer [FormControl]]
+   ["@@/form" :refer [FormDescription FormField FormItem FormMessage]]
+
    ["@@/spinner" :refer [Spinner]]
+   ["@@/table" :refer [TableCell]]
    ["lucide-react" :refer [Check ChevronsUpDown]]
    ["react-i18next" :refer [useTranslation]]
+
    ["react-router-dom" :as router]
-   [leihs.inventory.client.components.form.form-field-array :refer [use-array-items]]
+   [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray
+                                                                    FormFieldArrayItems
+                                                                    use-array-items
+                                                                    use-array-item]]
+   [leihs.inventory.client.components.image-cell :refer [ImageCell]]
    [leihs.inventory.client.lib.client :refer [http-client safe-query]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -186,3 +193,34 @@
                           ($ :img {:src (:url selected)
                                    :alt (item-display-name selected)
                                    :class-name "w-32 h-32 object-contain"})))))))))))
+
+(defui PackageItem []
+  (let [{:keys [field]} (use-array-item)]
+    ($ :<>
+       ;; Image cell with preview dialog
+       ($ ImageCell {:field field})
+
+       ;; Inventory Code cell
+       ($ TableCell
+          ($ :div {:class-name "flex flex-col"}
+             ($ :strong (:inventory_code field))
+             (:model_name field))))))
+
+(defui ItemsField [{:keys [form block]}]
+  ($ FormField {:control (cj (.-control form))
+                :name (:name block)
+                :render #($ FormFieldArray {:form form
+                                            :name "item_ids"}
+                            ($ FormItem
+                               ($ SelectPackageItem {:form form
+                                                     :name (:name block)
+                                                     :props (:props block)})
+
+                               ($ FormDescription
+                                  ($ :<> (:description block)))
+
+                               ($ FormMessage))
+
+                            ($ FormFieldArrayItems {:form form
+                                                    :name (:name block)}
+                               ($ PackageItem)))}))

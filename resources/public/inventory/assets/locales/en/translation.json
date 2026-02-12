@@ -1,4 +1,12 @@
 {
+  "OK": "OK",
+  "Yes": "Yes",
+  "No": "No",
+  "Unborrowable": "Unborrowable",
+  "Incomplete": "Incomplete",
+  "Broken": "Broken",
+  "Running Account": "Running Account",
+  "Investment": "Investment",
   "fields": {
     "Mandatory data": {
       "title": "Mandatory data",
