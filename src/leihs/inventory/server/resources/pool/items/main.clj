@@ -318,10 +318,10 @@
 
        :else
        (let [result (create-item tx item-data-coerced properties-json)]
-         (when (and (= type "package") (seq item_ids))
+         (when (seq item_ids)
            (assign-items-to-package tx (:id result) item_ids))
          (response (cond-> result
-                     (= type "package")
+                     (seq item_ids)
                      (assoc :item_ids item_ids))))))
     (catch Exception e
       (log-by-severity ERROR_CREATE_ITEM e)
