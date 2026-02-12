@@ -31,8 +31,11 @@
      (when shortname
        (let [query (-> (sql/select :inventory_code)
                        (sql/from :items)
-                       (sql/where [:= :owner_id pool-id]
-                                  [:ilike :inventory_code (str shortname "%")])
+                       (sql/where [:and
+                                   [:= :owner_id pool-id]
+                                   [:or
+                                    [:ilike :inventory_code (str shortname "%")]
+                                    [:ilike :inventory_code (str "P-" shortname "%")]]])
                        (sql/order-by [:created_at :desc])
                        (sql/limit 1000))
              results (jdbc/query tx (sql-format query))

@@ -17,6 +17,9 @@ describe "Swagger Inventory Endpoints - Items Update" do
         product: "Test Product",
         is_package: false)
 
+      @package_model = FactoryBot.create(:package_model,
+        product: "Test Package Model")
+
       @building = FactoryBot.create(:building, name: "Test Building")
       @room = FactoryBot.create(:room,
         name: "Test Room",
@@ -236,6 +239,62 @@ describe "Swagger Inventory Endpoints - Items Update" do
         expect(resp.body["error"]).to eq("Unpermitted fields")
         expect(resp.body["unpermitted-fields"]).to include("serial_number")
         expect(resp.body["unpermitted-fields"]).to include("properties_mac_address")
+      end
+
+      it "rejects duplicate inventory_code on item update and returns 409 with non-prefixed proposed_code" do
+        # Create another item with a code we'll try to use
+        FactoryBot.create(:item,
+          inventory_code: "EXISTING-CODE",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {
+          inventory_code: "EXISTING-CODE",
+          model_id: @model.id,
+          room_id: @room.id
+        }
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["error"]).to eq("Inventory code already exists")
+        expect(resp.body["proposed_code"]).to be_a(String)
+        expect(resp.body["proposed_code"]).not_to start_with("P-")
+      end
+
+      it "rejects duplicate inventory_code on package update and returns 409 with P-prefixed proposed_code" do
+        # Create a package
+        package = FactoryBot.create(:item,
+          inventory_code: "P-PKG-ORIGINAL",
+          model_id: @package_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        # Create another package with code we'll try to use
+        FactoryBot.create(:item,
+          inventory_code: "P-PKG-EXISTING",
+          model_id: @package_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        url = "/inventory/#{inventory_pool_id}/items/#{package.id}"
+        update_data = {
+          inventory_code: "P-PKG-EXISTING",
+          model_id: @package_model.id,
+          room_id: @room.id
+        }
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["error"]).to eq("Inventory code already exists")
+        expect(resp.body["proposed_code"]).to be_a(String)
+        expect(resp.body["proposed_code"]).to start_with("P-")
       end
     end
   end

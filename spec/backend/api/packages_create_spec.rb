@@ -203,6 +203,76 @@ describe "Swagger Inventory Endpoints - Packages Create" do
         expect(resp.status).to eq(400)
         expect(resp.body["details"]).to include("Package must have at least one item")
       end
+
+      it "rejects duplicate inventory_code and returns 409 with P-prefixed proposed_code" do
+        existing_code = "P-DUPLICATE-CODE"
+        FactoryBot.create(:item,
+          inventory_code: existing_code,
+          model_id: @package_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        package_data = {
+          inventory_code: existing_code,
+          model_id: @package_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          type: "package",
+          item_ids: [@item.id]
+        }
+
+        resp = post_with_headers(client, url, package_data)
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["error"]).to eq("Inventory code already exists")
+        expect(resp.body["proposed_code"]).to be_a(String)
+        expect(resp.body["proposed_code"]).to start_with("P-")
+      end
+
+      it "proposes package codes considering both items and packages (shared sequence)" do
+        pool_shortname = @inventory_pool.shortname
+
+        # Create items and packages with mixed codes
+        FactoryBot.create(:item,
+          inventory_code: "#{pool_shortname}1",
+          model_id: @regular_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        FactoryBot.create(:item,
+          inventory_code: "P-#{pool_shortname}2",
+          model_id: @package_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        FactoryBot.create(:item,
+          inventory_code: "#{pool_shortname}3",
+          model_id: @regular_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        # Try to create package with duplicate code to trigger proposal
+        package_data = {
+          inventory_code: "P-#{pool_shortname}2",
+          model_id: @package_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          type: "package",
+          item_ids: [@item.id]
+        }
+
+        resp = post_with_headers(client, url, package_data)
+
+        expect(resp.status).to eq(409)
+        # Should propose P-{shortname}4 because max existing is 3 (from regular item)
+        expect(resp.body["proposed_code"]).to eq("P-#{pool_shortname}4")
+      end
     end
   end
 end

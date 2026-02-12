@@ -55,17 +55,20 @@
         sql-format
         (->> (jdbc/execute! tx)))))
 
+(defn model-is-package? [tx model-id]
+  (-> (sql/select :is_package)
+      (sql/from :models)
+      (sql/where [:= :id model-id])
+      sql-format
+      (->> (jdbc/execute-one! tx)
+           :is_package)))
+
 (defn get-resource [{:keys [tx]
                      {{:keys [item_id]} :path} :parameters
                      :as request}]
   (try
     (if-let [item (get-one tx item_id)]
-      (let [is-package? (-> (sql/select :is_package)
-                            (sql/from :models)
-                            (sql/where [:= :id (:model_id item)])
-                            sql-format
-                            (->> (jdbc/execute-one! tx)
-                                 :is_package))
+      (let [is-package? (model-is-package? tx (:model_id item))
             response-data (-> item
                               flatten-properties
                               (coerce-field-values out-coercions))]
@@ -99,7 +102,7 @@
                                 {:status 400 :invalid_item_ids (map :id invalid-items)})))))
           (if (and inventory-code (inventory-code-exists? tx inventory-code item_id))
             (status {:body {:error "Inventory code already exists"
-                            :proposed_code (inv-code/propose tx pool_id)}}
+                            :proposed_code (inv-code/propose tx pool_id (model-is-package? tx (:model_id item)))}}
                     409)
             (let [item-data-coerced (coerce-field-values item-data in-coercions)
                   properties-json (merge (:properties item) properties)
@@ -117,12 +120,7 @@
                   (remove-items-from-package tx to-remove)
                   (assign-items-to-package tx item_id item-ids-param)))
               (if result
-                (let [is-package? (-> (sql/select :is_package)
-                                      (sql/from :models)
-                                      (sql/where [:= :id (:model_id result)])
-                                      sql-format
-                                      (->> (jdbc/execute-one! tx)
-                                           :is_package))
+                (let [is-package? (model-is-package? tx (:model_id result))
                       response-data (-> result
                                         flatten-properties
                                         (coerce-field-values out-coercions))]
