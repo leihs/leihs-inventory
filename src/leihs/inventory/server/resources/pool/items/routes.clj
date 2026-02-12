@@ -5,8 +5,7 @@
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
-   [schema.core :as s])
-  (:import [java.io InputStream]))
+   [schema.core :as s]))
 
 (defn routes []
   ["/items/"
@@ -23,10 +22,7 @@
                      "text/csv"
                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
           :responses {200 {:description "OK"
-                           :body (s/conditional
-                                  string? s/Str
-                                  #(instance? InputStream %) s/Any
-                                  :else types/get-items-response)}
+                           :body (s/->Either [types/get-items-response s/Str s/Any])}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
