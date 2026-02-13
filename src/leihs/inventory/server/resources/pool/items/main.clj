@@ -217,16 +217,22 @@
     (-> (jdbc/execute-one! tx query)
         some?)))
 
-(defn validate-item-ids-for-package [tx item-ids]
-  (-> (sql/select :items.id)
-      (sql/from :items)
-      (sql/join :models [:= :models.id :items.model_id])
-      (sql/where [:in :items.id item-ids])
-      (sql/where [:or
-                  [:= :models.is_package true]
-                  [:not= :items.parent_id nil]])
-      sql-format
-      (->> (jdbc-query tx))))
+(defn validate-item-ids-for-package
+  ([tx item-ids] (validate-item-ids-for-package tx item-ids nil))
+  ([tx item-ids exclude-parent-id]
+   (-> (sql/select :items.id)
+       (sql/from :items)
+       (sql/join :models [:= :models.id :items.model_id])
+       (sql/where [:in :items.id item-ids])
+       (sql/where [:or
+                   [:= :models.is_package true]
+                   [:and
+                    [:not= :items.parent_id nil]
+                    (if exclude-parent-id
+                      [:not= :items.parent_id exclude-parent-id]
+                      true)]])
+       sql-format
+       (->> (jdbc-query tx)))))
 
 (defn validate-package-model [tx model-id]
   (let [model (-> (sql/select :is_package)
@@ -241,7 +247,7 @@
 (defn assign-items-to-package [tx package-id item-ids]
   (when-not (seq item-ids)
     (throw (ex-info "item_ids is required for package" {:status 400})))
-  (let [invalid-items (validate-item-ids-for-package tx item-ids)]
+  (let [invalid-items (validate-item-ids-for-package tx item-ids package-id)]
     (when (seq invalid-items)
       (throw (ex-info "Cannot add packages or already assigned items to package"
                       {:status 400 :invalid_item_ids (map :id invalid-items)}))))

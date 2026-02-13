@@ -11,8 +11,7 @@
                                                                       flatten-properties
                                                                       split-item-data
                                                                       validate-field-permissions]]
-   [leihs.inventory.server.resources.pool.items.main :refer [assign-items-to-package
-                                                             validate-item-ids-for-package]]
+   [leihs.inventory.server.resources.pool.items.main :refer [assign-items-to-package]]
    [next.jdbc :as jdbc]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]
@@ -93,13 +92,6 @@
                                                  (dissoc :id :item_ids)
                                                  split-item-data)
               inventory-code (:inventory_code item-data)]
-          (when item-ids-param
-            (when-not (seq item-ids-param)
-              (throw (ex-info "item_ids cannot be empty" {:status 400})))
-            (let [invalid-items (validate-item-ids-for-package tx item-ids-param)]
-              (when (seq invalid-items)
-                (throw (ex-info "Cannot add packages or already assigned items to package"
-                                {:status 400 :invalid_item_ids (map :id invalid-items)})))))
           (if (and inventory-code (inventory-code-exists? tx inventory-code item_id))
             (status {:body {:error "Inventory code already exists"
                             :proposed_code (inv-code/propose tx pool_id (model-is-package? tx (:model_id item)))}}
