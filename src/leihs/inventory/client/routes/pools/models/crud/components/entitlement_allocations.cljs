@@ -46,7 +46,16 @@
                                                  :name "entitlements"})))
         handle-quantity-change
         (fn [index val]
-          (set-value (str "entitlements." index ".quantity") val))]
+          (set-value (str "entitlements." index ".quantity") val)
+          (let [entitlements (vec (jc (get-values "entitlements")))
+                new-total (reduce-kv
+                           (fn [acc i item]
+                             (+ acc (if (= i index)
+                                      (js/parseInt (or val "0"))
+                                      (js/parseInt (or (:quantity item) "0")))))
+                           0
+                           entitlements)]
+            (set-allocations! new-total)))]
 
     (uix/use-effect
      (fn []
