@@ -120,8 +120,8 @@
                       ($ TableRow {:class-name "" :key (:id field)}
 
                          ($ TableCell {:class-name (str "w-4 h-full p-0"
-                                                        (if (> (+ (js/parseInt items) 1)
-                                                               (js/parseInt allocations))
+                                                        (if (<= (js/parseInt allocations)
+                                                                (js/parseInt items))
                                                           " bg-green-500"
                                                           " bg-red-500"))})
 

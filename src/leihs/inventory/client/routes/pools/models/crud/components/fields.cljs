@@ -6,6 +6,7 @@
    ["@@/input" :refer [Input]]
    ["@@/textarea" :refer [Textarea]]
    ["react-i18next" :refer [useTranslation]]
+   ["react-router-dom" :refer [useLoaderData]]
    [leihs.inventory.client.components.form.attachments :refer [Attachments]]
    [leihs.inventory.client.components.form.autocomplete :refer [Autocomplete]]
    [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray FormFieldArrayItems]]
@@ -25,7 +26,8 @@
    "textarea" Textarea})
 
 (defui field [{:keys [control form block]}]
-  (let [[t] (useTranslation)]
+  (let [[t] (useTranslation)
+        {:keys [data]} (jc (useLoaderData))]
     (cond
       (-> block :component (= "accessory-list"))
       ($ AccessoryList {:control control
@@ -33,7 +35,7 @@
 
       (-> block :component (= "entitlement-allocations"))
       ($ EntitlementAllocations {:control control
-                                 :items "0"
+                                 :items (str (or (:rentable data) 0))
                                  :form form
                                  :props (:props block)})
 
