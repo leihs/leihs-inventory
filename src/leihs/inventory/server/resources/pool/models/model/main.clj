@@ -102,7 +102,8 @@
                               [:= :items.inventory_pool_id pool-id]
                               [:= :items.model_id model-id]
                               [:= :items.is_borrowable true]
-                              [:is :items.retired nil]])
+                              [:is :items.retired nil]
+                              [:is :items.parent_id nil]])
                   sql-format)]
     (or (:rentable (jdbc/execute-one! tx query)) 0)))
 
