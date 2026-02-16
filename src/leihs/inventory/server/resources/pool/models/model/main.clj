@@ -101,7 +101,8 @@
                   (sql/where [:and
                               [:= :items.inventory_pool_id pool-id]
                               [:= :items.model_id model-id]
-                              [:= :items.is_borrowable true]])
+                              [:= :items.is_borrowable true]
+                              [:is :items.retired nil]])
                   sql-format)]
     (or (:rentable (jdbc/execute-one! tx query)) 0)))
 
