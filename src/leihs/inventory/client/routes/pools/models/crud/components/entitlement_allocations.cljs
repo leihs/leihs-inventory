@@ -12,10 +12,8 @@
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useLoaderData]]
-   [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [uix.core :as uix :refer [$ defui]]
-   [uix.dom]))
+   [uix.core :as uix :refer [$ defui]]))
 
 (defn find-name-by-id [vec id]
   (some #(when (= (:id %) id) (:name %)) vec))
@@ -72,7 +70,7 @@
                                           entitlements)]
 
          (set-allocations! allocations-combined)))
-     [fields get-values allocations])
+     [fields get-values])
 
     ($ :div {:class-name "flex flex-col gap-2"}
        ($ Label (t "pool.model.entitlements.blocks.entitlements.label" #js {:amount (str items)}))
