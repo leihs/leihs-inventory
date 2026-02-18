@@ -31,7 +31,7 @@
             idx))
         (map-indexed vector items)))
 
-(defui main [{:keys [control items form props]}]
+(defui main [{:keys [control rentable form props]}]
   (let [{:keys [entitlement-groups]} (useLoaderData)
         [t] (useTranslation)
         [allocations set-allocations!] (uix/use-state 0)
@@ -39,11 +39,12 @@
         [open set-open!] (uix/use-state false)
         buttonRef (uix/use-ref nil)
         set-value (aget form "setValue")
-        get-values (aget form "getValues")
+        watch (aget form "watch")
 
         {:keys [fields append remove]} (jc (hook-form/useFieldArray
                                             (cj {:control control
                                                  :name "entitlements"})))
+        entitlements-watch (jc (watch "entitlements"))
         handle-quantity-change
         (fn [index val]
           (set-value (str "entitlements." index ".quantity") val))]
@@ -56,17 +57,16 @@
 
     (uix/use-effect
      (fn []
-       (let [entitlements (jc (get-values "entitlements"))
-             allocations-combined (reduce (fn [acc item]
+       (let [allocations-combined (reduce (fn [acc item]
                                             (+ acc (js/parseInt (:quantity item))))
                                           0
-                                          entitlements)]
+                                          entitlements-watch)]
 
          (set-allocations! allocations-combined)))
-     [fields get-values allocations])
+     [entitlements-watch])
 
     ($ :div {:class-name "flex flex-col gap-2"}
-       ($ Label (t "pool.model.entitlements.blocks.entitlements.label" #js {:amount (str items)}))
+       ($ Label (t "pool.model.entitlements.blocks.entitlements.label" #js {:amount (str rentable)}))
 
        ($ Popover {:open open
                    :on-open-change #(set-open! %)}
@@ -75,7 +75,7 @@
                         :on-click #(set-open! (not open))
                         :variant "outline"
                         :role "combobox"
-                        :class-name (str "justify-between w-full")}
+                        :class-name "justify-between w-full"}
                 (t "pool.model.entitlements.blocks.entitlements.select")
 
                 ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
@@ -120,7 +120,7 @@
                       ($ TableRow {:class-name "" :key (:id field)}
 
                          ($ TableCell {:class-name (str "w-4 h-full p-0"
-                                                        (if (> (+ (js/parseInt items) 1)
+                                                        (if (> (+ (js/parseInt rentable) 1)
                                                                (js/parseInt allocations))
                                                           " bg-green-500"
                                                           " bg-red-500"))})
