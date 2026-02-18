@@ -65,13 +65,12 @@
         (throw e)))))
 
 (defn- enrich-model-with-image [model images-by-cover-id images-by-target-id]
-  (if-let [image (cond
-                   (:cover_image_id model) (get images-by-cover-id (:cover_image_id model))
-                   :else (get images-by-target-id (:id model)))]
+  (let [image (cond
+                (:cover_image_id model) (get images-by-cover-id (:cover_image_id model))
+                :else (get images-by-target-id (:id model)))]
     (assoc model
-           :image_id (:id image)
-           :content_type (:content_type image))
-    model))
+           :image_id (some-> image :id)
+           :content_type (:content_type image))))
 
 (defn fetch-thumbnails-for-ids [tx model-cover-ids]
   (if (empty? model-cover-ids)
@@ -142,7 +141,6 @@
 
 (defn model->enrich-with-image-attr
   [pool-id]
-  (fn [{:keys [id image_id content_type] :as m}]
-    (cond-> m
-      image_id (assoc :url (str "/inventory/" pool-id "/models/" id "/images/" image_id)
-                      :content_type content_type))))
+  (fn [{:keys [id image_id] :as m}]
+    (assoc m :url (when image_id
+                    (str "/inventory/" pool-id "/models/" id "/images/" image_id)))))

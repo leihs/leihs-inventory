@@ -18,9 +18,6 @@
           :parameters {:path types/path-params
                        :query types/query-params}
           :handler items/index-resources
-          :produces ["application/json"
-                     "text/csv"
-                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
           :responses {200 {:description "OK"
                            :body (s/->Either [types/get-items-response s/Str s/Any])}
                       404 {:description "Not Found"}
