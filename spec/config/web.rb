@@ -1,5 +1,5 @@
 require "faraday"
-require "faraday_middleware"
+require "faraday/multipart"
 
 ACCEPT_PNG = "image/png"
 ACCEPT_CSV = "text/csv"
