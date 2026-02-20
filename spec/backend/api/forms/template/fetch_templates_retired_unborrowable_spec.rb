@@ -68,7 +68,7 @@ require_relative "../_common"
 
           expect(resp.body["models"].count).to eq(1)
           expect(resp.body["models"].first["quantity"]).to eq(1)
-          expect(resp.body["models"].first["available"]).to eq(0)
+          expect(resp.body["models"].first["available_quantity"]).to eq(0)
           expect(resp.body["models"].first["is_quantity_ok"]).to eq(false)
         end
       end
@@ -114,7 +114,7 @@ require_relative "../_common"
 
           expect(resp.body["models"].count).to eq(1)
           expect(resp.body["models"].first["quantity"]).to eq(1)
-          expect(resp.body["models"].first["available"]).to eq(0)
+          expect(resp.body["models"].first["available_quantity"]).to eq(0)
           expect(resp.body["models"].first["is_quantity_ok"]).to eq(false)
         end
 
@@ -125,7 +125,7 @@ require_relative "../_common"
 
           expect(resp.body["models"].count).to eq(1)
           expect(resp.body["models"].first["quantity"]).to eq(1)
-          expect(resp.body["models"].first["available"]).to eq(0)
+          expect(resp.body["models"].first["available_quantity"]).to eq(0)
           expect(resp.body["models"].first["is_quantity_ok"]).to eq(false)
         end
       end
@@ -154,7 +154,7 @@ require_relative "../_common"
 
           expect(resp.body["models"].count).to eq(1)
           expect(resp.body["models"].first["quantity"]).to eq(1)
-          expect(resp.body["models"].first["available"]).to eq(0)
+          expect(resp.body["models"].first["available_quantity"]).to eq(0)
           expect(resp.body["models"].first["is_quantity_ok"]).to eq(false)
         end
 
@@ -165,7 +165,7 @@ require_relative "../_common"
 
           expect(resp.body["models"].count).to eq(1)
           expect(resp.body["models"].first["quantity"]).to eq(1)
-          expect(resp.body["models"].first["available"]).to eq(0)
+          expect(resp.body["models"].first["available_quantity"]).to eq(0)
           expect(resp.body["models"].first["is_quantity_ok"]).to eq(false)
         end
       end

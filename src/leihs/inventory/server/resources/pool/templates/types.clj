@@ -11,7 +11,7 @@
                     ::sp/product
                     ::sp/version
                     ::sp/quantity
-                    ::sp/available
+                    ::sp/available_quantity
                     ::sp/is_quantity_ok]))
 
 (sa/def ::models
