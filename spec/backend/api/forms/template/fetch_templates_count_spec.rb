@@ -47,7 +47,7 @@ def expect_qty_availability(rows, expected, ignore_order: true)
   actual = rows.map do |r|
     [
       r[:quantity] || r["quantity"],
-      r[:available] || r["available"],
+      r[:borrowable_quantity] || r["borrowable_quantity"],
       r[:is_quantity_ok] || r["is_quantity_ok"]
     ]
   end
