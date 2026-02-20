@@ -17,7 +17,7 @@
                                    [:= :items.inventory_pool_id pool-id]
                                    [:= :items.model_id :inventory.id]
                                    [:= :items.is_borrowable true]]))
-                   :rentable_quantity]
+                   :borrowable_quantity]
 
                   [(-> (sql/select :%count.*) ; [[:count :*]]
                        (sql/from :items)

@@ -12,7 +12,7 @@
 (defui ModelItem []
   (let [[t] (useTranslation)
         {:keys [field update index form]} (use-array-item)
-        available (:available_quantity field)
+        available (:borrowable_quantity field)
         entitled-in-groups (or (:entitled_in_other_groups field) (:entitled_in_groups field))
         net-available (- available entitled-in-groups)
         quantity (:quantity field)

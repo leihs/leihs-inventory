@@ -74,7 +74,7 @@
   (sa/coll-of ::attachment :kind vector? :min-count 0))
 (sa/def :entitlement/group_id uuid?)
 (sa/def ::quantity non-neg-number?)
-(sa/def ::available_quantity non-neg-number?)
+(sa/def ::borrowable_quantity non-neg-number?)
 
 (sa/def :json/entitlement (sa/keys :opt-un [::name ::position :nil/id]
                                    :req-un [:entitlement/group_id
