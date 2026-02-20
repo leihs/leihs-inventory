@@ -40,9 +40,6 @@
 
           :handler list/index-resources
           :responses {200 {:description "OK"
-                           :body (s/conditional
-                                  string? s/Str
-                                  #(instance? InputStream %) s/Any
-                                  :else get-response)}
+                           :body (s/->Either [get-response s/Str s/Any])}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}}])
