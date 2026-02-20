@@ -54,7 +54,7 @@
           {:keys [search search_term type]} (query-params request)
           term (or search search_term) ; search_term needed for fields
           base-query (-> base-query
-                         (sql/select [[:count :i.id] :available_quantity])
+                         (sql/select [[:count :i.id] :borrowable_quantity])
                          (sql/left-join [:items :i]
                                         [:and
                                          [:= :i.model_id :models.id]

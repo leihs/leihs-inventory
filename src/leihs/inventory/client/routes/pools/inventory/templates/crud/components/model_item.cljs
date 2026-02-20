@@ -24,7 +24,7 @@
           (cond
             (and (:quantity field)
                  (> (:quantity field)
-                    (:available_quantity field)))
+                    (:borrowable_quantity field)))
             ($ :span {:class-name "text-red-500"}
                (t "pool.templates.template.quantity_error"))
 
@@ -49,4 +49,4 @@
 
        ($ TableCell {:class-name "px-0"} "/")
 
-       ($ TableCell (:available_quantity field)))))
+       ($ TableCell (:borrowable_quantity field)))))

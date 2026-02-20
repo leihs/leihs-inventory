@@ -123,13 +123,13 @@
             ($ Tooltip
                ($ TooltipTrigger {:asChild true}
                   ($ :span {:data-test-id "availability"}
-                     (str (-> model :in_stock_quantity str) " | " (-> model :rentable_quantity str))))
+                     (str (-> model :in_stock_quantity str) " | " (-> model :borrowable_quantity str))))
                ($ TooltipContent
                   ($ :<>
                      ($ :div (str (t "pool.models.list.tooltip.in_stock")
                                   ": " (-> model :in_stock_quantity str)))
                      ($ :div (str (t "pool.models.list.tooltip.rentable")
-                                  ": " (-> model :rentable_quantity str))))))))
+                                  ": " (-> model :borrowable_quantity str))))))))
 
        ($ TableCell {:className "fit-content"}
           ($ ButtonGroup
