@@ -21,7 +21,7 @@
                     ::sp/name
                     :nil/version
                     ::sp/quantity
-                    ::sp/available
+                    ::sp/available_quantity
                     ::sp/is_quantity_ok]
            :opt-un [:nil/cover_image_id
                     :nil/url

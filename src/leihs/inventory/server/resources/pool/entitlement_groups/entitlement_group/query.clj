@@ -49,7 +49,7 @@
   (let [query
         (-> (sql/select
              [:items.model_id :id]
-             [[[:count :items.id]] :available])
+             [[[:count :items.id]] :available_quantity])
             (sql/from :items)
             (sql/where [:and
                         [:in :items.model_id model-ids]
@@ -71,8 +71,8 @@
            {:id model-id
             :entitled_in_other_groups
             (get-in allocations-by-id [model-id :entitled_in_other_groups] 0)
-            :available
-            (get-in items-by-id [model-id :available] 0)})
+            :available_quantity
+            (get-in items-by-id [model-id :available_quantity] 0)})
          model-ids)))
 
 (defn select-entitlements-with-item-count [tx inventory-pool-id model-ids exclude-group-id]
@@ -95,11 +95,11 @@
 
 (defn add-allocation-considered-count [entitlements]
   (map (fn [e]
-         (let [available-raw (:available e)
+         (let [available-raw (:available_quantity e)
                quantity-raw (:quantity e)
                available (->long available-raw)
                quantity (->long quantity-raw)
-               e (assoc e :available available
+               e (assoc e :available_quantity available
                         :is_quantity_ok (<= quantity available))
                result (dissoc e :entitlement_group_id)]
            result))
@@ -160,7 +160,7 @@
                                            (let [allocation (get allocation-map (:id model))]
                                              (merge model
                                                     {:entitled_in_other_groups (or (:entitled_in_other_groups allocation) 0)
-                                                     :available (or (:available allocation) 0)})))
+                                                     :available_quantity (or (:available_quantity allocation) 0)})))
                                          models-with-images)]
          (add-allocation-considered-count models-with-allocation))))))
 
