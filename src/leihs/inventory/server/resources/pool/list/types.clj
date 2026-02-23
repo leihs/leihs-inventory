@@ -26,13 +26,10 @@
    (s/optional-key :content_type) (s/maybe s/Str)
    (s/optional-key :image_url) (s/maybe s/Str)})
 
-(def get-models-response-payload
-  (merge get-model-scheme {s/Keyword s/Any}))
-
 (def get-response
-  (s/->Either [{:data [get-models-response-payload]
+  (s/->Either [{:data [get-model-scheme]
                 :pagination pagination}
-               [get-models-response-payload]]))
+               [get-model-scheme]]))
 
 (sa/def :software/properties (sa/or
                               :single (sa/or :coll (sa/coll-of ::sp/property)

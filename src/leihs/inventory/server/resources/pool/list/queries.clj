@@ -11,15 +11,6 @@
 
 (defn base-inventory-query [pool-id]
   (-> (sql/select :inventory.*
-                  :models.description
-                  :models.hand_over_note
-                  :models.info_url
-                  :models.rental_price
-                  :models.maintenance_period
-                  :models.is_package
-                  :models.internal_description
-                  :models.technical_detail
-
                   [(-> (sql/select :%count.*)
                        (sql/from :items)
                        (sql/where [:and
@@ -44,7 +35,6 @@
                    :in_stock])
 
       (sql/from :inventory)
-      (sql/left-join :models [:= :models.id :inventory.id])
       (sql/where [:or
                   [:= :inventory.inventory_pool_id nil]
                   [:= :inventory.inventory_pool_id pool-id]])

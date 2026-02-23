@@ -2,6 +2,7 @@
   (:require
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.constants :refer [ACCEPT-CSV ACCEPT-EXCEL]]
    [leihs.inventory.server.resources.pool.list.export :as list-export]
@@ -12,7 +13,6 @@
                                                                with-items
                                                                without-items]]
    [leihs.inventory.server.resources.pool.list.search :refer [with-search-inventory]]
-
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 model->enrich-with-image-attr]]
    [leihs.inventory.server.utils.export :as export]
@@ -96,10 +96,20 @@
                                :filename (str EXPORT-FILE-NAME ".xlsx")))
 
       :else
-      (let [post-fnc (fn [models]
+      (let [query-with-models (-> query
+                                  (sql/select :models.description
+                                              :models.hand_over_note
+                                              :models.info_url
+                                              :models.rental_price
+                                              :models.maintenance_period
+                                              :models.is_package
+                                              :models.internal_description
+                                              :models.technical_detail)
+                                  (sql/left-join :models [:= :models.id :inventory.id]))
+            post-fnc (fn [models]
                        (->> models
                             (fetch-thumbnails-for-ids tx)
                             (map (model->enrich-with-image-attr pool-id))))]
         (-> request
-            (create-pagination-response query nil post-fnc)
+            (create-pagination-response query-with-models nil post-fnc)
             response)))))
