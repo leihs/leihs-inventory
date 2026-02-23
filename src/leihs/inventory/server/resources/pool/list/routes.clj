@@ -14,9 +14,9 @@
           :summary "InventoryList-Endpoint with filters for models, software, options and packages"
           :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
           :coercion reitit.coercion.schema/coercion
-          :produces ["application/json"
-                     "text/csv"
-                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
+          :swagger {:produces ["application/json"
+                               "text/csv"
+                               "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]}
           :parameters {:path {:pool_id s/Uuid}
                        :query {(s/optional-key :before_last_check) Date
                                (s/optional-key :borrowable) s/Bool
