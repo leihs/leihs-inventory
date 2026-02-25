@@ -73,9 +73,9 @@
                          (let [without-options (dissoc props :options)
                                text (t "pool.items.item.fields.inactive")
                                annotated (map #(if (and (boolean? (:is_active %))
-                                                        (true? (:is_active %)))
-                                                 %
-                                                 (assoc % :label (str (:label %) " ( " text " )")))
+                                                        (false? (:is_active %)))
+                                                 (assoc % :label (str (:label %) " ( " text " )"))
+                                                 %)
                                               (-> props :options))]
                            (assoc without-options :options annotated)))]
 

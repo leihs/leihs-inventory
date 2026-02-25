@@ -10,7 +10,8 @@
                                                                       out-coercions
                                                                       flatten-properties
                                                                       split-item-data
-                                                                      validate-field-permissions]]
+                                                                      validate-field-permissions
+                                                                      validate-retired-reason-requires-retired!]]
    [leihs.inventory.server.resources.pool.items.main :refer [assign-items-to-package]]
    [next.jdbc :as jdbc]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
@@ -91,7 +92,9 @@
               {:keys [item-data properties]} (-> update-params
                                                  (dissoc :id :item_ids)
                                                  split-item-data)
-              inventory-code (:inventory_code item-data)]
+              inventory-code (:inventory_code item-data)
+              merged-item-data (merge (select-keys item [:retired :retired_reason]) item-data)]
+          (validate-retired-reason-requires-retired! merged-item-data)
           (if (and inventory-code (inventory-code-exists? tx inventory-code item_id))
             (status {:body {:error "Inventory code already exists"
                             :proposed_code (inv-code/propose tx pool_id (model-is-package? tx (:model_id item)))}}

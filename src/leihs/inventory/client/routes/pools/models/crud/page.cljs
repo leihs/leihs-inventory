@@ -307,6 +307,7 @@
                                ($ form-fields/field {:key (:name block)
                                                      :control control
                                                      :form form
+                                                     :data data
                                                      :block block}))))))
 
                   ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}

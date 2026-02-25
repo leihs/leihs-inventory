@@ -28,7 +28,7 @@
        [:m.name :model_name]
        :ml.quantity
        [count-quantity-condition
-        :available]
+        :borrowable_quantity]
        [[:case
          [:<=
           :ml.quantity
@@ -114,7 +114,7 @@
                          (group-by :name)
                          (map (fn [[name records]]
                                 {:name name
-                                 :models (mapv #(-> (select-keys % [:id :product :version :quantity :available
+                                 :models (mapv #(-> (select-keys % [:id :product :version :quantity :borrowable_quantity
                                                                     :cover_image_id :is_quantity_ok :model_name])
                                                     (rename-keys {:model_name :name}))
                                                records)}))

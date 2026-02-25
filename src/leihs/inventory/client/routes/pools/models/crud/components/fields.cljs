@@ -24,7 +24,7 @@
    "dropzone" Dropzone
    "textarea" Textarea})
 
-(defui field [{:keys [control form block]}]
+(defui field [{:keys [control form data block]}]
   (let [[t] (useTranslation)]
     (cond
       (-> block :component (= "accessory-list"))
@@ -33,7 +33,7 @@
 
       (-> block :component (= "entitlement-allocations"))
       ($ EntitlementAllocations {:control control
-                                 :items "0"
+                                 :rentable (str (or (:rentable data) 0))
                                  :form form
                                  :props (:props block)})
 

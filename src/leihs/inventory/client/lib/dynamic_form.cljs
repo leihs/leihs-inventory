@@ -116,10 +116,14 @@
     (mapv (fn [v]
             (if (map? v)
               (cond
-                (contains? v :value)
+                (contains? v :is_active)
                 {:value (str (:value v))
                  :label (:label v)
                  :is_active (:is_active v)}
+
+                (contains? v :value)
+                {:value (str (:value v))
+                 :label (:label v)}
 
                 :else v)
               {:value (str v) :label (str v)}))

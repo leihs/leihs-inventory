@@ -62,7 +62,7 @@
                  :version (s/maybe s/Str)
                  :name (s/maybe s/Str)
                  :cover_image_id (s/maybe s/Uuid)
-                 (s/optional-key :available) (s/maybe s/Int)
+                 (s/optional-key :borrowable_quantity) (s/maybe s/Int)
 
                  (s/optional-key :entitled_in_groups) s/Int
                  (s/optional-key :url) (s/maybe s/Str)

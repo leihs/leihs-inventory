@@ -22,7 +22,7 @@
 
 (def query-keys [:owned :incomplete
                  :broken :retired :borrowable
-                 :fields :in_stock
+                 :fields :in_stock_quantity
                  :model_id :parent_id :inventory_pool_id :search])
 
 (def fields ["id" "is_package" "is_borrowable" "is_broken" "retired" "is_incomplete"
@@ -69,7 +69,7 @@
 
     ($ ExpandableRow {:key (-> model :id)
                       :data-row "model"
-                      :subrow-count (:items model)
+                      :subrow-count (:items_quantity model)
                       :class-name (str
                                    "[&+tr[data-row='item']]:shadow-[0_-0.5px_0_hsl(var(--shadow)),inset_0_4px_4px_-2px_hsl(var(--shadow))] "
                                    "[&+tr[data-row='package']]:shadow-[0_-0.5px_0_hsl(var(--shadow)),inset_0_4px_4px_-2px_hsl(var(--shadow))] "
@@ -123,13 +123,13 @@
             ($ Tooltip
                ($ TooltipTrigger {:asChild true}
                   ($ :span {:data-test-id "availability"}
-                     (str (-> model :in_stock str) " | " (-> model :rentable str))))
+                     (str (-> model :in_stock_quantity str) " | " (-> model :borrowable_quantity str))))
                ($ TooltipContent
                   ($ :<>
                      ($ :div (str (t "pool.models.list.tooltip.in_stock")
-                                  ": " (-> model :in_stock str)))
+                                  ": " (-> model :in_stock_quantity str)))
                      ($ :div (str (t "pool.models.list.tooltip.rentable")
-                                  ": " (-> model :rentable str))))))))
+                                  ": " (-> model :borrowable_quantity str))))))))
 
        ($ TableCell {:className "fit-content"}
           ($ ButtonGroup

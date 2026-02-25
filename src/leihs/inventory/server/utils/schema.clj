@@ -2,7 +2,10 @@
   "Schema type definitions for API coercion."
   (:require
    [schema.core :as s])
-  (:import [java.time.format DateTimeFormatter]))
+  (:import [java.time LocalDate]
+           [java.time.format DateTimeFormatter]))
+
+(def ^:private date-formatter (DateTimeFormatter/ofPattern "yyyy-MM-dd"))
 
 (def pagination {:size s/Int
                  :page s/Int
@@ -13,6 +16,6 @@
 
 (defn instant-to-date-string [date]
   (when date
-    (-> date
-        .toLocalDate
-        (.format (DateTimeFormatter/ofPattern "yyyy-MM-dd")))))
+    (if (instance? LocalDate date)
+      (.format ^LocalDate date date-formatter)
+      (-> date .toLocalDate (.format date-formatter)))))

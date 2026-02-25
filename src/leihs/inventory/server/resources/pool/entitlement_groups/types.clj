@@ -28,7 +28,7 @@
                 :quantity s/Int
 
                 :entitled_in_other_groups s/Int
-                (s/optional-key :available) s/Int
+                (s/optional-key :borrowable_quantity) s/Int
 
                 :is_quantity_ok s/Bool
 

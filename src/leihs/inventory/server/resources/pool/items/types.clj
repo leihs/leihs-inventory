@@ -17,6 +17,8 @@
                            (s/optional-key :search_term) s/Str
                            (s/optional-key :for_package) s/Bool
 
+                           (s/optional-key :filter_q) s/Str
+
                            ;; item filters
                            (s/optional-key :borrowable) s/Bool
                            (s/optional-key :broken) s/Bool
@@ -182,6 +184,7 @@
    (s/optional-key :supplier_id) (s/maybe s/Uuid)
    (s/optional-key :url) (s/maybe s/Str)
    (s/optional-key :user_name) (s/maybe s/Str)
+   (s/optional-key :content_type) (s/maybe s/Str)
 
    (s/optional-key :created_at) java.util.Date
    (s/optional-key :updated_at) java.util.Date})
