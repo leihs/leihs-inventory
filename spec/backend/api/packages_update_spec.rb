@@ -169,15 +169,15 @@ describe "Swagger Inventory Endpoints - Packages Update" do
         expect(resp.body["details"]).to include("Cannot add packages or already assigned items")
       end
 
-      it "rejects empty item_ids array and returns status 400" do
+      it "removes all items from package when item_ids is empty and returns status 200" do
         update_data = {
           item_ids: []
         }
 
         resp = patch_with_headers(client, url, update_data)
 
-        expect(resp.status).to eq(400)
-        expect(resp.body["details"]).to include("item_ids is required for package")
+        expect(resp.status).to eq(200)
+        expect(resp.body["item_ids"]).to eq([])
       end
 
       it "updates other fields along with item_ids and returns status 200" do

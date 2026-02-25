@@ -106,11 +106,12 @@
                                 (sql/returning :*)
                                 sql-format)
                   result (jdbc/execute-one! tx sql-query)]
-              (when item-ids-param
+              (when (some? item-ids-param)
                 (let [current-child-ids (get-child-item-ids tx item_id)
                       to-remove (remove (set item-ids-param) current-child-ids)]
                   (remove-items-from-package tx to-remove)
-                  (assign-items-to-package tx item_id item-ids-param)))
+                  (when (seq item-ids-param)
+                    (assign-items-to-package tx item_id item-ids-param))))
               (if result
                 (let [is-package? (model-is-package? tx (:model_id result))
                       response-data (-> result
