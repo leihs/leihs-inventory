@@ -11,9 +11,11 @@
 (s/defschema query-params {(s/optional-key :fields) s/Str
                            (s/optional-key :ids) [s/Uuid]
                            (s/optional-key :model_id) s/Uuid
+                           (s/optional-key :only_items) s/Bool
                            (s/optional-key :parent_id) s/Uuid
                            (s/optional-key :search) s/Str
                            (s/optional-key :search_term) s/Str
+                           (s/optional-key :for_package) s/Bool
 
                            (s/optional-key :filter_q) s/Str
 
@@ -81,6 +83,7 @@
           (s/optional-key :is_broken) s/Bool
           (s/optional-key :is_incomplete) s/Bool
           (s/optional-key :is_inventory_relevant) s/Bool
+          (s/optional-key :item_ids) [s/Uuid]
           (s/optional-key :item_version) (s/maybe s/Str)
           (s/optional-key :last_check) (s/maybe Date)
           (s/optional-key :name) (s/maybe s/Str)
@@ -95,6 +98,7 @@
           (s/optional-key :shelf) (s/maybe s/Str)
           (s/optional-key :status_note) (s/maybe s/Str)
           (s/optional-key :supplier_id) (s/maybe s/Uuid)
+          (s/optional-key :type) (s/enum "item" "package")
           (s/optional-key :user_name) (s/maybe s/Str)}
          properties))
 
@@ -112,6 +116,7 @@
           :is_broken s/Bool
           :is_incomplete s/Bool
           :is_inventory_relevant s/Bool
+          (s/optional-key :item_ids) [s/Uuid]
           :item_version (s/maybe s/Str)
           :last_check (s/maybe s/Str)
           :name (s/maybe s/Str)
@@ -139,7 +144,7 @@
    (s/optional-key :building_name) (s/maybe s/Str)
    (s/optional-key :cover_image_id) (s/maybe s/Str)
    (s/optional-key :id) s/Uuid
-   (s/optional-key :image_id) (s/maybe s/Str)
+   (s/optional-key :image_id) (s/maybe s/Uuid)
    (s/optional-key :insurance_number) (s/maybe s/Str)
    (s/optional-key :inventory_code) s/Str
    (s/optional-key :inventory_pool_id) s/Uuid

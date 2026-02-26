@@ -17,6 +17,9 @@ describe "Swagger Inventory Endpoints - Items Create" do
         product: "Test Product",
         is_package: false)
 
+      @package_model = FactoryBot.create(:package_model,
+        product: "Test Package Model")
+
       @building = FactoryBot.create(:building, name: "Test Building")
       @room = FactoryBot.create(:room,
         name: "Test Room",
@@ -211,6 +214,47 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.status).to eq(409)
         expect(resp.body["error"]).to eq("Inventory code already exists")
         expect(resp.body["proposed_code"]).to be_a(String)
+      end
+
+      it "proposes item codes considering both items and packages (shared sequence)" do
+        pool_shortname = @inventory_pool.shortname
+
+        # Create items and packages with mixed codes
+        FactoryBot.create(:item,
+          inventory_code: "#{pool_shortname}1",
+          model_id: @model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        FactoryBot.create(:item,
+          inventory_code: "P-#{pool_shortname}2",
+          model_id: @package_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        FactoryBot.create(:item,
+          inventory_code: "P-#{pool_shortname}3",
+          model_id: @package_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        # Try to create item with duplicate code to trigger proposal
+        item_data = {
+          inventory_code: "#{pool_shortname}1",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(409)
+        # Should propose {shortname}4 because max existing is P-{shortname}3
+        expect(resp.body["proposed_code"]).to eq("#{pool_shortname}4")
       end
     end
 

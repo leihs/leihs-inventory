@@ -12,7 +12,9 @@
                                                                       split-item-data
                                                                       validate-field-permissions
                                                                       validate-retired-reason-requires-retired!]]
+   [leihs.inventory.server.resources.pool.items.main :refer [assign-items-to-package]]
    [next.jdbc :as jdbc]
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request not-found response status]]
    [taoensso.timbre :refer [debug spy]]))
@@ -37,14 +39,42 @@
     (-> (jdbc/execute-one! tx query)
         some?)))
 
+(defn get-child-item-ids [tx parent-id]
+  (-> (sql/select :id)
+      (sql/from :items)
+      (sql/where [:= :parent_id parent-id])
+      sql-format
+      (->> (jdbc-query tx)
+           (map :id))))
+
+(defn remove-items-from-package [tx item-ids]
+  (when (seq item-ids)
+    (-> (sql/update :items)
+        (sql/set {:parent_id nil})
+        (sql/where [:in :id item-ids])
+        sql-format
+        (->> (jdbc/execute! tx)))))
+
+(defn model-is-package? [tx model-id]
+  (-> (sql/select :is_package)
+      (sql/from :models)
+      (sql/where [:= :id model-id])
+      sql-format
+      (->> (jdbc/execute-one! tx)
+           :is_package)))
+
 (defn get-resource [{:keys [tx]
                      {{:keys [item_id]} :path} :parameters
                      :as request}]
   (try
     (if-let [item (get-one tx item_id)]
-      (response (-> item
-                    flatten-properties
-                    (coerce-field-values out-coercions)))
+      (let [is-package? (model-is-package? tx (:model_id item))
+            response-data (-> item
+                              flatten-properties
+                              (coerce-field-values out-coercions))]
+        (response (cond-> response-data
+                    is-package?
+                    (assoc :item_ids (get-child-item-ids tx item_id)))))
       (not-found {:error "Item not found"}))
     (catch Exception e
       (log-by-severity ERROR_GET_ITEM e)
@@ -58,15 +88,16 @@
     (if-let [item (get-one tx item_id)]
       (if-let [validation-error (validate-field-permissions request)]
         (bad-request validation-error)
-        (let [{:keys [item-data properties]} (-> update-params
-                                                 (dissoc :id)
+        (let [item-ids-param (:item_ids update-params)
+              {:keys [item-data properties]} (-> update-params
+                                                 (dissoc :id :item_ids)
                                                  split-item-data)
               inventory-code (:inventory_code item-data)
               merged-item-data (merge (select-keys item [:retired :retired_reason]) item-data)]
           (validate-retired-reason-requires-retired! merged-item-data)
           (if (and inventory-code (inventory-code-exists? tx inventory-code item_id))
             (status {:body {:error "Inventory code already exists"
-                            :proposed_code (inv-code/propose tx pool_id)}}
+                            :proposed_code (inv-code/propose tx pool_id (model-is-package? tx (:model_id item)))}}
                     409)
             (let [item-data-coerced (coerce-field-values item-data in-coercions)
                   properties-json (merge (:properties item) properties)
@@ -78,10 +109,21 @@
                                 (sql/returning :*)
                                 sql-format)
                   result (jdbc/execute-one! tx sql-query)]
+              (when (some? item-ids-param)
+                (let [current-child-ids (get-child-item-ids tx item_id)
+                      to-remove (remove (set item-ids-param) current-child-ids)]
+                  (remove-items-from-package tx to-remove)
+                  (when (seq item-ids-param)
+                    (assign-items-to-package tx item_id item-ids-param))))
               (if result
-                (response (-> result
-                              flatten-properties
-                              (coerce-field-values out-coercions)))
+                (let [is-package? (model-is-package? tx (:model_id result))
+                      response-data (-> result
+                                        flatten-properties
+                                        (coerce-field-values out-coercions))]
+                  (response (cond-> response-data
+                              is-package?
+                              (assoc :item_ids (or item-ids-param
+                                                   (get-child-item-ids tx item_id))))))
                 (bad-request {:error ERROR_UPDATE_ITEM}))))))
       (not-found {:error "Item not found"}))
     (catch Exception e

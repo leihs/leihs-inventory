@@ -69,17 +69,19 @@
      :room_id (fn [f & {:keys [pool]}]
                 (assoc f :values_url
                        (str "/inventory/" (:id pool) "/rooms/")))
-     :model_id (fn [f & {:keys [pool]}]
-                 (assoc f :values_url
-                        (str "/inventory/" (:id pool) "/models/?type=model")))
+     :model_id (fn [f & {:keys [pool target-type]}]
+                 (let [model-type (if (= target-type "item") "model" target-type)]
+                   (assoc f :values_url
+                          (str "/inventory/" (:id pool)
+                               "/models/?type=" model-type))))
      :software_model_id (fn [f & {:keys [pool]}]
                           (assoc f :values_url
                                  (str "/inventory/" (:id pool) "/software/")))
      :retired (fn [f & _] (assoc f :default false))
-     :inventory_code (fn [f & {:keys [tx pool resource-id]}]
+     :inventory_code (fn [f & {:keys [tx pool resource-id target-type]}]
                        (if resource-id
                          f
-                         (assoc f :default (inv-code/propose tx (:id pool)))))}))
+                         (assoc f :default (inv-code/propose tx (:id pool) (= target-type "package")))))}))
 
 (defn handle-default [tx field-id value item-data pool-id]
   (let [hooks {:supplier_id suppliers/get-by-id
@@ -140,7 +142,7 @@
       (sql/where (target-type-expr ttype))
       (sql/where (min-req-role-expr (keyword role)))))
 
-(defn transform-field-data [field & {:keys [tx pool user-id]
+(defn transform-field-data [field & {:keys [tx pool user-id target-type]
                                      {resource-id :id :as item-data} :item-data}]
   (let [base (reduce (fn [f data-key]
                        (assoc f data-key
@@ -172,7 +174,9 @@
         ;; Apply hooks for specific keys
         (#(if-let [hook-fn (keys-hooks (-> % :id keyword))]
             (hook-fn % :tx tx :pool pool
-                     :resource-id resource-id :user-id user-id)
+                     :resource-id resource-id
+                     :user-id user-id
+                     :target-type target-type)
             %))
 
         ;; Remove all keys with nil values
@@ -216,6 +220,7 @@
           transformed-fields (map #(transform-field-data % :tx tx
                                                          :pool pool
                                                          :user-id user-id
+                                                         :target-type target_type
                                                          :item-data item-data)
                                   fields)
           fields-with-defaults (if item-data
@@ -226,3 +231,10 @@
     (catch Exception e
       (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))
+
+(comment
+  (require '[leihs.core.db :as db])
+  (let [tx (db/get-ds)]
+    (-> (base-query "package" "inventory_manager" #uuid "11111111-1111-1111-1111-111111111111")
+        sql-format
+        (->> (jdbc/query tx)))))
