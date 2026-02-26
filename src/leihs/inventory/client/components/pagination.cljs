@@ -59,11 +59,6 @@
 
     (uix/use-effect
      (fn []
-       (js/window.scrollTo #js {:top 0 :behavior "smooth"}))
-     [current-page])
-
-    (uix/use-effect
-     (fn []
        (let [on-key-down
              (fn [e]
                (when (and (= (.. e -code) "ArrowRight")

@@ -21,7 +21,6 @@
         [width set-width!] (uix/use-state nil)
 
         params (router/useParams)
-        size (hooks/use-window-size)
 
         control (cj (.-control form))
         buttonRef (uix/use-ref nil)
@@ -66,6 +65,9 @@
                                           :shouldValidate true})))
 
         handle-open-change (fn [val]
+                             ;; Calculate width when opening popover
+                             (when (and val @buttonRef)
+                               (set-width! (.. buttonRef -current -offsetWidth)))
                              (when instant?
                                (set-options! []))
                              (set-search! "")
@@ -90,12 +92,6 @@
                                       (set-loading! false))))))]
            (fetch))))
      [debounced-search values-url remap instant?])
-
-    (uix/use-effect
-     (fn []
-       (when (.. buttonRef -current)
-         (set-width! (.. buttonRef -current -offsetWidth))))
-     [size])
 
     ;; initial fetch of options if not instant
     ;; when options are delivered via url

@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.items.crud.components.fields
+(ns leihs.inventory.client.routes.pools.packages.crud.components.fields
   (:require
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
@@ -17,8 +17,10 @@
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.attachments :refer [Attachments]]
    [leihs.inventory.client.components.form.autocomplete :refer [Autocomplete]]
+   [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray FormFieldArrayItems]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-
+   [leihs.inventory.client.routes.pools.packages.crud.components.package-item :refer [PackageItem]]
+   [leihs.inventory.client.routes.pools.packages.crud.components.select-package-item :refer [SelectPackageItem]]
    [uix.core :as uix :refer [$ defui]]))
 
 (def fields-map
@@ -28,9 +30,9 @@
 
 (def translations
   {:text
-   {:select "pool.items.item.fields.autocomplete.select"
-    :search "pool.items.item.fields.autocomplete.search"
-    :empty "pool.items.item.fields.autocomplete.empty"}})
+   {:select "pool.packages.package.fields.autocomplete.select"
+    :search "pool.packages.package.fields.autocomplete.search"
+    :empty "pool.packages.package.fields.autocomplete.empty"}})
 
 (defn- has-value?
   "Check if a value is considered 'truthy' for dependency purposes.
@@ -67,17 +69,7 @@
         ;; Check if field should show based on values dependency
         has-dependency-value (if values-dep
                                (has-value? watched-dependency)
-                               true)
-
-        label-inactive (fn [props]
-                         (let [without-options (dissoc props :options)
-                               text (t "pool.items.item.fields.inactive")
-                               annotated (map #(if (and (boolean? (:is_active %))
-                                                        (false? (:is_active %)))
-                                                 (assoc % :label (str (:label %) " ( " text " )"))
-                                                 %)
-                                              (-> props :options))]
-                           (assoc without-options :options annotated)))]
+                               true)]
 
     (when (and is-visible has-dependency-value)
       ($ Popover
@@ -85,10 +77,30 @@
             (when (:disabled (:props block))
               ($ PopoverTrigger {:asChild true
                                  :class-name "absolute right-0 z-10 top-1/2 m-1"}
-                 ($ :button {:class-name " rounded text-muted-foreground bg-muted cursor-help"
+                 ($ :button {:class-name "rounded text-muted-foreground bg-muted cursor-help"
                              :data-test-id (str (:name block) "-disabled-info")}
                     ($ Lock {:class-name "h-6 w-6 p-1"}))))
+
             (case (:component block)
+              "items"
+              ($ FormField {:control (cj control)
+                            :name (:name block)
+                            :render #($ FormFieldArray {:form form
+                                                        :name "item_ids"}
+                                        ($ FormItem
+                                           ($ SelectPackageItem {:form form
+                                                                 :name (:name block)
+                                                                 :props (:props block)})
+
+                                           ($ FormDescription
+                                              ($ :<> (:description block)))
+
+                                           ($ FormMessage))
+
+                                        ($ FormFieldArrayItems {:form form
+                                                                :name (:name block)}
+                                           ($ PackageItem)))})
+
               "attachments"
               ($ Attachments {:form form
                               :label (t (:label block))
@@ -115,9 +127,9 @@
                                                (let [values-url (-> block :props :values-url)
                                                      dep (:field values-dep)]
                                                  {:remap (fn [item] {:value (str (:id item))
-                                                                     :label (str (:name item))})
+                                                                     :label (:name item)})
                                                   :values-url (str values-url "?" dep "=" (.-value watched-dependency))})
-                                               (label-inactive (:props block))))})
+                                               (:props block)))})
 
               ;; Radiogroup field
               "radio-group"
@@ -143,7 +155,7 @@
                                                    ($ FormLabel {:class-name "font-normal"}
                                                       (:label option)))))))})
 
-                  ;; Select field
+              ;; Select field
               "select"
               ($ FormField {:control (cj control)
                             :name (:name block)
@@ -154,7 +166,7 @@
                                         ($ Select {:name (:name block)
                                                    :disabled (:disabled (:props block))
                                                    :onValueChange (aget % "field" "onChange")
-                                                   :defaultValue (aget % "field" "value")}
+                                                   :value (aget % "field" "value")}
 
                                            ($ FormControl
                                               ($ SelectTrigger {:name (:name block)}
@@ -169,7 +181,7 @@
                                                       (:label option)))))
                                            ($ FormMessage)))})
 
-                  ;; Calendar field 
+              ;; Calendar field 
               "calendar"
               ($ FormField {:control (cj control)
                             :name (:name block)
@@ -199,7 +211,7 @@
 
                                         ($ FormMessage))})
 
-                 ;; "default case - this renders a component from the component map"
+              ;; "default case - this renders a component from the component map"
               (let [comp (get fields-map (:component block))]
                 (when comp
                   ($ FormField {:control (cj control)
@@ -221,9 +233,6 @@
            ($ PopoverContent {:side "top"
                               :class-name "w-[150px] text-sm"}
               (case (:disabled-reason block)
-                :protected (t "pool.items.item.fields.disabled.protected")
-                :model-selected (t "pool.items.item.fields.disabled.model-selected")
-                :multiple-items (t "pool.items.item.fields.disabled.multiple-items")
-                :owner-locked (t "pool.items.item.fields.disabled.owner-locked")
+                :protected (t "pool.packages.package.fields.disabled.protected")
                 ;; Fallback for fields disabled without a reason
-                (t "pool.items.item.fields.disabled.generic"))))))))
+                (t "pool.packages.package.fields.disabled.generic"))))))))

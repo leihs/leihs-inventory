@@ -220,7 +220,7 @@
          ($ Card {:className "py-8 mb-12"}
             ($ CardContent
                ($ Scrollspy {:className "flex gap-4"}
-                  ($ ScrollspyMenu)
+                  ($ ScrollspyMenu {:class-name "w-1/5"})
 
                   ($ Form (merge form)
                      ($ :form {:id "software-form"

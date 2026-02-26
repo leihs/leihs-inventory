@@ -2,7 +2,8 @@
   (:require
    ["react-router-dom" :as router]
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.utils :refer [jc cj]]))
+   [leihs.inventory.client.lib.utils :refer [jc cj]]
+   [promesa.core :as p]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; This file contains the loaders for the inventory routes.
@@ -118,34 +119,47 @@
                  (handle-error err))))))
 
 (defn items-crud-page [route-data]
-  (let [params (.. ^js route-data -params)
-        pool-id (aget params "pool-id")
-        item-id (or (aget params "item-id") nil)
-        model-id (or (aget params "model-id") nil)
+  (p/let [params (.. ^js route-data -params)
+          pool-id (aget params "pool-id")
+          item-id (or (aget params "item-id") nil)
+          model-id (or (aget params "model-id") nil)
 
-        item-path (when item-id
-                    (str "/inventory/" pool-id "/items/"))
+          model (when model-id
+                  (-> http-client
+                      (.get (str "/inventory/" pool-id "/models/" model-id))
+                      (.then #(jc (.-data %)))))
 
-        model (when model-id
-                (-> http-client
-                    (.get (str "/inventory/" pool-id "/models/" model-id))
-                    (.then #(jc (.-data %)))))
+          item (when item-id
+                 (-> http-client
+                     (.get (str "/inventory/" pool-id "/items/" item-id)
+                           #js {:cache false})
+                     (.then #(jc (.-data %)))))
 
-        data (if item-path
-               (-> http-client
-                   (.get (str "/inventory/" pool-id "/fields/?resource_id=" item-id "&target_type=item")
-                         #js {:id item-id})
-                   (.then #(jc (.-data %))))
-               (-> http-client
-                   (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
-                   (.then #(jc (.-data %)))))]
+          package (when (:parent_id item)
+                    (-> http-client
+                        (.get (str "/inventory/" pool-id "/items/" (:parent_id item))
+                              #js {:cache false})
+                        (.then #(jc (.-data %)))))
 
-    (.. (js/Promise.all (cond-> [data] model (conj model)))
-        (then (fn [[data & [model]]]
-                {:data data
-                 :model (if model model nil)}))
-        (catch (fn [err]
-                 (handle-error err))))))
+          package-model (when package
+                          (-> http-client
+                              (.get (str "/inventory/" pool-id "/models/" (:model_id package))
+                                    #js {:cache false})
+                              (.then #(jc (.-data %)))))
+
+          data (if item-id
+                 (-> http-client
+                     (.get (str "/inventory/" pool-id "/fields/?resource_id=" item-id "&target_type=item")
+                           #js {:id item-id})
+                     (.then #(jc (.-data %))))
+                 (-> http-client
+                     (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
+                     (.then #(jc (.-data %)))))]
+
+    {:data data
+     :model model
+     :package package
+     :package-model package-model}))
 
 (defn items-review-page [route-data]
   (let [params (.. ^js route-data -params)
@@ -174,6 +188,46 @@
                  :model model}))
         (catch (fn [err]
                  (handle-error err))))))
+
+(defn packages-crud-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        package-id (or (aget params "package-id") nil)
+        model-id (or (aget params "model-id") nil)
+
+        item-path (when package-id
+                    (str "/inventory/" pool-id "/items/"))
+
+        model (when model-id
+                (-> http-client
+                    (.get (str "/inventory/" pool-id "/models/" model-id))
+                    (.then #(jc (.-data %)))))
+
+        items (when package-id
+                (-> http-client
+                    (.get (str "/inventory/" pool-id "/items/?parent_id=" package-id)
+                          #js {:cache false})
+                    (.then #(jc (.-data %)))))
+
+        data (if item-path
+               (-> http-client
+                   (.get (str "/inventory/" pool-id "/fields/?resource_id=" package-id "&target_type=package")
+                         #js {:id package-id
+                              :cache false})
+                   (.then #(jc (.-data %))))
+               (-> http-client
+                   (.get (str "/inventory/" pool-id "/fields/?target_type=package")
+                         #js {:cache false})
+                   (.then #(jc (.-data %)))))]
+
+    ;; destructuring for model is probably broken at the moment
+    (.. (js/Promise.all (cond-> [data]
+                          items (conj items)
+                          model (conj model)))
+        (then (fn [[data & [items model]]]
+                {:data data
+                 :items (if items items nil)
+                 :model (if model model nil)})))))
 
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)

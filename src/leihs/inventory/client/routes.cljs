@@ -21,6 +21,7 @@
    [leihs.inventory.client.routes.pools.items.review.page :rename {page items-review-page}]
    [leihs.inventory.client.routes.pools.models.crud.page :rename {page models-crud-page}]
    [leihs.inventory.client.routes.pools.options.crud.page :rename {page options-crud-page}]
+   [leihs.inventory.client.routes.pools.packages.crud.page :rename {page packages-crud-page}]
    [leihs.inventory.client.routes.pools.software.crud.page :rename {page software-crud-page}]
    [uix.core :as uix :refer [$]]
    [uix.dom]))
@@ -150,7 +151,20 @@
                :loader loader/items-crud-page
                :element ($ items-crud-page)}
 
-               ;; Wildcard route for undefined pool routes
+              ;; packages crud
+              {:path "packages/create"
+               :loader loader/packages-crud-page
+               :element ($ packages-crud-page)}
+
+              {:path "packages/:package-id/delete?"
+               :loader loader/packages-crud-page
+               :element ($ packages-crud-page)}
+
+              {:path "models/:model-id/packages/create"
+               :loader loader/packages-crud-page
+               :element ($ packages-crud-page)}
+
+              ;; Wildcard route for undefined pool routes
               {:path "*"
                :id "pool-not-found"
                :loader loader/not-found

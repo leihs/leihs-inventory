@@ -138,6 +138,11 @@
   environment_variables:
     FEATURE_NAME: "Update item 02"
     FEATURE: './spec/features/items/update_spec.rb[1:2]'
+'./spec/features/items/update_spec.rb[1:3]':
+  name: "Update item 03"
+  environment_variables:
+    FEATURE_NAME: "Update item 03"
+    FEATURE: './spec/features/items/update_spec.rb[1:3]'
 './spec/features/models/create_spec.rb[1:1]':
   name: "Create model 01"
   environment_variables:
@@ -218,6 +223,46 @@
   environment_variables:
     FEATURE_NAME: "Update option 01"
     FEATURE: './spec/features/options/update_spec.rb[1:1]'
+'./spec/features/packages/create_spec.rb[1:1]':
+  name: "Create package 01"
+  environment_variables:
+    FEATURE_NAME: "Create package 01"
+    FEATURE: './spec/features/packages/create_spec.rb[1:1]'
+'./spec/features/packages/create_spec.rb[1:2]':
+  name: "Create package 02"
+  environment_variables:
+    FEATURE_NAME: "Create package 02"
+    FEATURE: './spec/features/packages/create_spec.rb[1:2]'
+'./spec/features/packages/create_spec.rb[1:3]':
+  name: "Create package 03"
+  environment_variables:
+    FEATURE_NAME: "Create package 03"
+    FEATURE: './spec/features/packages/create_spec.rb[1:3]'
+'./spec/features/packages/create_spec.rb[1:4]':
+  name: "Create package 04"
+  environment_variables:
+    FEATURE_NAME: "Create package 04"
+    FEATURE: './spec/features/packages/create_spec.rb[1:4]'
+'./spec/features/packages/update_spec.rb[1:1]':
+  name: "Update package 01"
+  environment_variables:
+    FEATURE_NAME: "Update package 01"
+    FEATURE: './spec/features/packages/update_spec.rb[1:1]'
+'./spec/features/packages/update_spec.rb[1:2]':
+  name: "Update package 02"
+  environment_variables:
+    FEATURE_NAME: "Update package 02"
+    FEATURE: './spec/features/packages/update_spec.rb[1:2]'
+'./spec/features/packages/update_spec.rb[1:3]':
+  name: "Update package 03"
+  environment_variables:
+    FEATURE_NAME: "Update package 03"
+    FEATURE: './spec/features/packages/update_spec.rb[1:3]'
+'./spec/features/packages/update_spec.rb[1:4]':
+  name: "Update package 04"
+  environment_variables:
+    FEATURE_NAME: "Update package 04"
+    FEATURE: './spec/features/packages/update_spec.rb[1:4]'
 './spec/features/root_page_smoke_spec.rb[1:1:1]':
   name: "Root page renders 01"
   environment_variables:

@@ -7,7 +7,7 @@
    ["@@/tooltip" :refer [TooltipProvider]]
    ["lucide-react" :refer [WifiOff]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Outlet]]
+   ["react-router-dom" :as router :refer [Outlet ScrollRestoration]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.routes.components.header :as header]
    [leihs.inventory.client.routes.components.theme-provider :refer [ThemeProvider]]
@@ -34,6 +34,7 @@
     ($ ThemeProvider {:default-theme "system"}
        ($ TooltipProvider
           ($ :<>
+             ($ ScrollRestoration)
              ($ header/main profile)
              ($ :main {:className "md:container"}
                 ($ Outlet)

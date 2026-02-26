@@ -6,6 +6,12 @@
       "inventory_code": "Inventory Code",
       "model_id": "Model"
     },
+    "Content": {
+      "title": "Content"
+    },
+    "Package": {
+      "title": "Package"
+    },
     "Inventory": {
       "title": "Inventory",
       "last_check": "Last Checked",
@@ -119,7 +125,8 @@
           "invalid_one": "Item could not be saved because one field is invalid",
           "invalid_other": "Item could not be saved because {{count}} fields are invalid",
           "conflict": "Inventory code already exists",
-          "error": "An error occurred while saving"
+          "error": "An error occurred while saving",
+          "package_item": "Item is part of package"
         },
         "delete": {
           "title": "Delete Item",
@@ -177,6 +184,62 @@
         "back_to_inventory": "Back to Inventory"
       }
     },
+    "packages": {
+      "package": {
+        "create": {
+          "title": "Create New Package",
+          "description": "Provide all required information",
+          "submit": "Create",
+          "cancel": "Cancel",
+          "success": "Package was successfully created",
+          "invalid_one": "Package could not be created because one field is invalid",
+          "invalid_other": "Package could not be created because {{count}} fields are invalid",
+          "conflict": "Inventory code already exists",
+          "error": "An error occurred while creating"
+        },
+        "edit": {
+          "title": "Edit Package",
+          "description": "Make changes and save afterwards",
+          "submit": "Save",
+          "retire": "Retire",
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "success": "Package was successfully saved",
+          "invalid_one": "Package could not be saved because one field is invalid",
+          "invalid_other": "Package could not be saved because {{count}} fields are invalid",
+          "conflict": "Inventory code already exists",
+          "error": "An error occurred while saving",
+          "empty_package": "All items have been removed from this package. Retired and retire reason have been automatically set.",
+          "auto_retire_reason": "Package was automatically retired because it has no items assigned"
+        },
+        "delete": {
+          "title": "Delete Package",
+          "description": "Are you sure you want to delete this package?",
+          "confirm": "Delete",
+          "cancel": "Cancel",
+          "success": "Package was successfully deleted",
+          "error": "Package could not be deleted"
+        },
+        "fields": {
+          "disabled": {
+            "protected": "Only the owner can edit this field",
+            "generic": "This field is currently disabled"
+          },
+          "autocomplete": {
+            "select": "Make a selection",
+            "search": "Enter search term",
+            "empty": "No results found for this search term"
+          },
+          "items": {
+            "select": "Select items",
+            "search": "Search items",
+            "searching": "Searching...",
+            "search_empty": "Type at least 2 characters to search",
+            "not_found": "No items found"
+          }
+        }
+      }
+    },
     "models": {
       "title": "Inventory list",
       "filters": {
@@ -229,6 +292,7 @@
       "dropdown": {
         "title": "Add inventory",
         "add_model": "New model",
+        "add_package": "New package",
         "add_item": "New item",
         "add_option": "New option",
         "add_software": "New software"

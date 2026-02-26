@@ -6,6 +6,12 @@
       "inventory_code": "Inventarcode",
       "model_id": "Modell"
     },
+    "Content": {
+      "title": "Inhalt"
+    },
+    "Package": {
+      "title": "Paket"
+    },
     "Inventory": {
       "title": "Inventar",
       "last_check": "Letzte Inventur",
@@ -118,7 +124,8 @@
           "invalid_one": "Gegenstand konnte nicht gespeichert werden, da ein Feld ungültig ist",
           "invalid_other": "Gegenstand konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
           "conflict": "Inventarcode existiert bereits",
-          "error": "Beim speichern ist ein Fehler aufgetreten"
+          "error": "Beim speichern ist ein Fehler aufgetreten",
+          "package_item": "Gegenstand ist teil eines Pakets"
         },
         "delete": {
           "title": "Gegenstand löschen",
@@ -176,6 +183,63 @@
         "back_to_inventory": "Zurück zum Inventar"
       }
     },
+    "packages": {
+      "package": {
+        "create": {
+          "title": "Neues Paket erstellen",
+          "description": "Geben Sie alle erforderlichen Informationen an",
+          "submit": "Paket",
+          "cancel": "Abbrechen",
+          "success": "Paket wurde erfolgreich erstellt",
+          "invalid_one": "Paket konnte nicht erstellt werden, da ein Feld ungültig ist",
+          "invalid_other": "Paket konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
+        },
+        "edit": {
+          "title": "Paket bearbeiten",
+          "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Speichern",
+          "retire": "Ausmustern",
+          "delete": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Paket wurde erfolgreich gespeichert",
+          "invalid_one": "Paket konnte nicht gespeichert werden, da ein Feld ungültig ist",
+          "invalid_other": "Paket konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Speichern ist ein Fehler aufgetreten",
+          "empty_package": "Alle Gegenstände wurden aus dem Paket entfernt. Ausmusterung und der Ausmusterungsgrund wurden automatisch gesetzt.",
+          "auto_retire_reason": "Automatische Ausmusterung aufgrund leerem Paket"
+        },
+        "delete": {
+          "title": "Paket löschen",
+          "description": "Sind Sie sicher, dass Sie dieses Paket löschen möchten?",
+          "confirm": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Paket wurde erfolgreich gelöscht",
+          "error": "Paket konnte nicht gelöscht werden"
+        },
+        "fields": {
+          "disabled": {
+            "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
+            "generic": "Dieses Feld ist derzeit deaktiviert"
+          },
+          "autocomplete": {
+            "select": "Auswahl treffen",
+            "search": "Suchbegriff eingeben",
+            "empty": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
+          },
+          "items": {
+            "label": "Gegenstände",
+            "select": "Gegenstände auswählen",
+            "search": "Gegenstände suchen",
+            "searching": "Suche läuft...",
+            "search_empty": "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
+            "not_found": "Keine Gegenstände gefunden"
+          }
+        }
+      }
+    },
     "models": {
       "title": "Inventarliste",
       "filters": {
@@ -228,6 +292,7 @@
       "dropdown": {
         "title": "Inventar hinzufügen",
         "add_model": "Neues Modell",
+        "add_package": "Neues Paket",
         "add_item": "Neuen Gegenstand",
         "add_option": "Neue Option",
         "add_software": "Neue Software"

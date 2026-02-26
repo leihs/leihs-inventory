@@ -43,14 +43,14 @@ export function ScrollspyMenu({ children, className, ...props }) {
 
   return (
     <aside
-      className="hidden lg:block lg:bg-transparent lg:min-w-max lg:w-1/5 h-max sticky top-[10vh]"
+      className={cn(
+        "hidden lg:block lg:bg-transparent h-max sticky top-[10vh]",
+        className,
+      )}
       {...props}
     >
       <nav
-        className={cn(
-          "flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1",
-          className,
-        )}
+        className={cn("flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1")}
       >
         {items.map((item, index) => (
           <Button

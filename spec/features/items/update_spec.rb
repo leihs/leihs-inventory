@@ -64,6 +64,17 @@ feature "Update item", type: :feature do
   let!(:supplier_new) { FactoryBot.create(:supplier) }
   let!(:other_pool) { FactoryBot.create(:inventory_pool) }
 
+  # Package-related test data for package item alert test
+  let!(:package_model) { FactoryBot.create(:package_model, product: "Test Package Model") }
+  let!(:child_item_model) { FactoryBot.create(:leihs_model, product: "Child Item Model") }
+  let(:package_inventory_code) { "PKG-" + Faker::Barcode.ean }
+  let(:child_item_inventory_code) { Faker::Barcode.ean }
+  let(:standalone_item_inventory_code) { Faker::Barcode.ean }
+
+  # Building and room for package items test
+  let!(:building) { FactoryBot.create(:building, name: "Test Building") }
+  let!(:room) { FactoryBot.create(:room, name: "Test Room", building: building) }
+
   before(:each) do
     FactoryBot.create(:access_right,
       inventory_pool: pool,
@@ -297,5 +308,83 @@ feature "Update item", type: :feature do
     click_on "Save"
     expect(page).to have_text("Item was successfully saved")
     expect(page).to have_text("Inventory List")
+  end
+
+  scenario "shows alert when item is part of a package" do
+    # Create the parent package
+    @package = FactoryBot.create(:item,
+      inventory_code: package_inventory_code,
+      leihs_model: package_model,
+      inventory_pool: pool,
+      owner: pool,
+      room: room)
+
+    # Create a child item that belongs to the package
+    @child_item = FactoryBot.create(:item,
+      inventory_code: child_item_inventory_code,
+      leihs_model: child_item_model,
+      inventory_pool: pool,
+      owner: pool,
+      parent_id: @package.id, # This makes it part of the package
+      room: room)
+
+    # Create a standalone item (no parent_id) for negative test
+    @standalone_item = FactoryBot.create(:item,
+      inventory_code: standalone_item_inventory_code,
+      leihs_model: child_item_model,
+      inventory_pool: pool,
+      owner: pool,
+      room: room)
+
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+
+    # Test 1: Navigate to child item and verify alert appears
+    fill_in "search", with: child_item_model.product
+    await_debounce
+
+    within find('[data-row="model"]', text: child_item_model.product) do
+      click_on "expand-button"
+    end
+
+    within find('[data-row="item"]', text: child_item_inventory_code) do
+      click_on "edit"
+    end
+
+    # Verify alert is visible with correct content
+    expect(page).to have_content("Item is part of package")
+
+    # Verify link to package exists with correct text format
+    expected_link_text = "#{package_model.product} - #{package_inventory_code}"
+    expect(page).to have_link(expected_link_text)
+
+    # Click the package link in the alert and verify navigation
+    click_on expected_link_text
+
+    # Verify we're now on the package edit page
+    expect(current_path).to eq("/inventory/#{pool.id}/packages/#{@package.id}")
+
+    # Verify we're editing the correct package
+    assert_field "Inventory Code", package_inventory_code
+    expect(find('button[data-test-id="model_id"]')).to have_text(package_model.product)
+
+    # Navigate back to list
+    visit "/inventory/#{pool.id}/list"
+
+    # Test 2: Navigate to standalone item and verify NO alert appears
+    fill_in "search", with: child_item_model.product
+    await_debounce
+
+    within find('[data-row="model"]', text: child_item_model.product) do
+      click_on "expand-button"
+    end
+
+    within find('[data-row="item"]', text: standalone_item_inventory_code) do
+      click_on "edit"
+    end
+
+    # Verify alert does NOT appear for standalone items
+    expect(page).not_to have_content("Item is part of package")
+    expect(page).not_to have_content(expected_link_text)
   end
 end

@@ -2,6 +2,7 @@
   (:require
    ["@/components/react/scrollspy/scrollspy" :refer [Scrollspy ScrollspyItem
                                                      ScrollspyMenu]]
+   ["@@/alert" :refer [Alert AlertTitle AlertDescription]]
    ["@@/button" :refer [Button]]
    ["@@/button-group" :refer [ButtonGroup ButtonGroupSeparator]]
    ["@@/card" :refer [Card CardContent]]
@@ -11,7 +12,7 @@
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
-   ["lucide-react" :refer [ChevronDownIcon]]
+   ["lucide-react" :refer [ChevronDownIcon InfoIcon]]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
@@ -28,27 +29,36 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
+(def groups ["Mandatory data"
+             "Status"
+             "Inventory"
+             "Eigenschaften"
+             "General Information"
+             "Location"
+             "Invoice Information"])
+
 (defui page []
   (let [[t] (useTranslation)
         location (router/useLocation)
         navigate (router/useNavigate)
+        params (router/useParams)
 
         state (.. location -state)
         is-create (.. location -pathname (includes "create"))
         is-delete (.. location -pathname (includes "delete"))
 
+        pool-id (aget params "pool-id")
+
         is-edit (not (or is-create is-delete))
 
-        {:keys [data model]} (jc (useLoaderData))
+        {:keys [data model package package-model]} (jc (useLoaderData))
 
         ;; Define custom fields for create mode only
         custom-fields (if is-create
                         [{:id "count"
-                          :type "number"
                           :component "input"
                           :group "Mandatory data"
                           :position 0
-                          :label "Item Count"
                           :required true
                           :default 1
                           :props {:type "number"
@@ -79,7 +89,6 @@
         is-loading (.. form -formState -isLoading)
 
         control (.. form -control)
-        params (router/useParams)
 
         field-building (useWatch (cj {:control control
                                       :name "building_id.value"}))
@@ -93,7 +102,7 @@
         ;; Transform fields data to derived form structure
         structure (uix/use-memo
                    (fn []
-                     (cond-> (dynamic-form/fields->structure fields)
+                     (cond-> (dynamic-form/fields->structure fields {:group-order groups})
 
                        ;; Disable model_id when set via path param
                        (and is-create model (not is-loading))
@@ -149,8 +158,6 @@
                                           (cond-> batch? (dissoc :serial_number :inventory_code))
                                           (dissoc :attachments)
                                           (into {}))
-
-                            pool-id (aget params "pool-id")
 
                             item-res (if is-create
                                        (<p! (-> http-client
@@ -287,28 +294,39 @@
          ($ Card {:className "py-8 mb-12"}
             ($ CardContent
                ($ Scrollspy {:className "flex gap-4"}
-                  ($ ScrollspyMenu)
+                  ($ ScrollspyMenu {:class-name "w-full lg:w-1/5"})
 
-                  ($ Form (merge form)
-                     ($ :form {:id "item-form"
-                               :className "space-y-12 w-full lg:w-3/5"
-                               :no-validate true
-                               :on-submit (handle-submit on-submit on-invalid)}
+                  ($ :div {:className "w-full lg:w-4/5"}
+                     (when package
+                       ($ Alert {:class-name "mb-6 border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-50"}
+                          ;; ($ InfoIcon {:className "w-3 h-3"})
+                          ($ AlertTitle {:class-name "text-sm font-medium"}
+                             (t "pool.items.item.edit.package_item"))
+                          ($ AlertDescription {:class-name "text-xs text-muted-foreground"}
+                             ($ Link {:to (str "/inventory/" pool-id "/packages/" (:id package))
+                                      :viewTransition true}
+                                (str (:product package-model) " - " (:inventory_code package))))))
 
-                        (for [section structure]
-                          ($ ScrollspyItem {:className "scroll-mt-[10vh]"
-                                            :key (:title section)
-                                            :id (:title section)
-                                            :name (t (:title section))}
+                     ($ Form (merge form)
+                        ($ :form {:id "item-form"
+                                  :className "space-y-12 "
+                                  :no-validate true
+                                  :on-submit (handle-submit on-submit on-invalid)}
 
-                             ($ :h2 {:className "text-lg"} (t (:title section)))
-                             ($ :hr {:className "mb-4"})
+                           (for [section structure]
+                             ($ ScrollspyItem {:className "scroll-mt-[10vh]"
+                                               :key (:title section)
+                                               :id (:title section)
+                                               :name (t (:title section))}
 
-                             (for [block (:blocks section)]
-                               ($ form-fields/field {:key (:name block)
-                                                     :control control
-                                                     :form form
-                                                     :block block}))))))
+                                ($ :h2 {:className "text-lg"} (t (:title section)))
+                                ($ :hr {:className "mb-4"})
+
+                                (for [block (:blocks section)]
+                                  ($ form-fields/field {:key (:name block)
+                                                        :control control
+                                                        :form form
+                                                        :block block})))))))
 
                   ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}
                      ($ Button {:type "submit"
