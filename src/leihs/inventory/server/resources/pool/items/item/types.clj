@@ -4,7 +4,9 @@
    [leihs.inventory.server.utils.schema :refer [Date]]
    [schema.core :as s]))
 
-(def get-response post-response)
+(def get-response
+  (merge post-response
+         {(s/optional-key :fields) [s/Any]}))
 
 (def patch-request
   (merge {(s/optional-key :inventory_code) s/Str

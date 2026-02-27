@@ -147,16 +147,12 @@
                                     #js {:cache false})
                               (.then #(jc (.-data %)))))
 
-          data (if item-id
-                 (-> http-client
-                     (.get (str "/inventory/" pool-id "/fields/?resource_id=" item-id "&target_type=item")
-                           #js {:id item-id})
-                     (.then #(jc (.-data %))))
+          data (when-not item-id
                  (-> http-client
                      (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
                      (.then #(jc (.-data %)))))]
 
-    {:data data
+    {:data (if item-id {:fields (:fields item)} data)
      :model model
      :package package
      :package-model package-model}))
