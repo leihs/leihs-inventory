@@ -4,7 +4,9 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.resources.pool.fields.main :as fields]
    [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
+   [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
    [leihs.inventory.server.resources.pool.items.fields-shared :refer [coerce-field-values
                                                                       in-coercions
                                                                       out-coercions
@@ -64,17 +66,20 @@
            :is_package)))
 
 (defn get-resource [{:keys [tx]
-                     {{:keys [item_id]} :path} :parameters
+                     {{:keys [item_id pool_id]} :path} :parameters
+                     {:keys [role] user-id :id} :authenticated-entity
                      :as request}]
   (try
     (if-let [item (get-one tx item_id)]
       (let [is-package? (model-is-package? tx (:model_id item))
-            response-data (-> item
-                              flatten-properties
-                              (coerce-field-values out-coercions))]
-        (response (cond-> response-data
-                    is-package?
-                    (assoc :item_ids (get-child-item-ids tx item_id)))))
+            item-data (flatten-properties item)
+            response-data (coerce-field-values item-data out-coercions)
+            pool (pools/get-by-id tx pool_id)
+            item-fields (fields/get-fields tx pool user-id role "item" item-data)]
+        (response (-> response-data
+                      (assoc :fields item-fields)
+                      (cond-> is-package?
+                        (assoc :item_ids (get-child-item-ids tx item_id))))))
       (not-found {:error "Item not found"}))
     (catch Exception e
       (log-by-severity ERROR_GET_ITEM e)

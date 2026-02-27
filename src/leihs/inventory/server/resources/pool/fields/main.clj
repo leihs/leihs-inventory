@@ -208,26 +208,31 @@
     (assoc field :default
            (handle-default tx field-id value item-data pool-id))))
 
+(defn get-fields [tx pool user-id role target-type item-data]
+  (let [pool-id (:id pool)
+        query (base-query target-type role pool-id)
+        fields (jdbc/query tx (sql-format query))
+        transformed-fields (map #(transform-field-data % :tx tx
+                                                       :pool pool
+                                                       :user-id user-id
+                                                       :target-type target-type
+                                                       :item-data item-data)
+                                fields)
+        fields-with-defaults (if item-data
+                               (map #(handle-item-defaults tx % item-data pool-id)
+                                    transformed-fields)
+                               transformed-fields)]
+    (vec fields-with-defaults)))
+
 (defn index-resources
   [{:keys [tx] {:keys [role] user-id :id} :authenticated-entity :as request}]
   (try
     (let [{:keys [target_type resource_id]} (query-params request)
           {:keys [pool_id]} (path-params request)
           pool (pools/get-by-id tx pool_id)
-          query (base-query target_type role pool_id)
-          fields (jdbc/query tx (sql-format query))
           item-data (get-item-data tx pool_id resource_id)
-          transformed-fields (map #(transform-field-data % :tx tx
-                                                         :pool pool
-                                                         :user-id user-id
-                                                         :target-type target_type
-                                                         :item-data item-data)
-                                  fields)
-          fields-with-defaults (if item-data
-                                 (map #(handle-item-defaults tx % item-data pool_id)
-                                      transformed-fields)
-                                 transformed-fields)]
-      (response {:fields (vec fields-with-defaults)}))
+          fields (get-fields tx pool user-id role target_type item-data)]
+      (response {:fields fields}))
     (catch Exception e
       (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))
