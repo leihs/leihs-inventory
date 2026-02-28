@@ -8,31 +8,38 @@
 
 (def get-model-scheme
   {:id (s/cond-pre s/Uuid s/Str)
+   (s/optional-key :name) (s/maybe s/Str)
    (s/optional-key :type) (s/maybe s/Str)
+   (s/optional-key :origin_table) (s/maybe s/Str)
    (s/optional-key :manufacturer) (s/maybe s/Str)
    (s/optional-key :product) (s/maybe s/Str)
    (s/optional-key :version) (s/maybe s/Str)
    (s/optional-key :info_url) (s/maybe s/Str)
+   (s/optional-key :url) (s/maybe s/Str)
    (s/optional-key :rental_price) (s/maybe s/Any)
+   (s/optional-key :price) (s/maybe s/Any)
    (s/optional-key :maintenance_period) (s/maybe s/Int)
    (s/optional-key :is_package) (s/maybe s/Bool)
    (s/optional-key :hand_over_note) (s/maybe s/Str)
    (s/optional-key :description) (s/maybe s/Str)
    (s/optional-key :internal_description) (s/maybe s/Str)
    (s/optional-key :technical_detail) (s/maybe s/Str)
+   (s/optional-key :inventory_code) (s/maybe s/Str)
+   (s/optional-key :inventory_pool_id) (s/maybe s/Uuid)
+   (s/optional-key :items_quantity) (s/maybe s/Int)
+   (s/optional-key :borrowable_quantity) (s/maybe s/Int)
+   (s/optional-key :in_stock_quantity) (s/maybe s/Int)
    (s/optional-key :created_at) (s/maybe s/Any)
    (s/optional-key :updated_at) (s/maybe s/Any)
-   (s/optional-key :cover_image_id) (s/maybe s/Any)
+   (s/optional-key :cover_image_id) (s/maybe s/Uuid)
+   (s/optional-key :image_id) (s/maybe s/Uuid)
    (s/optional-key :content_type) (s/maybe s/Str)
    (s/optional-key :image_url) (s/maybe s/Str)})
 
-(def get-models-response-payload
-  (merge get-model-scheme {s/Keyword s/Any}))
-
 (def get-response
-  (s/->Either [{:data [get-models-response-payload]
+  (s/->Either [{:data [get-model-scheme]
                 :pagination pagination}
-               [get-models-response-payload]]))
+               [get-model-scheme]]))
 
 (sa/def :software/properties (sa/or
                               :single (sa/or :coll (sa/coll-of ::sp/property)
