@@ -1,11 +1,11 @@
 (ns leihs.inventory.server.resources.pool.items.item.types
   (:require
-   [leihs.inventory.server.resources.pool.items.types :refer [post-response properties]]
+   [leihs.inventory.server.resources.pool.items.types :refer [post-response-item properties]]
    [leihs.inventory.server.utils.schema :refer [Date]]
    [schema.core :as s]))
 
 (def get-response
-  (merge post-response
+  (merge post-response-item
          {(s/optional-key :fields) [s/Any]}))
 
 (def patch-request
@@ -38,4 +38,4 @@
           (s/optional-key :supplier_id) (s/maybe s/Uuid)
           (s/optional-key :user_name) (s/maybe s/Str)} properties))
 
-(def patch-response post-response)
+(def patch-response post-response-item)
