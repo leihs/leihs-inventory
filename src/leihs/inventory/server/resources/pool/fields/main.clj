@@ -227,10 +227,11 @@
 (defn index-resources
   [{:keys [tx] {:keys [role] user-id :id} :authenticated-entity :as request}]
   (try
-    (let [{:keys [target_type]} (query-params request)
+    (let [{:keys [target_type resource_id]} (query-params request)
           {:keys [pool_id]} (path-params request)
           pool (pools/get-by-id tx pool_id)
-          fields (get-fields tx pool user-id role target_type nil)]
+          item-data (get-item-data tx pool_id resource_id)
+          fields (get-fields tx pool user-id role target_type item-data)]
       (response {:fields fields}))
     (catch Exception e
       (log-by-severity ERROR_GET e)

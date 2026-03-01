@@ -72,11 +72,10 @@
   (try
     (if-let [item (get-one tx item_id)]
       (let [is-package? (model-is-package? tx (:model_id item))
-            response-data (-> item
-                              flatten-properties
-                              (coerce-field-values out-coercions))
+            item-data (flatten-properties item)
+            response-data (coerce-field-values item-data out-coercions)
             pool (pools/get-by-id tx pool_id)
-            item-fields (fields/get-fields tx pool user-id role "item" response-data)]
+            item-fields (fields/get-fields tx pool user-id role "item" item-data)]
         (response (-> response-data
                       (assoc :fields item-fields)
                       (cond-> is-package?
