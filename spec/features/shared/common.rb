@@ -39,6 +39,13 @@ def select_value(name, value)
   find("div[data-test-id='#{value}']", match: :first).click
 end
 
+def click_calendar_day(date)
+  unless date.month == Date.today.month && date.year == Date.today.year
+    find('[class*="rdp-button_previous"]').click
+  end
+  find("[data-day='#{date.strftime("%-m/%-d/%Y")}']").click
+end
+
 def attach_file_by_label(label_text, file_path)
   within find("label", text: label_text).find(:xpath, "..") do
     file_input = first("input[type='file']", minimum: 0, visible: :all)
