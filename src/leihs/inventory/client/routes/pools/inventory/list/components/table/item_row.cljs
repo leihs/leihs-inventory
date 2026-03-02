@@ -71,10 +71,10 @@
                       ($ ChevronDown {:className "w-4 h-4"})))
                 ($ DropdownMenuContent {:align "start"}
                    ($ DropdownMenuItem
-                      ($ Link {:to (str (:id item) "/items/create")
+                      ($ Link {:to (str "../items/create?fromItem=" (:id item))
                                :state #js {:searchParams (.. location -search)}
                                :viewTransition true}
-                         (t "pool.models.list.actions.add_item"))))))))))
+                         (t "pool.models.list.actions.copy_item"))))))))))
 
 (def ItemRow
   (uix/as-react

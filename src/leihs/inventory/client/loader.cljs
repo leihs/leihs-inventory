@@ -120,8 +120,15 @@
 
 (defn items-crud-page [route-data]
   (p/let [params (.. ^js route-data -params)
+          query-params (-> (js/URL. (.. route-data -request -url))
+                           (.-search)
+                           (js/URLSearchParams.))
+
           pool-id (aget params "pool-id")
           item-id (or (aget params "item-id") nil)
+          copy-item-id (or (aget params "fromItem")
+                           (.get query-params "fromItem")
+                           nil)
           model-id (or (aget params "model-id") nil)
 
           model (when model-id
@@ -147,12 +154,20 @@
                                     #js {:cache false})
                               (.then #(jc (.-data %)))))
 
+          copy-data (when copy-item-id
+                      (-> http-client
+                          (.get (str "/inventory/" pool-id "/items/" copy-item-id)
+                                #js {:cache false})
+                          (.then #(jc (.-data %)))))
+
           data (when-not item-id
                  (-> http-client
-                     (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
+                     (.get (str "/inventory/" pool-id "/fields/?target_type=item")
+                           #js {:cache false})
                      (.then #(jc (.-data %)))))]
 
     {:data (if item-id {:fields (:fields item)} data)
+     :copy-data (when copy-item-id {:fields (:fields copy-data)})
      :model model
      :package package
      :package-model package-model}))

@@ -42,16 +42,17 @@
         location (router/useLocation)
         navigate (router/useNavigate)
         params (router/useParams)
+        [search-params _] (router/useSearchParams)
 
         state (.. location -state)
         is-create (.. location -pathname (includes "create"))
         is-delete (.. location -pathname (includes "delete"))
+        is-edit (not (or is-create is-delete))
+        is-copy (.has search-params "fromItem")
 
         pool-id (aget params "pool-id")
 
-        is-edit (not (or is-create is-delete))
-
-        {:keys [data model package package-model]} (jc (useLoaderData))
+        {:keys [data copy-data model package package-model]} (jc (useLoaderData))
 
         ;; Define custom fields for create mode only
         custom-fields (if is-create
@@ -76,10 +77,16 @@
 
         ;; Extract default values from fields
         defaults (dynamic-form/fields->defaults fields)
+        copy-defaults (when is-copy (dynamic-form/fields->defaults (:fields copy-data)))
 
         form (useForm (cj {:resolver (zodResolver (dynamic-validation/fields->schema fields))
-                           :defaultValues (if is-create
+                           :defaultValues (cond
+                                            is-copy
+                                            (merge defaults
+                                                   (dissoc copy-defaults :inventory_code :serial_number :attachments))
+                                            is-create
                                             (cj defaults)
+                                            is-edit
                                             (fn [] (form-helper/process-files defaults :attachments)))}))
 
         get-field-state (.. form -getFieldState)

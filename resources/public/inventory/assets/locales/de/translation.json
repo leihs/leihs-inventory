@@ -329,7 +329,8 @@
         },
         "actions": {
           "edit": "editieren",
-          "add_item": "Gegenstand hinzufügen"
+          "add_item": "Gegenstand hinzufügen",
+          "copy_item": "Gegenstand duplizieren"
         }
       }
     },
