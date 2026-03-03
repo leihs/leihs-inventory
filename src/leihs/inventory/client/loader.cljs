@@ -54,69 +54,64 @@
                        #js {:cause "loader-error"})))))
 
 (defn root-layout []
-  (let [profile (-> http-client
-                    (.get "/inventory/profile/" #js {:id "profile"})
-                    (.then (fn [res] (jc (.. res -data)))))
-        settings (-> http-client
-                     (.get "/inventory/settings/")
-                     (.then #(jc (.-data %))))]
-    (.. (js/Promise.all (cond-> [profile settings]))
-        (then (fn [[profile settings]]
-                {:profile profile
-                 :settings settings}))
-        (catch (fn [err]
-                 (handle-error err))))))
+  (p/let [profile (-> http-client
+                      (.get "/inventory/profile/" #js {:id "profile"})
+                      (.then (fn [res] (jc (.. res -data)))))
+          settings (-> http-client
+                       (.get "/inventory/settings/")
+                       (.then #(jc (.-data %))))]
+    (try
+      {:profile profile
+       :settings settings}
+      (catch js/Error err
+        (handle-error err)))))
 
 (defn list-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
         search (.-search url)]
     (if (empty? search)
       (router/redirect "?page=1&size=50")
-      (let [params (.. ^js route-data -params)
-            pool-id (aget params "pool-id")
-            categories (-> http-client
-                           (.get (str "/inventory/" pool-id "/category-tree/"))
-                           (.then #(jc (.-data %))))
+      (p/let [params (.. ^js route-data -params)
+              pool-id (aget params "pool-id")
+              categories (-> http-client
+                             (.get (str "/inventory/" pool-id "/category-tree/"))
+                             (.then #(jc (.-data %))))
 
-            responsible-pools (-> http-client
-                                  (.get (str "/inventory/" pool-id "/inventory-pools/?responsible=true"))
-                                  (.then #(jc (.-data %))))
+              responsible-pools (-> http-client
+                                    (.get (str "/inventory/" pool-id "/inventory-pools/?responsible=true"))
+                                    (.then #(jc (.-data %))))
 
-            data (-> http-client
-                     (.get (str "/inventory/" pool-id "/list/" search) #js {:cache false})
-                     (.then #(jc (.. % -data))))]
+              data (-> http-client
+                       (.get (str "/inventory/" pool-id "/list/" search) #js {:cache false})
+                       (.then #(jc (.. % -data))))]
 
-        (.. (js/Promise.all (cond-> [categories data responsible-pools]))
-            (then (fn [[categories data responsible-pools]]
-                    {:categories categories
-                     :responsible-pools responsible-pools
-                     :data data}))
-            (catch (fn [err]
-                     (handle-error err))))))))
+        (try
+          {:categories categories
+           :responsible-pools responsible-pools
+           :data data}
+          (catch js/Error err
+            (handle-error err)))))))
 
 (defn software-crud-page [route-data]
-  (let [params (.. ^js route-data -params)
-        pool-id (aget params "pool-id")
-        manufacturers (-> http-client
-                          (.get (str "/inventory/" pool-id "/manufacturers/?type=Software") #js {:id "manufacturers"})
-                          (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
+  (p/let [params (.. ^js route-data -params)
+          pool-id (aget params "pool-id")
+          manufacturers (-> http-client
+                            (.get (str "/inventory/" pool-id "/manufacturers/?type=Software") #js {:id "manufacturers"})
+                            (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
-        software-id (or (:software-id (jc params)) nil)
+          software-id (or (:software-id (jc params)) nil)
+          software-path (when software-id (str "/inventory/" pool-id "/software/" software-id))
 
-        software-path (when software-id (str "/inventory/" pool-id "/software/" software-id))
+          data (when software-path
+                 (-> http-client
+                     (.get software-path #js {:id software-id})
+                     (.then #(jc (.-data %)))))]
 
-        data (when software-path
-               (-> http-client
-                   (.get software-path #js {:id software-id})
-                   (.then #(jc (.-data %)))))]
-
-    (.. (js/Promise.all (cond-> [manufacturers]
-                          data (conj data)))
-        (then (fn [[manufacturers & [data]]]
-                {:manufacturers manufacturers
-                 :data (if data data nil)}))
-        (catch (fn [err]
-                 (handle-error err))))))
+    (try
+      {:manufacturers manufacturers
+       :data (if data data nil)}
+      (catch js/Error err
+        (handle-error err)))))
 
 (defn items-crud-page [route-data]
   (p/let [params (.. ^js route-data -params)
@@ -166,210 +161,209 @@
                            #js {:cache false})
                      (.then #(jc (.-data %)))))]
 
-    {:data (if item-id {:fields (:fields item)} data)
-     :copy-data (when copy-item-id {:fields (:fields copy-data)})
-     :model model
-     :package package
-     :package-model package-model}))
+    (try
+      {:data (if item-id {:fields (:fields item)} data)
+       :copy-data (when copy-item-id {:fields (:fields copy-data)})
+       :model model
+       :package package
+       :package-model package-model}
+      (catch js/Error err
+        (handle-error err)))))
 
 (defn items-review-page [route-data]
-  (let [params (.. ^js route-data -params)
-        pool-id (aget params "pool-id")
-        query-params (-> (js/URL. (.. route-data -request -url))
-                         (.-search)
-                         (js/URLSearchParams.))
-        ids (.getAll query-params "ids")
-        model-id (.get query-params "mid")
+  (p/let [params (.. ^js route-data -params)
+          pool-id (aget params "pool-id")
+          query-params (-> (js/URL. (.. route-data -request -url))
+                           (.-search)
+                           (js/URLSearchParams.))
+          ids (.getAll query-params "ids")
+          model-id (.get query-params "mid")
 
-        model (-> http-client
-                  (.get (str "/inventory/" pool-id "/models/" model-id)
-                        #js {:cache false})
-                  (.then #(jc (.. % -data))))
+          model (-> http-client
+                    (.get (str "/inventory/" pool-id "/models/" model-id)
+                          #js {:cache false})
+                    (.then #(jc (.. % -data))))
 
-        data (js/Promise.all (map (fn [id]
-                                    (-> http-client
-                                        (.get (str "/inventory/" pool-id "/items/" id)
-                                              #js {:cache false})
-                                        (.then #(jc (.. % -data)))))
-                                  ids))]
+          data (p/all (map (fn [id]
+                             (-> http-client
+                                 (.get (str "/inventory/" pool-id "/items/" id)
+                                       #js {:cache false})
+                                 (.then #(jc (.. % -data)))))
+                           ids))]
 
-    (.. (js/Promise.all (cj [data model]))
-        (then (fn [[data model]]
-                {:data data
-                 :model model}))
-        (catch (fn [err]
-                 (handle-error err))))))
+    (try
+      {:data data
+       :model model}
+      (catch js/Error err
+        (handle-error err)))))
 
 (defn packages-crud-page [route-data]
-  (let [params (.. ^js route-data -params)
-        pool-id (aget params "pool-id")
-        package-id (or (aget params "package-id") nil)
-        model-id (or (aget params "model-id") nil)
+  (p/let [params (.. ^js route-data -params)
+          pool-id (aget params "pool-id")
+          package-id (or (aget params "package-id") nil)
+          model-id (or (aget params "model-id") nil)
 
-        item-path (when package-id
-                    (str "/inventory/" pool-id "/items/"))
+          item-path (when package-id
+                      (str "/inventory/" pool-id "/items/"))
 
-        model (when model-id
-                (-> http-client
-                    (.get (str "/inventory/" pool-id "/models/" model-id))
-                    (.then #(jc (.-data %)))))
+          model (when model-id
+                  (-> http-client
+                      (.get (str "/inventory/" pool-id "/models/" model-id))
+                      (.then #(jc (.-data %)))))
 
-        items (when package-id
-                (-> http-client
-                    (.get (str "/inventory/" pool-id "/items/?parent_id=" package-id)
-                          #js {:cache false})
-                    (.then #(jc (.-data %)))))
+          items (when package-id
+                  (-> http-client
+                      (.get (str "/inventory/" pool-id "/items/?parent_id=" package-id)
+                            #js {:cache false})
+                      (.then #(jc (.-data %)))))
 
-        data (if item-path
-               (-> http-client
-                   (.get (str "/inventory/" pool-id "/fields/?resource_id=" package-id "&target_type=package")
-                         #js {:id package-id
-                              :cache false})
-                   (.then #(jc (.-data %))))
-               (-> http-client
-                   (.get (str "/inventory/" pool-id "/fields/?target_type=package")
-                         #js {:cache false})
-                   (.then #(jc (.-data %)))))]
+          data (if item-path
+                 (-> http-client
+                     (.get (str "/inventory/" pool-id "/fields/?resource_id=" package-id "&target_type=package")
+                           #js {:id package-id
+                                :cache false})
+                     (.then #(jc (.-data %))))
+                 (-> http-client
+                     (.get (str "/inventory/" pool-id "/fields/?target_type=package")
+                           #js {:cache false})
+                     (.then #(jc (.-data %)))))]
 
-    ;; destructuring for model is probably broken at the moment
-    (.. (js/Promise.all (cond-> [data]
-                          items (conj items)
-                          model (conj model)))
-        (then (fn [[data & [items model]]]
-                {:data data
-                 :items (if items items nil)
-                 :model (if model model nil)})))))
+    (try
+      {:data data
+       :items (if items items nil)
+       :model (if model model nil)}
+      (catch js/Error err
+        (handle-error err)))))
 
 (defn models-crud-page [route-data]
-  (let [params (.. ^js route-data -params)
-        pool-id (aget params "pool-id")
-        model-id (or (aget params "model-id") nil)
+  (p/let [params (.. ^js route-data -params)
+          pool-id (aget params "pool-id")
+          model-id (or (aget params "model-id") nil)
 
-        entitlement-groups (-> http-client
-                               (.get (str "/inventory/" pool-id "/entitlement-groups/"))
-                               (.then #(jc (.-data %))))
+          entitlement-groups (-> http-client
+                                 (.get (str "/inventory/" pool-id "/entitlement-groups/"))
+                                 (.then #(jc (.-data %))))
 
-        categories (-> http-client
-                       (.get (str "/inventory/" pool-id "/category-tree/"))
-                       (.then #(jc (.-data %))))
+          categories (-> http-client
+                         (.get (str "/inventory/" pool-id "/category-tree/"))
+                         (.then #(jc (.-data %))))
 
-        manufacturers (-> http-client
-                          (.get (str "/inventory/" pool-id "/manufacturers/?type=Model")
-                                #js {:id "manufacturers"})
-                          (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
+          manufacturers (-> http-client
+                            (.get (str "/inventory/" pool-id "/manufacturers/?type=Model")
+                                  #js {:id "manufacturers"})
+                            (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
-        model-path (when model-id
-                     (str "/inventory/" pool-id "/models/" model-id))
+          model-path (when model-id
+                       (str "/inventory/" pool-id "/models/" model-id))
 
-        data (when model-path
-               (-> http-client
-                   (.get model-path #js {:id model-id})
-                   (.then #(jc (.-data %)))))]
+          data (when model-path
+                 (-> http-client
+                     (.get model-path #js {:id model-id})
+                     (.then #(jc (.-data %)))))]
 
-    (.. (js/Promise.all (cond-> [categories manufacturers entitlement-groups]
-                          data (conj data)))
-        (then (fn [[categories manufacturers entitlement-groups & [data]]]
-                {:categories categories
-                 :manufacturers manufacturers
-                 :entitlement-groups entitlement-groups
-                 :data (if data data nil)}))
-        (catch (fn [err]
-                 (handle-error err))))))
+    (try
+      {:categories categories
+       :manufacturers manufacturers
+       :entitlement-groups entitlement-groups
+       :data (if data data nil)}
+      (catch js/Error err
+        (handle-error err)))))
 
 (defn options-crud-page [route-data]
-  (let [params (.. ^js route-data -params)
-        pool-id (aget params "pool-id")
-        option-id (or (aget params "option-id") nil)
+  (p/let [params (.. ^js route-data -params)
+          pool-id (aget params "pool-id")
+          option-id (or (aget params "option-id") nil)
 
-        option-path (when option-id
-                      (str "/inventory/" pool-id "/options/" option-id))
+          option-path (when option-id
+                        (str "/inventory/" pool-id "/options/" option-id))
 
-        data (when option-path
-               (-> http-client
-                   (.get option-path #js {:id option-id})
-                   (.then #(jc (.-data %)))))]
+          data (when option-path
+                 (-> http-client
+                     (.get option-path #js {:id option-id})
+                     (.then #(jc (.-data %)))))]
 
-    (.. (js/Promise.all (cond-> [] data (conj data)))
-        (then (fn [[& [data]]] {:data (if data data nil)}))
-        (catch (fn [err]
-                 (handle-error err))))))
+    (try
+      {:data (if data data nil)}
+      (catch js/Error err
+        (handle-error err)))))
 
 (defn entitlement-groups-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
         search (.-search url)]
     (if (empty? search)
       (router/redirect "?page=1&size=50")
-      (let [params (.. ^js route-data -params)
-            search (.-search url)
-            pool-id (aget params "pool-id")
-            data (-> http-client
-                     (.get (str "/inventory/" pool-id "/entitlement-groups/" search)
-                           #js {:cache false})
-                     (.then (fn [res]
-                              (jc (.. res -data))))
-                     (.catch (fn [error]
-                               (js/console.error "Error fetching entitlement groups" error))))]
+      (p/let [params (.. ^js route-data -params)
+              pool-id (aget params "pool-id")
+              data (-> http-client
+                       (.get (str "/inventory/" pool-id "/entitlement-groups/" search)
+                             #js {:cache false})
+                       (.then (fn [res]
+                                (jc (.. res -data))))
+                       (.catch (fn [error]
+                                 (js/console.error "Error fetching entitlement groups" error)
+                                 (throw error))))]
 
-        (.. (js/Promise.all [data])
-            (then (fn [[data]]
-                    {:data data})))))))
+        (try
+          {:data data}
+          (catch js/Error err
+            (handle-error err)))))))
 
 (defn entitlement-group-crud-page [route-data]
-  (let [params (.. ^js route-data -params)
-        pool-id (aget params "pool-id")
-        entitlement-group-id (or (aget params "entitlement-group-id") nil)
+  (p/let [params (.. ^js route-data -params)
+          pool-id (aget params "pool-id")
+          entitlement-group-id (or (aget params "entitlement-group-id") nil)
 
-        entitlement-group-path (when entitlement-group-id
-                                 (str "/inventory/" pool-id "/entitlement-groups/" entitlement-group-id))
+          entitlement-group-path (when entitlement-group-id
+                                   (str "/inventory/" pool-id "/entitlement-groups/" entitlement-group-id))
 
-        data (when entitlement-group-path
-               (-> http-client
-                   (.get entitlement-group-path #js {:id entitlement-group-id})
-                   (.then #(jc (.-data %)))
-                   (.catch (fn [error]
-                             (js/console.error "Error fetching entitlement group" error)))))]
+          data (when entitlement-group-path
+                 (-> http-client
+                     (.get entitlement-group-path #js {:id entitlement-group-id})
+                     (.then #(jc (.-data %)))
+                     (.catch (fn [error]
+                               (js/console.error "Error fetching entitlement group" error)
+                               (throw error)))))]
 
-    (.. (js/Promise.all (cond-> [] data (conj data)))
-        (then (fn [[& [data]]] {:data (if data data nil)})))))
+    (try
+      {:data (if data data nil)}
+      (catch js/Error err
+        (handle-error err)))))
 
 (defn templates-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
         search (.-search url)]
     (if (empty? search)
       (router/redirect "?page=1&size=50")
-      (let [params (.. ^js route-data -params)
-            search (.-search url)
-            pool-id (aget params "pool-id")
-            data (-> http-client
-                     (.get (str "/inventory/" pool-id "/templates/" search)
-                           #js {:cache false})
-                     (.then (fn [res]
-                              (jc (.. res -data)))))]
+      (p/let [params (.. ^js route-data -params)
+              pool-id (aget params "pool-id")
+              data (-> http-client
+                       (.get (str "/inventory/" pool-id "/templates/" search)
+                             #js {:cache false})
+                       (.then (fn [res]
+                                (jc (.. res -data)))))]
 
-        (.. (js/Promise.all [data])
-            (then (fn [[data]]
-                    {:data data}))
-            (catch (fn [err]
-                     (handle-error err))))))))
+        (try
+          {:data data}
+          (catch js/Error err
+            (handle-error err)))))))
 
 (defn template-crud-page [route-data]
-  (let [params (.. ^js route-data -params)
-        pool-id (aget params "pool-id")
-        template-id (or (aget params "template-id") nil)
+  (p/let [params (.. ^js route-data -params)
+          pool-id (aget params "pool-id")
+          template-id (or (aget params "template-id") nil)
 
-        template-path (when template-id
-                        (str "/inventory/" pool-id "/templates/" template-id))
+          template-path (when template-id
+                          (str "/inventory/" pool-id "/templates/" template-id))
 
-        data (when template-path
-               (-> http-client
-                   (.get template-path #js {:id template-id})
-                   (.then #(jc (.-data %)))))]
+          data (when template-path
+                 (-> http-client
+                     (.get template-path #js {:id template-id})
+                     (.then #(jc (.-data %)))))]
 
-    (.. (js/Promise.all (cond-> [] data (conj data)))
-        (then (fn [[& [data]]] {:data (if data data nil)}))
-        (catch (fn [_]
-                 (throw (js/Error "Loading route data failed"
-                                  #js {:cause "loader-error"})))))))
+    (try
+      {:data (if data data nil)}
+      (catch js/Error err
+        (handle-error err)))))
 
 (defn error-test
   "Test loader that always throws an error"
