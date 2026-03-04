@@ -1,4 +1,5 @@
 require "active_support/all"
+require "cgi"
 require "pry"
 
 require_relative "../database/spec/config/database"
