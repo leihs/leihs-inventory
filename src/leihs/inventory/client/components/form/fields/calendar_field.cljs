@@ -10,13 +10,15 @@
    [leihs.inventory.client.lib.utils :refer [cj]]
    [uix.core :refer [$ defui]]))
 
-(defui CalendarField [{:keys [form block]}]
-  (let [[t] (useTranslation)]
+(defui CalendarField [{:keys [form block class-name]}]
+  (let [[t] (useTranslation)
+        label (:label block)]
     ($ FormField {:control (cj (.-control form))
                   :name (:name block)
-                  :render #($ FormItem {:class-name "flex flex-col mt-6"}
-                              ($ FormLabel (t (:label block))
-                                 (when (-> block :props :required) "*"))
+                  :render #($ FormItem {:class-name (str "flex flex-col mt-6 " class-name)}
+                              (when label
+                                ($ FormLabel (t label)
+                                   (when (-> block :props :required) "*")))
                               (let [field-value (aget % "field" "value")]
                                 ($ Popover
                                    ($ PopoverTrigger {:asChild true}
