@@ -9,11 +9,12 @@
    [leihs.inventory.client.routes.layout :rename {layout root-layout}]
    [leihs.inventory.client.routes.notfound :rename {page notfound-page}]
    [leihs.inventory.client.routes.page :rename {page home-page}]
-   [leihs.inventory.client.routes.pools.inventory.advanced-search.page :rename {page advanced-search-page}]
    [leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.page :rename {page entitlement-group-crud-page}]
    [leihs.inventory.client.routes.pools.inventory.entitlement-groups.page :rename {page entitlement-groups-page}]
    [leihs.inventory.client.routes.pools.inventory.layout :rename {layout inventory-layout}]
    [leihs.inventory.client.routes.pools.inventory.list.page :rename {page list-page}]
+   [leihs.inventory.client.routes.pools.inventory.scan-edit.page :rename {page scan-edit-page}]
+   [leihs.inventory.client.routes.pools.inventory.search-edit.page :rename {page search-edit-page}]
    [leihs.inventory.client.routes.pools.inventory.statistics.page :rename {page statistics-page}]
    [leihs.inventory.client.routes.pools.inventory.templates.crud.page :rename {page template-crud-page}]
    [leihs.inventory.client.routes.pools.inventory.templates.page :rename {page templates-page}]
@@ -74,8 +75,14 @@
                   :id "models-page"
                   :element ($ list-page)}
 
-                 {:path "advanced-search"
-                  :element ($ advanced-search-page)}
+                 {:path "search-edit"
+                  :loader loader/search-edit-page
+                  :action actions/search-edit-page
+                  :element ($ search-edit-page)}
+
+                 {:path "scan-edit"
+                  :loader loader/scan-edit-page
+                  :element ($ scan-edit-page)}
 
                  {:path "statistics"
                   :element ($ statistics-page)}

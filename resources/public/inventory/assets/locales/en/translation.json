@@ -374,7 +374,8 @@
       "add_template": "New template",
       "tabs": {
         "inventory_list": "Inventory List",
-        "advanced_search": "Advanced Search",
+        "search_edit": "Search & Edit",
+        "scan_edit": "Scan & Edit",
         "statistics": "Statistics",
         "entitlement_groups": "Entitlement Groups",
         "templates": "Templates"
@@ -409,6 +410,44 @@
           "copy_license": "Duplicate license",
           "add_package": "Add package",
           "copy_package": "Duplicate package"
+        }
+      },
+      "search_edit": {
+        "no_items": "No items found",
+        "add_filter_prompt": "Add filters to start your search.",
+        "or_separator": "OR",
+        "add_or": "Add OR",
+        "add_and": "Add search parameter",
+        "table": {
+          "inventory_code": "Inventory code",
+          "location": "Location",
+          "view_details": "View details",
+          "delete": "Delete"
+        },
+        "dialog": {
+          "title_one": "Edit {{count}} item",
+          "title_other": "Edit {{count}} items",
+          "description": "Select the fields you want to update for all selected items.",
+          "cancel": "Cancel",
+          "submitting": "Saving",
+          "submit": "Save",
+          "add_field": "Add field",
+          "success_one": "{{count}} Items was successfully updated",
+          "success_other": "{{count}} Items were successfully updated",
+          "warning_description_one": "{{count}} item will be updated",
+          "warning_description_other": "{{count}} items will be updated",
+          "fields_fetch_error": "Failed to load editable fields. Please try again.",
+          "restricted_fields_warning": "Not all selected items are owned by this pool, only fields that are editable for all selected items are shown in the field selection."
+        },
+        "info": {
+          "until": "until"
+        },
+        "page": {
+          "title": "Advanced Search with Export and Multi-Edit",
+          "description": "Search for items with the desired parameters. The found items can then be exported or edited.",
+          "search_results": "Search Results",
+          "edit_items": "Edit",
+          "export_items": "Export "
         }
       }
     },

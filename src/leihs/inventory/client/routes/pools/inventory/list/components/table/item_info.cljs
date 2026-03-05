@@ -19,8 +19,6 @@
         get-label (fn [field-id value]
                     (get-in field-value-labels [(name field-id) value] value))]
 
-    (js/console.debug item)
-
     (if isPackageItem
       ($ :div {:class-name "flex flex-row items-center"
                :data-test-id "item-info"}

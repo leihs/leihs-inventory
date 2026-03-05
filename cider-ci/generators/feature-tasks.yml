@@ -393,6 +393,106 @@
   environment_variables:
     FEATURE_NAME: "Root page renders 01"
     FEATURE: './spec/features/root_page_smoke_spec.rb[1:1:1]'
+'./spec/features/search-edit/add_remove_filter_spec.rb[1:1:1]':
+  name: "Search & Edit - Filters search filter panel 01"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Filters search filter panel 01"
+    FEATURE: './spec/features/search-edit/add_remove_filter_spec.rb[1:1:1]'
+'./spec/features/search-edit/add_remove_filter_spec.rb[1:1:2]':
+  name: "Search & Edit - Filters search filter panel 02"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Filters search filter panel 02"
+    FEATURE: './spec/features/search-edit/add_remove_filter_spec.rb[1:1:2]'
+'./spec/features/search-edit/add_remove_filter_spec.rb[1:1:3]':
+  name: "Search & Edit - Filters search filter panel 03"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Filters search filter panel 03"
+    FEATURE: './spec/features/search-edit/add_remove_filter_spec.rb[1:1:3]'
+'./spec/features/search-edit/add_remove_filter_spec.rb[1:1:4]':
+  name: "Search & Edit - Filters search filter panel 04"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Filters search filter panel 04"
+    FEATURE: './spec/features/search-edit/add_remove_filter_spec.rb[1:1:4]'
+'./spec/features/search-edit/add_remove_filter_spec.rb[1:1:5]':
+  name: "Search & Edit - Filters search filter panel 05"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Filters search filter panel 05"
+    FEATURE: './spec/features/search-edit/add_remove_filter_spec.rb[1:1:5]'
+'./spec/features/search-edit/add_remove_filter_spec.rb[1:2:1]':
+  name: "Search & Edit - Filters edit dialog 01"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Filters edit dialog 01"
+    FEATURE: './spec/features/search-edit/add_remove_filter_spec.rb[1:2:1]'
+'./spec/features/search-edit/add_remove_filter_spec.rb[1:2:2]':
+  name: "Search & Edit - Filters edit dialog 02"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Filters edit dialog 02"
+    FEATURE: './spec/features/search-edit/add_remove_filter_spec.rb[1:2:2]'
+'./spec/features/search-edit/add_remove_filter_spec.rb[1:2:3]':
+  name: "Search & Edit - Filters edit dialog 03"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Filters edit dialog 03"
+    FEATURE: './spec/features/search-edit/add_remove_filter_spec.rb[1:2:3]'
+'./spec/features/search-edit/dependent_fields_spec.rb[1:1:1]':
+  name: "Search & Edit - Dependent Fields search filters 01"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Dependent Fields search filters 01"
+    FEATURE: './spec/features/search-edit/dependent_fields_spec.rb[1:1:1]'
+'./spec/features/search-edit/dependent_fields_spec.rb[1:1:2]':
+  name: "Search & Edit - Dependent Fields search filters 02"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Dependent Fields search filters 02"
+    FEATURE: './spec/features/search-edit/dependent_fields_spec.rb[1:1:2]'
+'./spec/features/search-edit/dependent_fields_spec.rb[1:1:3]':
+  name: "Search & Edit - Dependent Fields search filters 03"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Dependent Fields search filters 03"
+    FEATURE: './spec/features/search-edit/dependent_fields_spec.rb[1:1:3]'
+'./spec/features/search-edit/dependent_fields_spec.rb[1:2:1]':
+  name: "Search & Edit - Dependent Fields edit dialog 01"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Dependent Fields edit dialog 01"
+    FEATURE: './spec/features/search-edit/dependent_fields_spec.rb[1:2:1]'
+'./spec/features/search-edit/dependent_fields_spec.rb[1:2:2]':
+  name: "Search & Edit - Dependent Fields edit dialog 02"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Dependent Fields edit dialog 02"
+    FEATURE: './spec/features/search-edit/dependent_fields_spec.rb[1:2:2]'
+'./spec/features/search-edit/dependent_fields_spec.rb[1:2:3]':
+  name: "Search & Edit - Dependent Fields edit dialog 03"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - Dependent Fields edit dialog 03"
+    FEATURE: './spec/features/search-edit/dependent_fields_spec.rb[1:2:3]'
+'./spec/features/search-edit/main_spec.rb[1:1]':
+  name: "Search & Edit 01"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit 01"
+    FEATURE: './spec/features/search-edit/main_spec.rb[1:1]'
+'./spec/features/search-edit/main_spec.rb[1:2]':
+  name: "Search & Edit 02"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit 02"
+    FEATURE: './spec/features/search-edit/main_spec.rb[1:2]'
+'./spec/features/search-edit/main_spec.rb[1:3]':
+  name: "Search & Edit 03"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit 03"
+    FEATURE: './spec/features/search-edit/main_spec.rb[1:3]'
+'./spec/features/search-edit/main_spec.rb[1:4]':
+  name: "Search & Edit 04"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit 04"
+    FEATURE: './spec/features/search-edit/main_spec.rb[1:4]'
+'./spec/features/search-edit/main_spec.rb[1:5:1]':
+  name: "Search & Edit field visibility based on item ownership 01"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit field visibility based on item ownership 01"
+    FEATURE: './spec/features/search-edit/main_spec.rb[1:5:1]'
+'./spec/features/search-edit/main_spec.rb[1:5:2]':
+  name: "Search & Edit field visibility based on item ownership 02"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit field visibility based on item ownership 02"
+    FEATURE: './spec/features/search-edit/main_spec.rb[1:5:2]'
 './spec/features/sign_in_out_spec.rb[1:1:1:1]':
   name: "Sign-in / Sign-out works sign-in with invalid credentials 01"
   environment_variables:

@@ -14,22 +14,24 @@
    "dropzone" Dropzone
    "textarea" Textarea})
 
-(defui CommonField [{:keys [form block]}]
+(defui CommonField [{:keys [form block class-name]}]
   (let [comp (get fields-map (:component block))
-        [t] (useTranslation)]
+        [t] (useTranslation)
+        label (:label block)]
     (when comp
       ($ FormField {:control (.-control form)
                     :name (:name block)
-                    :render #($ FormItem {:class-name "mt-6"}
-
-                                ($ FormLabel (t (:label block))
-                                   (when (-> block :props :required) "*"))
+                    :render #($ FormItem {:class-name (str "mt-6 " class-name)}
+                                (when label
+                                  ($ FormLabel (t label)
+                                     (when (-> block :props :required) "*")))
                                 ($ FormControl
                                    ($ comp (merge
                                             (:props block)
                                             (:field (jc %)))))
 
-                                ($ FormDescription
-                                   ($ :<> (:description block)))
+                                (when (:description block)
+                                  ($ FormDescription
+                                     ($ :<> (:description block))))
 
                                 ($ FormMessage))}))))
