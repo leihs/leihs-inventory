@@ -1,18 +1,19 @@
 (ns leihs.inventory.client.components.form.fields.radio-group-field
   (:require
-   ["@@/form" :refer [FormControl FormField FormItem FormLabel]]
+   ["@@/form" :refer [FormControl FormField FormItem FormLabel FormMessage]]
    ["@@/radio-group" :refer [RadioGroup RadioGroupItem]]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [cj]]
    [uix.core :refer [$ defui]]))
 
-(defui RadioGroupField [{:keys [form block]}]
+(defui RadioGroupField [{:keys [form block class-name]}]
   (let [[t] (useTranslation)]
     ($ FormField {:control (.-control form)
                   :name (:name block)
-                  :render #($ FormItem {:class-name "mt-6"}
-                              ($ FormLabel (t (:label block))
-                                 (when (-> block :props :required) "*"))
+                  :render #($ FormItem {:class-name (str "mt-6 " class-name)}
+                              (when (:label block)
+                                ($ FormLabel (t (:label block))
+                                   (when (-> block :props :required) "*")))
 
                               ($ FormControl
                                  ($ RadioGroup {:onValueChange (aget % "field" "onChange")
@@ -28,6 +29,6 @@
                                                                :disabled (:disabled (:props block))
                                                                :value (:value option)}))
                                          ($ FormLabel {:class-name "font-normal"}
-                                            (if (:bypass-i18n (:props block))
-                                              (:label option)
-                                              (t (:label option)))))))))})))
+                                            (t (:label option)))))))
+
+                              ($ FormMessage))})))

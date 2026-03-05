@@ -6,18 +6,21 @@
    ["react-i18next" :refer [useTranslation]]
    [uix.core :refer [$ defui]]))
 
-(defui SelectField [{:keys [form block]}]
-  (let [[t] (useTranslation)]
+(defui SelectField [{:keys [form block class-name]}]
+  (let [[t] (useTranslation)
+        label (:label block)]
     ($ FormField {:control (.-control form)
                   :name (:name block)
-                  :render #($ FormItem {:class-name "mt-6"}
-                              ($ FormLabel (t (:label block))
-                                 (when (-> block :props :required) "*"))
+                  :render #($ FormItem {:class-name (str "mt-6 " class-name)}
+                              (when label
+                                ($ FormLabel (t label)
+                                   (when (-> block :props :required) "*")))
 
                               ($ Select {:name (:name block)
                                          :disabled (:disabled (:props block))
                                          :onValueChange (aget % "field" "onChange")
-                                         :value (aget % "field" "value")}
+                                         :value (aget % "field" "value")
+                                         :class-name "text-ellipsis overflow-x-hidden"}
 
                                  ($ FormControl
                                     ($ SelectTrigger {:name (:name block)}
@@ -27,7 +30,7 @@
                                     (for [option (:options (:props block))]
                                       ($ SelectItem {:key (:value option)
                                                      :value (:value option)
-                                                     :class-name "cursor-pointer"}
+                                                     :class-name "cursor-poiner"}
                                          ($ :button {:type "button"}
                                             (if (:bypass-i18n (:props block))
                                               (:label option)
