@@ -98,7 +98,7 @@
           (s/optional-key :shelf) (s/maybe s/Str)
           (s/optional-key :status_note) (s/maybe s/Str)
           (s/optional-key :supplier_id) (s/maybe s/Uuid)
-          (s/optional-key :type) (s/enum "item" "package")
+          (s/optional-key :type) (s/enum "item" "package" "license")
           (s/optional-key :user_name) (s/maybe s/Str)}
          properties))
 

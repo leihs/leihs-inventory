@@ -71,11 +71,17 @@
                      :as request}]
   (try
     (if-let [item (get-one tx item_id)]
-      (let [is-package? (model-is-package? tx (:model_id item))
+      (let [model (-> (sql/select :type :is_package)
+                      (sql/from :models)
+                      (sql/where [:= :id (:model_id item)])
+                      sql-format
+                      (->> (jdbc/execute-one! tx)))
+            is-package? (:is_package model)
+            target-type (if (= (:type model) "Software") "license" "item")
             item-data (flatten-properties item)
             response-data (coerce-field-values item-data out-coercions)
             pool (pools/get-by-id tx pool_id)
-            item-fields (fields/get-fields tx pool user-id role "item" item-data)]
+            item-fields (fields/get-fields tx pool user-id role target-type item-data)]
         (response (-> response-data
                       (assoc :fields item-fields)
                       (cond-> is-package?
@@ -91,45 +97,54 @@
                        :as request}]
   (try
     (if-let [item (get-one tx item_id)]
-      (if-let [validation-error (validate-field-permissions request)]
-        (bad-request validation-error)
-        (let [item-ids-param (:item_ids update-params)
-              {:keys [item-data properties]} (-> update-params
-                                                 (dissoc :id :item_ids)
-                                                 split-item-data)
-              inventory-code (:inventory_code item-data)
-              merged-item-data (merge (select-keys item [:retired :retired_reason]) item-data)]
-          (validate-retired-reason-requires-retired! merged-item-data)
-          (if (and inventory-code (inventory-code-exists? tx inventory-code item_id))
-            (status {:body {:error "Inventory code already exists"
-                            :proposed_code (inv-code/propose tx pool_id (model-is-package? tx (:model_id item)))}}
-                    409)
-            (let [item-data-coerced (coerce-field-values item-data in-coercions)
-                  properties-json (merge (:properties item) properties)
-                  item-data-with-properties (assoc item-data-coerced
-                                                   :properties [:lift properties-json])
-                  sql-query (-> (sql/update :items)
-                                (sql/set item-data-with-properties)
-                                (sql/where [:= :id item_id])
-                                (sql/returning :*)
-                                sql-format)
-                  result (jdbc/execute-one! tx sql-query)]
-              (when (some? item-ids-param)
-                (let [current-child-ids (get-child-item-ids tx item_id)
-                      to-remove (remove (set item-ids-param) current-child-ids)]
-                  (remove-items-from-package tx to-remove)
-                  (when (seq item-ids-param)
-                    (assign-items-to-package tx item_id item-ids-param))))
-              (if result
-                (let [is-package? (model-is-package? tx (:model_id result))
-                      response-data (-> result
-                                        flatten-properties
-                                        (coerce-field-values out-coercions))]
-                  (response (cond-> response-data
-                              is-package?
-                              (assoc :item_ids (or item-ids-param
-                                                   (get-child-item-ids tx item_id))))))
-                (bad-request {:error ERROR_UPDATE_ITEM}))))))
+      (let [model-type (-> (sql/select :type)
+                           (sql/from :models)
+                           (sql/where [:= :id (:model_id item)])
+                           sql-format
+                           (->> (jdbc/execute-one! tx))
+                           :type)
+            request-with-type (if (= model-type "Software")
+                                (update-in request [:parameters :body] assoc :type "license")
+                                request)]
+        (if-let [validation-error (validate-field-permissions request-with-type)]
+          (bad-request validation-error)
+          (let [item-ids-param (:item_ids update-params)
+                {:keys [item-data properties]} (-> update-params
+                                                   (dissoc :id :item_ids)
+                                                   split-item-data)
+                inventory-code (:inventory_code item-data)
+                merged-item-data (merge (select-keys item [:retired :retired_reason]) item-data)]
+            (validate-retired-reason-requires-retired! merged-item-data)
+            (if (and inventory-code (inventory-code-exists? tx inventory-code item_id))
+              (status {:body {:error "Inventory code already exists"
+                              :proposed_code (inv-code/propose tx pool_id (model-is-package? tx (:model_id item)))}}
+                      409)
+              (let [item-data-coerced (coerce-field-values item-data in-coercions)
+                    properties-json (merge (:properties item) properties)
+                    item-data-with-properties (assoc item-data-coerced
+                                                     :properties [:lift properties-json])
+                    sql-query (-> (sql/update :items)
+                                  (sql/set item-data-with-properties)
+                                  (sql/where [:= :id item_id])
+                                  (sql/returning :*)
+                                  sql-format)
+                    result (jdbc/execute-one! tx sql-query)]
+                (when (some? item-ids-param)
+                  (let [current-child-ids (get-child-item-ids tx item_id)
+                        to-remove (remove (set item-ids-param) current-child-ids)]
+                    (remove-items-from-package tx to-remove)
+                    (when (seq item-ids-param)
+                      (assign-items-to-package tx item_id item-ids-param))))
+                (if result
+                  (let [is-package? (model-is-package? tx (:model_id result))
+                        response-data (-> result
+                                          flatten-properties
+                                          (coerce-field-values out-coercions))]
+                    (response (cond-> response-data
+                                is-package?
+                                (assoc :item_ids (or item-ids-param
+                                                     (get-child-item-ids tx item_id))))))
+                  (bad-request {:error ERROR_UPDATE_ITEM})))))))
       (not-found {:error "Item not found"}))
     (catch Exception e
       (log-by-severity ERROR_UPDATE_ITEM e)
