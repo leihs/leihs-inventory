@@ -77,8 +77,8 @@
                                     (:data result))))}
 
        ($ TableCell
-          (if (:url package)
-            ($ ImageModal {:url (:url package)
+          (if (get-in package [:image :url])
+            ($ ImageModal {:url (get-in package [:image :url])
                            :alt (str (:product package) " " (:version package))})
             ($ Image {:class-name "w-12 h-12"})))
 
