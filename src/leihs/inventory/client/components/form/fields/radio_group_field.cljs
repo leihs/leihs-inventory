@@ -6,13 +6,14 @@
    [leihs.inventory.client.lib.utils :refer [cj]]
    [uix.core :refer [$ defui]]))
 
-(defui RadioGroupField [{:keys [form block]}]
+(defui RadioGroupField [{:keys [form block class-name]}]
   (let [[t] (useTranslation)]
     ($ FormField {:control (.-control form)
                   :name (:name block)
-                  :render #($ FormItem {:class-name "mt-6"}
-                              ($ FormLabel (t (:label block))
-                                 (when (-> block :props :required) "*"))
+                  :render #($ FormItem {:class-name (str "mt-6 " class-name)}
+                              (when (:label block)
+                                ($ FormLabel (t (:label block))
+                                   (when (-> block :props :required) "*")))
 
                               ($ FormControl
                                  ($ RadioGroup {:onValueChange (aget % "field" "onChange")

@@ -1,6 +1,7 @@
 (ns leihs.inventory.client.actions
   (:require
    ["~/i18n.config.js" :as i18n :refer [i18n]]
+   [clojure.string]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [promesa.core :as p]))
@@ -73,3 +74,43 @@
           (.catch (fn [error]
                     (js/console.error "Serial number update error:" error)
                     #js {:error (.-message error)}))))))
+
+(defn search-edit-page [action]
+  (p/let [request (.-request action)
+          json-data (.json request)
+          form-values (jc json-data)
+
+          ;; Extract pool-id from route params
+          params (.. ^js action -params)
+          pool-id (aget params "pool-id")
+
+          method (aget action "request" "method")]
+
+    (js/console.debug "Action received form values:" form-values)
+
+    (case method
+      "POST"
+      (try
+        (let [;; Build the filter_q query from form data
+              query-encoded (js/encodeURIComponent form-values)]
+
+          (-> http-client
+              (.get (str "/inventory/" pool-id "/items/?filter_q=" query-encoded)
+                    (cj {:cache false}))
+              (.then (fn [response]
+                       (js/console.log "Search results:" (.-data response))
+                       #js {:status "ok"
+                            :results (.-data response)}))
+              (.catch (fn [error]
+                        (js/console.error "Search error:" error)
+                        (let [error-msg (if (.-response error)
+                                          (or (.. error -response -data -message)
+                                              (.. error -response -statusText)
+                                              "Unknown server error")
+                                          (.-message error))]
+                          #js {:error error-msg})))))
+
+        (catch js/Error e
+          (js/console.error "Query building error:" e)
+          (p/resolved #js {:error (str "Failed to build query: " (.-message e))}))))))
+

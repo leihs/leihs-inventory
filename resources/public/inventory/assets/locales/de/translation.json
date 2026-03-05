@@ -309,7 +309,8 @@
       "add_template": "Vorlage hinzufügen",
       "tabs": {
         "inventory_list": "Inventarliste",
-        "advanced_search": "Erweiterte Suche",
+        "search_edit": "Suchen & Editieren",
+        "scan_edit": "Scannen & Editieren",
         "statistics": "Statistik",
         "entitlement_groups": "Anspruchsgruppen",
         "templates": "Vorlagen"
@@ -340,6 +341,9 @@
           "add_item": "Gegenstand hinzufügen",
           "copy_item": "Gegenstand duplizieren"
         }
+      },
+      "search-edit": {
+        "no-items": "Keine Gegenstände gefunden"
       }
     },
     "entitlement_groups": {

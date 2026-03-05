@@ -92,6 +92,51 @@
           (catch js/Error err
             (handle-error err)))))))
 
+(defn search-edit-page [route-data]
+  (let [url (js/URL. (.. route-data -request -url))
+        search-params (.-searchParams url)
+        filter (.get search-params "filter_d")
+        page (or (.get search-params "page") "1")
+        size (or (.get search-params "size") "50")]
+    (p/let [params (.. ^js route-data -params)
+            pool-id (aget params "pool-id")
+            parsed-filter (when filter (jc (js/JSON.parse filter)))
+
+            query (js/encodeURIComponent parsed-filter)
+
+            data (-> http-client
+                     (.get (str "/inventory/" pool-id "/fields/?target_type=item")
+                           #js {:cache false})
+                     (.then #(jc (.-data %))))
+
+            items (when filter
+                    (-> http-client
+                        (.get (str "/inventory/" pool-id "/items/?filter_q=" query
+                                   "&page=" page "&size=" size)
+                              (cj {:cache false}))
+                        (.then (fn [response]
+                                 (jc (.-data response))))))]
+
+      (try
+        {:data data
+         :items items}
+        (catch js/Error err
+          (handle-error err))))))
+
+(defn scan-edit-page [route-data]
+  (p/let [params (.. ^js route-data -params)
+          pool-id (aget params "pool-id")
+
+          data (-> http-client
+                   (.get (str "/inventory/" pool-id "/fields/?target_type=item")
+                         #js {:cache false})
+                   (.then #(jc (.-data %))))]
+
+    (try
+      {:data data}
+      (catch js/Error err
+        (handle-error err)))))
+
 (defn software-crud-page [route-data]
   (p/let [params (.. ^js route-data -params)
           pool-id (aget params "pool-id")

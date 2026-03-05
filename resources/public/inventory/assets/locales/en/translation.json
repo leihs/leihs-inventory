@@ -309,7 +309,8 @@
       "add_template": "New template",
       "tabs": {
         "inventory_list": "Inventory List",
-        "advanced_search": "Advanced Search",
+        "search_edit": "Search & Edit",
+        "scan_edit": "Scan & Edit",
         "statistics": "Statistics",
         "entitlement_groups": "Entitlement Groups",
         "templates": "Templates"
@@ -340,6 +341,9 @@
           "add_item": "Add Item",
           "copy_item": "Duplicate item"
         }
+      },
+      "search-edit": {
+        "no-items": "No items found"
       }
     },
     "entitlement_groups": {
