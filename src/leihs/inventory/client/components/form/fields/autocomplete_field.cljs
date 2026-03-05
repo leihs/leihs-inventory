@@ -15,7 +15,7 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defui main [{:keys [form name label props]}]
+(defui AutocompleteField [{:keys [form name label props class-name]}]
   (let [[t] (useTranslation)
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
@@ -112,7 +112,7 @@
     ($ FormField
        {:control control
         :name name
-        :render #($ FormItem {:class-name "mt-6"}
+        :render #($ FormItem {:class-name (str "mt-6 " class-name)}
                     (when label
                       ($ FormLabel (t label)
                          (when (-> props :required) "*")))
@@ -132,10 +132,16 @@
                                 ;; the value in form can either be a string or a map with label and value
                                 ;; hence we check for both cases here
                                 (let [val (jc (get-values (str name)))
-                                      label (if (map? val) (:label val) val)]
-                                  (if (and label (seq label))
-                                    label
-                                    (t (-> props :text :select))))
+                                      label (if (map? val)
+                                              (if (nil? (:label val))
+                                                (get-label (:value val))
+                                                (:label val))
+                                              val)]
+
+                                  ($ :span {:class-name "text-ellipsis overflow-hidden whitespace-nowrap"}
+                                     (if (and label (seq label))
+                                       label
+                                       (t (-> props :text :select)))))
 
                                 ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"}))))
 
@@ -186,11 +192,7 @@
                                                                  (get-values (str name ".value")))
                                                             "visible"
                                                             "invisible"))})
-                                     ($ :button {:type "button"}
+                                     ($ :button {:type "button"
+                                                 :class-name "text-left"}
                                         (:label option))))))))
                     ($ FormMessage))})))
-
-(def AutocompleteField
-  (uix/as-react
-   (fn [props]
-     (main props))))

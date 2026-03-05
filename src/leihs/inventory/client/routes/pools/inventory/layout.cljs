@@ -8,7 +8,7 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent DropdownMenuSeparator
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/tabs" :refer [Tabs TabsContent TabsList TabsTrigger]]
-   ["lucide-react" :refer [CirclePlus House List Search Users LayoutTemplate ChartArea]]
+   ["lucide-react" :refer [CirclePlus House List Search Users LayoutTemplate ChartArea Barcode]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [generatePath Link Outlet]]
    [clojure.string :as str]
@@ -30,9 +30,13 @@
                :search "?with_items=true&page=1&size=50"
                :label (t "pool.models.tabs.inventory_list")}
 
-              {:segment "advanced-search"
+              {:segment "search-edit"
                :search ""
-               :label (t "pool.models.tabs.advanced_search")}
+               :label (t "pool.models.tabs.search_edit")}
+
+              {:segment "scan-edit"
+               :search ""
+               :label (t "pool.models.tabs.scan_edit")}
 
               {:segment "statistics"
                :search ""
@@ -94,7 +98,8 @@
                 ($ BreadcrumbPage
                    (case last-segment
                      "list" (t "pool.models.tabs.inventory_list")
-                     "advanced-search" (t "pool.models.tabs.advanced_search")
+                     "search-edit" (t "pool.models.tabs.search_edit")
+                     "scan-edit" (t "pool.models.tabs.scan_edit")
                      "statistics" (t "pool.models.tabs.statistics")
                      "entitlement-groups" (t "pool.models.tabs.entitlement_groups")
                      "templates" (t "pool.models.tabs.templates"))))))
@@ -116,7 +121,8 @@
                           ($ :span {:class-name "inline md:hidden"}
                              (case (:segment tab)
                                "list" ($ List {:className "h-4 w-4"})
-                               "advanced-search" ($ Search {:className "h-4 w-4"})
+                               "search-edit" ($ Search {:className "h-4 w-4"})
+                               "scan-edit" ($ Barcode {:className "h-4 w-4"})
                                "statistics" ($ ChartArea {:className "h-4 w-4"})
                                "entitlement-groups" ($ Users {:className "h-4 w-4"})
                                "templates" ($ LayoutTemplate {:className "h-4 w-4"})))

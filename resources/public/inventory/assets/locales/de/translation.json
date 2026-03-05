@@ -375,7 +375,8 @@
       "add_template": "Vorlage hinzufügen",
       "tabs": {
         "inventory_list": "Inventarliste",
-        "advanced_search": "Erweiterte Suche",
+        "search_edit": "Suchen & Editieren",
+        "scan_edit": "Scannen & Editieren",
         "statistics": "Statistik",
         "entitlement_groups": "Anspruchsgruppen",
         "templates": "Vorlagen"
@@ -410,6 +411,44 @@
           "copy_license": "Lizenz duplizieren",
           "add_package": "Paket hinzufügen",
           "copy_package": "Paket duplizieren"
+        }
+      },
+      "search_edit": {
+        "no_items": "Keine Gegenstände gefunden",
+        "add_filter_prompt": "Fügen Sie Filter hinzu, um Ihre Suche zu starten.",
+        "or_separator": "ODER",
+        "add_or": "ODER hinzufügen",
+        "add_and": "Suchparameter hinzufügen",
+        "table": {
+          "inventory_code": "Inventarcode",
+          "location": "Ort",
+          "view_details": "Details anzeigen",
+          "delete": "Löschen"
+        },
+        "dialog": {
+          "title_one": "{{count}} Gegenstand bearbeiten",
+          "title_other": "{{count}} Gegenstände bearbeiten",
+          "description": "Wählen Sie die Felder aus, die Sie für alle ausgewählten Gegenstände aktualisieren möchten.",
+          "cancel": "Abbrechen",
+          "submitting": "Wird gespeichert",
+          "submit": "Speichern",
+          "add_field": "Feld hinzufügen",
+          "success_one": "{{count}} Gegenstand wurde erfolgreich aktualisiert",
+          "success_other": "{{count}} Gegenstände wurden erfolgreich aktualisiert",
+          "warning_description_one": "{{count}} Gegenstand wird bearbeitet",
+          "warning_description_other": "{{count}} Gegenstände werden bearbeitet",
+          "fields_fetch_error": "Bearbeitbare Felder konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+          "restricted_fields_warning": "Da nicht alle ausgewählten Gegenstände diesem Pool gehören, werden in der Liste nur bearbeitbare Felder für alle Gegenstände angezeigt."
+        },
+        "info": {
+          "until": "bis"
+        },
+        "page": {
+          "title": "Erweiterte Suche mit Export und Multi-Editieren",
+          "description": "Suchen Sie die Gegenstände mit den gewünschten Parametern. Anschliessend können die gefundenen Gegenstände exportiert oder editiert werden.",
+          "search_results": "Suchergebnisse",
+          "edit_items": "Bearbeiten",
+          "export_items": "Exportieren"
         }
       }
     },
