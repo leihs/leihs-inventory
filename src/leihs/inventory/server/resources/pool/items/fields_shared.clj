@@ -64,7 +64,11 @@
                              sql-format
                              (->> (jdbc-query tx)))
         permitted-field-ids (->> permitted-fields
-                                 (map (comp keyword :id))
+                                 (mapcat
+                                  #(let [id (keyword (:id %))
+                                         form-name (some-> (get-in % [:data :form_name]) keyword)]
+                                     (cond-> [id]
+                                       form-name (conj form-name))))
                                  set)
         body-keys (-> body-params (dissoc :id :type :item_ids :count) keys set)
         unpermitted-fields (set/difference body-keys permitted-field-ids)

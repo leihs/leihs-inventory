@@ -62,7 +62,6 @@ describe "Swagger Inventory Endpoints - Licenses" do
           type: "license",
           inventory_code: "LIC-#{SecureRandom.hex(4)}",
           model_id: @software_model.id,
-          room_id: @room.id,
           inventory_pool_id: @inventory_pool.id,
           owner_id: @inventory_pool.id
         }
@@ -79,7 +78,6 @@ describe "Swagger Inventory Endpoints - Licenses" do
           type: "license",
           inventory_code: "LIC-#{SecureRandom.hex(4)}",
           model_id: @regular_model.id,
-          room_id: @room.id,
           inventory_pool_id: @inventory_pool.id,
           owner_id: @inventory_pool.id
         }
@@ -96,7 +94,6 @@ describe "Swagger Inventory Endpoints - Licenses" do
           type: "license",
           inventory_code: "LIC-#{SecureRandom.hex(4)}",
           model_id: @software_model.id,
-          room_id: @room.id,
           inventory_pool_id: @inventory_pool.id,
           owner_id: @inventory_pool.id,
           properties_dongle_id: "DONGLE-123"
@@ -113,7 +110,6 @@ describe "Swagger Inventory Endpoints - Licenses" do
           type: "license",
           inventory_code: "LIC-#{SecureRandom.hex(4)}",
           model_id: @software_model.id,
-          room_id: @room.id,
           inventory_pool_id: @inventory_pool.id,
           owner_id: @inventory_pool.id,
           properties_mac_address: "00:1B:44:11:3A:B7"
@@ -163,7 +159,6 @@ describe "Swagger Inventory Endpoints - Licenses" do
         data = {
           inventory_code: "LIC-UPDATED",
           model_id: @software_model.id,
-          room_id: @room.id,
           owner_id: @inventory_pool.id
         }
 
@@ -179,7 +174,6 @@ describe "Swagger Inventory Endpoints - Licenses" do
         data = {
           inventory_code: @license.inventory_code,
           model_id: @software_model.id,
-          room_id: @room.id,
           owner_id: @inventory_pool.id,
           properties_dongle_id: "DONGLE-UPDATED"
         }
@@ -195,7 +189,6 @@ describe "Swagger Inventory Endpoints - Licenses" do
         data = {
           inventory_code: @license.inventory_code,
           model_id: @software_model.id,
-          room_id: @room.id,
           owner_id: @inventory_pool.id,
           properties_mac_address: "00:1B:44:11:3A:B7"
         }
