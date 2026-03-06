@@ -18,5 +18,7 @@
 
 (def PROPERTIES_PREFIX "properties_")
 
+(def GENERAL_BUILDING_UUID #uuid "abae04c5-d767-425e-acc2-7ce04df645d1")
+
 (def ACCEPT-CSV "text/csv")
 (def ACCEPT-EXCEL "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

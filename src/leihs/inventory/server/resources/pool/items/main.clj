@@ -3,7 +3,7 @@
    [better-cond.core :refer [cond] :rename {cond bcond}]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.constants :refer [ACCEPT-CSV ACCEPT-EXCEL]]
+   [leihs.inventory.server.constants :refer [ACCEPT-CSV ACCEPT-EXCEL GENERAL_BUILDING_UUID]]
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
@@ -260,8 +260,6 @@
       (sql/where [:in :id item-ids])
       sql-format
       (->> (jdbc/execute! tx))))
-
-(def GENERAL_BUILDING_UUID #uuid "abae04c5-d767-425e-acc2-7ce04df645d1")
 
 (defn get-general-room-id [tx]
   (-> (sql/select :id)
