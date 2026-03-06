@@ -77,7 +77,10 @@
                       sql-format
                       (->> (jdbc/execute-one! tx)))
             is-package? (:is_package model)
-            target-type (if (= (:type model) "Software") "license" "item")
+            target-type (cond
+                          (= (:type model) "Software") "license"
+                          is-package? "package"
+                          :else "item")
             item-data (flatten-properties item)
             response-data (coerce-field-values item-data out-coercions)
             pool (pools/get-by-id tx pool_id)
