@@ -217,19 +217,21 @@
                             #js {:cache false})
                       (.then #(jc (.-data %)))))
 
-          data (if item-path
-                 (-> http-client
-                     (.get (str "/inventory/" pool-id "/fields/?resource_id=" package-id "&target_type=package")
-                           #js {:id package-id
-                                :cache false})
-                     (.then #(jc (.-data %))))
+          package (when package-id
+                    (-> http-client
+                        (.get (str "/inventory/" pool-id "/items/" package-id)
+                              #js {:cache false})
+                        (.then #(jc (.-data %)))))
+
+          data (when-not package-id
                  (-> http-client
                      (.get (str "/inventory/" pool-id "/fields/?target_type=package")
                            #js {:cache false})
                      (.then #(jc (.-data %)))))]
 
     (try
-      {:data data
+      {:data (if package-id {:fields (:fields package)} data)
+       :package package
        :items (if items items nil)
        :model (if model model nil)}
       (catch js/Error err
