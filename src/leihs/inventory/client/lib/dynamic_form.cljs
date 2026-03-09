@@ -260,13 +260,13 @@
                                     "select" nil
                                     "date" nil
                                     "radio" false
-                                    "checkbox" false
+                                    "checkbox" []
                                     "attachment" []
                                     "autocomplete-search" {:value nil
                                                            :label nil}
                                     "autocomplete" {:value nil
                                                     :label nil}
-                                    ;; Default for custom/unknown types
+                                     ;; Default for custom/unknown types
                                     nil))
 
                     ;; Convert default value based on field type

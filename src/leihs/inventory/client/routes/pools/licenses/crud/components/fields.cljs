@@ -3,6 +3,8 @@
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
    ["@@/calendar" :refer [Calendar]]
+   ["@@/checkbox" :refer [Checkbox]]
+   ["@@/checkbox-group" :refer [CheckboxGroup CheckboxGroupItem]]
    ["@@/dropzone" :refer [Dropzone]]
    ["@@/form" :refer [FormControl FormDescription FormField FormItem FormLabel
                       FormMessage]]
@@ -119,6 +121,24 @@
                                                   :values-url (str values-url "?" dep "=" (.-value watched-dependency))})
                                                (label-inactive (:props block))))})
 
+              "checkbox"
+              ($ FormField {:control (cj control)
+                            :name (:name block)
+                            :render #($ FormItem {:class-name "mt-6"}
+                                        ($ FormLabel (t (:label block))
+                                           (when (-> block :props :required) " *"))
+
+                                        ($ FormControl
+                                           ($ CheckboxGroup {:value (aget % "field" "value")
+                                                             :onValueChange (aget % "field" "onChange")
+                                                             :disabled (:disabled (:props block))}
+                                              (for [option (:options (:props block))]
+                                                ($ CheckboxGroupItem {:key (:value option)
+                                                                      :value (:value option)
+                                                                      :label (:label option)
+                                                                      :data-test-id (str (:name block) "-" (:value option))}))))
+                                        ($ FormMessage))})
+
               ;; Radiogroup field
               "radio-group"
               ($ FormField {:control (cj control)
@@ -143,7 +163,7 @@
                                                    ($ FormLabel {:class-name "font-normal"}
                                                       (:label option)))))))})
 
-                  ;; Select field
+              ;; Select field
               "select"
               ($ FormField {:control (cj control)
                             :name (:name block)
@@ -165,6 +185,7 @@
                                                 ($ SelectItem {:key (:value option)
                                                                :value (:value option)
                                                                :class-name "cursor-pointer"}
+
                                                    ($ :button {:type "button"}
                                                       (:label option)))))
                                            ($ FormMessage)))})

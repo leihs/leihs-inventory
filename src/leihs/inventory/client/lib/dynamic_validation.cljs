@@ -54,6 +54,12 @@
                                (.min 1 "Please select an option"))
                            (z/string))
 
+                         "checkbox"
+                         (if (and is-required (not treat-as-optional))
+                           (-> (z/array (z/string))
+                               (.min 1 "At least one option must be selected"))
+                           (z/array (z/string)))
+
                          ;; Both autocomplete types validate as object, transform to string
                          "autocomplete-search"
                          (if (and is-required (not treat-as-optional))
