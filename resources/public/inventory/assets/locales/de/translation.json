@@ -61,6 +61,21 @@
       "room_id": "Raum",
       "building_id": "Gebäude",
       "shelf": "Gestell"
+    },
+    "License Info": {
+      "title": "Lizenzinformationen"
+    },
+    "Activation": {
+      "title": "Aktivierung"
+    },
+    "Quantity": {
+      "title": "Anzahl"
+    },
+    "System Requirements": {
+      "title": "Systemanforderungen"
+    },
+    "Maintenance": {
+      "title": "Wartung"
     }
   },
   "pagination": {
@@ -240,6 +255,32 @@
         }
       }
     },
+    "licenses": {
+      "license": {
+        "create": {
+          "title": "Neue Lizenz erstellen",
+          "description": "Geben Sie alle erforderlichen Informationen an",
+          "submit": "Erstellen",
+          "cancel": "Abbrechen",
+          "success": "Lizenz wurde erfolgreich erstellt",
+          "invalid_one": "Lizenz konnte nicht erstellt werden, da ein Feld ungültig ist",
+          "invalid_other": "Lizenz konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
+        },
+        "edit": {
+          "title": "Lizenz bearbeiten",
+          "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Speichern",
+          "cancel": "Abbrechen",
+          "success": "Lizenz wurde erfolgreich gespeichert",
+          "invalid_one": "Lizenz konnte nicht gespeichert werden, da ein Feld ungültig ist",
+          "invalid_other": "Lizenz konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Speichern ist ein Fehler aufgetreten"
+        }
+      }
+    },
     "models": {
       "title": "Inventarliste",
       "filters": {
@@ -295,7 +336,8 @@
         "add_package": "Neues Paket",
         "add_item": "Neuen Gegenstand",
         "add_option": "Neue Option",
-        "add_software": "Neue Software"
+        "add_software": "Neue Software",
+        "add_license": "Neue Lizenz"
       },
       "add_entitlement_group": "Anspruchsgruppe hinzufügen",
       "add_template": "Vorlage hinzufügen",

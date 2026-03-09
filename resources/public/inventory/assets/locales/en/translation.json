@@ -61,6 +61,21 @@
       "room_id": "Room",
       "building_id": "Building",
       "shelf": "Shelf"
+    },
+    "License Info": {
+      "title": "License Info"
+    },
+    "Activation": {
+      "title": "Activation"
+    },
+    "Quantity": {
+      "title": "Quantity"
+    },
+    "System Requirements": {
+      "title": "System Requirements"
+    },
+    "Maintenance": {
+      "title": "Maintenance"
     }
   },
   "pagination": {
@@ -240,6 +255,32 @@
         }
       }
     },
+    "licenses": {
+      "license": {
+        "create": {
+          "title": "Create New License",
+          "description": "Provide all required information",
+          "submit": "Create",
+          "cancel": "Cancel",
+          "success": "License was successfully created",
+          "invalid_one": "License could not be created because one field is invalid",
+          "invalid_other": "License could not be created because {{count}} fields are invalid",
+          "conflict": "Inventory code already exists",
+          "error": "An error occurred while creating"
+        },
+        "edit": {
+          "title": "Edit License",
+          "description": "Make changes and save afterwards",
+          "submit": "Save",
+          "cancel": "Cancel",
+          "success": "License was successfully saved",
+          "invalid_one": "License could not be saved because one field is invalid",
+          "invalid_other": "License could not be saved because {{count}} fields are invalid",
+          "conflict": "Inventory code already exists",
+          "error": "An error occurred while saving"
+        }
+      }
+    },
     "models": {
       "title": "Inventory list",
       "filters": {
@@ -295,7 +336,8 @@
         "add_package": "New package",
         "add_item": "New item",
         "add_option": "New option",
-        "add_software": "New software"
+        "add_software": "New software",
+        "add_license": "New license"
       },
       "add_entitlement_group": "New entitlement group",
       "add_template": "New template",
