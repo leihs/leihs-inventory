@@ -27,16 +27,12 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(def groups ["License Info"
-             "Activation"
-             "Quantity"
-             "System Requirements"
-             "Maintenance"
+(def groups ["Mandatory data"
              "Status"
-             "Inventory"
+             "Invoice Information"
              "General Information"
-             "Location"
-             "Invoice Information"])
+             "Inventory"
+             "Maintenance"])
 
 (defui page []
   (let [[t] (useTranslation)
