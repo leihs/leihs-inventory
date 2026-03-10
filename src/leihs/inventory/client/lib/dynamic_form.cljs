@@ -8,6 +8,7 @@
     "radio"
     "checkbox"
     "attachment"
+    "composite"
     "autocomplete-search"
     "autocomplete"})
 
@@ -109,6 +110,7 @@
         "attachment" "attachments"
         "autocomplete-search" "autocomplete-search"
         "autocomplete" "autocomplete"
+        "composite" "composite"
         nil)))
 
 (defn- transform-field-values [values field-type]
