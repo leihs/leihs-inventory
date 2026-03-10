@@ -61,28 +61,31 @@
 
 (defui Composite [{:keys [form block]}]
   (let [[t] (useTranslation)
+        control (aget form "control")
         get-values (aget form "getValues")
         total-quantitiy (int (get-values "properties_total_quantity"))
         total-allocations (reduce + (map #(int (:quantity %))
                                          (jc (get-values (:name block)))))
         remaining (- total-quantitiy total-allocations)]
 
-    ($ FormFieldArray {:form form
-                       :name (:name block)}
-       ($ FormItem {:class-name "mt-6 flex flex-col"}
-          ($ :div {:class-name "flex items-center"}
-             ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
-             ($ Typo {:variant "label"
-                      :class-name (str "ml-auto " (when (< remaining 0) "text-red-500"))}
-                (str (t "pool.licenses.license.fields.entitlements.remaining") " " remaining)))
+    ($ FormField {:control control
+                  :name (:name block)
+                  :render #($ FormFieldArray {:form form
+                                              :name (:name block)}
+                              ($ FormItem {:class-name "mt-6 flex flex-col"}
+                                 ($ :div {:class-name "flex items-center"}
+                                    ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
+                                    ($ Typo {:variant "label"
+                                             :class-name (str "ml-auto " (when (< remaining 0) "text-red-500"))}
+                                       (str (t "pool.licenses.license.fields.entitlements.remaining") " " remaining)))
 
-          ($ FormDescription
-             ($ :<> (:description block)))
+                                 ($ FormDescription
+                                    ($ :<> (:description block)))
 
-          ($ FormMessage)
+                                 ($ FormMessage)
 
-          ($ FormFieldArrayItems {:form form
-                                  :name (:name block)}
-             ($ CompositeItem))
+                                 ($ FormFieldArrayItems {:form form
+                                                         :name (:name block)}
+                                    ($ CompositeItem))
 
-          ($ AddButton {:className "w-fit"})))))
+                                 ($ AddButton {:className "w-fit"})))})))
