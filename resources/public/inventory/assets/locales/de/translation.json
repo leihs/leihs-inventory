@@ -292,7 +292,8 @@
           "entitlements": {
             "add": "Zuteilung hinzufügen",
             "quantity": "Anzahl",
-            "location": "Ort"
+            "location": "Ort",
+            "remaining": "Verbleibend"
           }
         }
       }

@@ -74,7 +74,7 @@
              ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
              ($ Typo {:variant "label"
                       :class-name (str "ml-auto " (when (< remaining 0) "text-red-500"))}
-                (str "Verbleibend " remaining)))
+                (str (t "pool.licenses.license.fields.entitlements.remaining") " " remaining)))
 
           ($ FormDescription
              ($ :<> (:description block)))

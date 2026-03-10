@@ -292,7 +292,8 @@
           "entitlements": {
             "add": "Add allocation",
             "quantity": "Quantity",
-            "location": "Location"
+            "location": "Location",
+            "remaining": "Remainaing"
           }
         }
       }
