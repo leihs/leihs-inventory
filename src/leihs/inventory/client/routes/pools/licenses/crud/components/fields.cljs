@@ -3,9 +3,9 @@
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
    ["@@/calendar" :refer [Calendar]]
-   ["@@/checkbox" :refer [Checkbox]]
    ["@@/checkbox-group" :refer [CheckboxGroup CheckboxGroupItem]]
    ["@@/dropzone" :refer [Dropzone]]
+   ["@@/field" :refer [FieldSet FieldLegend]]
    ["@@/form" :refer [FormControl FormDescription FormField FormItem FormLabel
                       FormMessage]]
    ["@@/input" :refer [Input]]
@@ -123,16 +123,15 @@
                                                (label-inactive (:props block))))})
 
               "composite"
-              ($ Composite {:control control
-                            :form form
-                            :data (jc form)
+              ($ Composite {:form form
                             :block block})
 
               "checkbox"
               ($ FormField {:control (cj control)
                             :name (:name block)
-                            :render #($ FormItem {:class-name "mt-6"}
-                                        ($ FormLabel (t (:label block))
+                            :render #($ FieldSet {:class-name "mt-6"}
+                                        ($ FieldLegend {:variant "label"}
+                                           (t (:label block))
                                            (when (-> block :props :required) " *"))
 
                                         ($ FormControl
@@ -150,25 +149,25 @@
               "radio-group"
               ($ FormField {:control (cj control)
                             :name (:name block)
-                            :render #($ FormItem {:class-name "mt-6"}
-                                        ($ FormLabel (t (:label block))
+                            :render #($ FieldSet {:class-name "mt-6"}
+                                        ($ FieldLegend {:variant "label"}
+                                           (t (:label block))
                                            (when (-> block :props :required) " *"))
 
-                                        ($ FormControl
-                                           ($ RadioGroup {:onValueChange (aget % "field" "onChange")
-                                                          :defaultValue (aget % "field" "value")
-                                                          :class-name "flex space-x-1"
-                                                          :name (:name block)}
+                                        ($ RadioGroup {:onValueChange (aget % "field" "onChange")
+                                                       :defaultValue (aget % "field" "value")
+                                                       :class-name "flex space-x-1"
+                                                       :name (:name block)}
 
-                                              (for [option (:options (:props block))]
-                                                ($ FormItem {:key (:value option)
-                                                             :class-name "flex items-center space-x-2 space-y-0"}
-                                                   ($ FormControl
-                                                      ($ RadioGroupItem {:data-test-id (str (:name block) "-" (:value option))
-                                                                         :disabled (:disabled (:props block))
-                                                                         :value (:value option)}))
-                                                   ($ FormLabel {:class-name "font-normal"}
-                                                      (:label option)))))))})
+                                           (for [option (:options (:props block))]
+                                             ($ FormItem {:key (:value option)
+                                                          :class-name "flex items-center space-x-2 space-y-0"}
+                                                ($ FormControl
+                                                   ($ RadioGroupItem {:data-test-id (str (:name block) "-" (:value option))
+                                                                      :disabled (:disabled (:props block))
+                                                                      :value (:value option)}))
+                                                ($ FormLabel {:class-name "font-normal"}
+                                                   (:label option))))))})
 
               ;; ;; Select field
               ;; "select"
