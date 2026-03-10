@@ -20,7 +20,7 @@
    [leihs.inventory.client.components.form.attachments :refer [Attachments]]
    [leihs.inventory.client.components.form.autocomplete :refer [Autocomplete]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.items.crud.components.composite :refer [Composite]]
+   [leihs.inventory.client.routes.pools.licenses.crud.components.composite :refer [Composite]]
 
    [uix.core :as uix :refer [$ defui]]))
 
