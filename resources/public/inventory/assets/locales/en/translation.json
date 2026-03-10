@@ -4,7 +4,9 @@
       "title": "Mandatory data",
       "count": "Create number of items",
       "inventory_code": "Inventory Code",
-      "model_id": "Model"
+      "model_id": "Model",
+      "software_model_id": "Software",
+      "license_version": "License version"
     },
     "Content": {
       "title": "Content"
@@ -31,7 +33,8 @@
       "properties_reference": "Reference",
       "properties_warranty_expiration": "Warranty expiration",
       "properties_p4u": "P4U-Nummer",
-      "properties_contract_expiration": "Contract expiration"
+      "properties_contract_expiration": "Contract expiration",
+      "properties_procured_by": "Procured by"
     },
     "General Information": {
       "title": "General Information",
@@ -40,7 +43,12 @@
       "properties_mac_address": "MAC-Address",
       "name": "Name",
       "attachments": "Attachments",
-      "note": "Note"
+      "note": "Note",
+      "properties_total_quantity": "Total quantity",
+      "properties_quantity_allocations": "Quantity allocations",
+      "properties_operating_system": "Operating system",
+      "properties_installation": "Installation",
+      "properties_license_expiration": "License expiration"
     },
     "Status": {
       "title": "Status",
@@ -75,7 +83,8 @@
       "title": "System Requirements"
     },
     "Maintenance": {
-      "title": "Maintenance"
+      "title": "Maintenance",
+      "properties_maintenance_price": "Price"
     }
   },
   "pagination": {
@@ -278,6 +287,13 @@
           "invalid_other": "License could not be saved because {{count}} fields are invalid",
           "conflict": "Inventory code already exists",
           "error": "An error occurred while saving"
+        },
+        "fields": {
+          "entitlements": {
+            "add": "Add allocation",
+            "quantity": "Quantity",
+            "location": "Location"
+          }
         }
       }
     },
