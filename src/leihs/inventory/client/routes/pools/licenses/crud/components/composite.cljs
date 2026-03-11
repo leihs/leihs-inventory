@@ -4,7 +4,7 @@
    ["@@/form" :refer [FormControl FormField FormDescription FormItem FormLabel FormMessage]]
    ["@@/input" :refer [Input]]
    ["@@/table" :refer [TableCell]]
-   ["lucide-react" :refer [Check ChevronDown CirclePlus]]
+   ["lucide-react" :refer [CirclePlus]]
 
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray
