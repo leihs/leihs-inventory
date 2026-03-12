@@ -46,7 +46,10 @@ export const schema = z.object({
   attachments: z
     .array(
       z.object({
-        id: z.string().nullable(),
+        id: z
+          .string()
+          .nullish()
+          .transform((val) => val || null),
         file: z.instanceof(File).optional(),
       }),
     )
@@ -54,7 +57,10 @@ export const schema = z.object({
   accessories: z
     .array(
       z.object({
-        id: z.string().nullable(),
+        id: z
+          .string()
+          .nullish()
+          .transform((val) => val || null),
         name: z.string().nonempty(),
       }),
     )
@@ -70,7 +76,10 @@ export const schema = z.object({
   properties: z
     .array(
       z.object({
-        id: z.string().nullable(),
+        id: z
+          .string()
+          .nullish()
+          .transform((val) => val || null),
         key: z.string().nonempty(),
         value: z.string().nonempty(),
       }),

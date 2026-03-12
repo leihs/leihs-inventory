@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.components.form.autocomplete
+(ns leihs.inventory.client.components.form.fields.autocomplete-field
   (:require
    ["@/components/ui/command" :refer [Command CommandEmpty CommandInput
                                       CommandItem CommandList CommandSeparator]]
@@ -190,7 +190,7 @@
                                         (:label option))))))))
                     ($ FormMessage))})))
 
-(def Autocomplete
+(def AutocompleteField
   (uix/as-react
    (fn [props]
      (main props))))

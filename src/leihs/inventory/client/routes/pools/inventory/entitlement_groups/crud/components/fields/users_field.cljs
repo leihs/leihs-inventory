@@ -1,15 +1,16 @@
-(ns leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.select-user
+(ns leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.fields.users-field
   (:require
    ["@/components/ui/command" :refer [Command CommandEmpty CommandInput
                                       CommandItem CommandList]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
-   ["@@/form" :refer [FormControl]]
+   ["@@/form" :refer [FormControl FormItem FormLabel FormDescription FormMessage]]
    ["@@/spinner" :refer [Spinner]]
+   ["@@/table" :refer [TableCell]]
    ["lucide-react" :refer [Check ChevronsUpDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
-   [leihs.inventory.client.components.form.form-field-array :refer [use-array-items]]
+   [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray FormFieldArrayItems use-array-item use-array-items]]
    [leihs.inventory.client.lib.client :refer [http-client safe-query]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -31,6 +32,13 @@
        (some->> (:email user) not-empty (str " - "))
        (when-not (:account_enabled user)
          (str " (" (t (-> props :text :account_disabled)) ")"))))
+
+(defui UserItem []
+  (let [{:keys [field]} (use-array-item)
+        user-label (str (:firstname field) " " (:lastname field)
+                        (some->> (:email field) not-empty (str " - ")))]
+    ($ TableCell {:class-name "pl-4"}
+       user-label)))
 
 ;; Select component - handles search and selection UI
 (defui SelectUser [{:keys [name props]}]
@@ -149,3 +157,22 @@
                                           (when (= 2 (:level element)) " font-medium ")
                                           " truncate")}
                         (user-label element props t))))))))))
+
+(defui UsersField [{:keys [form block]}]
+  (let [[t] (useTranslation)]
+    ($ FormFieldArray {:form form
+                       :name (:name block)}
+       ($ FormItem {:class-name "mt-6"}
+          ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
+          ($ SelectUser {:form form
+                         :name (:name block)
+                         :props (:props block)})
+
+          ($ FormDescription
+             ($ :<> (:description block)))
+
+          ($ FormMessage))
+
+       ($ FormFieldArrayItems {:form form
+                               :name (:name block)}
+          ($ UserItem)))))

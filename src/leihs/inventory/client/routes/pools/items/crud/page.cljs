@@ -2,7 +2,7 @@
   (:require
    ["@/components/react/scrollspy/scrollspy" :refer [Scrollspy ScrollspyItem
                                                      ScrollspyMenu]]
-   ["@@/alert" :refer [Alert AlertTitle AlertDescription]]
+   ["@@/alert" :refer [Alert AlertDescription AlertTitle]]
    ["@@/button" :refer [Button]]
    ["@@/button-group" :refer [ButtonGroup ButtonGroupSeparator]]
    ["@@/card" :refer [Card CardContent]]
@@ -12,7 +12,7 @@
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
-   ["lucide-react" :refer [ChevronDownIcon InfoIcon]]
+   ["lucide-react" :refer [ChevronDownIcon]]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
@@ -25,7 +25,7 @@
    [leihs.inventory.client.lib.dynamic-validation :as dynamic-validation]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.items.crud.components.fields :as form-fields]
+   [leihs.inventory.client.routes.pools.items.crud.components.field-dispatcher :refer [FieldDispatcher]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -330,10 +330,9 @@
                                 ($ :hr {:className "mb-4"})
 
                                 (for [block (:blocks section)]
-                                  ($ form-fields/field {:key (:name block)
-                                                        :control control
-                                                        :form form
-                                                        :block block})))))))
+                                  ($ FieldDispatcher {:key (:name block)
+                                                      :form form
+                                                      :block block})))))))
 
                   ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}
                      ($ Button {:type "submit"

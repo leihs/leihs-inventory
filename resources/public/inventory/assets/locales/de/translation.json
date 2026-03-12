@@ -1,4 +1,12 @@
 {
+  "OK": "OK",
+  "Yes": "Ja",
+  "No": "Nein",
+  "Unborrowable": "Nicht Ausleihbar",
+  "Incomplete": "Unvollständig",
+  "Broken": "Defekt",
+  "Running Account": "Laufende Rechnung",
+  "Investment": "Investition",
   "fields": {
     "Mandatory data": {
       "title": "Pflichtangaben",
