@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,27 +15,53 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     }
 
-    main { height: 100vh; width: 100%; display: table; }
-    article { padding: 2rem; display: table-cell; vertical-align: middle; }
+    main {
+      height: 100vh;
+      width: 100%;
+      display: table;
+    }
 
-    h1 { font-size: 3rem; margin: 0; }
-    hr { color: inherit; background-color: currentColor; border: 0; opacity: .2; margin: 2rem auto; height: 1px; width: 75%; }
-    p.details { font-size: 1.125rem }
+    article {
+      padding: 2rem;
+      display: table-cell;
+      vertical-align: middle;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin: 0;
+    }
+
+    hr {
+      color: inherit;
+      background-color: currentColor;
+      border: 0;
+      opacity: .2;
+      margin: 2rem auto;
+      height: 1px;
+      width: 75%;
+    }
+
+    p.details {
+      font-size: 1.125rem
+    }
   </style>
 </head>
+
 <body>
 
-<main>
-  <article>
-    <h1> Leihs Inventory Disabled</h1>
+  <main>
+    <article>
+      <h1> Leihs Inventory Disabled</h1>
 
-    <p> The Leihs Inventory service is disabled on <em>{{leihs_external_hostname}}</em>. </p>
+      <p> The Leihs Inventory service is disabled on <em>{{leihs_external_hostname}}</em>. </p>
 
-    <p> This page was updated at: {{ ansible_date_time.iso8601 }} </p>
+      <p> This page was updated at: {{ ansible_facts["date_time"].iso8601 }} </p>
 
-    <hr>
-  </article>
-</main>
+      <hr>
+    </article>
+  </main>
 
 </body>
+
 </html>
