@@ -1,4 +1,4 @@
-- name: create jar
+- name: Create inventory jar
   tags: [builds_artefact, builds_artefact_with_java]
   delegate_to: localhost
   run_once: true
