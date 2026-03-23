@@ -3,7 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
+   [leihs.inventory.server.constants :refer [ALL-CURRENCIES PROPERTIES_PREFIX]]
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.attachments.main :as attachments]
@@ -81,7 +81,8 @@
      :inventory_code (fn [f & {:keys [tx pool resource-id target-type]}]
                        (if resource-id
                          f
-                         (assoc f :default (inv-code/propose tx (:id pool) (= target-type "package")))))}))
+                         (assoc f :default (inv-code/propose tx (:id pool) (= target-type "package")))))
+     :properties_maintenance_currency (fn [f & _] (assoc f :values ALL-CURRENCIES))}))
 
 (defn handle-default [tx field-id value item-data pool-id]
   (let [hooks {:supplier_id suppliers/get-by-id

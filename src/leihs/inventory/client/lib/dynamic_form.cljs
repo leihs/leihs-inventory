@@ -256,21 +256,21 @@
                                     (str (:default field))
                                     (:default field))
                                    ;; Set type-specific defaults when no default provided
-                                   (case field-type
-                                     "text" ""
-                                     "textarea" ""
-                                     "select" nil
-                                     "date" nil
-                                     "radio" false
-                                     "checkbox" []
-                                     "attachment" []
-                                     "composite" []
-                                     "autocomplete-search" {:value nil
-                                                            :label nil}
-                                     "autocomplete" {:value nil
-                                                     :label nil}
+                                  (case field-type
+                                    "text" ""
+                                    "textarea" ""
+                                    "select" nil
+                                    "date" nil
+                                    "radio" false
+                                    "checkbox" []
+                                    "attachment" []
+                                    "composite" []
+                                    "autocomplete-search" {:value nil
+                                                           :label nil}
+                                    "autocomplete" {:value nil
+                                                    :label nil}
                                       ;; Default for custom/unknown types
-                                     nil))
+                                    nil))
 
                     ;; Convert default value based on field type
                     converted-val (when (or (some? default-val)
