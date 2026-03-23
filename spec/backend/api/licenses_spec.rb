@@ -121,6 +121,22 @@ describe "Swagger Inventory Endpoints - Licenses" do
         expect(resp.body["error"]).to eq("Unpermitted fields")
         expect(resp.body["unpermitted-fields"]).to include("properties_mac_address")
       end
+
+      it "allows properties_operating_system as array and returns 200" do
+        data = {
+          type: "license",
+          inventory_code: "LIC-#{SecureRandom.hex(4)}",
+          model_id: @software_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          properties_operating_system: ["windows", "linux"]
+        }
+
+        resp = post_with_headers(client, items_url, data)
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["properties_operating_system"]).to eq(["windows", "linux"])
+      end
     end
 
     context "GET /inventory/:pool-id/items/:id" do
@@ -182,6 +198,21 @@ describe "Swagger Inventory Endpoints - Licenses" do
 
         expect(resp.status).to eq(200)
         expect(resp.body["properties_dongle_id"]).to eq("DONGLE-UPDATED")
+      end
+
+      it "allows properties_operating_system as array on patch and returns 200" do
+        url = "/inventory/#{inventory_pool_id}/items/#{@license.id}"
+        data = {
+          inventory_code: @license.inventory_code,
+          model_id: @software_model.id,
+          owner_id: @inventory_pool.id,
+          properties_operating_system: ["windows", "mac_os_x"]
+        }
+
+        resp = patch_with_headers(client, url, data)
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["properties_operating_system"]).to eq(["windows", "mac_os_x"])
       end
 
       it "rejects item-specific fields on license patch and returns 400" do
