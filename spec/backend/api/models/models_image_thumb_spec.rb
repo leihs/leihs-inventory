@@ -36,12 +36,12 @@ describe "Swagger Inventory Endpoints - Models" do
       end
 
       context "when a model has no images or thumbnails" do
-        it "returns image_url as nil when the model has no images at all" do
+        it "returns image as nil when the model has no images at all" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
           expect(resp.body[0]["id"]).to eq(@model.id)
-          expect(resp.body[0]["url"]).to be_nil
+          expect(resp.body[0]["image"]).to be_nil
           expect(resp.body.count).to eq(1)
         end
       end
@@ -82,7 +82,7 @@ describe "Swagger Inventory Endpoints - Models" do
 
           expect(resp.status).to eq(200)
           expect(resp.body[0]["id"]).to eq(@model.id)
-          expect(resp.body[0]["url"]).to end_with(@image.id)
+          expect(resp.body[0]["image"]["url"]).to end_with(@image.id)
           expect(resp.body.count).to eq(1)
         end
 
@@ -93,7 +93,7 @@ describe "Swagger Inventory Endpoints - Models" do
 
           expect(resp.status).to eq(200)
           expect(resp.body[0]["id"]).to eq(@model.id)
-          expect(resp.body[0]["url"]).to end_with(@image.id)
+          expect(resp.body[0]["image"]["url"]).to end_with(@image.id)
           expect(resp.body.count).to eq(1)
         end
       end
@@ -105,12 +105,12 @@ describe "Swagger Inventory Endpoints - Models" do
             real_filename: "anon.jpg")
         end
 
-        it "omits the image_url key entirely if the model has images but no thumbnails and no cover_image_id" do
+        it "returns image_url in image object if model has images but no thumbnails and no cover_image_id" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
           expect(resp.body[0]["id"]).to eq(@model.id)
-          expect(resp.body[0]["url"]).to end_with(@image.id)
+          expect(resp.body[0]["image"]["url"]).to end_with(@image.id)
           expect(resp.body.count).to eq(1)
         end
       end

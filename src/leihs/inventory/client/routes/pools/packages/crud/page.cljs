@@ -24,7 +24,7 @@
    [leihs.inventory.client.lib.dynamic-validation :as dynamic-validation]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.packages.crud.components.fields :as form-fields]
+   [leihs.inventory.client.routes.pools.packages.crud.components.field-dispatcher :refer [FieldDispatcher]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -286,10 +286,9 @@
                              ($ :hr {:className "mb-4"})
 
                              (for [block (:blocks section)]
-                               ($ form-fields/field {:key (:name block)
-                                                     :control control
-                                                     :form form
-                                                     :block block}))))))
+                               ($ FieldDispatcher {:key (:name block)
+                                                   :form form
+                                                   :block block}))))))
 
                   ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}
                      ($ Button {:type "submit"

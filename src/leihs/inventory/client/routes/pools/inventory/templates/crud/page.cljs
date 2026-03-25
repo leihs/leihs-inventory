@@ -23,7 +23,7 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.inventory.templates.crud.components.fields :as form-fields]
+   [leihs.inventory.client.routes.pools.inventory.templates.crud.components.field-dispatcher :refer [FieldDispatcher]]
    [leihs.inventory.client.routes.pools.inventory.templates.crud.components.title :as title]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -188,10 +188,10 @@
                                ($ :hr {:className "mb-4"}))
 
                              (for [block (:blocks section)]
-                               ($ form-fields/field {:key (:name block)
-                                                     :control control
-                                                     :form form
-                                                     :block block}))))))
+                               ($ FieldDispatcher {:key (:name block)
+                                                   :control control
+                                                   :form form
+                                                   :block block}))))))
 
                   ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}
                      ($ Button {:type "submit"

@@ -1,17 +1,19 @@
-(ns leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.model-item
+(ns leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.fields.models-field
   (:require
+   ["@@/form" :refer [FormControl FormField FormItem FormLabel FormDescription FormMessage]]
    ["@@/input" :refer [Input]]
    ["@@/table" :refer [TableCell]]
-   ["@@/tooltip" :refer [Tooltip TooltipTrigger TooltipContent]]
+   ["@@/tooltip" :refer [Tooltip TooltipContent TooltipTrigger]]
    ["react-i18next" :refer [useTranslation]]
-   [leihs.inventory.client.components.form.form-field-array :refer [use-array-item]]
+   [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray FormFieldArrayItems use-array-item]]
+   [leihs.inventory.client.components.form.select-model :refer [SelectModel]]
    [leihs.inventory.client.components.image-cell :refer [ImageCell]]
-   [leihs.inventory.client.lib.utils :refer [cj]]
+   [leihs.inventory.client.lib.utils :refer [jc]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui ModelItem []
   (let [[t] (useTranslation)
-        {:keys [field update index form]} (use-array-item)
+        {:keys [field index form]} (use-array-item)
         available (:borrowable_quantity field)
         entitled-in-groups (or (:entitled_in_other_groups field) (:entitled_in_groups field))
         net-available (- available entitled-in-groups)
@@ -41,17 +43,16 @@
 
        ;; Quantity input cell
        ($ TableCell {:class-name "w-[5rem]"}
-          ($ Input {:class-name "text-right"
-                    :type "number"
-                    :data-test-id "quantity"
-                    :value (if (:quantity field)
-                             (:quantity field)
-                             1)
-                    :onChange (fn [event]
-                                (update
-                                 index
-                                 (cj (merge field
-                                            {:quantity (.. event -target -value)}))))}))
+          ($ FormField
+             {:control (.-control form)
+              :name (str "models." index ".quantity")
+              :render #($ FormItem
+                          ($ FormControl
+                             ($ Input (merge
+                                       {:class-name "text-right"
+                                        :type "number"
+                                        :data-test-id "quantity"}
+                                       (:field (jc %))))))}))
 
        ;; Separator
        ($ TableCell {:class-name "px-0"} "/")
@@ -74,3 +75,22 @@
                 ($ :span {:data-test-id "available"} available))
              ($ TooltipContent {:className "max-w-[20rem]"}
                 (t "pool.entitlement_groups.entitlement_group.models.blocks.models.items_count_tooltip")))))))
+
+(defui ModelsField [{:keys [form block]}]
+  (let [[t] (useTranslation)]
+    ($ FormFieldArray {:form form
+                       :name (:name block)}
+       ($ FormItem {:class-name "mt-6"}
+          ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
+          ($ SelectModel {:form form
+                          :name (:name block)
+                          :props (:props block)})
+
+          ($ FormDescription
+             ($ :<> (:description block)))
+
+          ($ FormMessage))
+
+       ($ FormFieldArrayItems {:form form
+                               :name (:name block)}
+          ($ ModelItem)))))

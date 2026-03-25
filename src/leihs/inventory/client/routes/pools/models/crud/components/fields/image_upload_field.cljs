@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.models.crud.components.image-upload
+(ns leihs.inventory.client.routes.pools.models.crud.components.fields.image-upload-field
   (:require
    ["@@/button" :refer [Button]]
    ["@@/dropzone" :refer [Dropzone DropzoneArea DropzoneFiles ErrorMessages
@@ -16,10 +16,11 @@
   (vec (concat (subvec vector 0 index)
                (subvec vector (inc index)))))
 
-(defui main [{:keys [control form props]}]
+(defui ImageUploadField [{:keys [form block]}]
   (let [set-value (aget form "setValue")
         get-values (aget form "getValues")
         [t] (useTranslation)
+        props (:props block)
 
         [images set-images!] (uix.core/use-state [])
         [error set-error!] (uix.core/use-state nil)
@@ -105,8 +106,3 @@
                                               :className "select-none cursor-pointer"}
 
                                       ($ Trash {:className "w-4 h-4"})))))))))))))))
-
-(def ImageUpload
-  (uix/as-react
-   (fn [props]
-     (main props))))

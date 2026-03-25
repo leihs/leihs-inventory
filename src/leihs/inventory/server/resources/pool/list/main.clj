@@ -26,6 +26,16 @@
 
 (def EXPORT-FILE-NAME "inventory-list")
 
+(defn- to-nested-image
+  [{:keys [image_id content_type url] :as model}]
+  (let [image (when (or image_id content_type url)
+                {:id image_id
+                 :content_type content_type
+                 :url url})]
+    (-> model
+        (dissoc :image_id :content_type :url)
+        (assoc :image image))))
+
 (defn index-resources [request]
   (let [tx (:tx request)
         {pool-id :pool_id} (path-params request)
@@ -109,7 +119,8 @@
             post-fnc (fn [models]
                        (->> models
                             (fetch-thumbnails-for-ids tx)
-                            (map (model->enrich-with-image-attr pool-id))))]
+                            (map (model->enrich-with-image-attr pool-id))
+                            (map to-nested-image)))]
         (-> request
             (create-pagination-response query-with-models nil post-fnc)
             response)))))

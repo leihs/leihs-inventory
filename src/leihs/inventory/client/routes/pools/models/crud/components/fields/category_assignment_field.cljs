@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.models.crud.components.category-assignment
+(ns leihs.inventory.client.routes.pools.models.crud.components.fields.category-assignment-field
   (:require
    ["@@/button" :refer [Button]]
    ["@@/command" :refer [Command CommandEmpty CommandInput CommandItem
@@ -40,11 +40,12 @@
   (when (seq list)
     (some #(when (= id (:id %)) %) list)))
 
-(defui main [{:keys [control form]}]
+(defui CategoryAssignmentField [{:keys [form]}]
   (let [{:keys [categories]} (useLoaderData)
         [t] (useTranslation)
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
+        control (.-control form)
         buttonRef (uix/use-ref nil)
         get-values (aget form "getValues")
 
@@ -163,8 +164,3 @@
                                        :size "icon"}
                                ($ Trash {:class-name "h-4 w-4"})))))
                     fields)))))))))
-
-(def CategoryAssignment
-  (uix/as-react
-   (fn [props]
-     (main props))))

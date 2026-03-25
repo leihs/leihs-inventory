@@ -88,8 +88,8 @@
                                     (:data result))))}
 
        ($ TableCell
-          (if (:url model)
-            ($ ImageModal {:url (:url model)
+          (if (get-in model [:image :url])
+            ($ ImageModal {:url (get-in model [:image :url])
                            :alt (str (:product model) " " (:version model))})
 
             (case (-> model :type)

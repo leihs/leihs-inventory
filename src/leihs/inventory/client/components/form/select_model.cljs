@@ -90,7 +90,8 @@
                                               (when-let [value (get selected (keyword attr))]
                                                 [(keyword attr) value])))
                                        (into {})
-                                       (merge {:product (:product selected)
+                                       (merge {:quantity 1
+                                               :product (:product selected)
                                                :version (:version selected)
                                                :name (:name selected)
                                                :url (:url selected)
