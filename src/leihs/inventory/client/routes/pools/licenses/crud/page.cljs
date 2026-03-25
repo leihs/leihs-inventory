@@ -18,12 +18,13 @@
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
+   [leihs.inventory.client.contexts.visibility-context :refer [VisibilityProvider]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
    [leihs.inventory.client.lib.dynamic-validation :as dynamic-validation]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.licenses.crud.components.fields :as form-fields]
+   [leihs.inventory.client.routes.pools.licenses.crud.components.field-dispatcher :refer [FieldDispatcher]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -76,9 +77,22 @@
         ;; Transform fields data to derived form structure
         structure (uix/use-memo
                    (fn []
+                     ;; (js/console.debug "restructure: " fields)
                      (cond-> (dynamic-form/fields->structure fields {:group-order groups})
 
-                       ;; Disable software_model_id when set via path param
+                       (not is-loading)
+                       (dynamic-form/patch "properties_maintenance_currency"
+                                           {:props {:bypass-i18n true}})
+
+                       (not is-loading)
+                       (dynamic-form/patch "properties_activation_type"
+                                           {:props {:bypass-i18n true}})
+
+                       (not is-loading)
+                       (dynamic-form/patch "properties_license_type"
+                                           {:props {:bypass-i18n true}})
+
+                        ;; Disable software_model_id when set via path param
                        (and is-create model (not is-loading))
                        (dynamic-form/patch "software_model_id"
                                            {:props {:disabled true}
@@ -244,25 +258,25 @@
 
                   ($ :div {:className "w-full lg:w-4/5"}
                      ($ Form (merge form)
-                        ($ :form {:id "license-form"
-                                  :className "space-y-12 "
-                                  :no-validate true
-                                  :on-submit (handle-submit on-submit on-invalid)}
+                        ($ VisibilityProvider {:form form}
+                           ($ :form {:id "license-form"
+                                     :className "space-y-12 "
+                                     :no-validate true
+                                     :on-submit (handle-submit on-submit on-invalid)}
 
-                           (for [section structure]
-                             ($ ScrollspyItem {:className "scroll-mt-[10vh]"
-                                               :key (:title section)
-                                               :id (:title section)
-                                               :name (t (:title section))}
+                              (for [section structure]
+                                ($ ScrollspyItem {:className "scroll-mt-[10vh]"
+                                                  :key (:title section)
+                                                  :id (:title section)
+                                                  :name (t (:title section))}
 
-                                ($ :h2 {:className "text-lg"} (t (:title section)))
-                                ($ :hr {:className "mb-4"})
+                                   ($ :h2 {:className "text-lg"} (t (:title section)))
+                                   ($ :hr {:className "mb-4"})
 
-                                (for [block (:blocks section)]
-                                  ($ form-fields/field {:key (:name block)
-                                                        :control control
-                                                        :form form
-                                                        :block block})))))))
+                                   (for [block (:blocks section)]
+                                     ($ FieldDispatcher {:key (:name block)
+                                                         :form form
+                                                         :block block}))))))))
 
                   ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}
                      ($ Button {:type "submit"

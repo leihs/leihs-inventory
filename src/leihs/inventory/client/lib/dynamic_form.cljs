@@ -169,12 +169,21 @@
                     (:props field) (merge (:props field)))
 
             ;; Add visibility dependency if present
-            visibility-dep (when (and (:visibility_dependency_field_id field)
-                                      (:visibility_dependency_value field))
+            visibility-dep (cond
+                             (and (:visibility_dependency_field_id field)
+                                  (:visibility_dependency_value field))
                              {:field (:visibility_dependency_field_id field)
-                              :value (:visibility_dependency_value field)})
+                              :value (:visibility_dependency_value field)}
 
-            ;; Add values dependency if present (e.g., room depends on building)
+                             (:visibility_dependency_field_id field)
+                             {:field (:visibility_dependency_field_id field)}
+
+                             (:visibility_dependency_value field)
+                             {:value (:visibility_dependency_value field)}
+
+                             :else nil)
+
+;; Add values dependency if present (e.g., room depends on building)
             values-dep (when (:values_dependency_field_id field)
                          {:field (:values_dependency_field_id field)})]
 

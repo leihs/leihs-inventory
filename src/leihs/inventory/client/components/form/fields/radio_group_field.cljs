@@ -28,4 +28,6 @@
                                                                :disabled (:disabled (:props block))
                                                                :value (:value option)}))
                                          ($ FormLabel {:class-name "font-normal"}
-                                            (t (:label option))))))))})))
+                                            (if (:bypass-i18n (:props block))
+                                              (:label option)
+                                              (t (:label option)))))))))})))

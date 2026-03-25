@@ -1,18 +1,18 @@
-(ns leihs.inventory.client.routes.pools.licenses.crud.components.composite
+(ns leihs.inventory.client.routes.pools.licenses.crud.components.fields.composite-field
   (:require
    ["@@/button" :refer [Button]]
-   ["@@/form" :refer [FormControl FormField FormDescription FormItem FormLabel FormMessage]]
+   ["@@/form" :refer [FormControl FormDescription FormField FormItem FormLabel
+                      FormMessage]]
    ["@@/input" :refer [Input]]
    ["@@/table" :refer [TableCell]]
    ["lucide-react" :refer [CirclePlus]]
-
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray
                                                                     FormFieldArrayItems
-                                                                    use-array-items
-                                                                    use-array-item]]
+                                                                    use-array-item
+                                                                    use-array-items]]
    [leihs.inventory.client.components.typo :refer [Typo]]
-   [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.lib.utils :refer [jc]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui AddButton [{:keys [className]}]
@@ -59,7 +59,7 @@
 
                                     ($ FormMessage))})))))
 
-(defui Composite [{:keys [form block]}]
+(defui CompositeField [{:keys [form block]}]
   (let [[t] (useTranslation)
         control (aget form "control")
         get-values (aget form "getValues")
