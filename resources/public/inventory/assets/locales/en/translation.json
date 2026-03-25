@@ -48,7 +48,10 @@
       "properties_quantity_allocations": "Quantity allocations",
       "properties_operating_system": "Operating system",
       "properties_installation": "Installation",
-      "properties_license_expiration": "License expiration"
+      "properties_license_expiration": "License expiration",
+      "properties_activation_type": "Activation type",
+      "properties_dongle_id": "Dongle ID",
+      "properties_license_type": "License type"
     },
     "Status": {
       "title": "Status",
@@ -84,6 +87,9 @@
     },
     "Maintenance": {
       "title": "Maintenance",
+      "properties_maintenance_contract": "Maintenance contract",
+      "properties_maintenance_expiration": "Maintenance expiration",
+      "properties_maintenance_currency": "Currency",
       "properties_maintenance_price": "Price"
     }
   },

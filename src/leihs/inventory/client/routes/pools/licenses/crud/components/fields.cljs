@@ -169,32 +169,32 @@
                                                 ($ FormLabel {:class-name "font-normal"}
                                                    (:label option))))))})
 
-              ;; ;; Select field
-              ;; "select"
-              ;; ($ FormField {:control (cj control)
-              ;;               :name (:name block)
-              ;;               :render #($ FormItem {:class-name "mt-6"}
-              ;;                           ($ FormLabel (t (:label block))
-              ;;                              (when (-> block :props :required) "*"))
-              ;;
-              ;;                           ($ Select {:name (:name block)
-              ;;                                      :disabled (:disabled (:props block))
-              ;;                                      :onValueChange (aget % "field" "onChange")
-              ;;                                      :defaultValue (aget % "field" "value")}
-              ;;
-              ;;                              ($ FormControl
-              ;;                                 ($ SelectTrigger {:name (:name block)}
-              ;;                                    ($ SelectValue {:placeholder (:placeholder (:props block))})))
-              ;;
-              ;;                              ($ SelectContent {:data-test-id (str (:name block) "-options")}
-              ;;                                 (for [option (:options (:props block))]
-              ;;                                   ($ SelectItem {:key (:value option)
-              ;;                                                  :value (:value option)
-              ;;                                                  :class-name "cursor-pointer"}
-              ;;
-              ;;                                      ($ :button {:type "button"}
-              ;;                                         (:label option)))))
-              ;;                              ($ FormMessage)))})
+              ;; Select field
+              "select"
+              ($ FormField {:control (cj control)
+                            :name (:name block)
+                            :render #($ FormItem {:class-name "mt-6"}
+                                        ($ FormLabel (t (:label block))
+                                           (when (-> block :props :required) "*"))
+
+                                        ($ Select {:name (:name block)
+                                                   :disabled (:disabled (:props block))
+                                                   :onValueChange (aget % "field" "onChange")
+                                                   :defaultValue (aget % "field" "value")}
+
+                                           ($ FormControl
+                                              ($ SelectTrigger {:name (:name block)}
+                                                 ($ SelectValue {:placeholder (:placeholder (:props block))})))
+
+                                           ($ SelectContent {:data-test-id (str (:name block) "-options")}
+                                              (for [option (:options (:props block))]
+                                                ($ SelectItem {:key (:value option)
+                                                               :value (:value option)
+                                                               :class-name "cursor-pointer"}
+
+                                                   ($ :button {:type "button"}
+                                                      (:label option)))))
+                                           ($ FormMessage)))})
 
                   ;; Calendar field 
               "calendar"
