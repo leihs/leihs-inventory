@@ -264,6 +264,7 @@
                                   (if (boolean? (:default field))
                                     (str (:default field))
                                     (:default field))
+
                                    ;; Set type-specific defaults when no default provided
                                   (case field-type
                                     "text" ""
@@ -282,29 +283,32 @@
                                     nil))
 
                     ;; Convert default value based on field type
-                    converted-val (when (or (some? default-val)
-                                            (contains? #{"text" "textarea"} field-type))
-                                    (case field-type
-                                      "text"
-                                      (if (nil? default-val)
-                                        ""
-                                        (str default-val))
+                    converted-val (case field-type
+                                    "text"
+                                    (if (nil? default-val)
+                                      ""
+                                      (str default-val))
 
-                                      "textarea"
-                                      (if (nil? default-val)
-                                        ""
-                                        default-val)
+                                    "textarea"
+                                    (if (nil? default-val)
+                                      ""
+                                      default-val)
 
-                                      "date"
-                                      (if (= default-val "today")
-                                        (js/Date.)
-                                        default-val)
+                                    "date"
+                                    (if (= default-val "today")
+                                      (js/Date.)
+                                      default-val)
 
-                                      "attachment"
-                                      (if (vector? default-val) default-val [])
+                                    "checkbox"
+                                    (if (nil? default-val)
+                                      []
+                                      default-val)
+
+                                    "attachment"
+                                    (if (vector? default-val) default-val [])
 
                                       ;; Default for custom/unknown types - use as-is
-                                      default-val))]
+                                    default-val)]
                 (assoc acc field-id converted-val)))
             {}
             implemented-fields)))

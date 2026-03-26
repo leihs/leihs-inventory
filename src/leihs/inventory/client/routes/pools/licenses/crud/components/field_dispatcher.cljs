@@ -10,7 +10,7 @@
    [leihs.inventory.client.components.form.fields.common-field :refer [CommonField]]
    [leihs.inventory.client.components.form.fields.radio-group-field :refer [RadioGroupField]]
    [leihs.inventory.client.components.form.fields.select-field :refer [SelectField]]
-    [leihs.inventory.client.provider.visibility-provider :refer [use-field-visibility]]
+   [leihs.inventory.client.provider.visibility-provider :refer [use-field-visibility]]
    [leihs.inventory.client.routes.pools.licenses.crud.components.fields.composite-field :refer [CompositeField]]
    [uix.core :refer [$ defui]]))
 
