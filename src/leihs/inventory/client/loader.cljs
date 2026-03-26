@@ -217,21 +217,53 @@
                             #js {:cache false})
                       (.then #(jc (.-data %)))))
 
-          data (if item-path
-                 (-> http-client
-                     (.get (str "/inventory/" pool-id "/fields/?resource_id=" package-id "&target_type=package")
-                           #js {:id package-id
-                                :cache false})
-                     (.then #(jc (.-data %))))
+          package (when package-id
+                    (-> http-client
+                        (.get (str "/inventory/" pool-id "/items/" package-id)
+                              #js {:cache false})
+                        (.then #(jc (.-data %)))))
+
+          data (when-not package-id
                  (-> http-client
                      (.get (str "/inventory/" pool-id "/fields/?target_type=package")
                            #js {:cache false})
                      (.then #(jc (.-data %)))))]
 
     (try
-      {:data data
+      {:data (if package-id {:fields (:fields package)} data)
+       :package package
        :items (if items items nil)
        :model (if model model nil)}
+      (catch js/Error err
+        (handle-error err)))))
+
+(defn licenses-crud-page [route-data]
+  (p/let [params (.. ^js route-data -params)
+          pool-id (aget params "pool-id")
+          license-id (or (aget params "license-id") nil)
+          software-id (or (aget params "software-id") nil)
+
+          model (when software-id
+                  (-> http-client
+                      (.get (str "/inventory/" pool-id "/software/" software-id))
+                      (.then #(jc (.-data %)))))
+
+          license (when license-id
+                    (-> http-client
+                        (.get (str "/inventory/" pool-id "/items/" license-id)
+                              #js {:cache false})
+                        (.then #(jc (.-data %)))))
+
+          data (if license-id
+                 {:fields (:fields license)}
+                 (-> http-client
+                     (.get (str "/inventory/" pool-id "/fields/?target_type=license")
+                           #js {:cache false})
+                     (.then #(jc (.-data %)))))]
+
+    (try
+      {:data data
+       :model model}
       (catch js/Error err
         (handle-error err)))))
 

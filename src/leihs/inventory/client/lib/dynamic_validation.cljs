@@ -54,6 +54,23 @@
                                (.min 1 "Please select an option"))
                            (z/string))
 
+                         "checkbox"
+                         (if (and is-required (not treat-as-optional))
+                           (-> (z/array (z/string))
+                               (.min 1 "At least one option must be selected"))
+                           (z/array (z/string)))
+
+                         "composite"
+                         (let [item-schema (z/object (clj->js {:quantity (-> (.. z -coerce (number))
+                                                                             (.pipe (-> (z/number)
+                                                                                        (.int)
+                                                                                        (.min 0))))
+                                                               :location (z/string)}))]
+                           (if (and is-required (not treat-as-optional))
+                             (-> (z/array item-schema)
+                                 (.min 1))
+                             (z/array item-schema)))
+
                          ;; Both autocomplete types validate as object, transform to string
                          "autocomplete-search"
                          (if (and is-required (not treat-as-optional))

@@ -3,7 +3,7 @@
    [better-cond.core :refer [cond] :rename {cond bcond}]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.constants :refer [ACCEPT-CSV ACCEPT-EXCEL]]
+   [leihs.inventory.server.constants :refer [ACCEPT-CSV ACCEPT-EXCEL GENERAL_BUILDING_UUID]]
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
@@ -261,6 +261,16 @@
       sql-format
       (->> (jdbc/execute! tx))))
 
+(defn get-general-room-id [tx]
+  (-> (sql/select :id)
+      (sql/from :rooms)
+      (sql/where [:= :building_id GENERAL_BUILDING_UUID])
+      (sql/where [:= :general true])
+      (sql/limit 1)
+      sql-format
+      (->> (jdbc/execute-one! tx))
+      :id))
+
 (defn generate-inventory-codes [tx pool-id n is-package]
   (let [starting-code (inv-code/propose tx pool-id is-package)
         starting-number (inv-code/extract-last-number starting-code)
@@ -304,6 +314,9 @@
 
        :let [{:keys [item-data properties]} (split-item-data
                                              (dissoc body-params :count :item_ids :type))
+             item-data (cond-> item-data
+                         (and (= type "license") (nil? (:room_id item-data)))
+                         (assoc :room_id (get-general-room-id tx)))
              model-id (:model_id item-data)
              item-data-coerced (coerce-field-values item-data in-coercions)
              properties-json (or (not-empty properties) {})]

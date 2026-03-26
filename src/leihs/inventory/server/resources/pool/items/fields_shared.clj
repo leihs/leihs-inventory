@@ -64,9 +64,13 @@
                              sql-format
                              (->> (jdbc-query tx)))
         permitted-field-ids (->> permitted-fields
-                                 (map (comp keyword :id))
+                                 (mapcat
+                                  #(let [id (keyword (:id %))
+                                         form-name (some-> (get-in % [:data :form_name]) keyword)]
+                                     (cond-> [id]
+                                       form-name (conj form-name))))
                                  set)
-        body-keys (-> body-params (dissoc :id :type :item_ids :inventory_code :count) keys set)
+        body-keys (-> body-params (dissoc :id :type :item_ids :count) keys set)
         unpermitted-fields (set/difference body-keys permitted-field-ids)
         owner-id (:owner_id item-data)
         model-id (:model_id item-data)
@@ -81,7 +85,11 @@
       (seq unpermitted-fields)
       {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
 
-      (= model-type "Software")
+      (and (= item-type "license") (not= model-type "Software"))
+      {:error "Model must be Software type for licenses"
+       :model_id model-id}
+
+      (and (not= item-type "license") (= model-type "Software"))
       {:error "Model type 'Software' is not allowed for items"
        :model_id model-id}
 

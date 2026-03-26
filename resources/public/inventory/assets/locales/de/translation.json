@@ -12,7 +12,9 @@
       "title": "Pflichtangaben",
       "count": "Anzahl Gegenstände erstellen",
       "inventory_code": "Inventarcode",
-      "model_id": "Modell"
+      "model_id": "Modell",
+      "software_model_id": "Software",
+      "license_version": "Lizenzversion"
     },
     "Content": {
       "title": "Inhalt"
@@ -39,7 +41,8 @@
       "properties_reference": "Bezug",
       "properties_warranty_expiration": "Garantieablaufdatum",
       "properties_p4u": "P4U-Nummer",
-      "properties_contract_expiration": "Vertragsablaufdatum"
+      "properties_contract_expiration": "Vertragsablaufdatum",
+      "properties_procured_by": "Beschafft von"
     },
     "General Information": {
       "title": "Allgemeine Informationen",
@@ -48,7 +51,15 @@
       "properties_mac_address": "MAC-Adresse",
       "name": "Name",
       "attachments": "Anhänge",
-      "note": "Notiz"
+      "note": "Notiz",
+      "properties_total_quantity": "Gesamtanzahl",
+      "properties_quantity_allocations": "Anzahl Zuteilungen",
+      "properties_operating_system": "Betriebssystem",
+      "properties_installation": "Installation",
+      "properties_license_expiration": "Lizenzablaufdatum",
+      "properties_activation_type": "Aktivierungstyp",
+      "properties_dongle_id": "Dongle ID",
+      "properties_license_type": "Lizenztyp"
     },
     "Status": {
       "title": "Zustand",
@@ -69,6 +80,25 @@
       "room_id": "Raum",
       "building_id": "Gebäude",
       "shelf": "Gestell"
+    },
+    "License Info": {
+      "title": "Lizenzinformationen"
+    },
+    "Activation": {
+      "title": "Aktivierung"
+    },
+    "Quantity": {
+      "title": "Anzahl"
+    },
+    "System Requirements": {
+      "title": "Systemanforderungen"
+    },
+    "Maintenance": {
+      "title": "Wartung",
+      "properties_maintenance_contract": "Maintenance Vertrag",
+      "properties_maintenance_expiration": "Maintenance Ablaufdatum",
+      "properties_maintenance_currency": "Währung",
+      "properties_maintenance_price": "Preis"
     }
   },
   "pagination": {
@@ -248,6 +278,40 @@
         }
       }
     },
+    "licenses": {
+      "license": {
+        "create": {
+          "title": "Neue Lizenz erstellen",
+          "description": "Geben Sie alle erforderlichen Informationen an",
+          "submit": "Erstellen",
+          "cancel": "Abbrechen",
+          "success": "Lizenz wurde erfolgreich erstellt",
+          "invalid_one": "Lizenz konnte nicht erstellt werden, da ein Feld ungültig ist",
+          "invalid_other": "Lizenz konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
+        },
+        "edit": {
+          "title": "Lizenz bearbeiten",
+          "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Speichern",
+          "cancel": "Abbrechen",
+          "success": "Lizenz wurde erfolgreich gespeichert",
+          "invalid_one": "Lizenz konnte nicht gespeichert werden, da ein Feld ungültig ist",
+          "invalid_other": "Lizenz konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Speichern ist ein Fehler aufgetreten"
+        },
+        "fields": {
+          "entitlements": {
+            "add": "Zuteilung hinzufügen",
+            "quantity": "Anzahl",
+            "location": "Ort",
+            "remaining": "Verbleibend"
+          }
+        }
+      }
+    },
     "models": {
       "title": "Inventarliste",
       "filters": {
@@ -303,7 +367,8 @@
         "add_package": "Neues Paket",
         "add_item": "Neuen Gegenstand",
         "add_option": "Neue Option",
-        "add_software": "Neue Software"
+        "add_software": "Neue Software",
+        "add_license": "Neue Lizenz"
       },
       "add_entitlement_group": "Anspruchsgruppe hinzufügen",
       "add_template": "Vorlage hinzufügen",

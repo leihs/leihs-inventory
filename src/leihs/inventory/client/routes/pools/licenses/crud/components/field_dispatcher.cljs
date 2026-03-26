@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.packages.crud.components.field-dispatcher
+(ns leihs.inventory.client.routes.pools.licenses.crud.components.field-dispatcher
   (:require
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["lucide-react" :refer [Lock]]
@@ -6,24 +6,35 @@
    [leihs.inventory.client.components.form.fields.attachments-field :refer [AttachmentsField]]
    [leihs.inventory.client.components.form.fields.autocomplete-field :refer [AutocompleteField]]
    [leihs.inventory.client.components.form.fields.calendar-field :refer [CalendarField]]
+   [leihs.inventory.client.components.form.fields.checkbox-group-field :refer [CheckboxGroupField]]
    [leihs.inventory.client.components.form.fields.common-field :refer [CommonField]]
    [leihs.inventory.client.components.form.fields.radio-group-field :refer [RadioGroupField]]
    [leihs.inventory.client.components.form.fields.select-field :refer [SelectField]]
-   [leihs.inventory.client.provider.visibility-provider :refer [use-field-visibility]]
-   [leihs.inventory.client.routes.pools.packages.crud.components.fields.items-field :refer [ItemsField]]
-   [uix.core :as uix :refer [$ defui]]))
+    [leihs.inventory.client.provider.visibility-provider :refer [use-field-visibility]]
+   [leihs.inventory.client.routes.pools.licenses.crud.components.fields.composite-field :refer [CompositeField]]
+   [uix.core :refer [$ defui]]))
 
 (def translations
   {:text
-   {:select "pool.packages.package.fields.autocomplete.select"
-    :search "pool.packages.package.fields.autocomplete.search"
-    :empty "pool.packages.package.fields.autocomplete.empty"}})
+   {:select "pool.items.item.fields.autocomplete.select"
+    :search "pool.items.item.fields.autocomplete.search"
+    :empty "pool.items.item.fields.autocomplete.empty"}})
 
 (defui FieldDispatcher [{:keys [form block]}]
   (let [[t] (useTranslation)
         {:keys [is-visible
                 values-dependency
-                watched-dependency-value]} (use-field-visibility block)]
+                watched-dependency-value]} (use-field-visibility block)
+
+        label-inactive (fn [props]
+                         (let [without-options (dissoc props :options)
+                               text (t "pool.items.item.fields.inactive")
+                               annotated (map #(if (and (boolean? (:is_active %))
+                                                        (false? (:is_active %)))
+                                                 (assoc % :label (str (:label %) " ( " text " )"))
+                                                 %)
+                                              (-> props :options))]
+                           (assoc without-options :options annotated)))]
 
     (when is-visible
       ($ Popover
@@ -36,10 +47,6 @@
                     ($ Lock {:class-name "h-6 w-6 p-1"}))))
 
             (cond
-              (-> block :component (= "items"))
-              ($ ItemsField {:form form
-                             :block block})
-
               (-> block :component (= "attachments"))
               ($ AttachmentsField {:form form
                                    :label (t (:label block))
@@ -64,11 +71,19 @@
                                     :props (merge translations
                                                   (if values-dependency
                                                     (let [values-url (-> block :props :values-url)
-                                                          dep (:field values-dependency)]
+                                                          dep-field (:field values-dependency)]
                                                       {:remap (fn [item] {:value (str (:id item))
-                                                                          :label (:name item)})
-                                                       :values-url (str values-url "?" dep "=" (.-value watched-dependency-value))})
-                                                    (:props block)))})
+                                                                          :label (str (:name item))})
+                                                       :values-url (str values-url "?" dep-field "=" (.-value watched-dependency-value))})
+                                                    (label-inactive (:props block))))})
+
+              (-> block :component (= "composite"))
+              ($ CompositeField {:form form
+                                 :block block})
+
+              (-> block :component (= "checkbox"))
+              ($ CheckboxGroupField {:form form
+                                     :block block})
 
               (-> block :component (= "radio-group"))
               ($ RadioGroupField {:form form
@@ -91,6 +106,9 @@
            ($ PopoverContent {:side "top"
                               :class-name "w-[150px] text-sm"}
               (case (:disabled-reason block)
-                :protected (t "pool.packages.package.fields.disabled.protected")
+                :protected (t "pool.items.item.fields.disabled.protected")
+                :model-selected (t "pool.items.item.fields.disabled.model-selected")
+                :multiple-items (t "pool.items.item.fields.disabled.multiple-items")
+                :owner-locked (t "pool.items.item.fields.disabled.owner-locked")
                 ;; Fallback for fields disabled without a reason
-                (t "pool.packages.package.fields.disabled.generic"))))))))
+                (t "pool.items.item.fields.disabled.generic"))))))))

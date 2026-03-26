@@ -8,6 +8,7 @@
     "radio"
     "checkbox"
     "attachment"
+    "composite"
     "autocomplete-search"
     "autocomplete"})
 
@@ -109,6 +110,7 @@
         "attachment" "attachments"
         "autocomplete-search" "autocomplete-search"
         "autocomplete" "autocomplete"
+        "composite" "composite"
         nil)))
 
 (defn- transform-field-values [values field-type]
@@ -167,12 +169,21 @@
                     (:props field) (merge (:props field)))
 
             ;; Add visibility dependency if present
-            visibility-dep (when (and (:visibility_dependency_field_id field)
-                                      (:visibility_dependency_value field))
+            visibility-dep (cond
+                             (and (:visibility_dependency_field_id field)
+                                  (:visibility_dependency_value field))
                              {:field (:visibility_dependency_field_id field)
-                              :value (:visibility_dependency_value field)})
+                              :value (:visibility_dependency_value field)}
 
-            ;; Add values dependency if present (e.g., room depends on building)
+                             (:visibility_dependency_field_id field)
+                             {:field (:visibility_dependency_field_id field)}
+
+                             (:visibility_dependency_value field)
+                             {:value (:visibility_dependency_value field)}
+
+                             :else nil)
+
+;; Add values dependency if present (e.g., room depends on building)
             values-dep (when (:values_dependency_field_id field)
                          {:field (:values_dependency_field_id field)})]
 
@@ -253,20 +264,21 @@
                                   (if (boolean? (:default field))
                                     (str (:default field))
                                     (:default field))
-                                  ;; Set type-specific defaults when no default provided
+                                   ;; Set type-specific defaults when no default provided
                                   (case field-type
                                     "text" ""
                                     "textarea" ""
                                     "select" nil
                                     "date" nil
                                     "radio" false
-                                    "checkbox" false
+                                    "checkbox" []
                                     "attachment" []
+                                    "composite" []
                                     "autocomplete-search" {:value nil
                                                            :label nil}
                                     "autocomplete" {:value nil
                                                     :label nil}
-                                    ;; Default for custom/unknown types
+                                      ;; Default for custom/unknown types
                                     nil))
 
                     ;; Convert default value based on field type
