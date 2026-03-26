@@ -24,6 +24,7 @@
    [leihs.inventory.client.lib.dynamic-validation :as dynamic-validation]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.provider.visibility-provider :refer [VisibilityProvider]]
    [leihs.inventory.client.routes.pools.packages.crud.components.field-dispatcher :refer [FieldDispatcher]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -271,24 +272,26 @@
                   ($ ScrollspyMenu {:class-name "w-1/5"})
 
                   ($ Form (merge form)
-                     ($ :form {:id "package-form"
-                               :className "space-y-12 w-full lg:w-3/5"
-                               :no-validate true
-                               :on-submit (handle-submit on-submit on-invalid)}
 
-                        (for [section structure]
-                          ($ ScrollspyItem {:className "scroll-mt-[10vh]"
-                                            :key (:title section)
-                                            :id (:title section)
-                                            :name (t (:title section))}
+                     ($ VisibilityProvider {:form form}
+                        ($ :form {:id "package-form"
+                                  :className "space-y-12 w-full lg:w-3/5"
+                                  :no-validate true
+                                  :on-submit (handle-submit on-submit on-invalid)}
 
-                             ($ :h2 {:className "text-lg"} (t (:title section)))
-                             ($ :hr {:className "mb-4"})
+                           (for [section structure]
+                             ($ ScrollspyItem {:className "scroll-mt-[10vh]"
+                                               :key (:title section)
+                                               :id (:title section)
+                                               :name (t (:title section))}
 
-                             (for [block (:blocks section)]
-                               ($ FieldDispatcher {:key (:name block)
-                                                   :form form
-                                                   :block block}))))))
+                                ($ :h2 {:className "text-lg"} (t (:title section)))
+                                ($ :hr {:className "mb-4"})
+
+                                (for [block (:blocks section)]
+                                  ($ FieldDispatcher {:key (:name block)
+                                                      :form form
+                                                      :block block})))))))
 
                   ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}
                      ($ Button {:type "submit"

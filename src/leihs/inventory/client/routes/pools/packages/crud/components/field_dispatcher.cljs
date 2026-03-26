@@ -2,7 +2,6 @@
   (:require
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["lucide-react" :refer [Lock]]
-   ["react-hook-form" :refer [useWatch]]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.fields.attachments-field :refer [AttachmentsField]]
    [leihs.inventory.client.components.form.fields.autocomplete-field :refer [AutocompleteField]]
@@ -10,6 +9,7 @@
    [leihs.inventory.client.components.form.fields.common-field :refer [CommonField]]
    [leihs.inventory.client.components.form.fields.radio-group-field :refer [RadioGroupField]]
    [leihs.inventory.client.components.form.fields.select-field :refer [SelectField]]
+   [leihs.inventory.client.provider.visibility-provider :refer [use-field-visibility]]
    [leihs.inventory.client.routes.pools.packages.crud.components.fields.items-field :refer [ItemsField]]
    [uix.core :as uix :refer [$ defui]]))
 
@@ -19,45 +19,13 @@
     :search "pool.packages.package.fields.autocomplete.search"
     :empty "pool.packages.package.fields.autocomplete.empty"}})
 
-(defn- has-value?
-  "Check if a value is considered 'truthy' for dependency purposes.
-   Returns false for: nil, empty string, empty array, empty object, false"
-  [val]
-  (cond
-    (nil? val) false
-    (boolean? val) val
-    (string? val) (not= val "")
-    (array? val) (pos? (.-length val))
-    (object? val) (if (js/Object.hasOwn val "value")
-                    ;; For objects like {:value "..." :label "..."}, check the value property
-                    (has-value? (.-value val))
-                    ;; For plain objects without value property, check if they have keys
-                    (pos? (count (js/Object.keys val))))
-    :else true))
-
 (defui FieldDispatcher [{:keys [form block]}]
   (let [[t] (useTranslation)
-        control (.-control form)
-        visibility (:visibility-dependency block)
-        values-dep (:values-dependency block)
+        {:keys [is-visible
+                values-dependency
+                watched-dependency-value]} (use-field-visibility block)]
 
-        ;; Always call useWatch (hooks must be called unconditionally)
-        watched-visibility (useWatch #js {:control control
-                                          :name (:field visibility)})
-        watched-dependency (useWatch #js {:control control
-                                          :name (:field values-dep)})
-
-        ;; Check visibility
-        is-visible (if visibility
-                     (= (str watched-visibility) (str (:value visibility)))
-                     true)
-
-        ;; Check if field should show based on values dependency
-        has-dependency-value (if values-dep
-                               (has-value? watched-dependency)
-                               true)]
-
-    (when (and is-visible has-dependency-value)
+    (when is-visible
       ($ Popover
          ($ :div {:class-name "relative"}
             (when (:disabled (:props block))
@@ -94,12 +62,12 @@
                                     :name (:name block)
                                     :label (:label block)
                                     :props (merge translations
-                                                  (if values-dep
+                                                  (if values-dependency
                                                     (let [values-url (-> block :props :values-url)
-                                                          dep (:field values-dep)]
+                                                          dep (:field values-dependency)]
                                                       {:remap (fn [item] {:value (str (:id item))
                                                                           :label (:name item)})
-                                                       :values-url (str values-url "?" dep "=" (.-value watched-dependency))})
+                                                       :values-url (str values-url "?" dep "=" (.-value watched-dependency-value))})
                                                     (:props block)))})
 
               (-> block :component (= "radio-group"))

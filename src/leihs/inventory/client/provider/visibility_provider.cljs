@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.contexts.visibility-context
+(ns leihs.inventory.client.provider.visibility-provider
   (:require
    ["react" :refer [createContext useContext useState useEffect useCallback useMemo]]
    ["react-hook-form" :refer [useWatch]]

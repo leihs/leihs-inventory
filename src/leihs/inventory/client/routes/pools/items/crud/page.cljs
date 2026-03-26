@@ -25,6 +25,7 @@
    [leihs.inventory.client.lib.dynamic-validation :as dynamic-validation]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.provider.visibility-provider :refer [VisibilityProvider]]
    [leihs.inventory.client.routes.pools.items.crud.components.field-dispatcher :refer [FieldDispatcher]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -306,7 +307,7 @@
                   ($ :div {:className "w-full lg:w-4/5"}
                      (when package
                        ($ Alert {:class-name "mb-6 border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-50"}
-                          ;; ($ InfoIcon {:className "w-3 h-3"})
+                           ;; ($ InfoIcon {:className "w-3 h-3"})
                           ($ AlertTitle {:class-name "text-sm font-medium"}
                              (t "pool.items.item.edit.package_item"))
                           ($ AlertDescription {:class-name "text-xs text-muted-foreground"}
@@ -315,24 +316,25 @@
                                 (str (:product package-model) " - " (:inventory_code package))))))
 
                      ($ Form (merge form)
-                        ($ :form {:id "item-form"
-                                  :className "space-y-12 "
-                                  :no-validate true
-                                  :on-submit (handle-submit on-submit on-invalid)}
+                        ($ VisibilityProvider {:form form}
+                           ($ :form {:id "item-form"
+                                     :className "space-y-12 "
+                                     :no-validate true
+                                     :on-submit (handle-submit on-submit on-invalid)}
 
-                           (for [section structure]
-                             ($ ScrollspyItem {:className "scroll-mt-[10vh]"
-                                               :key (:title section)
-                                               :id (:title section)
-                                               :name (t (:title section))}
+                              (for [section structure]
+                                ($ ScrollspyItem {:className "scroll-mt-[10vh]"
+                                                  :key (:title section)
+                                                  :id (:title section)
+                                                  :name (t (:title section))}
 
-                                ($ :h2 {:className "text-lg"} (t (:title section)))
-                                ($ :hr {:className "mb-4"})
+                                   ($ :h2 {:className "text-lg"} (t (:title section)))
+                                   ($ :hr {:className "mb-4"})
 
-                                (for [block (:blocks section)]
-                                  ($ FieldDispatcher {:key (:name block)
-                                                      :form form
-                                                      :block block})))))))
+                                   (for [block (:blocks section)]
+                                     ($ FieldDispatcher {:key (:name block)
+                                                         :form form
+                                                         :block block}))))))))
 
                   ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}
                      ($ Button {:type "submit"

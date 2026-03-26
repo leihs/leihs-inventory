@@ -18,7 +18,7 @@
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
-   [leihs.inventory.client.contexts.visibility-context :refer [VisibilityProvider]]
+    [leihs.inventory.client.provider.visibility-provider :refer [VisibilityProvider]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
    [leihs.inventory.client.lib.dynamic-validation :as dynamic-validation]
