@@ -260,56 +260,60 @@
               (let [field-id (keyword (:id field))
                     field-type (:type field)
                     has-default? (contains? field :default)
-                    default-val (if has-default?
-                                  (if (boolean? (:default field))
-                                    (str (:default field))
-                                    (:default field))
+                    default-value (if has-default?
+                                    (if (boolean? (:default field))
+                                      (str (:default field))
+                                      (:default field))
+                                    nil)
 
-                                   ;; Set type-specific defaults when no default provided
-                                  (case field-type
-                                    "text" ""
-                                    "textarea" ""
-                                    "select" nil
-                                    "date" nil
-                                    "radio" false
-                                    "checkbox" []
-                                    "attachment" []
-                                    "composite" []
-                                    "autocomplete-search" {:value nil
-                                                           :label nil}
-                                    "autocomplete" {:value nil
-                                                    :label nil}
-                                      ;; Default for custom/unknown types
-                                    nil))
+                    ;; Convert default value based on field type and handle nil defaults
+                    converted-value (case field-type
+                                      "text"
+                                      (if (nil? default-value)
+                                        ""
+                                        (str default-value))
 
-                    ;; Convert default value based on field type
-                    converted-val (case field-type
-                                    "text"
-                                    (if (nil? default-val)
-                                      ""
-                                      (str default-val))
+                                      "textarea"
+                                      (if (nil? default-value)
+                                        ""
+                                        default-value)
 
-                                    "textarea"
-                                    (if (nil? default-val)
-                                      ""
-                                      default-val)
+                                      "date"
+                                      (if (= default-value "today")
+                                        (js/Date.)
+                                        default-value)
 
-                                    "date"
-                                    (if (= default-val "today")
-                                      (js/Date.)
-                                      default-val)
+                                      "radio"
+                                      (if (nil? default-value)
+                                        false
+                                        default-value)
 
-                                    "checkbox"
-                                    (if (nil? default-val)
-                                      []
-                                      default-val)
+                                      "checkbox"
+                                      (if (nil? default-value)
+                                        []
+                                        default-value)
 
-                                    "attachment"
-                                    (if (vector? default-val) default-val [])
+                                      "attachment"
+                                      (if (vector? default-value) default-value [])
+
+                                      "composite"
+                                      (if (nil? default-value)
+                                        []
+                                        default-value)
+
+                                      "autocomplete-search"
+                                      (if (nil? default-value)
+                                        {:value nil :label nil}
+                                        default-value)
+
+                                      "autocomplete"
+                                      (if (nil? default-value)
+                                        {:value nil :label nil}
+                                        default-value)
 
                                       ;; Default for custom/unknown types - use as-is
-                                    default-val)]
-                (assoc acc field-id converted-val)))
+                                      default-value)]
+                (assoc acc field-id converted-value)))
             {}
             implemented-fields)))
 

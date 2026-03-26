@@ -15,7 +15,6 @@
                                  (t (:label block))
                                  (when (-> block :props :required) " *"))
 
-                              (js/console.debug (:props block))
                               ($ FormControl
                                  ($ CheckboxGroup {:value (aget % "field" "value")
                                                    :onValueChange (aget % "field" "onChange")
