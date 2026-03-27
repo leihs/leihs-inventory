@@ -20,7 +20,8 @@
 
   (let [location (router/useLocation)
         [t] (useTranslation)
-        ref (uix/use-ref nil)]
+        ref (uix/use-ref nil)
+        package-item? (or isPackageItem (some? (:parent_id item)))]
 
     ($ TableRow {:ref ref
                  :key (-> item :id)
@@ -49,7 +50,7 @@
 
        ($ TableCell
           ($ ItemInfo {:item item
-                       :is-package-item isPackageItem}))
+                       :is-package-item package-item?}))
 
        ($ TableCell {:className "text-right"}
           ($ ItemStatus {:item item}))
