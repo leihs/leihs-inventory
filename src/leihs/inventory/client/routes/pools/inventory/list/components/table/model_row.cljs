@@ -25,7 +25,7 @@
                  :fields :in_stock_quantity
                  :model_id :parent_id :inventory_pool_id :search])
 
-(def fields ["id" "is_package" "is_borrowable" "is_broken" "retired" "is_incomplete"
+(def fields ["id" "is_package" "parent_id" "is_borrowable" "is_broken" "retired" "is_incomplete"
              "price" "inventory_code" "shelf" "building_code" "package_items"
              "building_name" "reservation_end_date" "shelf" "inventory_pool_name"
              "user_name" "reservation_user_name" "url" "reservation_contract_id"])
