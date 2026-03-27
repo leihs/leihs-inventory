@@ -56,3 +56,21 @@ def attach_file_by_label(label_text, file_path)
     end
   end
 end
+
+# Status filter uses Radix submenus in a portal; use the menu + button[name=…] so we do not
+# click the wrong control (e.g. another "Yes" or a stale match).
+STATUS_SUBMENU_BUTTON_NAME = {
+  "Owned" => "owned",
+  "In stock" => "in_stock",
+  "Broken" => "broken",
+  "Incomplete" => "incomplete"
+}.freeze
+
+def select_status_filter_submenu(submenu_label, yes_or_no)
+  click_on "Status"
+  # Radix mounts several [role=menu] portals; pick the Status menu (only it has an "Owned" row).
+  menu = find(:xpath, "//*[@role='menu'][.//button[normalize-space()='Owned']]", wait: 10)
+  menu.find(:button, submenu_label, match: :first).click
+  param = STATUS_SUBMENU_BUTTON_NAME.fetch(submenu_label)
+  find("button[name='#{param}']", text: yes_or_no, wait: 10).click
+end
