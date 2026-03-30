@@ -11,6 +11,7 @@
    [leihs.inventory.client.components.form.fields.composite-field :refer [CompositeField]]
    [leihs.inventory.client.components.form.fields.radio-group-field :refer [RadioGroupField]]
    [leihs.inventory.client.components.form.fields.select-field :refer [SelectField]]
+   [leihs.inventory.client.routes.pools.items.crud.components.fields.items-field :refer [ItemsField]]
    [leihs.inventory.client.provider.visibility-provider :refer [use-field-visibility]]
    [uix.core :refer [$ defui]]))
 
@@ -47,6 +48,11 @@
                     ($ Lock {:class-name "h-6 w-6 p-1"}))))
 
             (cond
+              ;; Package-specific: item selection field
+              (= (:name block) "item_ids")
+              ($ ItemsField {:form form
+                            :block block})
+
               (-> block :component (= "attachments"))
               ($ AttachmentsField {:form form
                                    :label (t (:label block))

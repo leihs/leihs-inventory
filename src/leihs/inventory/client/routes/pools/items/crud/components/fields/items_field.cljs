@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.packages.crud.components.fields.items-field
+(ns leihs.inventory.client.routes.pools.items.crud.components.fields.items-field
   (:require
    ["@/components/ui/command" :refer [Command CommandEmpty CommandInput
                                       CommandItem CommandList]]
