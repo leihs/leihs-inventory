@@ -358,7 +358,7 @@
            (when (and is-edit
                       (> prev-count 0)
                       (= curr-count 0))
-             (.. toast (info (t (str t-ns ".edit.auto_retire_info"))))
+             (.. toast (info (t (str t-ns ".edit.auto_retire_reason"))))
              (set-value "retired" (js/Date.)))
            (reset! prev-items-count-ref curr-count))))
      [watched-items is-edit item-type t-ns set-value t])
