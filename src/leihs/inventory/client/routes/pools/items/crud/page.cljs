@@ -26,8 +26,8 @@
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.provider.visibility-provider :refer [VisibilityProvider]]
-   [leihs.inventory.client.routes.pools.items.config :as item-config]
    [leihs.inventory.client.routes.pools.items.crud.components.field-dispatcher :refer [FieldDispatcher]]
+   [leihs.inventory.client.routes.pools.items.crud.config :as config]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -48,13 +48,9 @@
         [search-params _] (router/useSearchParams)
 
         ;; Determine entity type from route params
-        entity-type (item-config/determine-entity-type params)
-        config (item-config/get-config entity-type)
+        item-type (config/determine-entity-type params)
+        config (get config/types item-type)
         t-ns (:translation-namespace config)
-
-        ;; Translation helper using entity-specific namespace
-        translate (fn [key & args]
-                    (apply t (str t-ns "." key) args))
 
         state (.. location -state)
         is-create (.. location -pathname (includes "create"))
@@ -67,12 +63,12 @@
         {:keys [data copy-data model package package-model items]} (jc (useLoaderData))
 
         ;; Get entity-specific groups
-        groups (get entity-groups entity-type)
+        groups (get entity-groups item-type)
 
         ;; Define custom fields based on entity type
         custom-fields (cond
                         ;; Items: batch creation count field
-                        (and (= entity-type :item) is-create)
+                        (and (= item-type :item) is-create)
                         [{:id "count"
                           :component "input"
                           :group "Mandatory data"
@@ -89,7 +85,7 @@
                                          (.int))}]
 
                         ;; Packages: item selection field
-                        (= entity-type :package)
+                        (= item-type :package)
                         [{:id "item_ids"
                           :type "array"
                           :component "items"
@@ -147,7 +143,7 @@
         prev-items-count-ref (uix/use-ref (or (count watched-items) 0))
 
         ;; Then conditionally use their values
-        batch? (and (= entity-type :item) (> (or field-count 1) 1))
+        batch? (and (= item-type :item) (> (or field-count 1) 1))
 
         ;; Transform fields data to derived form structure
         structure (uix/use-memo
@@ -155,18 +151,18 @@
                      (cond-> (dynamic-form/fields->structure
                               fields
                               {:group-order groups
-                               :main-group (when (= entity-type :package) "Package")})
+                               :main-group (when (= item-type :package) "Package")})
 
                        ;; Disable model_id/software_model_id when set via path param
                        (and is-create model (not is-loading))
-                       (dynamic-form/patch (if (= entity-type :license)
+                       (dynamic-form/patch (if (= item-type :license)
                                              "software_model_id"
                                              "model_id")
                                            {:props {:disabled true}
                                             :disabled-reason :model-selected})
 
                        ;; Items: Disable fields when batch creating (count > 1)
-                       (and (= entity-type :item) is-create (> (or field-count 1) 1) (not is-loading))
+                       (and (= item-type :item) is-create (> (or field-count 1) 1) (not is-loading))
                        (-> (dynamic-form/patch "inventory_code"
                                                {:props {:disabled true}
                                                 :disabled-reason :multiple-items})
@@ -184,22 +180,22 @@
                                             :disabled-reason :owner-locked})
 
                        ;; Licenses: bypass i18n for certain fields
-                       (and (= entity-type :license) (not is-loading))
+                       (and (= item-type :license) (not is-loading))
                        (-> (dynamic-form/patch "properties_maintenance_currency"
                                                {:props {:bypass-i18n true}})
                            (dynamic-form/patch "properties_activation_type"
                                                {:props {:bypass-i18n true}})
                            (dynamic-form/patch "properties_license_type"
                                                {:props {:bypass-i18n true}}))))
-                   [fields is-create model is-loading field-count entity-type groups])
+                   [fields is-create model is-loading field-count item-type groups])
 
         on-invalid (fn [data]
                      (let [invalid-fields-count (count (jc data))]
                        (.. toast (error (if is-create
-                                          (translate "create.invalid"
-                                                     #js {:count invalid-fields-count})
-                                          (translate "edit.invalid"
-                                                     #js {:count invalid-fields-count}))))
+                                          (t (str t-ns ".create.invalid")
+                                             #js {:count invalid-fields-count})
+                                          (t (str t-ns ".edit.invalid")
+                                             #js {:count invalid-fields-count}))))
 
                        (js/console.debug "is invalid: " data)))
 
@@ -222,11 +218,11 @@
                                           (cond-> batch? (dissoc :serial_number :inventory_code))
                                           (dissoc :attachments)
                                           ;; Add entity type to request
-                                          (assoc :type (name entity-type))
+                                          (assoc :type (name item-type))
                                           (into {}))
 
                             ;; Get ID param name from config (item-id, package-id, license-id)
-                            id-param-name (case entity-type
+                            id-param-name (case item-type
                                             :item "item-id"
                                             :package "package-id"
                                             :license "license-id")
@@ -275,8 +271,8 @@
                         (case (:status item-res)
                           409 (.. toast
                                   (error (if is-create
-                                           (translate "create.conflict")
-                                           (translate "edit.conflict"))
+                                           (t (str t-ns ".create.conflict"))
+                                           (t (str t-ns ".edit.conflict")))
                                          (cj {:duration 20000
                                               :action
                                               {:label "Update"
@@ -284,8 +280,8 @@
                                                           (set-value "inventory_code" (:proposed_code (:data item-res))))}})))
 
                           500 (.. toast (error (if is-create
-                                                 (translate "create.error")
-                                                 (translate "edit.error"))))
+                                                 (t (str t-ns ".create.error"))
+                                                 (t (str t-ns ".edit.error")))))
 
                           200 (do
                                 ;; upload attachments sequentially
@@ -302,13 +298,13 @@
                                                                    "X-Filename" name}}))))))
 
                                 (.. toast (success (if is-create
-                                                     (translate "create.success")
-                                                     (translate "edit.success"))))
+                                                     (t (str t-ns ".create.success"))
+                                                     (t (str t-ns ".edit.success")))))
 
                                 ;; state needs to be forwarded for back navigation
                                 (cond
                                   ;; Items: batch creation -> review page
-                                  (and (= entity-type :item) batch?)
+                                  (and (= item-type :item) batch?)
                                   (let [get-ids (fn [data] (mapv (fn [item] [:ids (:id item)]) data))
                                         model-id (->> item-res :data first :model_id)
                                         params-search (router/createSearchParams (cj (conj (get-ids (:data item-res))
@@ -332,11 +328,11 @@
     (uix/use-effect
      (fn []
        (when (and is-create model (not is-loading))
-         (let [field-name (if (= entity-type :license) "software_model_id" "model_id")
-               label-field (if (= entity-type :license) :product :product)]
+         (let [field-name (if (= item-type :license) "software_model_id" "model_id")
+               label-field (if (= item-type :license) :product :product)]
            (set-value field-name (cj {:label (get model label-field)
                                       :value (:id model)})))))
-     [is-create is-loading model set-value entity-type])
+     [is-create is-loading model set-value item-type])
 
     ;; Clear room_id when building changes
     (uix/use-effect
@@ -348,16 +344,16 @@
     ;; Packages: Auto-retire when all items removed
     (uix/use-effect
      (fn []
-       (when (= entity-type :package)
+       (when (= item-type :package)
          (let [prev-count (or @prev-items-count-ref 0)
                curr-count (count watched-items)]
            (when (and is-edit
                       (> prev-count 0)
                       (= curr-count 0))
-             (.. toast (info (translate "edit.auto_retire_info")))
+             (.. toast (info (t (str t-ns ".edit.auto_retire_info"))))
              (set-value "retired" (js/Date.)))
            (reset! prev-items-count-ref curr-count))))
-     [watched-items is-edit entity-type translate set-value])
+     [watched-items is-edit item-type t-ns set-value t])
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
@@ -366,13 +362,13 @@
       ($ :article
          ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
             (if is-create
-              (translate "create.title")
-              (translate "edit.title")))
+              (t (str t-ns ".create.title"))
+              (t (str t-ns ".edit.title"))))
 
          ($ :h3 {:className "text-sm mb-6 text-gray-500"}
             (if is-create
-              (translate "create.description")
-              (translate "edit.description")))
+              (t (str t-ns ".create.description"))
+              (t (str t-ns ".edit.description"))))
 
          ($ Card {:className "py-8 mb-12"}
             ($ CardContent
@@ -380,13 +376,11 @@
                   ($ ScrollspyMenu {:class-name "w-full lg:w-1/5"})
 
                   ($ :div {:className "w-full lg:w-4/5"}
-                     ;; Items: show package membership alert
-                     (when (and (= entity-type :item)
-                                (get-in config [:features :package-membership-alert])
-                                package)
+                      ;; Items: show package membership alert
+                     (when (and (= item-type :item) package)
                        ($ Alert {:class-name "mb-6 border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-50"}
                           ($ AlertTitle {:class-name "text-sm font-medium"}
-                             (translate "edit.package_item"))
+                             (t (str t-ns ".edit.package_item")))
                           ($ AlertDescription {:class-name "text-xs text-muted-foreground"}
                              ($ Link {:to (str "/inventory/" pool-id "/packages/" (:id package))
                                       :viewTransition true}
@@ -417,10 +411,10 @@
                      ($ Button {:type "submit"
                                 :form "item-form"}
                         (if is-create
-                          (str (when (and (= entity-type :item) batch?)
+                          (str (when (and (= item-type :item) batch?)
                                  (str field-count " x "))
-                               (translate "create.submit"))
-                          (translate "edit.submit")))
+                               (t (str t-ns ".create.submit")))
+                          (t (str t-ns ".edit.submit"))))
 
                      ($ ButtonGroupSeparator)
                      ($ DropdownMenu
@@ -438,5 +432,5 @@
                                                    (some-> state .-searchParams))
                                           :viewTransition true}
                                     (if is-create
-                                      (translate "create.cancel")
-                                      (translate "edit.cancel")))))))))))))))
+                                      (t (str t-ns ".create.cancel"))
+                                      (t (str t-ns ".edit.cancel"))))))))))))))))
