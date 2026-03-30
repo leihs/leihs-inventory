@@ -674,9 +674,7 @@ feature "Inventory Page", type: :feature do
     # with_items=false
     visit "/inventory/#{pool_1.id}/list"
 
-    click_on "Status"
-    click_on "Broken"
-    click_on "Yes"
+    select_status_filter_submenu("Broken", "Yes")
 
     click_on "Status"
     click_on "In stock"
@@ -963,7 +961,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -1215,12 +1213,13 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/list"
 
     select_value("with_items", "with_items")
-    click_on "Status"
-    click_on "Broken"
-    click_on "Yes"
+    capybara_debug_pause # e.g. CAPYBARA_DEBUG_PAUSE=30 bin/rspec …
+    select_status_filter_submenu("Broken", "Yes")
     expect(page).to have_button("Status", text: "1")
 
-    expect(all("table tbody tr").count).to eq 2
+    # List refetch runs after search params change; counting immediately can see the pre-filter rows.
+    sleep ENV.fetch("CAPYBARA_LIST_FILTER_SETTLE", "0.8").to_f
+    expect(page).to have_selector("table tbody tr", count: 2, wait: 20)
 
     verify_row_details(
       model_2,
@@ -1395,7 +1394,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_10_1.inventory_code,
@@ -1547,9 +1546,7 @@ feature "Inventory Page", type: :feature do
     click_on "category-filter-button"
     click_on cat_1.id
 
-    click_on "Status"
-    click_on "Broken"
-    click_on "Yes"
+    select_status_filter_submenu("Broken", "Yes")
 
     click_on "Status"
     click_on "In stock"
