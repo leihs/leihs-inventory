@@ -20,6 +20,7 @@
    ["zod" :as z]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
+   [clojure.string :as str]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
    [leihs.inventory.client.lib.dynamic-validation :as dynamic-validation]
@@ -32,7 +33,7 @@
    [uix.dom]))
 
 ;; Group definitions per entity type
-(def entity-groups
+(def groups
   {:item ["Mandatory data" "Status" "Inventory" "Eigenschaften"
           "General Information" "Location" "Invoice Information"]
    :package ["Package" "Content" "Status" "Inventory"
@@ -48,8 +49,15 @@
         [search-params _] (router/useSearchParams)
 
         ;; Determine entity type from route params
-        item-type (config/determine-entity-type params)
-        config (get config/types item-type)
+        item-type (cond
+                    (str/includes? (.-pathname location) "licenses")
+                    :license
+                    (str/includes? (.-pathname location) "packages")
+                    :package
+                    :else
+                    :item)
+
+        config (item-type config/types)
         t-ns (:translation-namespace config)
 
         state (.. location -state)
@@ -63,7 +71,7 @@
         {:keys [data copy-data model package package-model items]} (jc (useLoaderData))
 
         ;; Get entity-specific groups
-        groups (get entity-groups item-type)
+        groups (get groups item-type)
 
         ;; Define custom fields based on entity type
         custom-fields (cond
