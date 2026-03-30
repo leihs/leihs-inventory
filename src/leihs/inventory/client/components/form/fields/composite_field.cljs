@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.licenses.crud.components.fields.composite-field
+(ns leihs.inventory.client.components.form.fields.composite-field
   (:require
    ["@@/button" :refer [Button]]
    ["@@/form" :refer [FormControl FormDescription FormField FormItem FormLabel
