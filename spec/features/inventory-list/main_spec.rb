@@ -1213,12 +1213,9 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/list"
 
     select_value("with_items", "with_items")
-    capybara_debug_pause # e.g. CAPYBARA_DEBUG_PAUSE=30 bin/rspec …
     select_status_filter_submenu("Broken", "Yes")
     expect(page).to have_button("Status", text: "1")
 
-    # List refetch runs after search params change; counting immediately can see the pre-filter rows.
-    sleep ENV.fetch("CAPYBARA_LIST_FILTER_SETTLE", "0.8").to_f
     expect(page).to have_selector("table tbody tr", count: 2, wait: 20)
 
     verify_row_details(
