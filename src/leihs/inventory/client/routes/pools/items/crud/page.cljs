@@ -225,8 +225,6 @@
                                           jc
                                           (cond-> batch? (dissoc :serial_number :inventory_code))
                                           (dissoc :attachments)
-                                          ;; Add entity type to request
-                                          (assoc :type (name item-type))
                                           (into {}))
 
                             ;; Get ID param name from config (item-id, package-id, license-id)
