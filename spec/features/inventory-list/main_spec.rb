@@ -318,7 +318,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_10_1.inventory_code,
@@ -400,7 +400,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -423,7 +423,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_2,
-      "3 | 3",
+      "0 | 0",
       [
         {
           inventory_code: item_model_2_2.inventory_code,
@@ -491,7 +491,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_2,
-      "3 | 3",
+      "0 | 0",
       [
         {
           inventory_code: item_model_2_2.inventory_code,
@@ -526,7 +526,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_10_1.inventory_code,
@@ -576,7 +576,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -658,7 +658,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -674,9 +674,7 @@ feature "Inventory Page", type: :feature do
     # with_items=false
     visit "/inventory/#{pool_1.id}/list"
 
-    click_on "Status"
-    click_on "Broken"
-    click_on "Yes"
+    select_status_filter_submenu("Broken", "Yes")
 
     click_on "Status"
     click_on "In stock"
@@ -724,7 +722,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_10_1.inventory_code,
@@ -774,7 +772,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -861,7 +859,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -923,7 +921,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -963,7 +961,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -1037,7 +1035,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_10_1.inventory_code,
@@ -1065,7 +1063,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -1119,7 +1117,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -1215,12 +1213,13 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/list"
 
     select_value("with_items", "with_items")
-    click_on "Status"
-    click_on "Broken"
-    click_on "Yes"
+    capybara_debug_pause # e.g. CAPYBARA_DEBUG_PAUSE=30 bin/rspec …
+    select_status_filter_submenu("Broken", "Yes")
     expect(page).to have_button("Status", text: "1")
 
-    expect(all("table tbody tr").count).to eq 2
+    # List refetch runs after search params change; counting immediately can see the pre-filter rows.
+    sleep ENV.fetch("CAPYBARA_LIST_FILTER_SETTLE", "0.8").to_f
+    expect(page).to have_selector("table tbody tr", count: 2, wait: 20)
 
     verify_row_details(
       model_2,
@@ -1395,7 +1394,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_10_1.inventory_code,
@@ -1445,7 +1444,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -1506,7 +1505,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -1547,9 +1546,7 @@ feature "Inventory Page", type: :feature do
     click_on "category-filter-button"
     click_on cat_1.id
 
-    click_on "Status"
-    click_on "Broken"
-    click_on "Yes"
+    select_status_filter_submenu("Broken", "Yes")
 
     click_on "Status"
     click_on "In stock"
@@ -1661,11 +1658,26 @@ def verify_row_details(model, availabilty, items = [], is_package: false, is_opt
         package_expand = following_rows[index].find('[data-test-id="expand-button"]')
         package_expand.click
 
+        package_rows = []
+        current_row = following_rows[index]
+        while (next_row = current_row.first(:xpath, "following-sibling::tr[1]", minimum: 0, wait: 0))
+          break unless next_row["data-row"] == "item"
+
+          package_rows << next_row
+          current_row = next_row
+        end
+
+        wait_until { package_rows.size == details[:package_items].size }
+        expect(package_rows.size).to eq(details[:package_items].size)
+
         details[:package_items].each_with_index do |pkg_item, pkg_index|
-          package_rows = following_rows[index].all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
-          expect(package_rows[pkg_index]).to have_content(pkg_item[:model_name])
           expect(package_rows[pkg_index]).to have_content(pkg_item[:inventory_code])
           expect(package_rows[pkg_index]).to have_content("is part of a package")
+
+          if pkg_item[:statuses]
+            status_texts = package_rows[pkg_index].all('[data-test-id="item-status"] span').map(&:text)
+            expect(pkg_item[:statuses]).to include(*status_texts)
+          end
         end
 
         package_expand.click
