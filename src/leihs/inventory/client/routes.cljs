@@ -155,7 +155,7 @@
                :loader loader/packages-crud-page
                :element ($ items-crud-page)}
 
-              {:path "packages/:package-id/delete?"
+              {:path "packages/:item-id/delete?"
                :loader loader/packages-crud-page
                :element ($ items-crud-page)}
 
@@ -168,7 +168,7 @@
                :loader loader/licenses-crud-page
                :element ($ items-crud-page)}
 
-              {:path "licenses/:license-id/delete?"
+              {:path "licenses/:item-id/delete?"
                :loader loader/licenses-crud-page
                :element ($ items-crud-page)}
 

@@ -200,10 +200,10 @@
 (defn packages-crud-page [route-data]
   (p/let [params (.. ^js route-data -params)
           pool-id (aget params "pool-id")
-          package-id (or (aget params "package-id") nil)
+          item-id (or (aget params "item-id") nil)
           model-id (or (aget params "model-id") nil)
 
-          item-path (when package-id
+          item-path (when item-id
                       (str "/inventory/" pool-id "/items/"))
 
           model (when model-id
@@ -211,26 +211,26 @@
                       (.get (str "/inventory/" pool-id "/models/" model-id))
                       (.then #(jc (.-data %)))))
 
-          items (when package-id
+          items (when item-id
                   (-> http-client
-                      (.get (str "/inventory/" pool-id "/items/?parent_id=" package-id)
+                      (.get (str "/inventory/" pool-id "/items/?parent_id=" item-id)
                             #js {:cache false})
                       (.then #(jc (.-data %)))))
 
-          package (when package-id
+          package (when item-id
                     (-> http-client
-                        (.get (str "/inventory/" pool-id "/items/" package-id)
+                        (.get (str "/inventory/" pool-id "/items/" item-id)
                               #js {:cache false})
                         (.then #(jc (.-data %)))))
 
-          data (when-not package-id
+          data (when-not item-id
                  (-> http-client
                      (.get (str "/inventory/" pool-id "/fields/?target_type=package")
                            #js {:cache false})
                      (.then #(jc (.-data %)))))]
 
     (try
-      {:data (if package-id {:fields (:fields package)} data)
+      {:data (if item-id {:fields (:fields package)} data)
        :package package
        :items (if items items nil)
        :model (if model model nil)}
@@ -240,7 +240,7 @@
 (defn licenses-crud-page [route-data]
   (p/let [params (.. ^js route-data -params)
           pool-id (aget params "pool-id")
-          license-id (or (aget params "license-id") nil)
+          item-id (or (aget params "item-id") nil)
           software-id (or (aget params "software-id") nil)
 
           model (when software-id
@@ -248,13 +248,13 @@
                       (.get (str "/inventory/" pool-id "/software/" software-id))
                       (.then #(jc (.-data %)))))
 
-          license (when license-id
+          license (when item-id
                     (-> http-client
-                        (.get (str "/inventory/" pool-id "/items/" license-id)
+                        (.get (str "/inventory/" pool-id "/items/" item-id)
                               #js {:cache false})
                         (.then #(jc (.-data %)))))
 
-          data (if license-id
+          data (if item-id
                  {:fields (:fields license)}
                  (-> http-client
                      (.get (str "/inventory/" pool-id "/fields/?target_type=license")

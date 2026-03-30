@@ -227,12 +227,7 @@
                                           (dissoc :attachments)
                                           (into {}))
 
-                            ;; Get ID param name from config (item-id, package-id, license-id)
-                            id-param-name (case item-type
-                                            :item "item-id"
-                                            :package "package-id"
-                                            :license "license-id")
-                            entity-id (aget params id-param-name)
+                            item-id (aget params "item-id")
 
                             item-res (if is-create
                                        (<p! (-> http-client
@@ -250,10 +245,10 @@
                                                            :statusText (.. err -response -statusText)}))))
 
                                        (<p! (-> http-client
-                                                (.patch (str "/inventory/" pool-id "/items/" entity-id)
+                                                (.patch (str "/inventory/" pool-id "/items/" item-id)
                                                         (js/JSON.stringify (cj item-data))
                                                         (cj {:cache
-                                                             {:update {(keyword entity-id) "delete"}}}))
+                                                             {:update {(keyword item-id) "delete"}}}))
 
                                                 (.then (fn [res]
                                                          {:status (.. res -status)
