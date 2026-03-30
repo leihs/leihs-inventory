@@ -349,19 +349,26 @@
          (set-value "room_id" nil)))
      [field-building is-loading set-value building-is-dirty?])
 
-    ;; Packages: Auto-retire when all items removed
     (uix/use-effect
      (fn []
        (when (= item-type :package)
-         (let [prev-count (or @prev-items-count-ref 0)
-               curr-count (count watched-items)]
-           (when (and is-edit
-                      (> prev-count 0)
-                      (= curr-count 0))
-             (.. toast (info (t (str t-ns ".edit.auto_retire_reason"))))
-             (set-value "retired" (js/Date.)))
+         (let [prev-count @prev-items-count-ref
+               curr-count (count watched-items)
+               no-retired-reason? (empty? (get-values "retired_reason"))]
+         ;; Only trigger when transitioning from non-zero to zero
+           (when (and (not is-loading)
+                      is-edit
+                      (pos? prev-count) ; Was non-zero
+                      (zero? curr-count)) ; Now zero
+             (set-value "retired" "true")
+
+             (when no-retired-reason?
+               (set-value "retired_reason" (t "pool.packages.package.edit.auto_retire_reason")))
+
+             (.. toast (warning (t "pool.packages.package.edit.empty_package"))))
+            ;; Update ref for next render
            (reset! prev-items-count-ref curr-count))))
-     [watched-items is-edit item-type t-ns set-value t])
+     [watched-items is-loading is-edit set-value get-values t item-type])
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
