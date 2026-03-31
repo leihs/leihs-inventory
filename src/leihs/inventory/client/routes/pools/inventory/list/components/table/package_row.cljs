@@ -23,7 +23,8 @@
 (def fields ["id" "is_package" "is_borrowable" "is_broken" "retired"
              "is_incomplete" "inventory_code" "reservation_end_date"
              "user_name" "model_name" "reservation_user_name" "url"
-             "reservation_contract_id"])
+             "reservation_contract_id" "shelf" "building_code"
+             "building_name" "inventory_pool_name"])
 
 (defui main [{:keys [package]}]
   (let [location (router/useLocation)

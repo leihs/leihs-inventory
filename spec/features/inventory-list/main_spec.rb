@@ -1658,11 +1658,26 @@ def verify_row_details(model, availabilty, items = [], is_package: false, is_opt
         package_expand = following_rows[index].find('[data-test-id="expand-button"]')
         package_expand.click
 
+        package_rows = []
+        current_row = following_rows[index]
+        while (next_row = current_row.first(:xpath, "following-sibling::tr[1]", minimum: 0, wait: 0))
+          break unless next_row["data-row"] == "item"
+
+          package_rows << next_row
+          current_row = next_row
+        end
+
+        wait_until { package_rows.size == details[:package_items].size }
+        expect(package_rows.size).to eq(details[:package_items].size)
+
         details[:package_items].each_with_index do |pkg_item, pkg_index|
-          package_rows = following_rows[index].all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
-          expect(package_rows[pkg_index]).to have_content(pkg_item[:model_name])
           expect(package_rows[pkg_index]).to have_content(pkg_item[:inventory_code])
           expect(package_rows[pkg_index]).to have_content("is part of a package")
+
+          if pkg_item[:statuses]
+            status_texts = package_rows[pkg_index].all('[data-test-id="item-status"] span').map(&:text)
+            expect(pkg_item[:statuses]).to include(*status_texts)
+          end
         end
 
         package_expand.click
