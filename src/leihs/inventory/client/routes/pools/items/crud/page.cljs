@@ -147,6 +147,7 @@
                                    :name "count"}))
         watched-items (useWatch (cj {:control control
                                      :name "item_ids"}))
+
         building-ref (uix/use-ref field-building)
         prev-items-count-ref (uix/use-ref (or (count watched-items) 0))
 
@@ -328,7 +329,8 @@
     ;; Handle model_id disabling when model is pre-selected
     (uix/use-effect
      (fn []
-       (when (and is-create model (not is-loading))
+       (when (and is-create model
+                  (not is-loading))
          (let [field-name (if (= item-type :license) "software_model_id" "model_id")
                label-field (if (= item-type :license) :product :product)]
            (set-value field-name (cj {:label (get model label-field)
@@ -338,7 +340,11 @@
     ;; Clear room_id when building changes
     (uix/use-effect
      (fn []
-       (when (and field-building (not is-loading) building-is-dirty?)
+       (when (and field-building
+                  (not is-loading)
+                  building-is-dirty?)
+
+         (js/console.debug "reset room" field-building)
          (set-value "room_id" nil)))
      [field-building is-loading set-value building-is-dirty?])
 
