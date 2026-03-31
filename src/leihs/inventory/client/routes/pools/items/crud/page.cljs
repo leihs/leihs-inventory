@@ -100,11 +100,11 @@
                           :group "Content"
                           :required true
                           :default (or items [])
-                          :props {:text {:select (str t-ns ".fields.items.select")
-                                         :search (str t-ns ".fields.items.search")
-                                         :searching (str t-ns ".fields.items.searching")
-                                         :search_empty (str t-ns ".fields.items.search_empty")
-                                         :not_found (str t-ns ".fields.items.not_found")}}
+                          :props {:text {:select "pool.packages.package.fields.items.select"
+                                         :search "pool.packages.package.fields.items.search"
+                                         :searching "pool.packages.package.fields.items.searching"
+                                         :search_empty "pool.packages.package.fields.items.search_empty"
+                                         :not_found "pool.packages.package.fields.items.not_found"}}
                           :validator (if is-create
                                        (-> (z/array (z/object (cj {:id (z/guid)})))
                                            (.min 1)
@@ -389,6 +389,7 @@
                   ($ ScrollspyMenu {:class-name "w-full lg:w-1/5"})
 
                   ($ :div {:className "w-full lg:w-4/5"}
+
                       ;; Items: show package membership alert
                      (when (and (= item-type :item) package)
                        ($ Alert {:class-name "mb-6 border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-50"}
