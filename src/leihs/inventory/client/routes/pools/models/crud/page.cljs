@@ -347,7 +347,7 @@
                                          :state state}
                                    "Delete"))))))
 
-                      ;; Dialog when deleting a model
+                  ;; Dialog when deleting a model
                   (when (and (not is-create)
                              (:is_deletable data))
                     ($ AlertDialog {:open is-delete}

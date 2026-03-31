@@ -158,6 +158,7 @@
           "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
           "submit": "Speichern",
           "delete": "Löschen",
+          "cancel": "Cancel",
           "success": "Gegenstand wurde erfolgreich gespeichert",
           "invalid_one": "Gegenstand konnte nicht gespeichert werden, da ein Feld ungültig ist",
           "invalid_other": "Gegenstand konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",

@@ -14,7 +14,7 @@
       "inventory_code": "Inventory Code",
       "model_id": "Model",
       "software_model_id": "Software",
-      "license_version": "License version"
+      "license_version": "License Version"
     },
     "Content": {
       "title": "Content"
@@ -307,7 +307,7 @@
             "add": "Add allocation",
             "quantity": "Quantity",
             "location": "Location",
-            "remaining": "Remainaing"
+            "remaining": "Remaining"
           }
         }
       }
