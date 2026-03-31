@@ -144,37 +144,37 @@
 
               {:path "items/:item-id/delete?"
                :loader loader/items-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "items"})}
 
               {:path "models/:model-id/items/create"
                :loader loader/items-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "items"})}
 
               ;; packages crud (unified with items)
               {:path "packages/create"
                :loader loader/packages-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "packages"})}
 
               {:path "packages/:item-id/delete?"
                :loader loader/packages-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "packages"})}
 
               {:path "models/:model-id/packages/create"
                :loader loader/packages-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "packages"})}
 
               ;; licenses crud (unified with items)
               {:path "licenses/create"
                :loader loader/licenses-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "licenses"})}
 
               {:path "licenses/:item-id/delete?"
                :loader loader/licenses-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "licenses"})}
 
               {:path "software/:software-id/licenses/create"
                :loader loader/licenses-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "licenses"})}
 
               ;; Wildcard route for undefined pool routes
               {:path "*"
