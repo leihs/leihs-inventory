@@ -368,6 +368,8 @@
            (reset! prev-items-count-ref curr-count))))
      [watched-items is-loading is-edit set-value get-values t item-type])
 
+    (js/console.debug defaults)
+
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
          ($ Spinner))

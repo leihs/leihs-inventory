@@ -364,6 +364,7 @@ feature "Update item", type: :feature do
     # Verify we're now on the package edit page
     expect(current_path).to eq("/inventory/#{pool.id}/packages/#{@package.id}")
 
+    binding.pry
     # Verify we're editing the correct package
     assert_field "Inventory Code", package_inventory_code
     expect(find('button[data-test-id="model_id"]')).to have_text(package_model.product)

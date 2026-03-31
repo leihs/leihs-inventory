@@ -128,7 +128,8 @@
 
           model (when model-id
                   (-> http-client
-                      (.get (str "/inventory/" pool-id "/models/" model-id))
+                      (.get (str "/inventory/" pool-id "/models/" model-id)
+                            #js {:cache false})
                       (.then #(jc (.-data %)))))
 
           item (when item-id
@@ -160,6 +161,8 @@
                      (.get (str "/inventory/" pool-id "/fields/?target_type=item")
                            #js {:cache false})
                      (.then #(jc (.-data %)))))]
+
+    (js/console.debug "items loader")
 
     (try
       {:data (if item-id {:fields (:fields item)} data)
@@ -208,7 +211,8 @@
 
           model (when model-id
                   (-> http-client
-                      (.get (str "/inventory/" pool-id "/models/" model-id))
+                      (.get (str "/inventory/" pool-id "/models/" model-id)
+                            #js {:cache false})
                       (.then #(jc (.-data %)))))
 
           items (when item-id
@@ -223,14 +227,16 @@
                               #js {:cache false})
                         (.then #(jc (.-data %)))))
 
-          data (when-not item-id
-                 (-> http-client
-                     (.get (str "/inventory/" pool-id "/fields/?target_type=package")
-                           #js {:cache false})
-                     (.then #(jc (.-data %)))))]
+          fields (when-not item-id
+                   (-> http-client
+                       (.get (str "/inventory/" pool-id "/fields/?target_type=package")
+                             #js {:cache false})
+                       (.then #(jc (.-data %)))))]
+
+    (js/console.debug "package loader")
 
     (try
-      {:data (if item-id {:fields (:fields package)} data)
+      {:data (if item-id {:fields (:fields package)} fields)
        :package package
        :items (if items items nil)
        :model (if model model nil)}
@@ -245,7 +251,8 @@
 
           model (when software-id
                   (-> http-client
-                      (.get (str "/inventory/" pool-id "/software/" software-id))
+                      (.get (str "/inventory/" pool-id "/software/" software-id)
+                            #js {:cache false})
                       (.then #(jc (.-data %)))))
 
           license (when item-id
