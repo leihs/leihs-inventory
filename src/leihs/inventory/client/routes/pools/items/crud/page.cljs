@@ -132,7 +132,6 @@
                                             is-edit
                                             (fn [] (form-helper/process-files defaults :attachments)))}))
 
-        get-field-state (.. form -getFieldState)
         set-value (.. form -setValue)
         get-values (.. form -getValues)
         is-loading (.. form -formState -isLoading)
@@ -140,7 +139,6 @@
 
         field-building (useWatch (cj {:control control
                                       :name "building_id.value"}))
-        building-is-dirty? (:isDirty (jc (get-field-state "building_id")))
 
         ;; Always call hooks unconditionally (React hooks rules)
         field-count (useWatch (cj {:control control
@@ -340,13 +338,14 @@
     ;; Clear room_id when building changes
     (uix/use-effect
      (fn []
-       (when (and field-building
-                  (not is-loading)
-                  building-is-dirty?)
-
-         (js/console.debug "reset room" field-building)
-         (set-value "room_id" nil)))
-     [field-building is-loading set-value building-is-dirty?])
+       (let [prev-building (.-current building-ref)]
+         (when (and field-building
+                    (not is-loading)
+                    (not= field-building prev-building)
+                    prev-building) ; Only clear if there was a previous value
+           (set-value "room_id" nil))
+         (set! (.-current building-ref) field-building)))
+     [field-building is-loading set-value])
 
     (uix/use-effect
      (fn []
