@@ -15,11 +15,14 @@
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [item isPackageItem]
+(defui main [{:keys [item type isPackageItem]
               :or {isPackageItem false}}]
+
   (let [location (router/useLocation)
         [t] (useTranslation)
         ref (uix/use-ref nil)]
+
+    (js/console.debug "type" type)
 
     ($ TableRow {:ref ref
                  :key (-> item :id)
@@ -58,7 +61,15 @@
              ($ Button {:variant "outline"
                         :asChild true}
                 ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (str "../items/" (:id item))
+
+                         :to (case type
+                               "Software"
+                               (str "../licenses/" (:id item))
+
+                               "Package"
+                               (str "../packages/" (:id item))
+
+                               (str "../items/" (:id item)))
                          :viewTransition true}
                    (t "pool.models.list.actions.edit")))
 

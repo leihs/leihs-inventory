@@ -82,6 +82,7 @@
                                     (fn [element]
                                       (if (not (:is_package element))
                                         ($ ItemRow {:key (:id element)
+                                                    :type (:type model)
                                                     :item element})
                                         ($ PackageRow {:key (:id element)
                                                        :package element})))
