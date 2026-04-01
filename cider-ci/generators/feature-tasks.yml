@@ -183,11 +183,6 @@
   environment_variables:
     FEATURE_NAME: "Update license 02"
     FEATURE: './spec/features/licenses/update_spec.rb[1:2]'
-'./spec/features/licenses/update_spec.rb[1:3]':
-  name: "Update license 03"
-  environment_variables:
-    FEATURE_NAME: "Update license 03"
-    FEATURE: './spec/features/licenses/update_spec.rb[1:3]'
 './spec/features/models/create_spec.rb[1:1]':
   name: "Create model 01"
   environment_variables:

@@ -264,3 +264,4 @@ feature "Update license", type: :feature do
     expect(page).to have_text("License was successfully saved")
     expect(page).to have_text("Inventory List")
   end
+end
