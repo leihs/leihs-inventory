@@ -169,6 +169,19 @@
         (merge (select-keys (:data base)
                             (-> base :type keyword type-data-keys)))
 
+        ;; NOTE: Some fields (e.g. `license_version`) have no `form_name` but use a
+        ;; single-element `attribute` array (e.g. `["item_version"]`) to reference the
+        ;; actual item column they map to. We promote that value as `:form_name` here,
+        ;; before `:data` is removed by `excluded-keys`, so that `handle-item-defaults`
+        ;; can use the existing `form_name` fallback to look up the correct value from
+        ;; `item-data` (e.g. `:item_version` instead of `:license_version`).
+        (#(let [attr (get-in % [:data :attribute])]
+            (if (and (nil? (:form_name %))
+                     (vector? attr)
+                     (= 1 (count attr)))
+              (assoc % :form_name (first attr))
+              %)))
+
         ;; Remove excluded keys
         (#(apply dissoc % excluded-keys))
 
@@ -205,6 +218,12 @@
 
 (defn handle-item-defaults [tx field item-data pool-id]
   (let [field-id (keyword (:id field))
+        ;; NOTE: Some fields use a `form_name` (e.g. `software_model_id` -> `model_id`)
+        ;; or a single-element `attribute` array (e.g. `license_version` -> `item_version`,
+        ;; promoted to `form_name` in `transform-field-data`) to reference a different key
+        ;; in `item-data` than the field id itself. We fall back to that key when the
+        ;; field id is not directly present in `item-data`. Using `contains?` instead of
+        ;; `or` ensures falsy values (e.g. `false` for boolean fields) are preserved.
         form-name (some-> (:form_name field) keyword)
         value (if (contains? item-data field-id)
                 (get item-data field-id)

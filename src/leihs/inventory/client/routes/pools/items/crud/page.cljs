@@ -180,18 +180,13 @@
                             item-data (-> submit-data
                                           jc
                                           (cond-> batch? (dissoc :serial_number :inventory_code))
+
+                                          ;; NOTE: both remappings might not be needed when BE returns original DB attribute.
                                           (cond-> (= entity :license) (assoc :model_id (:software_model_id (jc submit-data))))
                                           (cond-> (= entity :license) (dissoc :software_model_id))
 
-                                          ;; (cond-> (= entity :license) (assoc :item_version (:license_version (jc submit-data))))
+                                          (cond-> (= entity :license) (assoc :item_version (:license_version (jc submit-data))))
                                           (cond-> (= entity :license) (dissoc :license_version))
-
-                                          ;; seems to be buggy BE side
-                                          (cond-> (= entity :license) (dissoc :item_version))
-
-                                          ;; (cond-> (= entity :item) (assoc :type "item"))
-                                          ;; (cond-> (= entity :license) (assoc :type "license"))
-                                          ;; (cond-> (= entity :package) (assoc :type "package"))
 
                                           (dissoc :attachments)
                                           (into {}))
