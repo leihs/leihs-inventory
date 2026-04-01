@@ -86,6 +86,7 @@ feature "Duplicate Item from Inventory List", type: :feature do
 
     # Fill in NEW serial number for duplicated item
     fill_in "Serial Number", with: new_serial_number
+    click_on "Running Account"
 
     # Submit form to create duplicated item
     click_on "Create"

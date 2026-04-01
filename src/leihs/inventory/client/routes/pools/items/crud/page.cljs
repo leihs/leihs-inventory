@@ -165,6 +165,7 @@
 
         handle-submit (.. form -handleSubmit)
         on-submit (fn [submit-data event]
+                    (js/console.debug submit-data)
                     (go
                       (let [attachments (if is-create
                                           (if batch? nil (:attachments (jc submit-data)))
@@ -185,7 +186,9 @@
                                           (cond-> (= entity :license) (assoc :model_id (:software_model_id (jc submit-data))))
                                           (cond-> (= entity :license) (dissoc :software_model_id))
 
-                                          (cond-> (= entity :license) (assoc :item_version (:license_version (jc submit-data))))
+                                          (cond-> (and (contains? (jc submit-data) :license_version)
+                                                       (= entity :license))
+                                            (assoc :item_version (:license_version (jc submit-data))))
                                           (cond-> (= entity :license) (dissoc :license_version))
 
                                           (dissoc :attachments)
@@ -197,8 +200,10 @@
                                        (let [typed-item-data (cond
                                                                (= entity :item)
                                                                (assoc item-data :type "item")
+
                                                                (= entity :license)
                                                                (assoc item-data :type "license")
+
                                                                (= entity :package)
                                                                (assoc item-data :type "package"))]
 

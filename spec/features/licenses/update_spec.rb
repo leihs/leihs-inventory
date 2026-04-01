@@ -194,11 +194,9 @@ feature "Update license", type: :feature do
     # Verify all new values
     assert_field "Inventory Code", inventory_code_new
 
-    # BUG: software default is null
-    # expect(find('button[data-test-id="software_model_id"]')).to have_text(software_model_new.product)
+    expect(find('button[data-test-id="software_model_id"]')).to have_text(software_model_new.product)
 
-    # BUG: Version cannot be posted
-    # assert_field "License Version", license_version_new
+    assert_field "License Version", license_version_new
 
     # Verify visibility-dependent fields
     expect(page).to have_content "Dongle ID"
@@ -266,42 +264,3 @@ feature "Update license", type: :feature do
     expect(page).to have_text("License was successfully saved")
     expect(page).to have_text("Inventory List")
   end
-
-  scenario "updates license created from software page" do
-    @license = FactoryBot.create(:item,
-      inventory_code: inventory_code_old,
-      leihs_model: software_model_old,
-      inventory_pool: pool,
-      owner: pool,
-      properties: {
-        license_version: license_version_old
-      })
-
-    login(user)
-    visit "/inventory/#{pool.id}/list"
-
-    fill_in "search", with: software_model_old.product
-    await_debounce
-
-    within find('[data-row="model"]', text: software_model_old.product) do
-      click_on "expand-button"
-    end
-
-    within find('[data-row="item"]', text: inventory_code_old) do
-      click_on "edit"
-    end
-
-    # Update license version
-    fill_in "License Version", with: license_version_new
-
-    click_on "Save"
-    expect(page).to have_text("License was successfully saved")
-
-    # Verify update
-    within find('[data-row="item"]', text: inventory_code_old) do
-      click_on "edit"
-    end
-
-    assert_field "License Version", license_version_new
-  end
-end

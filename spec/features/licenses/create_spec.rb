@@ -163,11 +163,9 @@ feature "Create license", type: :feature do
     # Verify all fields saved correctly
     assert_field "Inventory Code", inventory_code
 
-    # BUG: license version cannot be POSTed
-    # assert_field "License Version", license_version
+    assert_field "License Version", license_version
 
-    # BUG: default is null in response
-    # expect(find('button[data-test-id="software_model_id"]')).to have_text(software_model.product)
+    expect(find('button[data-test-id="software_model_id"]')).to have_text(software_model.product)
 
     # Verify visibility-dependent fields are visible and saved
     expect(page).to have_content "Dongle ID"
