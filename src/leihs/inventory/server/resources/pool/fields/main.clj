@@ -205,7 +205,9 @@
 
 (defn handle-item-defaults [tx field item-data pool-id]
   (let [field-id (keyword (:id field))
-        value (get item-data field-id)]
+        form-name (some-> (:form_name field) keyword)
+        value (or (get item-data field-id)
+                  (when form-name (get item-data form-name)))]
     (assoc field :default
            (handle-default tx field-id value item-data pool-id))))
 
