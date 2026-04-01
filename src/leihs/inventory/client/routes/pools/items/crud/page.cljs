@@ -189,9 +189,9 @@
                                           ;; seems to be buggy BE side
                                           (cond-> (= entity :license) (dissoc :item_version))
 
-                                          (cond-> (= entity :item) (assoc :type "item"))
-                                          (cond-> (= entity :license) (assoc :type "license"))
-                                          (cond-> (= entity :package) (assoc :type "package"))
+                                          ;; (cond-> (= entity :item) (assoc :type "item"))
+                                          ;; (cond-> (= entity :license) (assoc :type "license"))
+                                          ;; (cond-> (= entity :package) (assoc :type "package"))
 
                                           (dissoc :attachments)
                                           (into {}))
@@ -199,19 +199,27 @@
                             item-id (aget params "item-id")
 
                             item-res (if is-create
-                                       (<p! (-> http-client
-                                                (.post (str "/inventory/" pool-id "/items/")
-                                                       (js/JSON.stringify (cj item-data)))
+                                       (let [typed-item-data (cond
+                                                               (= entity :item)
+                                                               (assoc item-data :type "item")
+                                                               (= entity :license)
+                                                               (assoc item-data :type "license")
+                                                               (= entity :package)
+                                                               (assoc item-data :type "package"))]
 
-                                                (.then (fn [res]
-                                                         {:status (.. res -status)
-                                                          :statusText (.. res -statusText)
-                                                          :data (jc (.. res -data))
-                                                          :id (.. res -data -id)}))
-                                                (.catch (fn [err]
-                                                          {:status (.. err -response -status)
-                                                           :data (jc (.. err -response -data))
-                                                           :statusText (.. err -response -statusText)}))))
+                                         (<p! (-> http-client
+                                                  (.post (str "/inventory/" pool-id "/items/")
+                                                         (js/JSON.stringify (cj typed-item-data)))
+
+                                                  (.then (fn [res]
+                                                           {:status (.. res -status)
+                                                            :statusText (.. res -statusText)
+                                                            :data (jc (.. res -data))
+                                                            :id (.. res -data -id)}))
+                                                  (.catch (fn [err]
+                                                            {:status (.. err -response -status)
+                                                             :data (jc (.. err -response -data))
+                                                             :statusText (.. err -response -statusText)})))))
 
                                        (<p! (-> http-client
                                                 (.patch (str "/inventory/" pool-id "/items/" item-id)

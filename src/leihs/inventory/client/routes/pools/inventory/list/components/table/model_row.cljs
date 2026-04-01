@@ -85,6 +85,7 @@
                                                     :type (:type model)
                                                     :item element})
                                         ($ PackageRow {:key (:id element)
+                                                       :type (:type model)
                                                        :package element})))
                                     (:data result))))}
 
