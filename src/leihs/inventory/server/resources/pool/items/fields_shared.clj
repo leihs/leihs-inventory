@@ -63,10 +63,24 @@
                                (sql/where fields/not-owner-required))
                              sql-format
                              (->> (jdbc-query tx)))
+        ;; NOTE: A field's permitted key is normally its `id`, but some fields submit
+        ;; under a different key — either via `form_name` (e.g. `software_model_id`
+        ;; submits as `model_id`) or via a single-element `attribute` array (e.g.
+        ;; `license_version` submits as `item_version`). All aliases must be included
+        ;; here so they are not rejected as unpermitted fields.
         permitted-field-ids (->> permitted-fields
-                                 (map (comp keyword :id))
+                                 (mapcat
+                                  #(let [id (keyword (:id %))
+                                         form-name (some-> (get-in % [:data :form_name]) keyword)
+                                         attribute (get-in % [:data :attribute])
+                                         attr-key (when (and (vector? attribute)
+                                                             (= 1 (count attribute)))
+                                                    (keyword (first attribute)))]
+                                     (cond-> [id]
+                                       form-name (conj form-name)
+                                       attr-key (conj attr-key))))
                                  set)
-        body-keys (-> body-params (dissoc :id :type :item_ids :inventory_code :count) keys set)
+        body-keys (-> body-params (dissoc :id :type :item_ids :count) keys set)
         unpermitted-fields (set/difference body-keys permitted-field-ids)
         owner-id (:owner_id item-data)
         model-id (:model_id item-data)
@@ -81,7 +95,11 @@
       (seq unpermitted-fields)
       {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
 
-      (= model-type "Software")
+      (and (= item-type "license") (not= model-type "Software"))
+      {:error "Model must be Software type for licenses"
+       :model_id model-id}
+
+      (and (not= item-type "license") (= model-type "Software"))
       {:error "Model type 'Software' is not allowed for items"
        :model_id model-id}
 

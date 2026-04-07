@@ -3,7 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
+   [leihs.inventory.server.constants :refer [ALL-CURRENCIES PROPERTIES_PREFIX]]
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.attachments.main :as attachments]
@@ -81,7 +81,8 @@
      :inventory_code (fn [f & {:keys [tx pool resource-id target-type]}]
                        (if resource-id
                          f
-                         (assoc f :default (inv-code/propose tx (:id pool) (= target-type "package")))))}))
+                         (assoc f :default (inv-code/propose tx (:id pool) (= target-type "package")))))
+     :properties_maintenance_currency (fn [f & _] (assoc f :values ALL-CURRENCIES))}))
 
 (defn handle-default [tx field-id value item-data pool-id]
   (let [hooks {:supplier_id suppliers/get-by-id
@@ -168,6 +169,19 @@
         (merge (select-keys (:data base)
                             (-> base :type keyword type-data-keys)))
 
+        ;; NOTE: Some fields (e.g. `license_version`) have no `form_name` but use a
+        ;; single-element `attribute` array (e.g. `["item_version"]`) to reference the
+        ;; actual item column they map to. We promote that value as `:form_name` here,
+        ;; before `:data` is removed by `excluded-keys`, so that `handle-item-defaults`
+        ;; can use the existing `form_name` fallback to look up the correct value from
+        ;; `item-data` (e.g. `:item_version` instead of `:license_version`).
+        (#(let [attr (get-in % [:data :attribute])]
+            (if (and (nil? (:form_name %))
+                     (vector? attr)
+                     (= 1 (count attr)))
+              (assoc % :form_name (first attr))
+              %)))
+
         ;; Remove excluded keys
         (#(apply dissoc % excluded-keys))
 
@@ -204,9 +218,29 @@
 
 (defn handle-item-defaults [tx field item-data pool-id]
   (let [field-id (keyword (:id field))
-        value (get item-data field-id)]
-    (assoc field :default
-           (handle-default tx field-id value item-data pool-id))))
+        ;; NOTE: Some fields use a `form_name` (e.g. `software_model_id` -> `model_id`)
+        ;; or a single-element `attribute` array (e.g. `license_version` -> `item_version`,
+        ;; promoted to `form_name` in `transform-field-data`) to reference a different key
+        ;; in `item-data` than the field id itself. We fall back to that key when the
+        ;; field id is not directly present in `item-data`. Using `contains?` instead of
+        ;; `or` ensures falsy values (e.g. `false` for boolean fields) are preserved.
+        form-name (some-> (:form_name field) keyword)
+        found? (or (contains? item-data field-id)
+                   (and form-name (contains? item-data form-name)))
+        value (if (contains? item-data field-id)
+                (get item-data field-id)
+                (when form-name (get item-data form-name)))
+        resolved (handle-default tx field-id value item-data pool-id)]
+    ;; NOTE: Only overwrite the field's `:default` (which already reflects the YAML-defined
+    ;; default from `transform-field-data`) when we have a real resolved value, or when the
+    ;; key was explicitly present in `item-data` (even as nil). If the key is absent entirely
+    ;; (e.g. a `properties_*` field whose JSONB key was never set on this item), we leave the
+    ;; field unchanged so the YAML default (e.g. `"invoice"` for `properties_reference`, shown
+    ;; as "Running Account") is preserved for the form.
+    (cond
+      (some? resolved) (assoc field :default resolved)
+      found? (assoc field :default nil)
+      :else field)))
 
 (defn get-fields [tx pool user-id role target-type item-data]
   (let [pool-id (:id pool)
@@ -227,11 +261,10 @@
 (defn index-resources
   [{:keys [tx] {:keys [role] user-id :id} :authenticated-entity :as request}]
   (try
-    (let [{:keys [target_type resource_id]} (query-params request)
+    (let [{:keys [target_type]} (query-params request)
           {:keys [pool_id]} (path-params request)
           pool (pools/get-by-id tx pool_id)
-          item-data (get-item-data tx pool_id resource_id)
-          fields (get-fields tx pool user-id role target_type item-data)]
+          fields (get-fields tx pool user-id role target_type nil)]
       (response {:fields fields}))
     (catch Exception e
       (log-by-severity ERROR_GET e)
