@@ -2,14 +2,17 @@
   (:require
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["lucide-react" :refer [Lock]]
-   ["react-hook-form" :refer [useWatch]]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.fields.attachments-field :refer [AttachmentsField]]
    [leihs.inventory.client.components.form.fields.autocomplete-field :refer [AutocompleteField]]
    [leihs.inventory.client.components.form.fields.calendar-field :refer [CalendarField]]
+   [leihs.inventory.client.components.form.fields.checkbox-group-field :refer [CheckboxGroupField]]
    [leihs.inventory.client.components.form.fields.common-field :refer [CommonField]]
+   [leihs.inventory.client.components.form.fields.composite-field :refer [CompositeField]]
    [leihs.inventory.client.components.form.fields.radio-group-field :refer [RadioGroupField]]
    [leihs.inventory.client.components.form.fields.select-field :refer [SelectField]]
+   [leihs.inventory.client.provider.visibility-provider :refer [use-field-visibility]]
+   [leihs.inventory.client.routes.pools.items.crud.components.fields.items-field :refer [ItemsField]]
    [uix.core :refer [$ defui]]))
 
 (def translations
@@ -18,43 +21,11 @@
     :search "pool.items.item.fields.autocomplete.search"
     :empty "pool.items.item.fields.autocomplete.empty"}})
 
-(defn- has-value?
-  "Check if a value is considered 'truthy' for dependency purposes.
-   Returns false for: nil, empty string, empty array, empty object, false"
-  [val]
-  (cond
-    (nil? val) false
-    (boolean? val) val
-    (string? val) (not= val "")
-    (array? val) (pos? (.-length val))
-    (object? val) (if (js/Object.hasOwn val "value")
-                    ;; For objects like {:value "..." :label "..."}, check the value property
-                    (has-value? (.-value val))
-                    ;; For plain objects without value property, check if they have keys
-                    (pos? (count (js/Object.keys val))))
-    :else true))
-
 (defui FieldDispatcher [{:keys [form block]}]
   (let [[t] (useTranslation)
-        control (.-control form)
-        visibility (:visibility-dependency block)
-        values-dep (:values-dependency block)
-
-        ;; Always call useWatch (hooks must be called unconditionally)
-        watched-visibility (useWatch #js {:control control
-                                          :name (:field visibility)})
-        watched-dependency (useWatch #js {:control control
-                                          :name (:field values-dep)})
-
-        ;; Check visibility
-        is-visible (if visibility
-                     (= (str watched-visibility) (str (:value visibility)))
-                     true)
-
-        ;; Check if field should show based on values dependency
-        has-dependency-value (if values-dep
-                               (has-value? watched-dependency)
-                               true)
+        {:keys [is-visible
+                values-dependency
+                watched-dependency-value]} (use-field-visibility block)
 
         label-inactive (fn [props]
                          (let [without-options (dissoc props :options)
@@ -66,7 +37,7 @@
                                               (-> props :options))]
                            (assoc without-options :options annotated)))]
 
-    (when (and is-visible has-dependency-value)
+    (when is-visible
       ($ Popover
          ($ :div {:class-name "relative"}
             (when (:disabled (:props block))
@@ -77,6 +48,11 @@
                     ($ Lock {:class-name "h-6 w-6 p-1"}))))
 
             (cond
+              ;; Package-specific: item selection field
+              (= (:name block) "item_ids")
+              ($ ItemsField {:form form
+                             :block block})
+
               (-> block :component (= "attachments"))
               ($ AttachmentsField {:form form
                                    :label (t (:label block))
@@ -99,13 +75,21 @@
                                     :name (:name block)
                                     :label (:label block)
                                     :props (merge translations
-                                                  (if values-dep
+                                                  (if values-dependency
                                                     (let [values-url (-> block :props :values-url)
-                                                          dep (:field values-dep)]
+                                                          dep (:field values-dependency)]
                                                       {:remap (fn [item] {:value (str (:id item))
                                                                           :label (str (:name item))})
-                                                       :values-url (str values-url "?" dep "=" (.-value watched-dependency))})
+                                                       :values-url (str values-url "?" dep "=" (.-value watched-dependency-value))})
                                                     (label-inactive (:props block))))})
+
+              (-> block :component (= "checkbox"))
+              ($ CheckboxGroupField {:form form
+                                     :block block})
+
+              (-> block :component (= "composite"))
+              ($ CompositeField {:form form
+                                 :block block})
 
               (-> block :component (= "radio-group"))
               ($ RadioGroupField {:form form

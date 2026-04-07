@@ -8,6 +8,7 @@
     "radio"
     "checkbox"
     "attachment"
+    "composite"
     "autocomplete-search"
     "autocomplete"})
 
@@ -109,6 +110,7 @@
         "attachment" "attachments"
         "autocomplete-search" "autocomplete-search"
         "autocomplete" "autocomplete"
+        "composite" "composite"
         nil)))
 
 (defn- transform-field-values [values field-type]
@@ -167,12 +169,21 @@
                     (:props field) (merge (:props field)))
 
             ;; Add visibility dependency if present
-            visibility-dep (when (and (:visibility_dependency_field_id field)
-                                      (:visibility_dependency_value field))
+            visibility-dep (cond
+                             (and (:visibility_dependency_field_id field)
+                                  (:visibility_dependency_value field))
                              {:field (:visibility_dependency_field_id field)
-                              :value (:visibility_dependency_value field)})
+                              :value (:visibility_dependency_value field)}
 
-            ;; Add values dependency if present (e.g., room depends on building)
+                             (:visibility_dependency_field_id field)
+                             {:field (:visibility_dependency_field_id field)}
+
+                             (:visibility_dependency_value field)
+                             {:value (:visibility_dependency_value field)}
+
+                             :else nil)
+
+;; Add values dependency if present (e.g., room depends on building)
             values-dep (when (:values_dependency_field_id field)
                          {:field (:values_dependency_field_id field)})]
 
@@ -249,51 +260,60 @@
               (let [field-id (keyword (:id field))
                     field-type (:type field)
                     has-default? (contains? field :default)
-                    default-val (if has-default?
-                                  (if (boolean? (:default field))
-                                    (str (:default field))
-                                    (:default field))
-                                  ;; Set type-specific defaults when no default provided
-                                  (case field-type
-                                    "text" ""
-                                    "textarea" ""
-                                    "select" nil
-                                    "date" nil
-                                    "radio" false
-                                    "checkbox" false
-                                    "attachment" []
-                                    "autocomplete-search" {:value nil
-                                                           :label nil}
-                                    "autocomplete" {:value nil
-                                                    :label nil}
-                                    ;; Default for custom/unknown types
-                                    nil))
+                    default-value (if has-default?
+                                    (if (boolean? (:default field))
+                                      (str (:default field))
+                                      (:default field))
+                                    nil)
 
-                    ;; Convert default value based on field type
-                    converted-val (when (or (some? default-val)
-                                            (contains? #{"text" "textarea"} field-type))
-                                    (case field-type
+                    ;; Convert default value based on field type and handle nil defaults
+                    converted-value (case field-type
                                       "text"
-                                      (if (nil? default-val)
+                                      (if (nil? default-value)
                                         ""
-                                        (str default-val))
+                                        (str default-value))
 
                                       "textarea"
-                                      (if (nil? default-val)
+                                      (if (nil? default-value)
                                         ""
-                                        default-val)
+                                        default-value)
 
                                       "date"
-                                      (if (= default-val "today")
+                                      (if (= default-value "today")
                                         (js/Date.)
-                                        default-val)
+                                        default-value)
+
+                                      "radio"
+                                      (if (nil? default-value)
+                                        false
+                                        default-value)
+
+                                      "checkbox"
+                                      (if (nil? default-value)
+                                        []
+                                        default-value)
 
                                       "attachment"
-                                      (if (vector? default-val) default-val [])
+                                      (if (vector? default-value) default-value [])
+
+                                      "composite"
+                                      (if (nil? default-value)
+                                        []
+                                        default-value)
+
+                                      "autocomplete-search"
+                                      (if (nil? default-value)
+                                        {:value nil :label nil}
+                                        default-value)
+
+                                      "autocomplete"
+                                      (if (nil? default-value)
+                                        {:value nil :label nil}
+                                        default-value)
 
                                       ;; Default for custom/unknown types - use as-is
-                                      default-val))]
-                (assoc acc field-id converted-val)))
+                                      default-value)]
+                (assoc acc field-id converted-value)))
             {}
             implemented-fields)))
 

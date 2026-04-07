@@ -29,5 +29,7 @@
                                                      :value (:value option)
                                                      :class-name "cursor-pointer"}
                                          ($ :button {:type "button"}
-                                            (t (:label option))))))
+                                            (if (:bypass-i18n (:props block))
+                                              (:label option)
+                                              (t (:label option)))))))
                                  ($ FormMessage)))})))

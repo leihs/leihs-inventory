@@ -67,7 +67,7 @@ feature "Duplicate Item from Inventory List", type: :feature do
     click_on "Duplicate item"
 
     # Verify navigation to create page with fromItem param
-    expect(page).to have_current_path(/\/items\/create\?fromItem=#{@original_item.id}/)
+    expect(page).to have_current_path(%r{/items/create\?fromItem=#{@original_item.id}})
     expect(page).to have_content("Create New Item")
 
     # Verify fields that ARE copied from original
@@ -82,7 +82,7 @@ feature "Duplicate Item from Inventory List", type: :feature do
     assert_checked(find('button[data-test-id="is_borrowable-true"]'))
 
     # Verify fields that are NOT copied (empty/default)
-    assert_field("Serial Number", "")   # Empty - explicitly excluded from copy
+    assert_field("Serial Number", "") # Empty - explicitly excluded from copy
 
     # Fill in NEW serial number for duplicated item
     fill_in "Serial Number", with: new_serial_number

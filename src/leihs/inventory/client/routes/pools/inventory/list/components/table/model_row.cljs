@@ -82,8 +82,10 @@
                                     (fn [element]
                                       (if (not (:is_package element))
                                         ($ ItemRow {:key (:id element)
+                                                    :type (:type model)
                                                     :item element})
                                         ($ PackageRow {:key (:id element)
+                                                       :type (:type model)
                                                        :package element})))
                                     (:data result))))}
 
@@ -154,10 +156,20 @@
                       ($ ChevronDown {:className "w-4 h-4"})))
                 ($ DropdownMenuContent {:align "start"}
                    ($ DropdownMenuItem
-                      ($ Link {:to (str "../models/" (:id model) "/items/create")
-                               :state #js {:searchParams (.. location -search)}
-                               :viewTransition true}
-                         (t "pool.models.list.actions.add_item"))))))))))
+                      (case (-> model :type)
+                        "Package" ($ Link {:to (str "../models/" (:id model) "/packages/create")
+                                           :state #js {:searchParams (.. location -search)}
+                                           :viewTransition true}
+                                     (t "pool.models.list.actions.add_package"))
+                        "Model" ($ Link {:to (str "../models/" (:id model) "/items/create")
+                                         :state #js {:searchParams (.. location -search)}
+                                         :viewTransition true}
+                                   (t "pool.models.list.actions.add_item"))
+                        "Software" ($ Link {:to (str "../software/" (:id model) "/licenses/create")
+                                            :state #js {:searchParams (.. location -search)}
+                                            :viewTransition true}
+                                      (t "pool.models.list.actions.add_license"))
+                        nil)))))))))
 
 (def ModelRow
   (uix/as-react

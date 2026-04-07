@@ -128,7 +128,8 @@
 
           model (when model-id
                   (-> http-client
-                      (.get (str "/inventory/" pool-id "/models/" model-id))
+                      (.get (str "/inventory/" pool-id "/models/" model-id)
+                            #js {:cache false})
                       (.then #(jc (.-data %)))))
 
           item (when item-id
@@ -155,14 +156,14 @@
                                 #js {:cache false})
                           (.then #(jc (.-data %)))))
 
-          data (when-not item-id
-                 (-> http-client
-                     (.get (str "/inventory/" pool-id "/fields/?target_type=item")
-                           #js {:cache false})
-                     (.then #(jc (.-data %)))))]
+          fields (when-not item-id
+                   (-> http-client
+                       (.get (str "/inventory/" pool-id "/fields/?target_type=item")
+                             #js {:cache false})
+                       (.then #(jc (.-data %)))))]
 
     (try
-      {:data (if item-id {:fields (:fields item)} data)
+      {:data (if item-id {:fields (:fields item)} fields)
        :copy-data (when copy-item-id {:fields (:fields copy-data)})
        :model model
        :package package
@@ -200,38 +201,83 @@
 (defn packages-crud-page [route-data]
   (p/let [params (.. ^js route-data -params)
           pool-id (aget params "pool-id")
-          package-id (or (aget params "package-id") nil)
+          item-id (or (aget params "item-id") nil)
           model-id (or (aget params "model-id") nil)
-
-          item-path (when package-id
-                      (str "/inventory/" pool-id "/items/"))
 
           model (when model-id
                   (-> http-client
-                      (.get (str "/inventory/" pool-id "/models/" model-id))
-                      (.then #(jc (.-data %)))))
-
-          items (when package-id
-                  (-> http-client
-                      (.get (str "/inventory/" pool-id "/items/?parent_id=" package-id)
+                      (.get (str "/inventory/" pool-id "/models/" model-id)
                             #js {:cache false})
                       (.then #(jc (.-data %)))))
 
-          data (if item-path
-                 (-> http-client
-                     (.get (str "/inventory/" pool-id "/fields/?resource_id=" package-id "&target_type=package")
-                           #js {:id package-id
-                                :cache false})
-                     (.then #(jc (.-data %))))
-                 (-> http-client
-                     (.get (str "/inventory/" pool-id "/fields/?target_type=package")
-                           #js {:cache false})
-                     (.then #(jc (.-data %)))))]
+          items (when item-id
+                  (-> http-client
+                      (.get (str "/inventory/" pool-id "/items/?parent_id=" item-id)
+                            #js {:cache false})
+                      (.then #(jc (.-data %)))))
+
+          package (when item-id
+                    (-> http-client
+                        (.get (str "/inventory/" pool-id "/items/" item-id)
+                              #js {:cache false})
+                        (.then #(jc (.-data %)))))
+
+          fields (when-not item-id
+                   (-> http-client
+                       (.get (str "/inventory/" pool-id "/fields/?target_type=package")
+                             #js {:cache false})
+                       (.then #(jc (.-data %)))))]
 
     (try
-      {:data data
+      {:data (if item-id {:fields (:fields package)} fields)
+       :package package
        :items (if items items nil)
        :model (if model model nil)}
+      (catch js/Error err
+        (handle-error err)))))
+
+(defn licenses-crud-page [route-data]
+  (p/let [params (.. ^js route-data -params)
+          query-params (-> (js/URL. (.. route-data -request -url))
+                           (.-search)
+                           (js/URLSearchParams.))
+
+          pool-id (aget params "pool-id")
+          item-id (or (aget params "item-id") nil)
+          copy-item-id (or (aget params "fromItem")
+                           (.get query-params "fromItem")
+                           nil)
+          software-id (or (aget params "software-id") nil)
+
+          model (when software-id
+                  (-> http-client
+                      (.get (str "/inventory/" pool-id "/software/" software-id)
+                            #js {:cache false})
+                      (.then #(jc (.-data %)))))
+
+          license (when item-id
+                    (-> http-client
+                        (.get (str "/inventory/" pool-id "/items/" item-id)
+                              #js {:cache false})
+                        (.then #(jc (.-data %)))))
+
+          copy-data (when copy-item-id
+                      (-> http-client
+                          (.get (str "/inventory/" pool-id "/items/" copy-item-id)
+                                #js {:cache false})
+                          (.then #(jc (.-data %)))))
+
+          fields (if item-id
+                   {:fields (:fields license)}
+                   (-> http-client
+                       (.get (str "/inventory/" pool-id "/fields/?target_type=license")
+                             #js {:cache false})
+                       (.then #(jc (.-data %)))))]
+
+    (try
+      {:data fields
+       :copy-data (when copy-item-id {:fields (:fields copy-data)})
+       :model model}
       (catch js/Error err
         (handle-error err)))))
 

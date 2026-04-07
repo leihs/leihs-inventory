@@ -15,8 +15,9 @@
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [item isPackageItem]
+(defui main [{:keys [item type isPackageItem]
               :or {isPackageItem false}}]
+
   (let [location (router/useLocation)
         [t] (useTranslation)
         ref (uix/use-ref nil)]
@@ -58,7 +59,15 @@
              ($ Button {:variant "outline"
                         :asChild true}
                 ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (str "../items/" (:id item))
+
+                         :to (case type
+                               "Software"
+                               (str "../licenses/" (:id item))
+
+                               "Package"
+                               (str "../packages/" (:id item))
+
+                               (str "../items/" (:id item)))
                          :viewTransition true}
                    (t "pool.models.list.actions.edit")))
 
@@ -71,10 +80,22 @@
                       ($ ChevronDown {:className "w-4 h-4"})))
                 ($ DropdownMenuContent {:align "start"}
                    ($ DropdownMenuItem
-                      ($ Link {:to (str "../items/create?fromItem=" (:id item))
-                               :state #js {:searchParams (.. location -search)}
-                               :viewTransition true}
-                         (t "pool.models.list.actions.copy_item"))))))))))
+                      (case type
+                        "Software"
+                        ($ Link {:to (str "../licenses/create?fromItem=" (:id item))
+                                 :state #js {:searchParams (.. location -search)}
+                                 :viewTransition true}
+                           (t "pool.models.list.actions.copy_license"))
+
+                        ($ Link {:to (str "../items/create?fromItem=" (:id item))
+                                 :state #js {:searchParams (.. location -search)}
+                                 :viewTransition true}
+                           (t "pool.models.list.actions.copy_item")))
+
+                      #_($ Link {:to (str "../items/create?fromItem=" (:id item))
+                                 :state #js {:searchParams (.. location -search)}
+                                 :viewTransition true}
+                           (t "pool.models.list.actions.copy_item"))))))))))
 
 (def ItemRow
   (uix/as-react

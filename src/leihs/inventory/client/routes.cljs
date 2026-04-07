@@ -21,7 +21,6 @@
    [leihs.inventory.client.routes.pools.items.review.page :rename {page items-review-page}]
    [leihs.inventory.client.routes.pools.models.crud.page :rename {page models-crud-page}]
    [leihs.inventory.client.routes.pools.options.crud.page :rename {page options-crud-page}]
-   [leihs.inventory.client.routes.pools.packages.crud.page :rename {page packages-crud-page}]
    [leihs.inventory.client.routes.pools.software.crud.page :rename {page software-crud-page}]
    [uix.core :as uix :refer [$]]
    [uix.dom]))
@@ -111,6 +110,10 @@
                :loader loader/software-crud-page
                :element ($ software-crud-page)}
 
+              {:path "models/:model-id/software/create"
+               :loader loader/software-crud-page
+               :element ($ software-crud-page)}
+
               {:path "software/:software-id/delete?"
                :loader loader/software-crud-page
                :element ($ software-crud-page)}
@@ -145,24 +148,37 @@
 
               {:path "items/:item-id/delete?"
                :loader loader/items-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "items"})}
 
               {:path "models/:model-id/items/create"
                :loader loader/items-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "items"})}
 
-              ;; packages crud
+              ;; packages crud (unified with items)
               {:path "packages/create"
                :loader loader/packages-crud-page
-               :element ($ packages-crud-page)}
+               :element ($ items-crud-page {:key "packages"})}
 
-              {:path "packages/:package-id/delete?"
+              {:path "packages/:item-id/delete?"
                :loader loader/packages-crud-page
-               :element ($ packages-crud-page)}
+               :element ($ items-crud-page {:key "packages"})}
 
               {:path "models/:model-id/packages/create"
                :loader loader/packages-crud-page
-               :element ($ packages-crud-page)}
+               :element ($ items-crud-page {:key "packages"})}
+
+              ;; licenses crud (unified with items)
+              {:path "licenses/create"
+               :loader loader/licenses-crud-page
+               :element ($ items-crud-page {:key "licenses"})}
+
+              {:path "licenses/:item-id/delete?"
+               :loader loader/licenses-crud-page
+               :element ($ items-crud-page {:key "licenses"})}
+
+              {:path "software/:software-id/licenses/create"
+               :loader loader/licenses-crud-page
+               :element ($ items-crud-page {:key "licenses"})}
 
               ;; Wildcard route for undefined pool routes
               {:path "*"

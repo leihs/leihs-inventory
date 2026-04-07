@@ -170,7 +170,14 @@
                                     :to (generatePath "/inventory/:pool-id/software/create"
                                                       (cj {:pool-id pool-id}))
                                     :viewTransition true}
-                              (t "pool.models.dropdown.add_software")))))
+                              (t "pool.models.dropdown.add_software")))
+
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/licenses/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              (t "pool.models.dropdown.add_license")))))
                   "entitlement-groups"
                   ($ Button {:asChild true}
                      ($ Link {:state #js {:searchParams (.. location -search)}
