@@ -57,6 +57,76 @@ feature "Inventory Page", type: :feature do
     expect(page).to have_selector('[data-test-id="add-inventory-dropdown"]')
   end
 
+  scenario "model expand shows in-package indicator when In stock filter is active" do
+    building = FactoryBot.create(:building, name: "PkgInd B", code: "PI1")
+    room = FactoryBot.create(:room, name: "PkgInd R", building: building)
+    pool = FactoryBot.create(:inventory_pool, shortname: "PI")
+    user = FactoryBot.create(:user, language_locale: "en-GB")
+    FactoryBot.create(:access_right,
+      inventory_pool: pool,
+      user: user,
+      role: :inventory_manager)
+
+    pkg_model = FactoryBot.create(:leihs_model, product: "PkgIndPkg", version: "v1", is_package: true)
+    item_model = FactoryBot.create(:leihs_model, product: "PkgIndModel", version: "v1")
+
+    pkg_parent = FactoryBot.create(:item,
+      inventory_code: "#{pool.shortname}PKG",
+      owner_id: pool.id,
+      inventory_pool_id: pool.id,
+      leihs_model: pkg_model,
+      room: room,
+      shelf: "S-PKG",
+      is_borrowable: true,
+      retired: nil)
+
+    standalone = FactoryBot.create(:item,
+      inventory_code: "#{pool.shortname}100",
+      owner_id: pool.id,
+      inventory_pool_id: pool.id,
+      leihs_model: item_model,
+      room: room,
+      shelf: "S-01",
+      is_borrowable: true,
+      retired: nil,
+      parent_id: nil)
+
+    FactoryBot.create(:item,
+      inventory_code: "#{pool.shortname}101",
+      owner_id: pool.id,
+      inventory_pool_id: pool.id,
+      leihs_model: item_model,
+      room: room,
+      shelf: "S-02",
+      is_borrowable: true,
+      retired: nil,
+      parent_id: pkg_parent.id)
+
+    login(user)
+
+    visit "/inventory/#{pool.id}/list?page=1&size=50&with_items=true&retired=false&in_stock=true"
+    find("input[name='search']").set("PkgIndModel")
+    await_debounce
+
+    row = find("tr", text: item_model.name)
+    within(row) do
+      expect(find('[data-test-id="items"]').text).to eq("1")
+    end
+
+    within("tr", text: item_model.name) do
+      click_on "expand-button"
+    end
+
+    item_rows = row.all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
+    wait_until { item_rows.size == 2 }
+
+    packaged_row = item_rows.find { |r| r.text.include?("#{pool.shortname}101") }
+    standalone_row = item_rows.find { |r| r.text.include?("#{pool.shortname}100") }
+
+    expect(packaged_row).to have_content("is part of a package")
+    expect(standalone_row).not_to have_content("is part of a package")
+  end
+
   scenario "filters work" do
     # |----------  |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
     # | model      | package | item   | owner  | pool   | retired | borrowable | in_stock | incomplete | broken | last_check |

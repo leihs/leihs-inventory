@@ -20,9 +20,11 @@
    [leihs.inventory.client.routes.pools.inventory.list.components.table.package-row :refer [PackageRow]]
    [uix.core :as uix :refer [$ defui]]))
 
+;; Omit :in_stock: forwarding it applies items.shared/in-stock, which requires
+;; parent_id IS NULL and hides package-contained lines (and their in-package label).
 (def query-keys [:owned :incomplete
                  :broken :retired :borrowable
-                 :fields :in_stock_quantity
+                 :fields
                  :model_id :parent_id :inventory_pool_id :search])
 
 (def fields ["id" "is_package" "parent_id" "is_borrowable" "is_broken" "retired" "is_incomplete"
@@ -43,9 +45,9 @@
                         (let [param-map (into {}
                                               (for [[key val] (.entries search-params)]
                                                 [(keyword key) (str val)]))
-                              params (merge {:model_id (:id model)
-                                             :fields (str/join "," fields)}
-                                            (select-keys param-map query-keys))]
+                              params (merge (select-keys param-map query-keys)
+                                            {:model_id (:id model)
+                                             :fields (str/join "," fields)})]
 
                           (if result
                             (set-result! nil)
