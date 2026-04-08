@@ -78,39 +78,24 @@
 (defn search-edit-page [action]
   (p/let [request (.-request action)
           json-data (.json request)
-          form-values (jc json-data)
-
-          ;; Extract pool-id from route params
+          body (jc json-data)
           params (.. ^js action -params)
           pool-id (aget params "pool-id")
-
           method (aget action "request" "method")]
 
-    (js/console.debug "Action received form values:" form-values)
-
     (case method
-      "POST"
-      (try
-        (let [;; Build the filter_q query from form data
-              query-encoded (js/encodeURIComponent form-values)]
-
-          (-> http-client
-              (.get (str "/inventory/" pool-id "/items/?filter_q=" query-encoded)
-                    (cj {:cache false}))
-              (.then (fn [response]
-                       (js/console.log "Search results:" (.-data response))
-                       #js {:status "ok"
-                            :results (.-data response)}))
-              (.catch (fn [error]
-                        (js/console.error "Search error:" error)
-                        (let [error-msg (if (.-response error)
-                                          (or (.. error -response -data -message)
-                                              (.. error -response -statusText)
-                                              "Unknown server error")
-                                          (.-message error))]
-                          #js {:error error-msg})))))
-
-        (catch js/Error e
-          (js/console.error "Query building error:" e)
-          (p/resolved #js {:error (str "Failed to build query: " (.-message e))}))))))
+      "PATCH"
+      (let [items (:selected-items body)
+            data (cj (apply merge (:update body)))]
+        (-> (p/all
+             (map (fn [item-id]
+                    (-> http-client
+                        (.patch (str "/inventory/" pool-id "/items/" item-id)
+                                (js/JSON.stringify data)
+                                (cj {:cache false}))))
+                  items))
+            (.then (fn [_] #js {:status "ok"}))
+            (.catch (fn [error]
+                      (js/console.error "Bulk update error:" error)
+                      #js {:error (.-message error)})))))))
 

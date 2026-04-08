@@ -6,11 +6,14 @@
    ["@@/form" :refer [Form]]
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
+
    ["@hookform/resolvers/zod" :refer [zodResolver]]
+   ["date-fns" :refer [format]]
 
    ["lucide-react" :refer [ChevronLeft ChevronRight Equal Trash]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
+   ["react-router-dom" :refer [useFetcher]]
    ["zod" :as z]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.field-dispatcher
@@ -26,10 +29,19 @@
       (.transform
        (fn [field]
          (cj {(keyword (.-name field))
-              (let [val (.-value field)]
-                (if (and (object? val) (some? (.-value val)))
-                  (.-value val)
-                  val))})))))
+              (let [val (.-value field)
+                    ;; Format dates to YYYY-MM-DD if the value is a Date object
+                    formatted-val (if (instance? js/Date val)
+                                    (format val "yyyy-MM-dd")
+                                    val)
+                    ;; Coerce "true"/"false" strings to booleans
+                    coerced-val (cond
+                                  (= formatted-val "true") true
+                                  (= formatted-val "false") false
+                                  :else formatted-val)]
+                (if (and (object? coerced-val) (some? (.-value coerced-val)))
+                  (.-value coerced-val)
+                  coerced-val))})))))
 
 (def edit-dialog-schema
   (z/object
@@ -41,14 +53,16 @@
 
         [t] (useTranslation)
 
+        fetcher (useFetcher)
+
         form (hook-form/useForm
               #js {:resolver (zodResolver edit-dialog-schema)
                    :defaultValues (cj {:update []})})
 
         control (.-control form)
-        {:keys [fields append remove update]} (jc (hook-form/useFieldArray
-                                                   (cj {:control control
-                                                        :name "update"})))
+        {:keys [fields append remove update replace]} (jc (hook-form/useFieldArray
+                                                           (cj {:control control
+                                                                :name "update"})))
 
         ;; Find field names already in use
         used-field-names (set (map :name fields))
@@ -86,9 +100,11 @@
 
         on-submit (fn [data]
                     (let [update-data (jc (.-update data))]
-                      (js/console.log "Edit submitted:"
-                                      (clj->js {:selected-items (vec selected-items)
-                                                :update update-data}))
+                      (.submit fetcher
+                               (js/JSON.stringify (cj {:selected-items (vec selected-items)
+                                                       :update update-data}))
+                               (cj {:method "PATCH"
+                                    :encType "application/json"}))
                       (on-open-change false)))
 
         on-invalid (fn [errors]
@@ -98,8 +114,8 @@
     (uix/use-effect
      (fn []
        (when open?
-         (.reset form (cj {:update []}))))
-     [open? form])
+         (replace (cj []))))
+     [open? form replace])
 
     ($ Dialog {:open open?
                :onOpenChange on-open-change
@@ -119,7 +135,7 @@
                        :no-validate true
                        :on-submit (handle-submit on-submit on-invalid)}
 
-                ($ :div {:class-name "space-y-2 py-2 z-[100]"}
+                ($ :div {:class-name "space-y-2 py-2"}
                    ;; Render all update field rows
                    (for [[idx field] (map-indexed vector fields)]
                      ($ :div {:key (:id field)
