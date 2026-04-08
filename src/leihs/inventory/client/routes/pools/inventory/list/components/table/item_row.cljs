@@ -49,7 +49,8 @@
 
        ($ TableCell
           ($ ItemInfo {:item item
-                       :is-package-item isPackageItem}))
+                       :is-package-item isPackageItem
+                       :type type}))
 
        ($ TableCell {:className "text-right"}
           ($ ItemStatus {:item item}))

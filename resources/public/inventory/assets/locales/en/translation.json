@@ -382,6 +382,7 @@
       "list": {
         "empty": "No entries found",
         "package_item": "is part of a package",
+        "room": "Room",
         "shelf": "Shelf",
         "tooltip": {
           "in_stock": "in stock",
@@ -408,6 +409,20 @@
           "copy_license": "Duplicate license",
           "add_package": "Add package",
           "copy_package": "Duplicate package"
+        },
+        "operating_system": {
+          "windows": "Windows",
+          "linux": "Linux",
+          "mac_os_x": "Mac OS X",
+          "ios": "iOS"
+        },
+        "operating_system_unspecified": "No operating system specified",
+        "license_type": {
+          "single_workplace": "Single workplace",
+          "multiple_workplace": "Multiple workplace",
+          "concurrent": "Concurrent",
+          "site_license": "Site license",
+          "free": "Free"
         }
       }
     },

@@ -383,6 +383,7 @@
       "list": {
         "empty": "Keine Einträge gefunden",
         "package_item": "ist Bestandteil eines Pakets",
+        "room": "Raum",
         "shelf": "Lager",
         "tooltip": {
           "in_stock": "an Lager",
@@ -409,6 +410,20 @@
           "copy_license": "Lizenz duplizieren",
           "add_package": "Paket hinzufügen",
           "copy_package": "Paket duplizieren"
+        },
+        "operating_system": {
+          "windows": "Windows",
+          "linux": "Linux",
+          "mac_os_x": "Mac OS X",
+          "ios": "iOS"
+        },
+        "operating_system_unspecified": "Kein Betriebssystem angegeben",
+        "license_type": {
+          "single_workplace": "Einzelarbeitsplatz",
+          "multiple_workplace": "Mehrfacharbeitsplatz",
+          "concurrent": "Concurrent",
+          "site_license": "Standortlizenz",
+          "free": "Kostenlos"
         }
       }
     },

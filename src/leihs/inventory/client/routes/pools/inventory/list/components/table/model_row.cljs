@@ -25,10 +25,11 @@
                  :fields :in_stock_quantity
                  :model_id :parent_id :inventory_pool_id :search])
 
-(def fields ["id" "is_package" "is_borrowable" "is_broken" "retired" "is_incomplete"
-             "price" "inventory_code" "shelf" "building_code" "package_items"
-             "building_name" "reservation_end_date" "shelf" "inventory_pool_name"
-             "user_name" "reservation_user_name" "url" "reservation_contract_id"])
+(def fields-base ["id" "is_package" "is_borrowable" "is_broken" "retired" "is_incomplete"
+                  "price" "inventory_code" "shelf" "building_code" "package_items"
+                  "building_name" "room_name" "reservation_end_date" "shelf" "inventory_pool_name"
+                  "owner_id" "inventory_pool_id"
+                  "user_name" "reservation_user_name" "url" "reservation_contract_id"])
 
 (defui main [{:keys [model className]}]
   (let [location (router/useLocation)
@@ -43,6 +44,10 @@
                         (let [param-map (into {}
                                               (for [[key val] (.entries search-params)]
                                                 [(keyword key) (str val)]))
+                              fields (cond-> fields-base
+                                       (= (:type model) "Software")
+                                       (conj "properties_operating_system"
+                                             "properties_license_type"))
                               params (merge {:model_id (:id model)
                                              :fields (str/join "," fields)}
                                             (select-keys param-map query-keys))]
