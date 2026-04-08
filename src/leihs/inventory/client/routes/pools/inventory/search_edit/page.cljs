@@ -14,6 +14,7 @@
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [jc cj]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.and-filters :refer [AndFilters]]
+   [leihs.inventory.client.routes.pools.inventory.search-edit.components.edit-dialog :refer [EditDialog]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.items-table :refer [ItemsTable]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.or-filters :refer [OrFilters]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.defaults :as defaults]
@@ -39,6 +40,7 @@
 
         {:keys [pool-id]} (jc (useParams))
         [selected-items set-selected-items!] (uix/use-state #{})
+        [edit-open? set-edit-open!] (uix/use-state false)
         fields (:fields data)
         structure (dynamic-form/fields->structure fields {:group-order groups})
         defaults (dynamic-form/fields->defaults fields)
@@ -158,6 +160,7 @@
                ;; Bulk action buttons - show when items selected
                ($ :div {:class-name "flex gap-2"}
                   ($ Button {:disabled (empty? selected-items)
+                             :on-click #(set-edit-open! true)
                              :class-name "disabled:hover:bg-primary"}
                      (str "Edit " (count selected-items) " items"))
                   ($ Button {:disabled (empty? selected-items)
@@ -172,5 +175,9 @@
             ($ CardFooter {:class-name "sticky bottom-0 bg-background z-10 rounded-b-xl  pt-6"
                            :style {:background "linear-gradient(to top, hsl(var(--background)) 80%, transparent 100%)"}}
                ($ pagination/main {:pagination pagination
-                                   :class-name "justify-start w-full"})))))))
+                                   :class-name "justify-start w-full"}))))
 
+       ($ EditDialog {:open? edit-open?
+                      :on-open-change set-edit-open!
+                      :selected-items selected-items
+                      :blocks blocks}))))

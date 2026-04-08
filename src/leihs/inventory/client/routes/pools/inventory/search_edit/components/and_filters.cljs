@@ -41,10 +41,9 @@
         name (str "$or." index ".$and")
 
         control (.-control form)
-        {:keys [fields append remove update]}
-        (jc (hook-form/useFieldArray
-             (cj {:control control
-                  :name name})))
+        {:keys [fields append remove update]} (jc (hook-form/useFieldArray
+                                                   (cj {:control control
+                                                        :name name})))
 
         [t] (useTranslation)
         init (uix/use-ref false)
