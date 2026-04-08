@@ -133,6 +133,21 @@
   environment_variables:
     FEATURE_NAME: "Inventory Page 03"
     FEATURE: './spec/features/inventory-list/main_spec.rb[1:3]'
+'./spec/features/inventory-list/model_item_row_shelf_spec.rb[1:1]':
+  name: "Model item row location on inventory list 01"
+  environment_variables:
+    FEATURE_NAME: "Model item row location on inventory list 01"
+    FEATURE: './spec/features/inventory-list/model_item_row_shelf_spec.rb[1:1]'
+'./spec/features/inventory-list/model_item_row_shelf_spec.rb[1:2]':
+  name: "Model item row location on inventory list 02"
+  environment_variables:
+    FEATURE_NAME: "Model item row location on inventory list 02"
+    FEATURE: './spec/features/inventory-list/model_item_row_shelf_spec.rb[1:2]'
+'./spec/features/inventory-list/model_item_row_shelf_spec.rb[1:3]':
+  name: "Model item row location on inventory list 03"
+  environment_variables:
+    FEATURE_NAME: "Model item row location on inventory list 03"
+    FEATURE: './spec/features/inventory-list/model_item_row_shelf_spec.rb[1:3]'
 './spec/features/inventory-list/package_item_flags_spec.rb[1:1]':
   name: "Inventory list and edit: package item flags 01"
   environment_variables:
@@ -158,6 +173,26 @@
   environment_variables:
     FEATURE_NAME: "Inventory Pagination 02"
     FEATURE: './spec/features/inventory-list/pagination_spec.rb[1:2]'
+'./spec/features/inventory-list/software_license_row_spec.rb[1:1]':
+  name: "Software license sub-row on inventory list 01"
+  environment_variables:
+    FEATURE_NAME: "Software license sub-row on inventory list 01"
+    FEATURE: './spec/features/inventory-list/software_license_row_spec.rb[1:1]'
+'./spec/features/inventory-list/software_license_row_spec.rb[1:2]':
+  name: "Software license sub-row on inventory list 02"
+  environment_variables:
+    FEATURE_NAME: "Software license sub-row on inventory list 02"
+    FEATURE: './spec/features/inventory-list/software_license_row_spec.rb[1:2]'
+'./spec/features/inventory-list/software_license_row_spec.rb[1:3]':
+  name: "Software license sub-row on inventory list 03"
+  environment_variables:
+    FEATURE_NAME: "Software license sub-row on inventory list 03"
+    FEATURE: './spec/features/inventory-list/software_license_row_spec.rb[1:3]'
+'./spec/features/inventory-list/software_license_row_spec.rb[1:4]':
+  name: "Software license sub-row on inventory list 04"
+  environment_variables:
+    FEATURE_NAME: "Software license sub-row on inventory list 04"
+    FEATURE: './spec/features/inventory-list/software_license_row_spec.rb[1:4]'
 './spec/features/items/batch_create_spec.rb[1:1]':
   name: "Batch create items 01"
   environment_variables:

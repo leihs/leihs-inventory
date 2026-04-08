@@ -488,7 +488,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         }
       ]
     )
@@ -502,7 +502,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -516,7 +516,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Not borrowable", "Incomplete"]
+          statuses: ["Not borrowable", "Incomplete", "Retired"]
         }
       ]
     )
@@ -530,7 +530,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -556,7 +556,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         }
       ]
     )
@@ -570,7 +570,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Not borrowable", "Incomplete"]
+          statuses: ["Not borrowable", "Incomplete", "Retired"]
         }
       ]
     )
@@ -607,7 +607,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -635,7 +635,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -649,7 +649,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Not borrowable", "Incomplete"]
+          statuses: ["Not borrowable", "Incomplete", "Retired"]
         }
       ]
     )
@@ -663,7 +663,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -791,7 +791,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -819,7 +819,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -833,7 +833,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Not borrowable", "Incomplete"]
+          statuses: ["Not borrowable", "Incomplete", "Retired"]
         }
       ]
     )
@@ -847,7 +847,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -934,7 +934,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -962,7 +962,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -1041,7 +1041,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -1092,7 +1092,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -1106,7 +1106,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -1218,7 +1218,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Incomplete", "Not borrowable"]
+          statuses: ["Incomplete", "Not borrowable", "Retired"]
         }
       ]
     )
@@ -1291,7 +1291,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -1336,7 +1336,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -1431,7 +1431,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -1459,7 +1459,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -1473,7 +1473,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Not borrowable", "Incomplete"]
+          statuses: ["Not borrowable", "Incomplete", "Retired"]
         }
       ]
     )
@@ -1487,7 +1487,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )

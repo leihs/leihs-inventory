@@ -11,6 +11,7 @@ feature "Inventory list availability counts (models, packages, options, software
     building = FactoryBot.create(:building, name: "AVCnt B", code: "AC1")
     room = FactoryBot.create(:room, name: "AVCnt R", building: building)
     pool = FactoryBot.create(:inventory_pool, shortname: "AC")
+    pool_owner_other = FactoryBot.create(:inventory_pool, shortname: "AX")
     user = FactoryBot.create(:user, language_locale: "en-GB")
     FactoryBot.create(:access_right,
       inventory_pool: pool,
@@ -274,6 +275,8 @@ feature "Inventory list availability counts (models, packages, options, software
 
     verify_inventory_list_row(option.reload, "55 GBP", [], is_option: true)
 
+    lic_props = {license_type: "free", operating_system: %w[windows]}
+
     lic_1 = FactoryBot.create(:item,
       inventory_code: "#{pool.shortname}L01",
       owner_id: pool.id,
@@ -282,45 +285,45 @@ feature "Inventory list availability counts (models, packages, options, software
       room: room,
       shelf: "S-L01",
       is_borrowable: true,
-      retired: nil)
+      retired: nil,
+      properties: lic_props)
 
     refresh_list.call(pool.id, token)
 
     verify_inventory_list_row(software.reload, "1 | 1", [
       {
         inventory_code: lic_1.inventory_code,
-        building_name: building.name,
-        building_code: building.code,
-        shelf: lic_1.shelf,
+        license_type_label: "Free",
+        os_labels: ["Windows"],
         statuses: ["Available"]
       }
     ])
 
     lic_2 = FactoryBot.create(:item,
       inventory_code: "#{pool.shortname}L02",
-      owner_id: pool.id,
+      owner_id: pool_owner_other.id,
       inventory_pool_id: pool.id,
       leihs_model: software,
       room: room,
       shelf: "S-L02",
       is_borrowable: false,
-      retired: nil)
+      retired: nil,
+      properties: lic_props)
 
     refresh_list.call(pool.id, token)
 
     verify_inventory_list_row(software.reload, "1 | 1", [
       {
         inventory_code: lic_1.inventory_code,
-        building_name: building.name,
-        building_code: building.code,
-        shelf: lic_1.shelf,
+        license_type_label: "Free",
+        os_labels: ["Windows"],
         statuses: ["Available"]
       },
       {
         inventory_code: lic_2.inventory_code,
-        building_name: building.name,
-        building_code: building.code,
-        shelf: lic_2.shelf,
+        license_type_label: "Free",
+        os_labels: ["Windows"],
+        responsible_pool_name: pool.name,
         statuses: ["Not borrowable"]
       }
     ])
@@ -334,23 +337,23 @@ feature "Inventory list availability counts (models, packages, options, software
       shelf: "S-L03",
       is_borrowable: true,
       retired: Date.yesterday,
-      retired_reason: "license retired")
+      retired_reason: "license retired",
+      properties: lic_props)
 
     refresh_list.call(pool.id, token)
 
     verify_inventory_list_row(software.reload, "1 | 1", [
       {
         inventory_code: lic_1.inventory_code,
-        building_name: building.name,
-        building_code: building.code,
-        shelf: lic_1.shelf,
+        license_type_label: "Free",
+        os_labels: ["Windows"],
         statuses: ["Available"]
       },
       {
         inventory_code: lic_2.inventory_code,
-        building_name: building.name,
-        building_code: building.code,
-        shelf: lic_2.shelf,
+        license_type_label: "Free",
+        os_labels: ["Windows"],
+        responsible_pool_name: pool.name,
         statuses: ["Not borrowable"]
       }
     ])
@@ -380,9 +383,9 @@ feature "Inventory list availability counts (models, packages, options, software
       },
       {
         inventory_code: lic_2.inventory_code,
-        building_name: building.name,
-        building_code: building.code,
-        shelf: lic_2.shelf,
+        license_type_label: "Free",
+        os_labels: ["Windows"],
+        responsible_pool_name: pool.name,
         statuses: ["Not borrowable"]
       }
     ])
@@ -395,17 +398,16 @@ feature "Inventory list availability counts (models, packages, options, software
         building_name: building.name,
         building_code: building.code,
         shelf: i_plain_4.shelf,
-        statuses: ["Not borrowable", "Available"]
+        statuses: ["Not borrowable", "Available", "Retired"]
       }
     ])
 
     verify_inventory_list_row(software.reload, "1 | 1", [
       {
         inventory_code: lic_3.inventory_code,
-        building_name: building.name,
-        building_code: building.code,
-        shelf: lic_3.shelf,
-        statuses: ["Not borrowable", "Available"]
+        license_type_label: "Free",
+        os_labels: ["Windows"],
+        statuses: ["Not borrowable", "Available", "Retired"]
       }
     ])
   end
@@ -688,7 +690,7 @@ feature "Inventory list availability counts (models, packages, options, software
         building_name: building.name,
         building_code: building.code,
         shelf: st06.shelf,
-        statuses: ["Not borrowable", "Available"]
+        statuses: ["Not borrowable", "Available", "Retired"]
       }
     ])
   end
@@ -967,6 +969,12 @@ def verify_inventory_list_row(model, availabilty, items = [], is_package: false,
         if details[:package_items]
           expect(following_rows[index].find('[data-test-id="items"]').text).to eq(details[:package_items].size.to_s)
         end
+      elsif model.values[:type] == "Software"
+        expect(following_rows[index]).to have_content(details[:license_type_label]) if details[:license_type_label]
+        Array(details[:os_labels]).each do |os_label|
+          expect(following_rows[index]).to have_content(os_label)
+        end
+        expect(following_rows[index]).to have_content(details[:responsible_pool_name]) if details[:responsible_pool_name]
       else
         expect(following_rows[index]).to have_content(details[:building_name])
         expect(following_rows[index]).to have_content(details[:building_code])

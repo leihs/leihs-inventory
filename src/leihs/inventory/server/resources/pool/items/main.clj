@@ -160,7 +160,11 @@
                          (cond-> (seq search_term) (with-search search_term :models)))))
 
          post-fnc (fn [items]
-                    (let [items-for-fetch (mapv (fn [item]
+                    (let [items (mapv #(-> %
+                                           flatten-properties
+                                           (coerce-field-values out-coercions))
+                                      items)
+                          items-for-fetch (mapv (fn [item]
                                                   (assoc item :id (:model_id item)))
                                                 items)
                           items-with-images (fetch-thumbnails-for-ids tx items-for-fetch)]
@@ -203,7 +207,7 @@
          :else
          (-> request
              (create-pagination-response query nil post-fnc)
-             (pick-fields fields types/index-item)
+             (pick-fields fields types/index-item {:allow-properties-prefixed-fields true})
              response))
        (catch Exception e
          (log-by-severity ERROR_GET_ITEMS e)
