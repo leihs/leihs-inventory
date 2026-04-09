@@ -342,8 +342,39 @@
           "copy_item": "Duplicate item"
         }
       },
-      "search-edit": {
-        "no-items": "No items found"
+      "search_edit": {
+        "no_items": "No items found",
+        "add_filter_prompt": "Add filters to start your search.",
+        "or_separator": "OR",
+        "add_or": "Add OR",
+        "add_and": "Add AND",
+        "table": {
+          "inventory_code": "Inventory code",
+          "location": "Location",
+          "view_details": "View details",
+          "delete": "Delete"
+        },
+        "dialog": {
+          "title_one": "Edit {{count}} item",
+          "title_other": "Edit {{count}} items",
+          "description": "Select the fields you want to update for all selected items.",
+          "cancel": "Cancel",
+          "applying": "Applying",
+          "submit_one": "Apply to {{count}} item",
+          "submit_other": "Apply to {{count}} items"
+        },
+        "info": {
+          "until": "until"
+        },
+        "page": {
+          "title": "Advanced Search with Export and Multi-Edit",
+          "description": "Search for items with the desired parameters. The found items can then be exported or edited.",
+          "search_results": "Search Results",
+          "edit_items_one": "Edit {{count}} item",
+          "edit_items_other": "Edit {{count}} items",
+          "export_items_one": "Export {{count}} item",
+          "export_items_other": "Export {{count}} items"
+        }
       }
     },
     "entitlement_groups": {

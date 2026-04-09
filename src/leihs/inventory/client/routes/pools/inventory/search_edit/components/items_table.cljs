@@ -78,11 +78,11 @@
                                               all-selected? true
                                               :else false)
                                    :onCheckedChange toggle-all}))
-                   ($ TableHead {:class-name "text-right"} "")
-                   ($ TableHead "Inventarcode")
-                   ($ TableHead
-                      (t "pool.models.list.header.name"))
-                   ($ TableHead "Ort")
+                    ($ TableHead {:class-name "text-right"} "")
+                    ($ TableHead (t "pool.models.search_edit.table.inventory_code"))
+                    ($ TableHead
+                       (t "pool.models.list.header.name"))
+                    ($ TableHead (t "pool.models.search_edit.table.location"))
 
                    ($ TableHead {:className "min-w-40 text-right"}
                       (t "pool.models.list.header.availability"))
@@ -98,7 +98,7 @@
                   ($ TableRow
                      ($ TableCell {:colSpan 6
                                    :class-name "h-24 text-center"}
-                        (t "pool.models.list.search-edit.no-items")))
+                        (t "pool.models.search_edit.no_items")))
 
                   :else
                   (doall (for [item items]
@@ -152,7 +152,7 @@
                                                       :state #js {:searchParams (.. location -search)}
                                                       :viewTransition true}
                                                 (t "pool.models.list.actions.copy_item")))
-                                          ($ DropdownMenuItem
-                                             "View details")
-                                          ($ DropdownMenuItem
-                                             "Delete")))))))))))))))
+                                            ($ DropdownMenuItem
+                                               (t "pool.models.search_edit.table.view_details"))
+                                            ($ DropdownMenuItem
+                                               (t "pool.models.search_edit.table.delete"))))))))))))))))

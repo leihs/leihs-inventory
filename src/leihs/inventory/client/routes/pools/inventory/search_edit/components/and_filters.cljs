@@ -154,4 +154,4 @@
                   :size "sm"
                   :on-click handle-add-and
                   :disabled (nil? next-block)}
-          "UND hinzufügen"))))
+          (t "pool.models.search_edit.add_and")))))

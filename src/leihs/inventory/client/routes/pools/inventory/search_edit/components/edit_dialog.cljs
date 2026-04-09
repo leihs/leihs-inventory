@@ -4,6 +4,7 @@
    ["@@/dialog" :refer [Dialog DialogContent DialogDescription DialogFooter
                         DialogHeader DialogTitle]]
    ["@@/spinner" :refer [Spinner]]
+   ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useFetcher]]
    [leihs.inventory.client.components.patch-item-form :refer [PatchItemForm]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -12,6 +13,7 @@
 ;; Main EditDialog Component
 (defui EditDialog [{:keys [open? on-open-change selected-items blocks]}]
   (let [item-count (count selected-items)
+        [t] (useTranslation)
 
         fetcher (useFetcher)
 
@@ -41,9 +43,9 @@
        ($ DialogContent {:class-name "max-w-[768px] lg:max-w-[1024px]"}
           ($ DialogHeader
              ($ DialogTitle
-                (str "Edit " item-count " " (if (= item-count 1) "item" "items")))
+                (t "pool.models.search_edit.dialog.title" #js {:count item-count}))
              ($ DialogDescription
-                "Select the fields you want to update for all selected items."))
+                (t "pool.models.search_edit.dialog.description")))
 
           ($ PatchItemForm {:blocks blocks
                             :on-submit on-submit
@@ -55,7 +57,7 @@
                         :on-click #(on-open-change false)
                         :disabled (or (= (.-state fetcher) "submitting")
                                       (= (.-state fetcher) "loading"))}
-                "Abbrechen")
+                (t "pool.models.search_edit.dialog.cancel"))
              ($ Button {:type "submit"
                         :form "edit-dialog-form"
                         :class-name "disabled:hover:bg-primary/50"
@@ -66,9 +68,7 @@
                 (if (or (= (.-state fetcher) "submitting")
                         (= (.-state fetcher) "loading"))
                   ($ :span {:class-name "flex items-center"}
-                     "Wird angewendet"
+                     (t "pool.models.search_edit.dialog.applying")
                      ($ Spinner {:class-name "w-5 h-5 ml-2"}))
 
-                  (str "Auf " item-count " "
-                       (if (= item-count 1) "Gegenstand" "Gegenstände")
-                       " anwenden"))))))))
+                  (t "pool.models.search_edit.dialog.submit" #js {:count item-count}))))))))

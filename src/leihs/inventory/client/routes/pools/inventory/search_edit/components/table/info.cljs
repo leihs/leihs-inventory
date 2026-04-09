@@ -18,8 +18,8 @@
             ($ :a {:href (str "/manage/" pool-id "/contracts/" (:reservation_contract_id item))
                    :target "_blank"
                    :rel "noreferrer"}
-               (str (:reservation_user_name item) " until "
-                    (format (:reservation_end_date item) "dd.MM.yyyy")))
+                (str (:reservation_user_name item) " " (t "pool.models.search_edit.info.until") " "
+                     (format (:reservation_end_date item) "dd.MM.yyyy")))
 
             (str (:building_name item)
                  " ( " (:building_code item) " ) "

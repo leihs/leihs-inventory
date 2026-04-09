@@ -3,6 +3,7 @@
    ["@@/button" :refer [Button]]
    ["lucide-react" :refer [Trash]]
    ["react-hook-form" :as hook-form]
+   ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.and-filters :refer [AndFilters]]
@@ -12,6 +13,7 @@
 ;; Main OrFilters Component
 (defui OrFilters [{:keys [blocks form children]}]
   (let [control (.-control form)
+        [t] (useTranslation)
         {:keys [fields append remove]}
         (jc (hook-form/useFieldArray
              (cj {:control control
@@ -33,18 +35,18 @@
          ($ :button {:class-name "border border-dashed rounded p-8 w-full"
                      :type "button"
                      :on-click handle-add-or}
-            ($ Typo {:variant "description"
-                     :class-name "text-center"}
-               "Fügen Sie Filter hinzu, um Ihre Suche zu starten."))
+             ($ Typo {:variant "description"
+                      :class-name "text-center"}
+                (t "pool.models.search_edit.add_filter_prompt")))
 
          ;; Render all or filter items
          (for [[index field] (map-indexed vector fields)]
            ($ :div {:key (:id field)
                     :class-name "flex gap-2"}
               ($ :div {:class-name "flex flex-1 flex-col "}
-                 (when (> index 0)
-                   ($ :div {:class-name "text-xs font-medium text-center border bg-muted p-1 rounded-md mb-2"}
-                      "ODER"))
+                  (when (> index 0)
+                    ($ :div {:class-name "text-xs font-medium text-center border bg-muted p-1 rounded-md mb-2"}
+                       (t "pool.models.search_edit.or_separator")))
                    ;; And filters container
                  ($ :div {:class-name "space-y-2 border border-dashed rounded p-2 flex-1"}
                     ($ OrProvider {:index index
@@ -60,9 +62,9 @@
                          :class-name "self-end"}
                  ($ Trash {:class-name "h-4 w-4"})))))
 
-       ;; Add or filter button
-       ($ Button {:type "button"
-                  :variant "outline"
-                  :size "sm"
-                  :on-click handle-add-or}
-          "ODER hinzufügen"))))
+        ;; Add or filter button
+        ($ Button {:type "button"
+                   :variant "outline"
+                   :size "sm"
+                   :on-click handle-add-or}
+           (t "pool.models.search_edit.add_or")))))

@@ -130,7 +130,7 @@
     ($ :<>
        ($ Card {:class-name "my-4"}
           ($ CardHeader
-             ($ CardTitle "Erweiterte Suche mit Export und Multi-Editieren"))
+             ($ CardTitle (t "pool.models.search_edit.page.title")))
           ($ CardContent {:class-name "flex flex-col space-y-4 lg:flex-row lg:space-y-0"}
 
              ($ Form (merge form)
@@ -147,25 +147,23 @@
              ($ Typo {:variant "caption"
                       :as-child true
                       :class-name "w-80"}
-                ($ :p "Suchen Sie die Gegenstände mit den gewünschten Parametern. 
-                 Anschliessend können die gefundenen Gegenstände 
-                 exportiert oder editiert werden."))))
+                ($ :p (t "pool.models.search_edit.page.description")))))
 
        ;; Search Results Section
        (when items
          ($ Card {:class-name "mt-4"}
             ($ CardHeader {:class-name "flex flex-row items-center justify-between"}
-               ($ CardTitle "Search Results")
+                ($ CardTitle (t "pool.models.search_edit.page.search_results"))
 
                ;; Bulk action buttons - show when items selected
                ($ :div {:class-name "flex gap-2"}
-                  ($ Button {:disabled (empty? selected-items)
-                             :on-click #(set-edit-open! true)
-                             :class-name "disabled:hover:bg-primary"}
-                     (str "Edit " (count selected-items) " items"))
-                  ($ Button {:disabled (empty? selected-items)
-                             :class-name "disabled:hover:bg-primary"}
-                     (str "Export " (count selected-items) " items"))))
+                   ($ Button {:disabled (empty? selected-items)
+                              :on-click #(set-edit-open! true)
+                              :class-name "disabled:hover:bg-primary"}
+                      (t "pool.models.search_edit.page.edit_items" #js {:count (count selected-items)}))
+                   ($ Button {:disabled (empty? selected-items)
+                              :class-name "disabled:hover:bg-primary"}
+                      (t "pool.models.search_edit.page.export_items" #js {:count (count selected-items)}))))
 
             ($ CardContent
                ($ ItemsTable {:items item-list
