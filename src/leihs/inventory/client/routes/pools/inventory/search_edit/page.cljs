@@ -104,10 +104,12 @@
                      (let [prev-query (js/JSON.stringify (js/JSON.parse (.get search-params "filter_d")))
                            next-query (js/JSON.stringify data)]
 
-                       ;; Only update search params if the query has actually changed, to not interfere with pagination
-                       (when (not= prev-query next-query)
+                       (when (= (count ^js (.-$or data)) 0)
                          (.delete search-params "filter_d")
+                         (set-search-params! search-params))
 
+                        ;; Only update search params if the query has actually changed, to not interfere with pagination
+                       (when (not= prev-query next-query)
                          (.set search-params "page" "1")
                          (.set search-params "size" "50")
 
@@ -153,17 +155,17 @@
        (when items
          ($ Card {:class-name "mt-4"}
             ($ CardHeader {:class-name "flex flex-row items-center justify-between"}
-                ($ CardTitle (t "pool.models.search_edit.page.search_results"))
+               ($ CardTitle (t "pool.models.search_edit.page.search_results"))
 
                ;; Bulk action buttons - show when items selected
                ($ :div {:class-name "flex gap-2"}
-                   ($ Button {:disabled (empty? selected-items)
-                              :on-click #(set-edit-open! true)
-                              :class-name "disabled:hover:bg-primary"}
-                      (t "pool.models.search_edit.page.edit_items" #js {:count (count selected-items)}))
-                   ($ Button {:disabled (empty? selected-items)
-                              :class-name "disabled:hover:bg-primary"}
-                      (t "pool.models.search_edit.page.export_items" #js {:count (count selected-items)}))))
+                  ($ Button {:disabled (empty? selected-items)
+                             :on-click #(set-edit-open! true)
+                             :class-name "disabled:hover:bg-primary"}
+                     (t "pool.models.search_edit.page.edit_items" #js {:count (count selected-items)}))
+                  ($ Button {:disabled (empty? selected-items)
+                             :class-name "disabled:hover:bg-primary"}
+                     (t "pool.models.search_edit.page.export_items" #js {:count (count selected-items)}))))
 
             ($ CardContent
                ($ ItemsTable {:items item-list
