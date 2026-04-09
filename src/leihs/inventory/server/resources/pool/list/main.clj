@@ -44,7 +44,7 @@
                 inventory_pool_id owned in_stock
                 category_id
                 search before_last_check]} (query-params request)
-        query (-> (base-inventory-query pool-id)
+        query (-> (base-inventory-query pool-id :retired retired)
                   (cond-> type (filter-by-type type))
                   (cond->
                    (not= type :option)
