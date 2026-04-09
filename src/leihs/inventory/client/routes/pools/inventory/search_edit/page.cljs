@@ -115,7 +115,10 @@
 
                          ;; Add the stringified query
                          (.set search-params "filter_d" next-query)
-                         (set-search-params! search-params))))
+                         (set-search-params! search-params))
+
+                       ;; Reset item selection on every submit
+                       (set-selected-items! #{})))
 
                    [set-search-params! search-params])
 
@@ -169,6 +172,7 @@
 
             ($ CardContent
                ($ ItemsTable {:items item-list
+                              :selected selected-items
                               :on-selection-change (fn [selected-ids]
                                                      (set-selected-items! selected-ids))}))
 

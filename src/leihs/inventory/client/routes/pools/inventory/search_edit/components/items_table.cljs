@@ -45,17 +45,15 @@
               ($ Button {:variant "outline" :size "icon"}
                  ($ ChevronDown {:className "w-4 h-4"})))))))
 
-(defui ItemsTable [{:keys [items loading? on-selection-change]}]
+(defui ItemsTable [{:keys [items loading? selected on-selection-change]}]
   (let [[t] (useTranslation)
         location (router/useLocation)
-        [selected set-selected!] (uix/use-state #{})
 
         all-selected? (and (seq items) (= (count selected) (count items)))
         some-selected? (and (seq selected) (not all-selected?))
 
         toggle-all (fn [checked]
                      (let [new-selection (if checked (set (map :id items)) #{})]
-                       (set-selected! new-selection)
                        (when on-selection-change
                          (on-selection-change new-selection))))
 
@@ -63,7 +61,6 @@
                       (let [new-selection (if (contains? selected id)
                                             (disj selected id)
                                             (conj selected id))]
-                        (set-selected! new-selection)
                         (when on-selection-change
                           (on-selection-change new-selection))))]
 
@@ -78,11 +75,11 @@
                                               all-selected? true
                                               :else false)
                                    :onCheckedChange toggle-all}))
-                    ($ TableHead {:class-name "text-right"} "")
-                    ($ TableHead (t "pool.models.search_edit.table.inventory_code"))
-                    ($ TableHead
-                       (t "pool.models.list.header.name"))
-                    ($ TableHead (t "pool.models.search_edit.table.location"))
+                   ($ TableHead {:class-name "text-right"} "")
+                   ($ TableHead (t "pool.models.search_edit.table.inventory_code"))
+                   ($ TableHead
+                      (t "pool.models.list.header.name"))
+                   ($ TableHead (t "pool.models.search_edit.table.location"))
 
                    ($ TableHead {:className "min-w-40 text-right"}
                       (t "pool.models.list.header.availability"))
@@ -152,7 +149,7 @@
                                                       :state #js {:searchParams (.. location -search)}
                                                       :viewTransition true}
                                                 (t "pool.models.list.actions.copy_item")))
-                                            ($ DropdownMenuItem
-                                               (t "pool.models.search_edit.table.view_details"))
-                                            ($ DropdownMenuItem
-                                               (t "pool.models.search_edit.table.delete"))))))))))))))))
+                                          ($ DropdownMenuItem
+                                             (t "pool.models.search_edit.table.view_details"))
+                                          ($ DropdownMenuItem
+                                             (t "pool.models.search_edit.table.delete"))))))))))))))))
