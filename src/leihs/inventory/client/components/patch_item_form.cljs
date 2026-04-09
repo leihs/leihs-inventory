@@ -138,4 +138,4 @@
                         :size "sm"
                         :on-click handle-add-field
                         :disabled (nil? next-block)}
-                "Feld hinzufügen"))))))
+                 (t "pool.models.search_edit.dialog.add_field")))))))

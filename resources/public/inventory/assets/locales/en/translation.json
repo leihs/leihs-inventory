@@ -361,7 +361,8 @@
           "cancel": "Cancel",
           "applying": "Applying",
           "submit_one": "Apply to {{count}} item",
-          "submit_other": "Apply to {{count}} items"
+          "submit_other": "Apply to {{count}} items",
+          "add_field": "Add field"
         },
         "info": {
           "until": "until"

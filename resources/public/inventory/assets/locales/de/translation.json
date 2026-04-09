@@ -361,7 +361,8 @@
           "cancel": "Abbrechen",
           "applying": "Wird angewendet",
           "submit_one": "Auf {{count}} Gegenstand anwenden",
-          "submit_other": "Auf {{count}} Gegenstände anwenden"
+          "submit_other": "Auf {{count}} Gegenstände anwenden",
+          "add_field": "Feld hinzufügen"
         },
         "info": {
           "until": "bis"
