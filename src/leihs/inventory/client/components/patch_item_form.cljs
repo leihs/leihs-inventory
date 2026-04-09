@@ -52,9 +52,9 @@
                    :defaultValues (cj {:update []})})
 
         control (.-control form)
-        {:keys [fields append remove update replace]} (jc (hook-form/useFieldArray
-                                                           (cj {:control control
-                                                                :name "update"})))
+        {:keys [fields append remove update]} (jc (hook-form/useFieldArray
+                                                   (cj {:control control
+                                                        :name "update"})))
 
         ;; Find field names already in use
         used-field-names (set (map :name fields))
@@ -118,13 +118,13 @@
 
                   ($ Equal {:class-name "col-span-1 justify-self-center"})
 
-                        ;; Value input (no default value)
+                  ;; Value input (no default value)
                   ($ :div {:class-name "col-span-6"}
                      ($ FieldDispatcher {:form form
                                          :block (assoc field
                                                        :name (str "update." idx ".value"))}))
 
-                        ;; Remove button
+                  ;; Remove button
                   ($ Button {:type "button"
                              :variant "outline"
                              :size "icon"
@@ -132,7 +132,7 @@
                              :class-name "col-span-1 self-center justify-self-end"}
                      ($ Trash {:class-name "h-4 w-4"}))))
 
-                   ;; Add field button
+             ;; Add field button
              ($ Button {:type "button"
                         :variant "outline"
                         :size "sm"
