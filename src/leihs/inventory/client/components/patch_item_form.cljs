@@ -20,7 +20,8 @@
 (def update-field-schema
   (-> (z/object
        (cj {:name (z/string)
-            :value (z/any)}))
+            :value (-> (z/any)
+                       (.refine (fn [v] (some? v))))}))
       (.transform
        (fn [field]
          (cj {(keyword (.-name field))

@@ -1,6 +1,6 @@
 (ns leihs.inventory.client.components.form.fields.radio-group-field
   (:require
-   ["@@/form" :refer [FormControl FormField FormItem FormLabel]]
+   ["@@/form" :refer [FormControl FormField FormItem FormLabel FormMessage]]
    ["@@/radio-group" :refer [RadioGroup RadioGroupItem]]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [cj]]
@@ -29,4 +29,6 @@
                                                                :disabled (:disabled (:props block))
                                                                :value (:value option)}))
                                          ($ FormLabel {:class-name "font-normal"}
-                                            (t (:label option))))))))})))
+                                            (t (:label option)))))))
+
+                              ($ FormMessage))})))
