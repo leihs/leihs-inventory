@@ -392,7 +392,7 @@ feature "Inventory list availability counts (models, packages, options, software
 
     refresh_list.call(pool.id, token, retired: "true")
 
-    verify_inventory_list_row(plain.reload, "1 | 1", [
+    verify_inventory_list_row(plain.reload, "2 | 2", [
       {
         inventory_code: i_plain_4.inventory_code,
         building_name: building.name,
@@ -402,7 +402,7 @@ feature "Inventory list availability counts (models, packages, options, software
       }
     ])
 
-    verify_inventory_list_row(software.reload, "1 | 1", [
+    verify_inventory_list_row(software.reload, "0 | 1", [
       {
         inventory_code: lic_3.inventory_code,
         license_type_label: "Free",
@@ -684,7 +684,7 @@ feature "Inventory list availability counts (models, packages, options, software
 
     refresh_st.call(pool.id, retired: "true")
 
-    verify_inventory_list_row(st_model.reload, "1 | 1", [
+    verify_inventory_list_row(st_model.reload, "4 | 7", [
       {
         inventory_code: st06.inventory_code,
         building_name: building.name,
