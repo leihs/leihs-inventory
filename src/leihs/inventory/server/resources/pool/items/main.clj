@@ -137,9 +137,7 @@
 
                        ;; when both for_package and only_items are present, exclude software
                        (cond-> (and (true? for_package) only_items)
-                         (sql/where [:not= :models.type "Software"]))
-
-                       (sql/limit 100))
+                         (sql/where [:not= :models.type "Software"])))
 
                    ;; Advanced filter support (filter_q: URL-encoded EDN, MQL-style)
                    (cond-> (and filter_q (seq (str filter_q)))
