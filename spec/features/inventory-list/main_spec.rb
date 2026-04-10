@@ -481,7 +481,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_2,
-      "0 | 0",
+      "3 | 3",
       [
         {
           inventory_code: item_model_2_2.inventory_code,
@@ -495,7 +495,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -549,7 +549,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_2,
-      "0 | 0",
+      "3 | 3",
       [
         {
           inventory_code: item_model_2_2.inventory_code,

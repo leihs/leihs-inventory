@@ -17,7 +17,7 @@
    [leihs.inventory.server.utils.request :refer [path-params query-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [response]]
+   [ring.util.response :refer [not-found response]]
    [taoensso.timbre :as timbre :refer [debug spy]]))
 
 (def ERROR_GET "Failed to get fields")
@@ -261,11 +261,14 @@
 (defn index-resources
   [{:keys [tx] {:keys [role] user-id :id} :authenticated-entity :as request}]
   (try
-    (let [{:keys [target_type]} (query-params request)
+    (let [{:keys [target_type resource_id]} (query-params request)
           {:keys [pool_id]} (path-params request)
           pool (pools/get-by-id tx pool_id)
-          fields (get-fields tx pool user-id role target_type nil)]
-      (response {:fields fields}))
+          item-data (when (and resource_id (= target_type "item"))
+                      (get-item-data tx pool_id resource_id))]
+      (if (and resource_id (= target_type "item") (not item-data))
+        (not-found {:error "Item not found"})
+        (response {:fields (get-fields tx pool user-id role target_type item-data)})))
     (catch Exception e
       (log-by-severity ERROR_GET e)
       (exception-handler request ERROR_GET e))))
