@@ -177,6 +177,10 @@
       (nil? pred)
       [:is sql-field nil]
 
+      ;; Reject scalar booleans on boolean-typed fields: require {:field {:$eq true/false}}
+      (and (= dtype :boolean) (not (map? pred)))
+      (throw (ex-info "Boolean fields require explicit operator: {:field {:$eq true/false}}" {:field field-kw :pred pred :status 400}))
+
       ;; Simple value => $eq
       (not (map? pred))
       (let [parsed (parse-value-by-type pred dtype)]
@@ -198,7 +202,7 @@
 
       ;; Date range: multiple comparisons in one map, e.g. {:$gte "2020-01-01" :$lte "2020-12-31"}
       ;; Must be before single comparison branch so we don't lose the second op
-      (and (= dtype :date) (map? pred) (some #(get pred %) [:$gte :$lte]))
+      (and (= dtype :date) (map? pred) (some #(contains? pred %) [:$gte :$lte]))
       (let [gte (some-> (get pred :$gte) parse-date-value local-date-to-timestamp)
             lte (when-let [d (some-> (get pred :$lte) parse-date-value)]
                   (local-date-to-timestamp (.plusDays d 1)))]
@@ -209,8 +213,8 @@
           :else (throw (ex-info "Invalid date predicate" {:field field-kw :pred pred :status 400}))))
 
       ;; Single comparison operator: {:$eq v} {:$gte v} {:$lte v} (pred must be map)
-      (and (map? pred) (some #(get pred %) [:$eq :$gte :$lte]))
-      (let [op (some #(when (get pred %) %) [:$eq :$gte :$lte])
+      (and (map? pred) (some #(contains? pred %) [:$eq :$gte :$lte]))
+      (let [op (some #(when (contains? pred %) %) [:$eq :$gte :$lte])
             v (get pred op)
             parsed (parse-value-by-type v dtype)
             op->sql {:$eq := :$gte :>= :$lte :<=}]

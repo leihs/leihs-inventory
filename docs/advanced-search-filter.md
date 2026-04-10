@@ -37,8 +37,9 @@ Example: if `/fields` contains `reference`, then both are valid:
 ## 2) Supported Operators
 
 - Equality:
-  - shorthand scalar: `{:inventory_code "ITZ21122"}` (same as `:$eq`)
+  - shorthand scalar: `{:inventory_code "ITZ21122"}` (same as `:$eq`) — **not valid for boolean fields**
   - explicit: `{:inventory_code {:$eq "ITZ21122"}}`
+  - booleans **require** explicit form: `{:is_borrowable {:$eq false}}` — scalar `{:is_borrowable false}` returns 400
 - Range:
   - `:$gte`, `:$lte` (numeric and date use-cases)
 - Text search:
@@ -53,6 +54,9 @@ Example: if `/fields` contains `reference`, then both are valid:
 
 ## 3) Type Behavior Notes
 
+- **Boolean fields** (`:is_borrowable`, `:is_broken`, `:is_incomplete`, `:is_inventory_relevant`, `:needs_permission`):
+  - must use explicit operator: `{:is_borrowable {:$eq false}}`
+  - scalar shorthand `{:is_borrowable false}` is rejected with 400
 - **Date fields** (`:invoice_date`, `:last_check`):
   - scalar / `:$eq` means full-day match
   - `:$gte` and `:$lte` are inclusive day boundaries
@@ -79,14 +83,15 @@ Example: if `/fields` contains `reference`, then both are valid:
 - Date range:
   - `{:$and [{:invoice_date {:$gte "2013-09-19"}} {:invoice_date {:$lte "2013-09-20"}}]}`
 - Boolean:
-  - `{:is_borrowable false}`
+  - `{:is_borrowable {:$eq false}}`
+  - `{:is_broken {:$eq true}}`
 - Retired state:
   - `{:retired false}`
 - Dynamic property field:
   - `{:properties_reference {:$eq "invoice"}}`
   - `{:properties_mac_address {:$ilike "00:1B"}}`
 - Nested logic:
-  - `{:$or [{:$and [{:is_borrowable false} {:price {:$gte 100}}]} {:inventory_code {:$eq "ITZ21124"}}]}`
+  - `{:$or [{:$and [{:is_borrowable {:$eq false}} {:price {:$gte 100}}]} {:inventory_code {:$eq "ITZ21124"}}]}`
 
 ---
 
@@ -97,6 +102,7 @@ Example: if `/fields` contains `reference`, then both are valid:
 - Unknown `properties_*` keys (not configured in `/fields`) -> 400
 - Unsupported operators (e.g. `:$gt`, `:$lt`, `:$ne`, `:$exists`) -> 400
 - Non-boolean predicates on `:retired` -> 400
+- Scalar boolean shorthand on boolean fields (e.g. `{:is_borrowable false}`) -> 400; use `{:is_borrowable {:$eq false}}` instead
 
 ---
 
