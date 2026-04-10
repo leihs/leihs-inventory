@@ -9,7 +9,7 @@
    [leihs.inventory.server.resources.pool.list.search :refer [with-search-for-count]]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
-(defn base-inventory-query [pool-id & {:keys [retired]}]
+(defn base-inventory-query [pool-id]
   (-> (sql/select :inventory.*
                   [(-> (sql/select :%count.*) ; [[:count :*]]
                        (sql/from :items)
@@ -17,11 +17,8 @@
                                    [:= :items.inventory_pool_id pool-id]
                                    [:= :items.parent_id nil]
                                    [:= :items.model_id :inventory.id]
-                                   [:= :items.is_borrowable true]])
-                       (cond-> (true? retired)
-                         (sql/where [:not= :items.retired nil]))
-                       (cond-> (not (true? retired))
-                         (sql/where [:= :items.retired nil])))
+                                   [:= :items.is_borrowable true]
+                                   [:is :items.retired nil]]))
                    :borrowable_quantity]
 
                   [(-> (sql/select :%count.*) ; [[:count :*]]
@@ -31,16 +28,13 @@
                                    [:= :items.parent_id nil]
                                    [:= :items.is_borrowable true]
                                    [:= :items.model_id :inventory.id]
+                                   [:is :items.retired nil]
                                    [:not [:exists
                                           (-> (sql/select 1)
                                               (sql/from :reservations)
                                               (sql/where [:and
                                                           [:= :reservations.returned_date nil]
-                                                          [:= :items.id :reservations.item_id]]))]]])
-                       (cond-> (true? retired)
-                         (sql/where [:not= :items.retired nil]))
-                       (cond-> (not (true? retired))
-                         (sql/where [:= :items.retired nil])))
+                                                          [:= :items.id :reservations.item_id]]))]]]))
                    :in_stock_quantity])
 
       (sql/from :inventory)
