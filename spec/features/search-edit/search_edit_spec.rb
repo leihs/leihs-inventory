@@ -46,9 +46,9 @@ feature "Search & Edit", type: :feature do
 
     # Wait for the filter row to appear, then choose the "Inventory Code" field
     expect(page).to have_button("Add AND")
-    click_on "field-select-0"
+    click_on "or-0-field-select-0"
 
-    within find('[data-test-id="field-options-0"]') do
+    within find('[data-test-id="field-options"]') do
       click_on "Inventory Code"
     end
 
@@ -61,60 +61,42 @@ feature "Search & Edit", type: :feature do
     expect(page).to have_content(inventory_code, wait: 10)
     expect(page).not_to have_content("No items found")
 
+    # Wait for results to load
+    expect(page).to have_css("tbody tr", wait: 10)
+
+    # "Edit 0 items" button must be disabled before any selection
+    expect(page).to have_button("edit-button", disabled: true)
+
     # Select the matching item via its row checkbox
     within find("tbody tr", text: inventory_code) do
       find('button[role="checkbox"]').click
     end
 
     # "Edit 1 item" button becomes enabled
-    click_on "Edit 1 item"
+    click_on "edit-button"
 
     # Dialog opens — add a field to edit
-    expect(page).to have_content("Edit 1 item", wait: 10)
+    expect(page).to have_content("Add field", wait: 10)
     click_on "Add field"
 
-    # Choose "Status note" field in the dialog selector
-    click_on "field-select-0"
-
+    within find('[id="edit-dialog-form"]') do
+      # Choose "Status note" field in the dialog selector
+      click_on "field-select-0"
+    end
     within find('[data-test-id="field-options"]') do
       click_on "Status note"
     end
 
     # Fill in the new status note value
     find("textarea[name='update.0.value']", wait: 10).set(status_note_new)
-
     # Submit the dialog
-    click_on "Apply to 1 item"
+    click_on "apply-button"
 
     # Dialog closes after submission
     expect(page).not_to have_content("Edit 1 item", wait: 10)
 
     # Verify the change was persisted in the database
     expect(item.reload.status_note).to eq(status_note_new)
-  end
-
-  scenario "'Edit N items' button is disabled when no items are selected" do
-    FactoryBot.create(:item,
-      inventory_code: "ITEM-#{Faker::Alphanumeric.alpha(number: 6).upcase}",
-      leihs_model: model,
-      inventory_pool: pool,
-      owner: pool)
-
-    login(user)
-    visit "/inventory/#{pool.id}/search-edit"
-
-    # Add a filter to trigger the results table
-    click_on "Add filters to start your search."
-    expect(page).to have_button("Add AND")
-    first('[role="combobox"]').click
-    find("button", text: "Inventory Code", wait: 10).click
-    await_debounce
-
-    # Wait for results to load
-    expect(page).to have_css("tbody tr", wait: 10)
-
-    # "Edit 0 items" button must be disabled before any selection
-    expect(page).to have_button("Edit 0 items", disabled: true)
   end
 
   scenario "supports multiple OR groups" do
@@ -139,8 +121,11 @@ feature "Search & Edit", type: :feature do
     # Add first OR group and filter by inv_code_a
     click_on "Add filters to start your search."
     expect(page).to have_button("Add AND")
-    first('[role="combobox"]').click
-    find("button", text: "Inventory Code", wait: 10).click
+    click_on "or-0-field-select-0"
+
+    within find('[data-test-id="field-options"]') do
+      click_on "Inventory Code"
+    end
     await_debounce
     find("input[name='$or.0.$and.0.value']", wait: 10).set(inv_code_a)
     await_debounce
@@ -153,8 +138,12 @@ feature "Search & Edit", type: :feature do
     await_debounce
 
     # The second OR group's combobox is now second in the list
-    all('[role="combobox"]').last.click
-    find("button", text: "Inventory Code", wait: 10).click
+    click_on "or-1-field-select-0"
+
+    within find('[data-test-id="field-options"]') do
+      click_on "Inventory Code"
+    end
+
     await_debounce
     find("input[name='$or.1.$and.0.value']", wait: 10).set(inv_code_b)
     await_debounce
@@ -179,8 +168,12 @@ feature "Search & Edit", type: :feature do
     # Add filter and wait for results
     click_on "Add filters to start your search."
     expect(page).to have_button("Add AND")
-    first('[role="combobox"]').click
-    find("button", text: "Inventory Code", wait: 10).click
+    click_on "or-0-field-select-0"
+
+    within find('[data-test-id="field-options"]') do
+      click_on "Inventory Code"
+    end
+
     await_debounce
     find("input[name='$or.0.$and.0.value']", wait: 10).set(inventory_code)
     await_debounce
@@ -192,13 +185,13 @@ feature "Search & Edit", type: :feature do
       find('button[role="checkbox"]').click
     end
 
-    expect(page).to have_button("Edit 1 item")
+    expect(page).to have_button("edit-button", text: "Edit", disabled: false)
 
     # Modify the filter value — this should reset selection
     find("input[name='$or.0.$and.0.value']").set("")
     await_debounce
 
     # Selection is cleared, button reverts to disabled state with 0 count
-    expect(page).to have_button("Edit 0 items", disabled: true, wait: 10)
+    expect(page).to have_button("edit-button", disabled: true)
   end
 end

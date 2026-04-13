@@ -90,14 +90,14 @@
 
     ($ :<>
        ;; Render all and filter items
-       (for [[index field] (map-indexed vector fields)]
+       (for [[field-index field] (map-indexed vector fields)]
          ($ :div {:key (:id field)
                   :class-name "grid grid-cols-12 items-center"}
 
             ;; Field selector dropdown
             ($ Select {:value (:name field)
-                       :onValueChange #(handle-update-field % index)}
-               ($ SelectTrigger {:data-test-id (str "field-select-" index)
+                       :onValueChange #(handle-update-field % field-index)}
+               ($ SelectTrigger {:data-test-id (str "or-" index "-field-select-" field-index)
                                  :class-name "col-span-3"}
                   ($ SelectValue))
 
@@ -121,7 +121,7 @@
                             :class-name " col-span-2 self-center justify-self-center"
                             :value (:operator field)
                             :on-value-change (fn [op]
-                                               (handle-update-operator op field index))}
+                                               (handle-update-operator op field field-index))}
                (for [op (:allowed-operators field)]
                  ($ ToggleGroupItem {:key op
                                      :disabled (when
@@ -139,13 +139,13 @@
             ($ :div {:class-name "col-span-6"}
                ($ FieldDispatcher {:form form
                                    :block (assoc field
-                                                 :name (str name "." index ".value"))}))
+                                                 :name (str name "." field-index ".value"))}))
 
             ;; Remove and filter button
             ($ Button {:type "button"
                        :variant "outline"
                        :size "icon"
-                       :on-click #(handle-remove index)
+                       :on-click #(handle-remove field-index)
                        :class-name "self-center justify-self-end"}
                ($ Trash {:class-name "h-4 w-4"}))))
 

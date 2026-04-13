@@ -165,7 +165,8 @@
 
                ;; Bulk action buttons - show when items selected
                ($ :div {:class-name "flex gap-2"}
-                  ($ Button {:disabled (empty? selected-items)
+                  ($ Button {:data-test-id "edit-button"
+                             :disabled (empty? selected-items)
                              :on-click #(set-edit-open! true)
                              :class-name "disabled:hover:bg-primary"}
                      (t "pool.models.search_edit.page.edit_items")
@@ -173,7 +174,8 @@
                                :class-name "ml-2 rounded-full"}
                         (str (count selected-items))))
 
-                  ($ Button {:disabled (empty? selected-items)
+                  ($ Button {:data-test-id "export-button"
+                             :disabled (empty? selected-items)
                              :class-name "disabled:hover:bg-primary"}
                      (t "pool.models.search_edit.page.export_items")
                      ($ Badge {:variant "primary"

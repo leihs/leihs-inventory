@@ -65,7 +65,8 @@
                         :disabled (or (= (.-state fetcher) "submitting")
                                       (= (.-state fetcher) "loading"))}
                 (t "pool.models.search_edit.dialog.cancel"))
-             ($ Button {:type "submit"
+             ($ Button {:data-test-id "apply-button"
+                        :type "submit"
                         :form "edit-dialog-form"
                         :class-name "disabled:hover:bg-primary/50"
                         :disabled (or (zero? item-count)
