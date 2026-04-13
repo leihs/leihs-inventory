@@ -1,18 +1,17 @@
 (ns leihs.inventory.client.routes.pools.inventory.search-edit.page
   (:require
    ["@@/button" :refer [Button]]
-   ["@@/card" :refer [Card CardContent CardHeader CardTitle CardFooter]]
+   ["@@/card" :refer [Card CardContent CardFooter CardHeader CardTitle]]
    ["@@/form" :refer [Form]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :refer [useFetcher useLoaderData useParams
-                               useSearchParams]]
+   ["react-router-dom" :refer [useLoaderData useParams useSearchParams]]
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
    [leihs.inventory.client.lib.hooks :as hooks]
-   [leihs.inventory.client.lib.utils :refer [jc cj]]
+   [leihs.inventory.client.lib.utils :refer [jc]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.and-filters :refer [AndFilters]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.edit-dialog :refer [EditDialog]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.items-table :refer [ItemsTable]]
@@ -104,6 +103,8 @@
                      (let [prev-query (js/JSON.stringify (js/JSON.parse (.get search-params "filter_d")))
                            next-query (js/JSON.stringify data)]
 
+                       (js/console.debug "submitting")
+
                        (when (= (count ^js (.-$or data)) 0)
                          (.delete search-params "filter_d")
                          (set-search-params! search-params))
@@ -129,8 +130,9 @@
 
     (uix/use-effect
      (fn []
-       (handle-submit on-submit on-invalid))
-     [debounced-watch on-submit on-invalid handle-submit])
+       (when (.. form -formState -isReady)
+         (handle-submit on-submit on-invalid)))
+     [debounced-watch on-submit on-invalid handle-submit form])
 
     ($ :<>
        ($ Card {:class-name "my-4"}
