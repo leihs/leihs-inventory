@@ -54,15 +54,15 @@ feature "Search & Edit", type: :feature do
 
     # Enter the inventory code value
     await_debounce
-    find("input[name='$or.0.$and.0.value']", wait: 10).set(inventory_code)
+    find("input[name='$or.0.$and.0.value']").set(inventory_code)
     await_debounce
 
     # Results table should appear with exactly this item
-    expect(page).to have_content(inventory_code, wait: 10)
+    expect(page).to have_content(inventory_code)
     expect(page).not_to have_content("No items found")
 
     # Wait for results to load
-    expect(page).to have_css("tbody tr", wait: 10)
+    expect(page).to have_css("tbody tr")
 
     # "Edit 0 items" button must be disabled before any selection
     expect(page).to have_button("edit-button", disabled: true)
@@ -76,7 +76,7 @@ feature "Search & Edit", type: :feature do
     click_on "edit-button"
 
     # Dialog opens — add a field to edit
-    expect(page).to have_content("Add field", wait: 10)
+    expect(page).to have_content("Add field")
     click_on "Add field"
 
     within find('[id="edit-dialog-form"]') do
@@ -88,12 +88,13 @@ feature "Search & Edit", type: :feature do
     end
 
     # Fill in the new status note value
-    find("textarea[name='update.0.value']", wait: 10).set(status_note_new)
+    find("textarea[name='update.0.value']").set(status_note_new)
     # Submit the dialog
     click_on "apply-button"
+    expect(page).to have_content("1 Items was successfully updated")
 
     # Dialog closes after submission
-    expect(page).not_to have_content("Edit 1 item", wait: 10)
+    expect(page).not_to have_content("Edit 1 item")
 
     # Verify the change was persisted in the database
     expect(item.reload.status_note).to eq(status_note_new)
@@ -127,10 +128,10 @@ feature "Search & Edit", type: :feature do
       click_on "Inventory Code"
     end
     await_debounce
-    find("input[name='$or.0.$and.0.value']", wait: 10).set(inv_code_a)
+    find("input[name='$or.0.$and.0.value']").set(inv_code_a)
     await_debounce
 
-    expect(page).to have_content(inv_code_a, wait: 10)
+    expect(page).to have_content(inv_code_a)
     expect(page).not_to have_content(inv_code_b)
 
     # Add a second OR group
@@ -145,12 +146,12 @@ feature "Search & Edit", type: :feature do
     end
 
     await_debounce
-    find("input[name='$or.1.$and.0.value']", wait: 10).set(inv_code_b)
+    find("input[name='$or.1.$and.0.value']").set(inv_code_b)
     await_debounce
 
     # Both items should now appear
-    expect(page).to have_content(inv_code_a, wait: 10)
-    expect(page).to have_content(inv_code_b, wait: 10)
+    expect(page).to have_content(inv_code_a)
+    expect(page).to have_content(inv_code_b)
   end
 
   scenario "clears item selection when the filter changes" do
@@ -175,10 +176,10 @@ feature "Search & Edit", type: :feature do
     end
 
     await_debounce
-    find("input[name='$or.0.$and.0.value']", wait: 10).set(inventory_code)
+    find("input[name='$or.0.$and.0.value']").set(inventory_code)
     await_debounce
 
-    expect(page).to have_content(inventory_code, wait: 10)
+    expect(page).to have_content(inventory_code)
 
     # Select the item
     within find("tbody tr", text: inventory_code) do
