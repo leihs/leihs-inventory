@@ -360,9 +360,10 @@
           "description": "Wählen Sie die Felder aus, die Sie für alle ausgewählten Gegenstände aktualisieren möchten.",
           "cancel": "Abbrechen",
           "applying": "Wird angewendet",
-          "submit_one": "Auf {{count}} Gegenstand anwenden",
-          "submit_other": "Auf {{count}} Gegenstände anwenden",
-          "add_field": "Feld hinzufügen"
+          "submit": "Anwenden",
+          "add_field": "Feld hinzufügen",
+          "success_one": "{{count}} Gegenstand wurde erfolgreich aktualisiert",
+          "success_other": "{{count}} Gegenstände wurden erfolgreich aktualisiert"
         },
         "info": {
           "until": "bis"
@@ -371,10 +372,8 @@
           "title": "Erweiterte Suche mit Export und Multi-Editieren",
           "description": "Suchen Sie die Gegenstände mit den gewünschten Parametern. Anschliessend können die gefundenen Gegenstände exportiert oder editiert werden.",
           "search_results": "Suchergebnisse",
-          "edit_items_one": "{{count}} Gegenstand bearbeiten",
-          "edit_items_other": "{{count}} Gegenstände bearbeiten",
-          "export_items_one": "{{count}} Gegenstand exportieren",
-          "export_items_other": "{{count}} Gegenstände exportieren"
+          "edit_items": "Bearbeiten",
+          "export_items": "Exportieren"
         }
       }
     },

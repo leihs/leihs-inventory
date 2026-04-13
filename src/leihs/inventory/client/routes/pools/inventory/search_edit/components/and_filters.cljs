@@ -97,10 +97,11 @@
             ;; Field selector dropdown
             ($ Select {:value (:name field)
                        :onValueChange #(handle-update-field % index)}
-               ($ SelectTrigger {:class-name "col-span-3"}
+               ($ SelectTrigger {:data-test-id (str "field-select-" index)
+                                 :class-name "col-span-3"}
                   ($ SelectValue))
 
-               ($ SelectContent
+               ($ SelectContent {:data-test-id "field-options"}
                   (for [block blocks]
                     ($ SelectItem {:key (:name block)
                                    :disabled (and (not= (:name block) (:name field))

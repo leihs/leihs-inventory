@@ -360,9 +360,10 @@
           "description": "Select the fields you want to update for all selected items.",
           "cancel": "Cancel",
           "applying": "Applying",
-          "submit_one": "Apply to {{count}} item",
-          "submit_other": "Apply to {{count}} items",
-          "add_field": "Add field"
+          "submit": "Apply",
+          "add_field": "Add field",
+          "success_one": "{{count}} Items was successfully updated",
+          "success_other": "{{count}} Items were successfully updated"
         },
         "info": {
           "until": "until"
@@ -371,10 +372,8 @@
           "title": "Advanced Search with Export and Multi-Edit",
           "description": "Search for items with the desired parameters. The found items can then be exported or edited.",
           "search_results": "Search Results",
-          "edit_items_one": "Edit {{count}} item",
-          "edit_items_other": "Edit {{count}} items",
-          "export_items_one": "Export {{count}} item",
-          "export_items_other": "Export {{count}} items"
+          "edit_items": "Edit",
+          "export_items": "Export "
         }
       }
     },

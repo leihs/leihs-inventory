@@ -1,11 +1,14 @@
 (ns leihs.inventory.client.routes.pools.inventory.search-edit.components.edit-dialog
   (:require
+   ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
+
    ["@@/dialog" :refer [Dialog DialogContent DialogDescription DialogFooter
                         DialogHeader DialogTitle]]
    ["@@/spinner" :refer [Spinner]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useFetcher]]
+   ["sonner" :refer [toast]]
    [leihs.inventory.client.components.patch-item-form :refer [PatchItemForm]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]))
@@ -16,6 +19,7 @@
         [t] (useTranslation)
 
         fetcher (useFetcher)
+        prev-state (uix/use-ref nil)
 
         on-submit (fn [data]
                     (let [update-data (jc (.-update data))]
@@ -30,9 +34,12 @@
 
     (uix/use-effect
      (fn []
-       (when (= (.-state fetcher) "idle")
-         (on-open-change false)))
-     [fetcher on-open-change])
+       (when (and (= @prev-state "loading")
+                  (= (.-state fetcher) "idle"))
+         (.. toast (success (t "pool.models.search_edit.dialog.success" #js {:count item-count})))
+         (on-open-change false))
+       (reset! prev-state (.-state fetcher)))
+     [fetcher on-open-change t item-count])
 
     ($ Dialog {:open open?
                :onOpenChange on-open-change
@@ -67,8 +74,12 @@
 
                 (if (or (= (.-state fetcher) "submitting")
                         (= (.-state fetcher) "loading"))
-                  ($ :span {:class-name "flex items-center"}
-                     (t "pool.models.search_edit.dialog.applying")
-                     ($ Spinner {:class-name "w-5 h-5 ml-2"}))
+                  (t "pool.models.search_edit.dialog.applying")
+                  (t "pool.models.search_edit.dialog.submit"))
 
-                  (t "pool.models.search_edit.dialog.submit" #js {:count item-count}))))))))
+                (if (or (= (.-state fetcher) "submitting")
+                        (= (.-state fetcher) "loading"))
+                  ($ Spinner {:class-name "w-5 h-5 ml-2"})
+                  ($ Badge {:variant "primary"
+                            :class-name "ml-2 rounded-full"}
+                     (str (count selected-items))))))))))

@@ -1,5 +1,6 @@
 (ns leihs.inventory.client.routes.pools.inventory.search-edit.page
   (:require
+   ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent CardFooter CardHeader CardTitle]]
    ["@@/form" :refer [Form]]
@@ -96,12 +97,19 @@
 
         debounced-watch (hooks/use-debounce watch 300)
 
+        handle-open-edit (fn [open?]
+                           (when (not open?)
+                             (set-selected-items! #{}))
+                           (set-edit-open! open?))
+
         handle-submit (.. form -handleSubmit)
 
         on-submit (uix/use-callback
                    (fn [data]
                      (let [next-query (js/JSON.stringify data)
                            no-filters? (= (count ^js (.-$or data)) 0)]
+
+                       (js/console.debug "setting items 0")
                        (set-selected-items! #{})
 
                        (when (not= @prev-filter-ref next-query)
@@ -160,10 +168,17 @@
                   ($ Button {:disabled (empty? selected-items)
                              :on-click #(set-edit-open! true)
                              :class-name "disabled:hover:bg-primary"}
-                     (t "pool.models.search_edit.page.edit_items" #js {:count (count selected-items)}))
+                     (t "pool.models.search_edit.page.edit_items")
+                     ($ Badge {:variant "primary"
+                               :class-name "ml-2 rounded-full"}
+                        (str (count selected-items))))
+
                   ($ Button {:disabled (empty? selected-items)
                              :class-name "disabled:hover:bg-primary"}
-                     (t "pool.models.search_edit.page.export_items" #js {:count (count selected-items)}))))
+                     (t "pool.models.search_edit.page.export_items")
+                     ($ Badge {:variant "primary"
+                               :class-name "ml-2 rounded-full"}
+                        (str (count selected-items))))))
 
             ($ CardContent
                ($ ItemsTable {:items item-list
@@ -177,6 +192,6 @@
                                    :class-name "justify-start w-full"}))))
 
        ($ EditDialog {:open? edit-open?
-                      :on-open-change set-edit-open!
+                      :on-open-change handle-open-edit
                       :selected-items selected-items
                       :blocks blocks}))))

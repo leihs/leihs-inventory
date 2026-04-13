@@ -104,9 +104,10 @@
                   ;; Field selector
                   ($ Select {:value (:name field)
                              :onValueChange #(handle-update-field % idx)}
-                     ($ SelectTrigger {:class-name "col-span-4"}
+                     ($ SelectTrigger {:data-test-id (str "field-select-" idx)
+                                       :class-name "col-span-4"}
                         ($ SelectValue))
-                     ($ SelectContent
+                     ($ SelectContent {:data-test-id "field-options"}
                         (for [block blocks]
                           ($ SelectItem {:key (:name block)
                                          :disabled (and (not= (:name block) (:name field))
@@ -138,4 +139,4 @@
                         :size "sm"
                         :on-click handle-add-field
                         :disabled (nil? next-block)}
-                 (t "pool.models.search_edit.dialog.add_field")))))))
+                (t "pool.models.search_edit.dialog.add_field")))))))
