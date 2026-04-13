@@ -36,6 +36,7 @@
         query (jc (js/JSON.parse (.get search-params "filter_d")))
 
         form-ref (uix/use-ref nil)
+        prev-filter-ref (uix/use-ref (js/JSON.stringify (js/JSON.parse (.get search-params "filter_d"))))
 
         {:keys [pool-id]} (jc (useParams))
         [selected-items set-selected-items!] (uix/use-state #{})
@@ -99,29 +100,21 @@
 
         on-submit (uix/use-callback
                    (fn [data]
-                     ;; Clear existing query params and reset to page 1 on new filter
-                     (let [prev-query (js/JSON.stringify (js/JSON.parse (.get search-params "filter_d")))
-                           next-query (js/JSON.stringify data)]
+                     (let [next-query (js/JSON.stringify data)
+                           no-filters? (= (count ^js (.-$or data)) 0)]
+                       (set-selected-items! #{})
 
-                       (js/console.debug "submitting")
-
-                       (when (= (count ^js (.-$or data)) 0)
-                         (.delete search-params "filter_d")
-                         (set-search-params! search-params))
-
-                        ;; Only update search params if the query has actually changed, to not interfere with pagination
-                       (when (not= prev-query next-query)
-                         (.set search-params "page" "1")
-                         (.set search-params "size" "50")
-
-                         ;; Add the stringified query
-                         (.set search-params "filter_d" next-query)
-                         (set-search-params! search-params))
-
-                       ;; Reset item selection on every submit
-                       (set-selected-items! #{})))
-
-                   [set-search-params! search-params])
+                       (when (not= @prev-filter-ref next-query)
+                         (reset! prev-filter-ref next-query)
+                         (set-search-params!
+                          (fn [search-params]
+                            (if no-filters?
+                              (do (.delete search-params "filter_d") search-params)
+                              (do (.set search-params "page" "1")
+                                  (.set search-params "size" "50")
+                                  (.set search-params "filter_d" next-query)
+                                  search-params)))))))
+                   [set-search-params!])
 
         on-invalid (uix/use-callback
                     (fn [errors]
