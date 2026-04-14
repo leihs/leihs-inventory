@@ -45,7 +45,7 @@ feature "Search & Edit", type: :feature do
     click_on "Add filters to start your search."
 
     # Wait for the filter row to appear, then choose the "Inventory Code" field
-    expect(page).to have_button("Add AND")
+    expect(page).to have_button("Add search parameter")
     click_on "or-0-field-select-0"
 
     within find('[data-test-id="field-options"]') do
@@ -77,7 +77,6 @@ feature "Search & Edit", type: :feature do
 
     # Dialog opens — add a field to edit
     expect(page).to have_content("Add field")
-    click_on "Add field"
 
     within find('[id="edit-dialog-form"]') do
       # Choose "Status note" field in the dialog selector
@@ -121,7 +120,7 @@ feature "Search & Edit", type: :feature do
 
     # Add first OR group and filter by inv_code_a
     click_on "Add filters to start your search."
-    expect(page).to have_button("Add AND")
+    expect(page).to have_button("Add search parameter")
     click_on "or-0-field-select-0"
 
     within find('[data-test-id="field-options"]') do
@@ -168,7 +167,7 @@ feature "Search & Edit", type: :feature do
 
     # Add filter and wait for results
     click_on "Add filters to start your search."
-    expect(page).to have_button("Add AND")
+    expect(page).to have_button("Add search parameter")
     click_on "or-0-field-select-0"
 
     within find('[data-test-id="field-options"]') do
