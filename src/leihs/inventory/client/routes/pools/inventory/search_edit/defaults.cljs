@@ -15,18 +15,12 @@
         (.then (fn [res] (:product (jc (.-data res)))))
         (.catch (fn [_] nil)))
 
-    "room_id"
-    (-> http-client
-        (.get (str "/inventory/" pool-id "/rooms/" value))
-        (.then (fn [res] (:name (jc (.-data res)))))
-        (.catch (fn [_] nil)))
-
     (p/resolved nil)))
 
 (defn- get-labels
   "Returns enriched field map (or a Promise of one) for a given value and field-name."
   [value field-name blocks pool-id]
-  (let [value (str value)
+  (let [value (if (boolean? value) (str value) value)
         field (dissoc
                (into {} (filter #(= (:name %) field-name) blocks))
                :label)
@@ -48,9 +42,11 @@
 
       ;; For autocomplete-search, we need to fetch the label from the API based on the value (ID)
       "autocomplete-search"
-      (-> (fetch-label pool-id field-name value)
-          (.then (fn [resolved-label]
-                   (assoc field :value {:value value :label resolved-label}))))
+      (if (nil? value)
+        (assoc field :value nil)
+        (-> (fetch-label pool-id field-name value)
+            (.then (fn [resolved-label]
+                     (assoc field :value {:value value :label resolved-label})))))
 
       (assoc field :value value))))
 
