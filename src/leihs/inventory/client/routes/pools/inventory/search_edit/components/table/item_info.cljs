@@ -1,11 +1,11 @@
-(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.table.info
+(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.table.item-info
   (:require
    ["date-fns" :refer [format]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui Info [{:keys [item]}]
+(defui ItemInfo [{:keys [item]}]
   (let [[t] (useTranslation)
         params (router/useParams)
         pool-id (aget params "pool-id")]

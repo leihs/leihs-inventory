@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.and-filters
+(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.and-filters
   (:require
    ["@@/button" :refer [Button]]
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
@@ -8,9 +8,8 @@
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.inventory.search-edit.components.field-dispatcher
-    :refer [FieldDispatcher]]
-   [leihs.inventory.client.routes.pools.inventory.search-edit.components.or-context :refer [use-or]]
+   [leihs.inventory.client.routes.pools.inventory.search-edit.components.field-dispatcher :refer [FieldDispatcher]]
+   [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.or-context :refer [use-or]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defn default-operator [block]

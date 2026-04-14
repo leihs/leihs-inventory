@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.items-table
+(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.table.items-table
   (:require
    ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
@@ -15,7 +15,7 @@
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
-   [leihs.inventory.client.routes.pools.inventory.search-edit.components.table.info :refer [Info]]
+   [leihs.inventory.client.routes.pools.inventory.search-edit.components.table.item-info :refer [ItemInfo]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui SkeletonItemRow []
@@ -123,7 +123,7 @@
                                        (:model_name item))))
 
                               ($ TableCell
-                                 ($ Info {:item item}))
+                                 ($ ItemInfo {:item item}))
 
                               ($ TableCell {:className "text-right"}
                                  ($ ItemStatus {:item item}))

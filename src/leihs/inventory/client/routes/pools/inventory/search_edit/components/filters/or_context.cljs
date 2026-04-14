@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.or-context
+(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.or-context
   (:require
    [uix.core :as uix :refer [$ defui]]))
 

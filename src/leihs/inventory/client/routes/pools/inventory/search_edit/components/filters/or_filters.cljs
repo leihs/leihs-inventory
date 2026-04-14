@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.or-filters
+(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.or-filters
   (:require
    ["@@/button" :refer [Button]]
    ["lucide-react" :refer [Trash CirclePlus]]
@@ -6,7 +6,7 @@
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.inventory.search-edit.components.or-context :refer [OrProvider]]
+   [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.or-context :refer [OrProvider]]
    [uix.core :as uix :refer [$ defui]]))
 
 ;; Main OrFilters Component
