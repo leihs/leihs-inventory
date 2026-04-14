@@ -129,27 +129,9 @@
                                  ($ ItemStatus {:item item}))
 
                               ($ TableCell
-                                 ($ ButtonGroup {:class-name "ml-auto"}
-                                    ($ Button {:variant "outline"
-                                               :asChild true}
-                                       ($ Link {:state #js {:searchParams (.. location -search)}
-                                                :to (str "../items/" (:id item))
-                                                :viewTransition true}
-                                          (t "pool.models.list.actions.edit")))
-
-                                    ($ DropdownMenu
-                                       ($ DropdownMenuTrigger {:asChild true}
-                                          ($ Button {:data-test-id "edit-dropdown"
-                                                     :variant "outline"
-                                                     :size "icon"}
-                                             ($ ChevronDown {:className "w-4 h-4"})))
-                                       ($ DropdownMenuContent {:align "start"}
-                                          ($ DropdownMenuItem
-                                             ($ Link {:to (str "../items/create?fromItem=" (:id item))
-                                                      :state #js {:searchParams (.. location -search)}
-                                                      :viewTransition true}
-                                                (t "pool.models.list.actions.copy_item")))
-                                          ($ DropdownMenuItem
-                                             (t "pool.models.search_edit.table.view_details"))
-                                          ($ DropdownMenuItem
-                                             (t "pool.models.search_edit.table.delete"))))))))))))))))
+                                 ($ Button {:variant "outline"
+                                            :asChild true}
+                                    ($ Link {:state #js {:searchParams (.. location -search)}
+                                             :to (str "../items/" (:id item))
+                                             :viewTransition true}
+                                       (t "pool.models.list.actions.edit"))))))))))))))
