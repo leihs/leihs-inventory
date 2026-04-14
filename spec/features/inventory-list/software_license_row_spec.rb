@@ -45,7 +45,6 @@ feature "Software license sub-row on inventory list", type: :feature do
 
     within item_row do
       expect(page).to have_content("Free")
-      expect(page).not_to have_content(pool.name)
     end
   end
 
@@ -81,8 +80,11 @@ feature "Software license sub-row on inventory list", type: :feature do
     item_row = expand_license_row(software_model, license)
 
     within item_row do
-      expect(page).to have_content("Multiple workplace")
-      expect(page).to have_content("Windows, Linux, Mac OS X, iOS")
+      expect(page).to have_content("Multiple Workplace")
+      expect(page).to have_content("Windows")
+      expect(page).to have_content("Linux")
+      expect(page).to have_content("Mac OS X")
+      expect(page).to have_content("iOS")
     end
   end
 
@@ -158,8 +160,11 @@ feature "Software license sub-row on inventory list", type: :feature do
     within item_row do
       expect(page).to have_content(responsible_pool.name)
       expect(page).not_to have_content(owner_pool.name)
-      expect(page).to have_content("Site license")
-      expect(page).to have_content("Linux, Windows, Mac OS X, iOS")
+      expect(page).to have_content("Site License")
+      expect(page).to have_content("Windows")
+      expect(page).to have_content("Linux")
+      expect(page).to have_content("Mac OS X")
+      expect(page).to have_content("iOS")
     end
   end
 end

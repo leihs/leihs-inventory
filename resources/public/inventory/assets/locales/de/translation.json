@@ -394,7 +394,8 @@
           "broken": "Defekt",
           "rented": "Ausgeliehen",
           "not_borrowable": "Nicht ausleihbar",
-          "incomplete": "Unvollständig"
+          "incomplete": "Unvollständig",
+          "retired": "Ausgemustert"
         },
         "header": {
           "quantity": "Menge",

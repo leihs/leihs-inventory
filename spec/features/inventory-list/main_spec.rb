@@ -1361,8 +1361,9 @@ feature "Inventory Page", type: :feature do
     click_on "Inventory type"
     click_on "Package"
 
-    within(:button, "Inventory type") do
-      expect(page).to have_text("P")
+    within(:button, "Package") do
+      expect(page).to have_text("M")
+      expect(page).to have_css(".lucide-package")
     end
 
     expect(all("table tbody tr").count).to eq 1
@@ -1576,7 +1577,7 @@ feature "Inventory Page", type: :feature do
     click_on "Inventory type"
     click_on "Option"
 
-    within(:button, "Inventory type") do
+    within(:button, "Option") do
       expect(page).to have_text("O")
     end
 

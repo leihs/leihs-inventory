@@ -44,12 +44,16 @@
 
        ($ TableCell
           ($ :div {:className "flex gap-2 "}
-             ($ Badge {:className "w-6 h-5 justify-center bg-blue-500"}
-                (t "pool.models.list.item.badge"))))
+             (if (= type "Software")
+               ($ Badge {:className "w-6 h-5 justify-center bg-yellow-500"}
+                  "L")
+               ($ Badge {:className "w-6 h-5 justify-center bg-blue-500"}
+                  (t "pool.models.list.item.badge")))))
 
        ($ TableCell
           ($ ItemInfo {:item item
-                       :is-package-item isPackageItem}))
+                       :is-package-item isPackageItem
+                       :is-software-license (= type "Software")}))
 
        ($ TableCell {:className "text-right"}
           ($ ItemStatus {:item item}))
@@ -59,7 +63,6 @@
              ($ Button {:variant "outline"
                         :asChild true}
                 ($ Link {:state #js {:searchParams (.. location -search)}
-
                          :to (case type
                                "Software"
                                (str "../licenses/" (:id item))
@@ -71,6 +74,7 @@
 
                                (str "../items/" (:id item)))
                          :viewTransition true}
+
                    (t "pool.models.list.actions.edit")))
 
              ($ DropdownMenu

@@ -122,7 +122,7 @@
                            ($ TableHead {:class-name "rounded-tl-md text-right"}
                               (t "pool.models.list.header.quantity"))
                            ($ TableHead "")
-                           ($ TableHead "")
+                           ($ TableHead {:className "min-w-14 w-14"} "")
                            ($ TableHead {:className "w-full min-w-[600px]"}
                               (t "pool.models.list.header.name"))
                            ($ TableHead {:className "min-w-40 text-right "}

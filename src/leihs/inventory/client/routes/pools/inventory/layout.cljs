@@ -1,10 +1,11 @@
 (ns leihs.inventory.client.routes.pools.inventory.layout
   (:require
+   ["@@/badge" :refer [Badge]]
    ["@@/breadcrumb" :refer [Breadcrumb BreadcrumbItem
                             BreadcrumbLink BreadcrumbList
                             BreadcrumbSeparator BreadcrumbPage]]
    ["@@/button" :refer [Button]]
-   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
+   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent DropdownMenuSeparator
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/tabs" :refer [Tabs TabsContent TabsList TabsTrigger]]
    ["lucide-react" :refer [CirclePlus House List Search Users LayoutTemplate ChartArea]]
@@ -142,13 +143,37 @@
                                     :to (generatePath "/inventory/:pool-id/models/create"
                                                       (cj {:pool-id pool-id}))
                                     :viewTransition true}
+                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-slate-500"}
+                                 "M")
                               (t "pool.models.dropdown.add_model")))
+
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/software/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-orange-500"}
+                                 "S")
+                              (t "pool.models.dropdown.add_software")))
+
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/options/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-emerald-500"}
+                                 "O")
+                              (t "pool.models.dropdown.add_option")))
+
+                        ($ DropdownMenuSeparator)
 
                         ($ DropdownMenuItem {:asChild true}
                            ($ Link {:state #js {:searchParams (.. location -search)}
                                     :to (generatePath "/inventory/:pool-id/packages/create"
                                                       (cj {:pool-id pool-id}))
                                     :viewTransition true}
+                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-lime-500"}
+                                 "P")
                               (t "pool.models.dropdown.add_package")))
 
                         ($ DropdownMenuItem {:asChild true}
@@ -156,28 +181,19 @@
                                     :to (generatePath "/inventory/:pool-id/items/create"
                                                       (cj {:pool-id pool-id}))
                                     :viewTransition true}
+                              ($ Badge {:className "w-6 h-5 justify-center bg-blue-500"}
+                                 (t "pool.models.list.item.badge"))
                               (t "pool.models.dropdown.add_item")))
-
-                        ($ DropdownMenuItem {:asChild true}
-                           ($ Link {:state #js {:searchParams (.. location -search)}
-                                    :to (generatePath "/inventory/:pool-id/options/create"
-                                                      (cj {:pool-id pool-id}))
-                                    :viewTransition true}
-                              (t "pool.models.dropdown.add_option")))
-
-                        ($ DropdownMenuItem {:asChild true}
-                           ($ Link {:state #js {:searchParams (.. location -search)}
-                                    :to (generatePath "/inventory/:pool-id/software/create"
-                                                      (cj {:pool-id pool-id}))
-                                    :viewTransition true}
-                              (t "pool.models.dropdown.add_software")))
 
                         ($ DropdownMenuItem {:asChild true}
                            ($ Link {:state #js {:searchParams (.. location -search)}
                                     :to (generatePath "/inventory/:pool-id/licenses/create"
                                                       (cj {:pool-id pool-id}))
                                     :viewTransition true}
+                              ($ Badge {:className "w-6 h-5 justify-center bg-yellow-500"}
+                                 "L")
                               (t "pool.models.dropdown.add_license")))))
+
                   "entitlement-groups"
                   ($ Button {:asChild true}
                      ($ Link {:state #js {:searchParams (.. location -search)}

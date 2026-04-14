@@ -382,7 +382,7 @@
       "list": {
         "empty": "No entries found",
         "package_item": "is part of a package",
-        "shelf": "Shelf",
+        "shelf": "Storage",
         "tooltip": {
           "in_stock": "in stock",
           "rentable": "rentable"
@@ -393,7 +393,8 @@
           "broken": "Broken",
           "rented": "Rented",
           "not_borrowable": "Not borrowable",
-          "incomplete": "Incomplete"
+          "incomplete": "Incomplete",
+          "retired": "Retired"
         },
         "header": {
           "quantity": "Quantity",

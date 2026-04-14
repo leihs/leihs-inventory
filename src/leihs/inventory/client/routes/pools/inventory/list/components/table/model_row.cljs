@@ -7,7 +7,7 @@
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell]]
    ["@@/tooltip" :refer [Tooltip TooltipTrigger TooltipContent]]
-   ["lucide-react" :refer [Ellipsis Columns3Cog Image ChevronDown SquareMenu]]
+   ["lucide-react" :refer [Ellipsis Columns3Cog Image ChevronDown SquareMenu Package]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    ["sonner" :refer [toast]]
@@ -25,11 +25,6 @@
                  :fields :in_stock_quantity
                  :model_id :parent_id :inventory_pool_id :search])
 
-(def fields ["id" "is_package" "is_borrowable" "is_broken" "retired" "is_incomplete"
-             "price" "inventory_code" "shelf" "building_code" "package_items" "model_name"
-             "building_name" "reservation_end_date" "shelf" "inventory_pool_name"
-             "user_name" "reservation_user_name" "url" "reservation_contract_id" "parent_id"])
-
 (defui main [{:keys [model className]}]
   (let [location (router/useLocation)
         {:keys [settings]} (router/useRouteLoaderData "root")
@@ -43,8 +38,7 @@
                         (let [param-map (into {}
                                               (for [[key val] (.entries search-params)]
                                                 [(keyword key) (str val)]))
-                              params (merge {:model_id (:id model)
-                                             :fields (str/join "," fields)}
+                              params (merge {:model_id (:id model)}
                                             (select-keys param-map query-keys))]
 
                           (if result
@@ -100,19 +94,22 @@
               ($ Image {:class-name "w-12 h-12"}))))
 
        ($ TableCell
-          ($ :div {:className "flex gap-2"}
+          ($ :div {:className "flex gap-[2px] items-center"}
              ($ Badge {:className (str "w-6 h-5 justify-center shadow-none "
                                        (case (-> model :type)
-                                         "Package" "bg-lime-500"
+                                         "Package" "bg-slate-500"
                                          "Model" "bg-slate-500"
                                          "Option" "bg-emerald-500"
                                          "Software" "bg-orange-500"))
                        :data-test-id "type"}
                 (str (case (-> model :type)
-                       "Package" "P"
+                       "Package" "M"
                        "Model" "M"
                        "Option" "O"
-                       "Software" "S")))))
+                       "Software" "S")))
+
+             (when (= (:type model) "Package")
+               ($ Package {:className "w-3 h-3"}))))
 
        ($ TableCell {:className "font-bold"}
           (str (:product model) " " (:version model)))

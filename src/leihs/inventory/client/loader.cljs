@@ -81,6 +81,10 @@
                                     (.get (str "/inventory/" pool-id "/inventory-pools/?responsible=true"))
                                     (.then #(jc (.-data %))))
 
+              fields (-> http-client
+                         (.get (str "/inventory/" pool-id "/fields/?target_type=license") #js {:cache false})
+                         (.then #(jc (.-data %))))
+
               data (-> http-client
                        (.get (str "/inventory/" pool-id "/list/" search) #js {:cache false})
                        (.then #(jc (.. % -data))))]
@@ -88,6 +92,7 @@
         (try
           {:categories categories
            :responsible-pools responsible-pools
+           :fields (:fields fields)
            :data data}
           (catch js/Error err
             (handle-error err)))))))
