@@ -1,12 +1,11 @@
 (ns leihs.inventory.client.routes.pools.inventory.search-edit.components.or-filters
   (:require
    ["@@/button" :refer [Button]]
-   ["lucide-react" :refer [Trash]]
+   ["lucide-react" :refer [Trash CirclePlus]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.inventory.search-edit.components.and-filters :refer [AndFilters]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.or-context :refer [OrProvider]]
    [uix.core :as uix :refer [$ defui]]))
 
@@ -62,9 +61,11 @@
                          :class-name "self-end"}
                  ($ Trash {:class-name "h-4 w-4"})))))
 
-        ;; Add or filter button
+;; Add or filter button
        ($ Button {:type "button"
-                  :variant "outline"
+                  :variant "secondary"
                   :size "sm"
-                  :on-click handle-add-or}
+                  :on-click handle-add-or
+                  :class-name "border border-border"}
+          ($ CirclePlus {:class-name "h-4 w-4"})
           (t "pool.models.search_edit.add_or")))))

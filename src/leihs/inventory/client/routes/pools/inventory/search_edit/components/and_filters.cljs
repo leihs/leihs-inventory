@@ -4,7 +4,7 @@
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
    ["@@/toggle-group" :refer [ToggleGroup ToggleGroupItem]]
-   ["lucide-react" :refer [ChevronLeft ChevronRight Equal Trash]]
+   ["lucide-react" :refer [ChevronLeft ChevronRight Equal Trash CirclePlus]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -151,8 +151,10 @@
 
        ;; Add and filter button (disabled if no more fields available)
        ($ Button {:type "button"
-                  :variant "outline"
+                  :variant "secondary"
                   :size "sm"
                   :on-click handle-add-and
-                  :disabled (nil? next-block)}
+                  :disabled (nil? next-block)
+                  :class-name "border border-border"}
+          ($ CirclePlus {:class-name "h-4 w-4"})
           (t "pool.models.search_edit.add_and")))))
