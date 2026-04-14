@@ -109,7 +109,6 @@
                      (let [next-query (js/JSON.stringify data)
                            no-filters? (= (count ^js (.-$or data)) 0)]
 
-                       (js/console.debug "setting items 0")
                        (set-selected-items! #{})
 
                        (when (not= @prev-filter-ref next-query)
