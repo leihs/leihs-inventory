@@ -1,11 +1,11 @@
 (ns leihs.inventory.client.routes.pools.inventory.search-edit.components.edit-dialog
   (:require
-   ["@@/badge" :refer [Badge]]
+   ["@@/alert" :refer [Alert AlertDescription AlertTitle]]
    ["@@/button" :refer [Button]]
-
    ["@@/dialog" :refer [Dialog DialogContent DialogDescription DialogFooter
                         DialogHeader DialogTitle]]
    ["@@/spinner" :refer [Spinner]]
+   ["lucide-react" :refer [Info]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useFetcher]]
    ["sonner" :refer [toast]]
@@ -64,6 +64,11 @@
                             :on-submit on-submit
                             :on-invalid on-invalid})
 
+          ($ Alert {:class-name "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50"}
+             ($ AlertDescription ($ :span
+                                    ($ Info {:class-name "w-5 h-5 mr-2 inline"})
+                                    (t "pool.models.search_edit.dialog.warning_description" #js {:count item-count}))))
+
           ($ DialogFooter {:class-name "pt-4"}
              ($ Button {:type "button"
                         :variant "outline"
@@ -81,12 +86,9 @@
 
                 (if (or (= (.-state fetcher) "submitting")
                         (= (.-state fetcher) "loading"))
-                  (t "pool.models.search_edit.dialog.applying")
+                  (t "pool.models.search_edit.dialog.submitting")
                   (t "pool.models.search_edit.dialog.submit"))
 
-                (if (or (= (.-state fetcher) "submitting")
-                        (= (.-state fetcher) "loading"))
-                  ($ Spinner {:class-name "w-5 h-5 ml-2"})
-                  ($ Badge {:variant "primary"
-                            :class-name "ml-2 rounded-full"}
-                     (str (count selected-items))))))))))
+                (when (or (= (.-state fetcher) "submitting")
+                          (= (.-state fetcher) "loading"))
+                  ($ Spinner {:class-name "w-5 h-5 ml-2"}))))))))

@@ -5,6 +5,7 @@
    ["@@/card" :refer [Card CardContent CardFooter CardHeader CardTitle]]
    ["@@/form" :refer [Form]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
+   ["lucide-react" :refer [Download SquarePen]]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useLoaderData useParams useSearchParams]]
@@ -164,19 +165,18 @@
 
                ;; Bulk action buttons - show when items selected
                ($ :div {:class-name "flex gap-2"}
+                  ($ Button {:data-test-id "export-button"
+                             :disabled (empty? selected-items)
+                             :class-name "disabled:hover:bg-primary"}
+                     ($ Download {:class-name "w-4 h-4"})
+                     (t "pool.models.search_edit.page.export_items"))
+
                   ($ Button {:data-test-id "edit-button"
                              :disabled (empty? selected-items)
                              :on-click #(set-edit-open! true)
                              :class-name "disabled:hover:bg-primary"}
+                     ($ SquarePen {:class-name "w-4 h-4"})
                      (t "pool.models.search_edit.page.edit_items")
-                     ($ Badge {:variant "primary"
-                               :class-name "ml-2 rounded-full"}
-                        (str (count selected-items))))
-
-                  ($ Button {:data-test-id "export-button"
-                             :disabled (empty? selected-items)
-                             :class-name "disabled:hover:bg-primary"}
-                     (t "pool.models.search_edit.page.export_items")
                      ($ Badge {:variant "primary"
                                :class-name "ml-2 rounded-full"}
                         (str (count selected-items))))))

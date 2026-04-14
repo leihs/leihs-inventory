@@ -6,7 +6,7 @@
                         SelectValue]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["date-fns" :refer [format]]
-   ["lucide-react" :refer [Equal Trash]]
+   ["lucide-react" :refer [Equal Trash CirclePlus]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    ["zod" :as z]
@@ -47,9 +47,18 @@
 (defui PatchItemForm [{:keys [blocks on-submit on-invalid]}]
   (let [[t] (useTranslation)
 
+        ;; Build an update row entry from a block (no default value)
+        create-update-entry (fn [block]
+                              (-> block
+                                  (assoc :id (str (random-uuid)))
+                                  (dissoc :label)
+                                  (assoc :value (case (:component block)
+                                                  "textarea" ""
+                                                  "input" ""
+                                                  nil))))
         form (hook-form/useForm
               #js {:resolver (zodResolver edit-dialog-schema)
-                   :defaultValues (cj {:update []})})
+                   :defaultValues (cj {:update [(create-update-entry (first blocks))]})})
 
         control (.-control form)
         {:keys [fields append remove update]} (jc (hook-form/useFieldArray
@@ -63,16 +72,6 @@
         next-block (->> blocks
                         (filter #(not (contains? used-field-names (:name %))))
                         first)
-
-        ;; Build an update row entry from a block (no default value)
-        create-update-entry (fn [block]
-                              (-> block
-                                  (assoc :id (str (random-uuid)))
-                                  (dissoc :label)
-                                  (assoc :value (case (:component block)
-                                                  "textarea" ""
-                                                  "input" ""
-                                                  nil))))
 
         handle-add-field (fn []
                            (when next-block
@@ -93,7 +92,8 @@
     ($ Form (merge form)
        ($ :form {:id "edit-dialog-form"
                  :no-validate true
-                 :on-submit (handle-submit on-submit on-invalid)}
+                 :on-submit (handle-submit on-submit on-invalid)
+                 :class-name "space-y-2 px-2 border border-dashed rounded"}
 
           ($ :div {:class-name "space-y-2 py-2"}
               ;; Render all update field rows
@@ -135,8 +135,11 @@
 
              ;; Add field button
              ($ Button {:type "button"
-                        :variant "outline"
+                        :variant "secondary"
                         :size "sm"
                         :on-click handle-add-field
-                        :disabled (nil? next-block)}
+                        :disabled (nil? next-block)
+                        :class-name "border border-border"}
+
+                ($ CirclePlus {:class-name "h-4 w-4"})
                 (t "pool.models.search_edit.dialog.add_field")))))))
