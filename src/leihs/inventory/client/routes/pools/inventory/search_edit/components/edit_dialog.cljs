@@ -45,14 +45,14 @@
                :onOpenChange on-open-change
                :modal false}
 
-        (when open? ($ :div {:class-name "fixed top-0 left-0 inset-0 z-50 bg-black/80 w-screen h-screen transition-opacity"
-                             :data-dialog-overlay true}))
+       (when open? ($ :div {:class-name "fixed top-0 left-0 inset-0 z-50 bg-black/80 w-screen h-screen transition-opacity"
+                            :data-dialog-overlay true}))
 
-        ($ DialogContent {:class-name "max-w-[768px] lg:max-w-[1024px]"
-                          :onInteractOutside (fn [e]
-                                               (let [target (.. e -target)]
-                                                 (when-not (.closest target "[data-dialog-overlay]")
-                                                   (.preventDefault e))))}
+       ($ DialogContent {:class-name "max-w-[768px] lg:max-w-[1024px]"
+                         :onInteractOutside (fn [e]
+                                              (let [target (.. e -target)]
+                                                (when-not (.closest target "[data-dialog-overlay]")
+                                                  (.preventDefault e))))}
 
           ($ DialogHeader
              ($ DialogTitle
