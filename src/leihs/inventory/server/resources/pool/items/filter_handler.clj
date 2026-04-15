@@ -148,10 +148,10 @@
       [:->> :items.properties key])
     ;; building_id is on rooms; use the alias passed from the caller query
     (= field :building_id)
-    [:raw (str (:rooms table-aliases) ".building_id")]
-    ;; item columns: qualify as items.<col> (field is validated so safe to interpolate)
+    (keyword (name (:rooms table-aliases)) "building_id")
+    ;; item columns: validated against allowlist; use qualified HoneySQL identifier
     :else
-    [:raw (str "items." (name field))]))
+    (keyword "items" (name field))))
 
 (defn- mql-predicate->sql
   "Convert a single MQL-style predicate for one field into HoneySQL WHERE clause.
