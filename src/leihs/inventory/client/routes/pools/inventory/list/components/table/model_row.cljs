@@ -26,9 +26,9 @@
                  :model_id :parent_id :inventory_pool_id :search])
 
 (def fields ["id" "is_package" "is_borrowable" "is_broken" "retired" "is_incomplete"
-             "price" "inventory_code" "shelf" "building_code" "package_items"
+             "price" "inventory_code" "shelf" "building_code" "package_items" "model_name"
              "building_name" "reservation_end_date" "shelf" "inventory_pool_name"
-             "user_name" "reservation_user_name" "url" "reservation_contract_id"])
+             "user_name" "reservation_user_name" "url" "reservation_contract_id" "parent_id"])
 
 (defui main [{:keys [model className]}]
   (let [location (router/useLocation)
@@ -83,6 +83,7 @@
                                       (if (not (:is_package element))
                                         ($ ItemRow {:key (:id element)
                                                     :type (:type model)
+                                                    :is-package-item (:parent_id element)
                                                     :item element})
                                         ($ PackageRow {:key (:id element)
                                                        :type (:type model)
