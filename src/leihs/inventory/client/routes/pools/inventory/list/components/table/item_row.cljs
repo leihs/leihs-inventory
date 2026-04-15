@@ -65,7 +65,9 @@
                                (str "../licenses/" (:id item))
 
                                "Package"
-                               (str "../packages/" (:id item))
+                               (if isPackageItem
+                                 (str "../items/" (:id item))
+                                 (str "../packages/" (:id item)))
 
                                (str "../items/" (:id item)))
                          :viewTransition true}
