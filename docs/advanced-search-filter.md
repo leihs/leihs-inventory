@@ -1,8 +1,8 @@
-# `filter_q` Opportunities for Items Endpoint
+# `filter_q` reference for the items endpoint
 
 ## Scope
 
-This document describes all supported `filter_q` options for:
+This document is a **technical reference** for supported `filter_q` filters and operators on the items list endpoint (not a roadmap or product brief). It describes all supported `filter_q` options for:
 
 - `GET /inventory/:pool_id/items/`
 

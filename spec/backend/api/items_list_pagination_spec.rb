@@ -3,45 +3,17 @@ require "cgi"
 require_relative "_shared"
 
 # =============================================================================
-# ITEMS LIST PAGINATION & FILTERING TESTS
+# Items list: pagination, filter_q (EDN), and search
 # =============================================================================
 #
-# This spec provides comprehensive test coverage for:
-#   - GET /inventory/:pool-id/items?page=1&filter_q=<EDN>  (EDN-based filtering)
-#   - GET /inventory/:pool-id/items?page=1&search=<term>   (text search)
+# Exercises GET /inventory/:pool-id/items with ?page=1 and either:
+#   - filter_q=<url-encoded EDN> (MQL-style filters), or
+#   - search=<term> (text search).
 #
-# COVERAGE SUMMARY (120+ tests):
-#   - UUID fields (8):     id, inventory_pool_id, owner_id, supplier_id,
-#                          model_id, room_id, building_id, parent_id
-#   - Numeric fields (1):  price ($eq, $gte, $lte)
-#   - Boolean fields (6):  is_borrowable, is_broken, is_incomplete,
-#                          is_inventory_relevant, needs_permission, retired
-#                          NOTE: boolean fields require {:$eq bool}; scalar shorthand returns 400
-#   - Date fields (2):     invoice_date, last_check ($eq, $gte, $lte)
-#   - String fields (12):  inventory_code, serial_number, shelf, user_name,
-#                          retired_reason, status_note, note, invoice_number,
-#                          name, insurance_number, item_version, responsible
-#   - Properties fields:   properties_reference, properties_imei_number,
-#                          properties_warranty_expiration, etc.
-#   - Logical operators:   $and, $or (including nested combinations)
-#   - Search parameter:    text search across multiple fields
-#
-# SUPPORTED OPERATORS:
-#   $eq, $gte, $lte, $ilike, $and, $or
-#
-# REMOVED OPERATORS (design decision - not required by frontend UI):
-#   $gt, $lt   - UI uses ranges with $gte/$lte only (inclusive boundaries)
-#   $ne        - UI doesn't need "not equal" filtering
-#   $exists    - UI doesn't filter by field presence/absence
-#
-# PROPERTIES FIELD LIMITATION:
-#   Properties fields (properties_*) are validated against the /fields API.
-#   Only fields configured in /fields will work; others return 400.
-#   Some properties fields are commented out as they require /fields config.
-#
-# LICENSE FIELDS:
-#   License-specific filtering should be in licenses_list_pagination_spec.rb
-#   as licenses have a different endpoint (/inventory/:pool-id/licenses/).
+# Boolean filters require {:field {:$eq true/false}}; scalar booleans return 400.
+# Properties_* keys are validated against GET /fields?target_type=item; unknown keys return 400.
+# Supported operators: $eq, $gte, $lte, $ilike, $and, $or ($gt, $lt, $ne, $exists are intentionally unsupported).
+# License filtering belongs in licenses_list_pagination_spec.rb (/licenses/ endpoint).
 #
 # =============================================================================
 
