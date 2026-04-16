@@ -390,11 +390,7 @@ feature "Inventory Page", type: :feature do
       model_10,
       "0 | 0",
       [
-        {
-          inventory_code: item_model_10_1.inventory_code,
-          part_of_package: true,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_10_1)
       ]
     )
 
@@ -470,11 +466,7 @@ feature "Inventory Page", type: :feature do
       model_9,
       "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          part_of_package: true,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -594,11 +586,7 @@ feature "Inventory Page", type: :feature do
       model_10,
       "0 | 0",
       [
-        {
-          inventory_code: item_model_10_1.inventory_code,
-          part_of_package: true,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_10_1)
       ]
     )
 
@@ -724,11 +712,7 @@ feature "Inventory Page", type: :feature do
       model_9,
       "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          part_of_package: true,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -786,11 +770,7 @@ feature "Inventory Page", type: :feature do
       model_10,
       "0 | 0",
       [
-        {
-          inventory_code: item_model_10_1.inventory_code,
-          part_of_package: true,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_10_1)
       ]
     )
 
@@ -921,11 +901,7 @@ feature "Inventory Page", type: :feature do
       model_9,
       "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          part_of_package: true,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -1021,11 +997,7 @@ feature "Inventory Page", type: :feature do
       model_9,
       "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          part_of_package: true,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -1093,11 +1065,7 @@ feature "Inventory Page", type: :feature do
       model_10,
       "0 | 0",
       [
-        {
-          inventory_code: item_model_10_1.inventory_code,
-          part_of_package: true,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_10_1)
       ]
     )
 
@@ -1173,11 +1141,7 @@ feature "Inventory Page", type: :feature do
       model_9,
       "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          part_of_package: true,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -1265,12 +1229,10 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/list"
 
     select_value("with_items", "with_items")
-    capybara_debug_pause # e.g. CAPYBARA_DEBUG_PAUSE=30 bin/rspec …
     select_status_filter_submenu("Broken", "Yes")
     expect(page).to have_button("Status", text: "1")
 
-    # List refetch runs after search params change; counting immediately can see the pre-filter rows.
-    sleep ENV.fetch("CAPYBARA_LIST_FILTER_SETTLE", "0.8").to_f
+    expect(page).to have_current_path(/broken=true/, wait: 20)
     expect(page).to have_selector("table tbody tr", count: 2, wait: 20)
 
     verify_row_details(
@@ -1448,11 +1410,7 @@ feature "Inventory Page", type: :feature do
       model_10,
       "0 | 0",
       [
-        {
-          inventory_code: item_model_10_1.inventory_code,
-          part_of_package: true,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_10_1)
       ]
     )
 
@@ -1557,11 +1515,7 @@ feature "Inventory Page", type: :feature do
       model_9,
       "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          part_of_package: true,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -1650,6 +1604,10 @@ feature "Inventory Page", type: :feature do
 
     expect(all("table tbody tr").count).to eq 0
   end
+end
+
+def packaged_child_row(item, statuses: ["Available"])
+  {inventory_code: item.inventory_code, part_of_package: true, statuses: statuses}
 end
 
 def verify_row_details(model, availabilty, items = [], is_package: false, is_option: false)

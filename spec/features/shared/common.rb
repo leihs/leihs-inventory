@@ -74,8 +74,3 @@ def select_status_filter_submenu(submenu_label, yes_or_no)
   param = STATUS_SUBMENU_BUTTON_NAME.fetch(submenu_label)
   find("button[name='#{param}']", text: yes_or_no, wait: 10).click
 end
-
-def capybara_debug_pause
-  secs = ENV.fetch("CAPYBARA_DEBUG_PAUSE", "0").to_f
-  sleep(secs) if secs.positive?
-end
