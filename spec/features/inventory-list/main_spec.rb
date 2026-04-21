@@ -318,7 +318,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_10_1.inventory_code,
@@ -400,7 +400,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -437,7 +437,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -526,7 +526,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_10_1.inventory_code,
@@ -576,7 +576,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -658,7 +658,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -724,7 +724,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_10_1.inventory_code,
@@ -774,7 +774,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -861,7 +861,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -923,7 +923,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -963,7 +963,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -1037,7 +1037,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_10_1.inventory_code,
@@ -1065,7 +1065,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -1119,7 +1119,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,
@@ -1395,7 +1395,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_10_1.inventory_code,
@@ -1445,7 +1445,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
@@ -1506,7 +1506,7 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_9_1.inventory_code,

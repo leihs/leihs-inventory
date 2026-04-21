@@ -15,8 +15,10 @@
                        (sql/from :items)
                        (sql/where [:and
                                    [:= :items.inventory_pool_id pool-id]
+                                   [:= :items.parent_id nil]
                                    [:= :items.model_id :inventory.id]
-                                   [:= :items.is_borrowable true]]))
+                                   [:= :items.is_borrowable true]
+                                   [:is :items.retired nil]]))
                    :borrowable_quantity]
 
                   [(-> (sql/select :%count.*) ; [[:count :*]]
@@ -26,6 +28,7 @@
                                    [:= :items.parent_id nil]
                                    [:= :items.is_borrowable true]
                                    [:= :items.model_id :inventory.id]
+                                   [:is :items.retired nil]
                                    [:not [:exists
                                           (-> (sql/select 1)
                                               (sql/from :reservations)
