@@ -6,25 +6,45 @@
    ["@@/spinner" :refer [Spinner]]
    ["lucide-react" :refer [Download ChevronDown]]
    ["react-router-dom" :as router]
+   [clojure.string :as str]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defui main [{:keys [url className]}]
+(defn- effective-search [location-search custom-search]
+  (if (nil? custom-search)
+    location-search
+    (let [s (str/trim (str custom-search))]
+      (cond
+        (= s "") location-search
+        (str/starts-with? s "?") s
+        :else (str "?" s)))))
+
+(defui main [{:keys [url className class-name search variant disabled ml-auto? label-class-name label
+                     data-test-id]
+              :or {variant "outline"
+                   ml-auto? true
+                   label-class-name "hidden xl:flex items-center"
+                   label "Export"}}]
   (let [location (router/useLocation)
         fetcher (router/useFetcher)
-        search-params (.-search location)]
+        location-search (.-search location)
+        search-params (effective-search location-search search)
+        full-url (str url search-params)
+        trigger-disabled? (or disabled (= (.-state fetcher) "submitting"))
+        extra-class (or class-name className "")
+        button-class (str (when ml-auto? "ml-auto ") extra-class)]
 
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild true}
-          ($ Button {:variant "outline"
-                     :disabled (= (.-state fetcher) "submitting")
-                     :className (str "ml-auto " className)}
-
+          ($ Button (cond-> {:variant variant
+                             :disabled trigger-disabled?
+                             :className button-class}
+                      data-test-id (assoc :data-test-id data-test-id))
              (if (= (.-state fetcher) "idle")
                ($ Download {:className "h-4 w-4 xl:mr-2"})
                ($ Spinner {:className "h-4 w-4 xl:mr-2"}))
-             ($ :div {:class-name "hidden xl:flex items-center"}
-                "Export"
+             ($ :div {:class-name label-class-name}
+                label
                 ($ ChevronDown {:className "h-4 w-4 ml-2"}))))
 
        ($ DropdownMenuContent
@@ -32,7 +52,7 @@
                            :action "/export"}
              ($ :input {:type "hidden"
                         :name "url"
-                        :value (str url search-params)})
+                        :value full-url})
              ($ :input {:type "hidden"
                         :name "format"
                         :value "csv"})
@@ -45,7 +65,7 @@
                            :action "/export"}
              ($ :input {:type "hidden"
                         :name "url"
-                        :value (str url search-params)})
+                        :value full-url})
              ($ :input {:type "hidden"
                         :name "format"
                         :value "excel"})

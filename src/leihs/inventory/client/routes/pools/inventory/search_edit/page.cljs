@@ -5,10 +5,12 @@
    ["@@/card" :refer [Card CardContent CardFooter CardHeader CardTitle]]
    ["@@/form" :refer [Form]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
-   ["lucide-react" :refer [Download SquarePen]]
+   ["lucide-react" :refer [SquarePen]]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useLoaderData useParams useSearchParams]]
+   [clojure.string :as str]
+   [leihs.inventory.client.components.export :refer [Export]]
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
@@ -42,6 +44,13 @@
 
         {:keys [pool-id]} (jc (useParams))
         [selected-items set-selected-items!] (uix/use-state #{})
+        export-items-search (uix/use-memo
+                             (fn []
+                               (let [params (js/URLSearchParams.)]
+                                 (doseq [id selected-items]
+                                   (.append params "ids" (str id)))
+                                 (str "?" (.toString params))))
+                             [selected-items])
         [edit-open? set-edit-open!] (uix/use-state false)
         fields (:fields data)
         structure (dynamic-form/fields->structure fields {:group-order groups})
@@ -165,11 +174,15 @@
 
                ;; Bulk action buttons - show when items selected
                ($ :div {:class-name "flex gap-2"}
-                  ($ Button {:data-test-id "export-button"
+                  ($ Export {:url (str "/inventory/" pool-id "/items/")
+                             :search export-items-search
                              :disabled (empty? selected-items)
-                             :class-name "disabled:hover:bg-primary"}
-                     ($ Download {:class-name "w-4 h-4"})
-                     (t "pool.models.search_edit.page.export_items"))
+                             :variant "default"
+                             :ml-auto? false
+                             :label-class-name "flex items-center"
+                             :label (str/trim (t "pool.models.search_edit.page.export_items"))
+                             :class-name "disabled:hover:bg-primary"
+                             :data-test-id "export-button"})
 
                   ($ Button {:data-test-id "edit-button"
                              :disabled (empty? selected-items)
