@@ -866,6 +866,10 @@
     "back-to-home": "Zurück zur Startseite"
   },
   "error": {
+    "action": {
+      "error": "Beim Ändern ist ein Fehler aufgetreten",
+      "error_detail": "Fehlercode: {{httpStatus}}"
+    },
     "alerts": {
       "offline": {
         "title": "Keine Internetverbindung",

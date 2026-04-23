@@ -53,6 +53,7 @@
          :element ($ home-page)}
 
         {:path "debug"
+         :action actions/debug-action-error
          :element ($ debug-page)}
 
         {:path "test-error"

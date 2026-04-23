@@ -44,7 +44,9 @@
                (when onSave
                  (onSave)))
 
-             (.. toast (error (t "pool.items.review.serial_number.error")))))))
+             (.. toast (error (t "pool.items.review.serial_number.error")
+                              (clj->js {:description (t "error.action.error_detail"
+                                                        #js {:httpStatus (aget result "httpStatus")})})))))))
      [state data onSave t])
 
     ($ TableCell

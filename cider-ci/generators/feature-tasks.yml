@@ -48,6 +48,16 @@
   environment_variables:
     FEATURE_NAME: "Update entitlement group 01"
     FEATURE: './spec/features/entitlement-groups/update_spec.rb[1:1]'
+'./spec/features/error-handling/action_errors_spec.rb[1:1]':
+  name: "Action Errors 01"
+  environment_variables:
+    FEATURE_NAME: "Action Errors 01"
+    FEATURE: './spec/features/error-handling/action_errors_spec.rb[1:1]'
+'./spec/features/error-handling/action_errors_spec.rb[1:2]':
+  name: "Action Errors 02"
+  environment_variables:
+    FEATURE_NAME: "Action Errors 02"
+    FEATURE: './spec/features/error-handling/action_errors_spec.rb[1:2]'
 './spec/features/error-handling/application_errors_spec.rb[1:1]':
   name: "Application Errors 01"
   environment_variables:

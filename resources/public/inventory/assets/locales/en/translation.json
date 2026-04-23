@@ -864,6 +864,10 @@
     "back-to-home": "Back to Home"
   },
   "error": {
+    "action": {
+      "error": "Something went wrong while updating",
+      "error_detail": "Error code: {{httpStatus}}"
+    },
     "alerts": {
       "offline": {
         "title": "No Internet Connection",
