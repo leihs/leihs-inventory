@@ -38,11 +38,7 @@
            (map #(keyword "items" (name %)))
            concat
            (apply sql/select))
-      (sql/from :items)
-      (sql/order-by
-       ;[[:raw "CASE WHEN COALESCE(models.name, '') ~ '^[0-9]' THEN 0 ELSE 1 END"] :asc]
-       [:models.name :asc]
-       [:items.inventory_code :asc])))
+      (sql/from :items)))
 
 (defn index-resources
   ([request]
@@ -55,6 +51,7 @@
                  incomplete broken owned
                  inventory_pool_id filter_q
                  in_stock before_last_check]} (query-params request) ; query params of reitit
+         advanced-filter? (and filter_q (seq (str filter_q)))
          search_term (or search search_term) ; search_term needed for fields
          ; getting ids from query params of ring. it handles both single and multiple ids.
          ids-raw (or (get (:query-params request) "ids[]")
@@ -143,7 +140,7 @@
                          (sql/where [:not= :models.type "Software"])))
 
                    ;; Advanced filter support (filter_q: URL-encoded EDN, MQL-style)
-                   (cond-> (and filter_q (seq (str filter_q)))
+                   (cond-> advanced-filter?
                      (create-filter-query-and-validate! request filter_q {:rooms "rs"}))
 
                    ; in legacy no query params are passed down to the children,
@@ -158,7 +155,14 @@
                                                          :borrowable borrowable
                                                          :broken broken
                                                          :incomplete incomplete)
-                         (cond-> (seq search_term) (with-search search_term :models)))))
+                         (cond-> (seq search_term) (with-search search_term :models))))
+                   (cond-> advanced-filter?
+                     (sql/order-by
+                      [[:raw "CASE WHEN COALESCE(models.name, '') ~ '^[0-9]' THEN 0 ELSE 1 END"] :asc]
+                      [:models.name :asc]
+                      [:items.inventory_code :asc]))
+                   (cond-> (not advanced-filter?)
+                     (sql/order-by [:items.inventory_code :asc])))
 
          post-fnc (fn [items]
                     (let [items (mapv #(-> %
