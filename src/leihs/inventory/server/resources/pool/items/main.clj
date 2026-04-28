@@ -39,7 +39,10 @@
            concat
            (apply sql/select))
       (sql/from :items)
-      (sql/order-by :items.inventory_code)))
+      (sql/order-by
+       [[:raw "CASE WHEN COALESCE(models.name, '') ~ '^[0-9]' THEN 0 ELSE 1 END"] :asc]
+       [:models.name :asc]
+       [:items.inventory_code :asc])))
 
 (defn index-resources
   ([request]
