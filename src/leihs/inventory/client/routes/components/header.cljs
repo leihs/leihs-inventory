@@ -3,11 +3,12 @@
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuGroup DropdownMenuItem
-                               DropdownMenuLabel DropdownMenuPortal DropdownMenuSeparator
-                               DropdownMenuSub DropdownMenuSubContent DropdownMenuSubTrigger
+                               DropdownMenuLabel DropdownMenuPortal
+                               DropdownMenuSeparator DropdownMenuSub
+                               DropdownMenuSubContent DropdownMenuSubTrigger
                                DropdownMenuTrigger]]
-   ["@@/input-group" :refer [InputGroup InputGroupInput InputGroupAddon]]
-   ["lucide-react" :refer [ChevronsUpDown CircleUser LayoutGrid Moon Search Sun]]
+   ["@@/input-group" :refer [InputGroup InputGroupAddon InputGroupInput]]
+   ["lucide-react" :refer [ChevronsUpDown CircleUser LayoutGrid Search]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    ["sonner" :refer [toast]]
@@ -15,7 +16,7 @@
    [clojure.string :as str]
    [leihs.core.core :refer [detect]]
    [leihs.inventory.client.lib.csrf :as csrf]
-   [leihs.inventory.client.lib.utils :refer [jc cj]]
+   [leihs.inventory.client.lib.utils :refer [jc]]
    [leihs.inventory.client.routes.components.theme-provider :refer [use-theme]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -24,6 +25,7 @@
   (let [[t] (useTranslation)
         {:keys [pool-id]} (jc (router/useParams))
         {:keys [theme set-theme]} (use-theme)
+        {:keys [settings]} (router/useRouteLoaderData "root")
         fetcher (router/useFetcher)
         last-fetcher-data (uix/use-ref nil)
         current-pool (->> available_inventory_pools (detect #(= pool-id (:id %))))
@@ -45,10 +47,31 @@
                                                         #js {:httpStatus (aget data "httpStatus")})})))))))
      [fetcher t])
 
-    ($ :header {:className "bg-background sticky z-50 top-0 flex h-12 items-center gap-4 border-b h-16"}
+    ($ :header {:className "bg-background sticky z-50 top-0 flex items-center gap-4 border-b h-16"}
        ($ :nav {:className "container w-full flex flex-row justify-between text-sm items-center"}
           ($ :div {:className "flex items-center"}
-             ($ :img {:src "/inventory/assets/zhdk-logo.svg" :className ""})
+             (let [logo-light (:logo_light settings)
+                   logo-dark (:logo_dark settings)
+                   resolved-theme (if (= theme "system")
+                                    (if (.-matches (.matchMedia js/window "(prefers-color-scheme: dark)"))
+                                      "dark"
+                                      "light")
+                                    theme)
+                   logo-src (if (= resolved-theme "dark")
+                              (or logo-dark logo-light "/inventory/assets/zhdk-logo.svg")
+                              (or logo-light logo-dark "/inventory/assets/zhdk-logo.svg"))
+
+                   logo-type (cond
+                               (and (= resolved-theme "light")
+                                    (or logo-light logo-dark)) "Logo light"
+                               (and (= resolved-theme "dark")
+                                    (or logo-dark logo-light)) "Logo dark"
+                               :else "Logo default")]
+
+               ($ :img {:src logo-src
+                        :className "max-h-16 py-2"
+                        :alt logo-type
+                        :data-test-id "app-logo"}))
              ($ :form {:action current-search-url :method "GET"}
                 ($ InputGroup {:className "mx-12 w-fit"}
                    ($ InputGroupInput {:name "search_term"

@@ -13,6 +13,8 @@
 
 (def fields [:s.user_image_url
              :s.logo_url
+             :s.logo_light
+             :s.logo_dark
              :s.local_currency_string
              :s.time_zone
              :s.lending_terms_url
