@@ -442,7 +442,8 @@
           "add_license": "Lizenz hinzufügen",
           "copy_license": "Lizenz duplizieren",
           "add_package": "Paket hinzufügen",
-          "copy_package": "Paket duplizieren"
+          "copy_package": "Paket duplizieren",
+          "timeline": "Zeitleiste"
         }
       },
       "search_edit": {

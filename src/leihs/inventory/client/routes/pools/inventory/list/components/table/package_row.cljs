@@ -13,6 +13,7 @@
    [clojure.string :as str]
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.expandable-row :refer [ExpandableRow]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-info :refer [ItemInfo]]
@@ -25,7 +26,7 @@
              "user_name" "model_name" "reservation_user_name" "url"
              "reservation_contract_id"])
 
-(defui main [{:keys [package type]}]
+(defui main [{:keys [package type permission]}]
   (let [location (router/useLocation)
         [t] (useTranslation)
         params (router/useParams)
@@ -74,7 +75,8 @@
                                         ($ ItemRow {:key (:id item)
                                                     :type type
                                                     :is-package-item true
-                                                    :item item})))
+                                                    :item item
+                                                    :permission permission})))
                                     (:data result))))}
 
        ($ TableCell
@@ -94,27 +96,32 @@
           ($ ItemStatus {:item package}))
 
        ($ TableCell {:className "fit-content"}
-          ($ ButtonGroup
-             ($ Button {:variant "outline"
-                        :asChild true}
-                ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (str "../packages/" (:id package))
-                         :viewTransition true}
-                   (t "pool.models.list.actions.edit")))
+          (if (= permission "read")
+            ($ Button {:variant "outline"
+                       :class-name "invisible"}
+               (t "pool.models.list.actions.timeline"))
 
-             ($ DropdownMenu
-                ($ DropdownMenuTrigger {:asChild true}
-                   ($ Button {:data-test-id "edit-dropdown"
-                              :class-name ""
-                              :variant "outline"
-                              :size "icon"}
-                      ($ ChevronDown {:className "w-4 h-4"})))
-                ($ DropdownMenuContent {:align "start"}
-                   ($ DropdownMenuItem
-                      ($ Link {:to (str (:id package) "/items/create")
-                               :state #js {:searchParams (.. location -search)}
-                               :viewTransition true}
-                         (t "pool.models.list.actions.add_item"))))))))))
+            ($ ButtonGroup
+               ($ Button {:variant "outline"
+                          :asChild true}
+                  ($ Link {:state #js {:searchParams (.. location -search)}
+                           :to (str "../packages/" (:id package))
+                           :viewTransition true}
+                     (t "pool.models.list.actions.edit")))
+
+               ($ DropdownMenu
+                  ($ DropdownMenuTrigger {:asChild true}
+                     ($ Button {:data-test-id "edit-dropdown"
+                                :class-name ""
+                                :variant "outline"
+                                :size "icon"}
+                        ($ ChevronDown {:className "w-4 h-4"})))
+                  ($ DropdownMenuContent {:align "start"}
+                     ($ DropdownMenuItem
+                        ($ Link {:to (str (:id package) "/items/create")
+                                 :state #js {:searchParams (.. location -search)}
+                                 :viewTransition true}
+                           (t "pool.models.list.actions.add_item")))))))))))
 
 (def PackageRow
   (uix/as-react

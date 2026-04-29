@@ -16,7 +16,8 @@
    [clojure.string :as str]
    [leihs.core.core :refer [detect]]
    [leihs.inventory.client.lib.csrf :as csrf]
-   [leihs.inventory.client.lib.utils :refer [jc]]
+   [leihs.inventory.client.lib.hooks :as hooks]
+   [leihs.inventory.client.lib.utils :refer [jc cj]]
    [leihs.inventory.client.routes.components.theme-provider :refer [use-theme]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -26,9 +27,9 @@
         {:keys [pool-id]} (jc (router/useParams))
         {:keys [theme set-theme]} (use-theme)
         {:keys [settings]} (router/useRouteLoaderData "root")
+        current-pool (hooks/use-current-pool)
         fetcher (router/useFetcher)
         last-fetcher-data (uix/use-ref nil)
-        current-pool (->> available_inventory_pools (detect #(= pool-id (:id %))))
         current-lending-url (->> navigation :manage_nav_items (detect #(= (:name current-pool) (:name %))) :href)
         current-search-url (str/replace (or current-lending-url "") "/daily" "/search")
         current-lang (.. i18n -language)]

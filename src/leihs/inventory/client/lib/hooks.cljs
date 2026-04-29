@@ -1,10 +1,28 @@
 (ns leihs.inventory.client.lib.hooks
-  (:require
-   ["react-hook-form" :refer [useWatch]]
-   [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [uix.core :as uix :refer [defhook]]))
+  (:require ["react-hook-form" :refer [useWatch]]
+            ["react-router-dom" :as router]
+            [leihs.core.core :refer [detect]]
+            [leihs.inventory.client.lib.utils :refer [jc cj]]
+            [uix.core :as uix]))
 
 ;; NOTE: would be nicer to user defhook macro, but somehow the linting is broken ( maybe beacause of uix version? ) 
+
+(defn use-current-pool []
+  (let [[current-pool set-current-pool!] (uix/use-state nil)
+        {:keys [pool-id]} (jc (router/useParams))
+        profile (router/useRouteLoaderData "root")
+        available_inventory_pools (-> profile
+                                      :profile
+                                      :available_inventory_pools)]
+
+    (uix/use-effect
+     (fn []
+       (let [pool-id (->> available_inventory_pools (detect #(= pool-id (:id %))))]
+         (when pool-id
+           (set-current-pool! pool-id))))
+     [pool-id available_inventory_pools])
+
+    current-pool))
 
 ;; NOTE: docs https://usehooks.com/usedebounce
 (defn use-debounce [value delay]
@@ -118,7 +136,6 @@
 
 (defn use-network-state []
   (let [cache (uix/use-ref {})
-
         get-snapshot (uix/use-callback
                       (fn []
                         (let [online (.-onLine js/navigator)
