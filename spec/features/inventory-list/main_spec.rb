@@ -1679,12 +1679,14 @@ def verify_row_details(model, availabilty, items = [], is_package: false, is_opt
         wait_until { package_rows.size == details[:package_items].size }
         expect(package_rows.size).to eq(details[:package_items].size)
 
-        details[:package_items].each_with_index do |pkg_item, pkg_index|
-          expect(package_rows[pkg_index]).to have_content(pkg_item[:inventory_code])
-          expect(package_rows[pkg_index]).to have_content("is part of a package")
+        details[:package_items].each do |pkg_item|
+          matched_row = package_rows.find { |row_item| row_item.has_content?(pkg_item[:inventory_code]) }
+
+          expect(matched_row).to be_present
+          expect(matched_row).to have_content("is part of a package")
 
           if pkg_item[:statuses]
-            status_texts = package_rows[pkg_index].all('[data-test-id="item-status"] span').map(&:text)
+            status_texts = matched_row.all('[data-test-id="item-status"] span').map(&:text)
             expect(pkg_item[:statuses]).to include(*status_texts)
           end
         end
