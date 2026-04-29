@@ -93,6 +93,21 @@
   environment_variables:
     FEATURE_NAME: "Language 03"
     FEATURE: './spec/features/i18n/language-switcher_spec.rb[1:3]'
+'./spec/features/inventory-list/access_rights_spec.rb[1:1]':
+  name: "Access rights on inventory list 01"
+  environment_variables:
+    FEATURE_NAME: "Access rights on inventory list 01"
+    FEATURE: './spec/features/inventory-list/access_rights_spec.rb[1:1]'
+'./spec/features/inventory-list/access_rights_spec.rb[1:2]':
+  name: "Access rights on inventory list 02"
+  environment_variables:
+    FEATURE_NAME: "Access rights on inventory list 02"
+    FEATURE: './spec/features/inventory-list/access_rights_spec.rb[1:2]'
+'./spec/features/inventory-list/access_rights_spec.rb[1:3]':
+  name: "Access rights on inventory list 03"
+  environment_variables:
+    FEATURE_NAME: "Access rights on inventory list 03"
+    FEATURE: './spec/features/inventory-list/access_rights_spec.rb[1:3]'
 './spec/features/inventory-list/availability_counts_variations_spec.rb[1:1]':
   name: "Inventory list availability counts (models, packages, options, software) 01"
   environment_variables:

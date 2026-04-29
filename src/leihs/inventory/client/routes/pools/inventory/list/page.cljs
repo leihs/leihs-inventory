@@ -36,6 +36,7 @@
                            mod-result))
         params (router/useParams)
         pool-id (aget params "pool-id")
+        {:keys [permission]} (hooks/use-current-pool)
 
         [to-last-page? set-to-last-page!] (uix/use-state false)
         [t] (useTranslation)
@@ -48,6 +49,7 @@
                               "50"))
         handle-reset (fn []
                        (navigate (str "?page=1&size=" size "&with_items=true")))
+
         is-desktop? (hooks/use-media-query "(min-width: 1280px)")]
 
     (uix/use-effect
@@ -134,9 +136,11 @@
                           (doall (for [i (range (if to-last-page?
                                                   last-page-rows
                                                   (:size pagination)))]
-                                   ($ SkeletonRow {:key i})))
+                                   ($ SkeletonRow {:key i
+                                                   :permission permission})))
                           (for [model models]
                             ($ ModelRow {:key (:id model)
+                                         :permission permission
                                          :model model})))))))))
 
        ($ CardFooter {:class-name "sticky bottom-0 bg-background z-10 rounded-b-xl  pt-6"

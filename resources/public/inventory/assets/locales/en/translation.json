@@ -408,7 +408,8 @@
           "add_license": "Add license",
           "copy_license": "Duplicate license",
           "add_package": "Add package",
-          "copy_package": "Duplicate package"
+          "copy_package": "Duplicate package",
+          "timeline": "Timeline"
         }
       }
     },
