@@ -27,7 +27,7 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.models.crud.components.fields :as form-fields]
+   [leihs.inventory.client.routes.pools.models.crud.components.field-dispatcher :refer [FieldDispatcher]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -286,7 +286,7 @@
          ($ Card {:className "py-8 mb-12"}
             ($ CardContent
                ($ Scrollspy {:className "flex gap-4"}
-                  ($ ScrollspyMenu)
+                  ($ ScrollspyMenu {:class-name "w-1/5"})
 
                   ($ Form (merge form)
                      ($ :form {:id "model-form"
@@ -304,10 +304,9 @@
                              ($ :hr {:className "mb-4"})
 
                              (for [block (:blocks section)]
-                               ($ form-fields/field {:key (:name block)
-                                                     :control control
-                                                     :form form
-                                                     :block block}))))))
+                               ($ FieldDispatcher {:key (:name block)
+                                                   :form form
+                                                   :block block}))))))
 
                   ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}
                      ($ Button {:type "submit"
@@ -348,7 +347,7 @@
                                          :state state}
                                    "Delete"))))))
 
-                      ;; Dialog when deleting a model
+                  ;; Dialog when deleting a model
                   (when (and (not is-create)
                              (:is_deletable data))
                     ($ AlertDialog {:open is-delete}

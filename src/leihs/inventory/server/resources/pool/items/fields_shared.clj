@@ -48,6 +48,7 @@
         body-params (body-params request)
         {pool-id :pool_id item_id :item_id} (path-params request)
         {:keys [item-data]} (split-item-data body-params)
+        item-type (or (:type body-params) "item")
         existing-owner-id (when item_id
                             (-> (sql/select :owner_id)
                                 (sql/from :items)
@@ -55,17 +56,31 @@
                                 sql-format
                                 (->> (jdbc/execute-one! tx))
                                 :owner_id))
-        permitted-fields (-> (fields/base-query "item" (keyword role) pool-id)
+        permitted-fields (-> (fields/base-query item-type (keyword role) pool-id)
                              (cond-> (some-> existing-owner-id
                                              (or (:owner_id item-data))
                                              (not= pool-id))
                                (sql/where fields/not-owner-required))
                              sql-format
                              (->> (jdbc-query tx)))
+        ;; NOTE: A field's permitted key is normally its `id`, but some fields submit
+        ;; under a different key — either via `form_name` (e.g. `software_model_id`
+        ;; submits as `model_id`) or via a single-element `attribute` array (e.g.
+        ;; `license_version` submits as `item_version`). All aliases must be included
+        ;; here so they are not rejected as unpermitted fields.
         permitted-field-ids (->> permitted-fields
-                                 (map (comp keyword :id))
+                                 (mapcat
+                                  #(let [id (keyword (:id %))
+                                         form-name (some-> (get-in % [:data :form_name]) keyword)
+                                         attribute (get-in % [:data :attribute])
+                                         attr-key (when (and (vector? attribute)
+                                                             (= 1 (count attribute)))
+                                                    (keyword (first attribute)))]
+                                     (cond-> [id]
+                                       form-name (conj form-name)
+                                       attr-key (conj attr-key))))
                                  set)
-        body-keys (-> body-params (dissoc :id :inventory_code :count) keys set)
+        body-keys (-> body-params (dissoc :id :type :item_ids :count) keys set)
         unpermitted-fields (set/difference body-keys permitted-field-ids)
         owner-id (:owner_id item-data)
         model-id (:model_id item-data)
@@ -80,7 +95,11 @@
       (seq unpermitted-fields)
       {:error "Unpermitted fields" :unpermitted-fields unpermitted-fields}
 
-      (= model-type "Software")
+      (and (= item-type "license") (not= model-type "Software"))
+      {:error "Model must be Software type for licenses"
+       :model_id model-id}
+
+      (and (not= item-type "license") (= model-type "Software"))
       {:error "Model type 'Software' is not allowed for items"
        :model_id model-id}
 

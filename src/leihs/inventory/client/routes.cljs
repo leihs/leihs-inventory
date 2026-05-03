@@ -9,11 +9,12 @@
    [leihs.inventory.client.routes.layout :rename {layout root-layout}]
    [leihs.inventory.client.routes.notfound :rename {page notfound-page}]
    [leihs.inventory.client.routes.page :rename {page home-page}]
-   [leihs.inventory.client.routes.pools.inventory.advanced-search.page :rename {page advanced-search-page}]
    [leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.page :rename {page entitlement-group-crud-page}]
    [leihs.inventory.client.routes.pools.inventory.entitlement-groups.page :rename {page entitlement-groups-page}]
    [leihs.inventory.client.routes.pools.inventory.layout :rename {layout inventory-layout}]
    [leihs.inventory.client.routes.pools.inventory.list.page :rename {page list-page}]
+   [leihs.inventory.client.routes.pools.inventory.scan-edit.page :rename {page scan-edit-page}]
+   [leihs.inventory.client.routes.pools.inventory.search-edit.page :rename {page search-edit-page}]
    [leihs.inventory.client.routes.pools.inventory.statistics.page :rename {page statistics-page}]
    [leihs.inventory.client.routes.pools.inventory.templates.crud.page :rename {page template-crud-page}]
    [leihs.inventory.client.routes.pools.inventory.templates.page :rename {page templates-page}]
@@ -53,6 +54,7 @@
          :element ($ home-page)}
 
         {:path "debug"
+         :action actions/debug-action-error
          :element ($ debug-page)}
 
         {:path "test-error"
@@ -73,8 +75,14 @@
                   :id "models-page"
                   :element ($ list-page)}
 
-                 {:path "advanced-search"
-                  :element ($ advanced-search-page)}
+                 {:path "search-edit"
+                  :loader loader/search-edit-page
+                  :action actions/search-edit-page
+                  :element ($ search-edit-page)}
+
+                 {:path "scan-edit"
+                  :loader loader/scan-edit-page
+                  :element ($ scan-edit-page)}
 
                  {:path "statistics"
                   :element ($ statistics-page)}
@@ -107,6 +115,10 @@
 
               ;; software crud 
               {:path "software/create"
+               :loader loader/software-crud-page
+               :element ($ software-crud-page)}
+
+              {:path "models/:model-id/software/create"
                :loader loader/software-crud-page
                :element ($ software-crud-page)}
 
@@ -144,13 +156,39 @@
 
               {:path "items/:item-id/delete?"
                :loader loader/items-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "items"})}
 
               {:path "models/:model-id/items/create"
                :loader loader/items-crud-page
-               :element ($ items-crud-page)}
+               :element ($ items-crud-page {:key "items"})}
 
-               ;; Wildcard route for undefined pool routes
+              ;; packages crud (unified with items)
+              {:path "packages/create"
+               :loader loader/packages-crud-page
+               :element ($ items-crud-page {:key "packages"})}
+
+              {:path "packages/:item-id/delete?"
+               :loader loader/packages-crud-page
+               :element ($ items-crud-page {:key "packages"})}
+
+              {:path "models/:model-id/packages/create"
+               :loader loader/packages-crud-page
+               :element ($ items-crud-page {:key "packages"})}
+
+              ;; licenses crud (unified with items)
+              {:path "licenses/create"
+               :loader loader/licenses-crud-page
+               :element ($ items-crud-page {:key "licenses"})}
+
+              {:path "licenses/:item-id/delete?"
+               :loader loader/licenses-crud-page
+               :element ($ items-crud-page {:key "licenses"})}
+
+              {:path "software/:software-id/licenses/create"
+               :loader loader/licenses-crud-page
+               :element ($ items-crud-page {:key "licenses"})}
+
+              ;; Wildcard route for undefined pool routes
               {:path "*"
                :id "pool-not-found"
                :loader loader/not-found

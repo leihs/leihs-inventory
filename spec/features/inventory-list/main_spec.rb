@@ -57,6 +57,76 @@ feature "Inventory Page", type: :feature do
     expect(page).to have_selector('[data-test-id="add-inventory-dropdown"]')
   end
 
+  scenario "model expand shows in-package indicator when In stock filter is active" do
+    building = FactoryBot.create(:building, name: "PkgInd B", code: "PI1")
+    room = FactoryBot.create(:room, name: "PkgInd R", building: building)
+    pool = FactoryBot.create(:inventory_pool, shortname: "PI")
+    user = FactoryBot.create(:user, language_locale: "en-GB")
+    FactoryBot.create(:access_right,
+      inventory_pool: pool,
+      user: user,
+      role: :inventory_manager)
+
+    pkg_model = FactoryBot.create(:leihs_model, product: "PkgIndPkg", version: "v1", is_package: true)
+    item_model = FactoryBot.create(:leihs_model, product: "PkgIndModel", version: "v1")
+
+    pkg_parent = FactoryBot.create(:item,
+      inventory_code: "#{pool.shortname}PKG",
+      owner_id: pool.id,
+      inventory_pool_id: pool.id,
+      leihs_model: pkg_model,
+      room: room,
+      shelf: "S-PKG",
+      is_borrowable: true,
+      retired: nil)
+
+    FactoryBot.create(:item,
+      inventory_code: "#{pool.shortname}100",
+      owner_id: pool.id,
+      inventory_pool_id: pool.id,
+      leihs_model: item_model,
+      room: room,
+      shelf: "S-01",
+      is_borrowable: true,
+      retired: nil,
+      parent_id: nil)
+
+    FactoryBot.create(:item,
+      inventory_code: "#{pool.shortname}101",
+      owner_id: pool.id,
+      inventory_pool_id: pool.id,
+      leihs_model: item_model,
+      room: room,
+      shelf: "S-02",
+      is_borrowable: true,
+      retired: nil,
+      parent_id: pkg_parent.id)
+
+    login(user)
+
+    visit "/inventory/#{pool.id}/list?page=1&size=50&with_items=true&retired=false&in_stock=true"
+    find("input[name='search']").set("PkgIndModel")
+    await_debounce
+
+    row = find("tr", text: item_model.name)
+    within(row) do
+      expect(find('[data-test-id="items"]').text).to eq("1")
+    end
+
+    within("tr", text: item_model.name) do
+      click_on "expand-button"
+    end
+
+    item_rows = row.all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
+    wait_until { item_rows.size == 2 }
+
+    packaged_row = item_rows.find { |r| r.text.include?("#{pool.shortname}101") }
+    standalone_row = item_rows.find { |r| r.text.include?("#{pool.shortname}100") }
+
+    expect(packaged_row).to have_content("is part of a package")
+    expect(standalone_row).not_to have_content("is part of a package")
+  end
+
   scenario "filters work" do
     # |----------  |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
     # | model      | package | item   | owner  | pool   | retired | borrowable | in_stock | incomplete | broken | last_check |
@@ -318,15 +388,9 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
-        {
-          inventory_code: item_model_10_1.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_10_1.shelf,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_10_1)
       ]
     )
 
@@ -400,15 +464,9 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_9_1.shelf,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -430,21 +488,21 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         }
       ]
     )
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -458,7 +516,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Not borrowable", "Incomplete"]
+          statuses: ["Not borrowable", "Incomplete", "Retired"]
         }
       ]
     )
@@ -472,7 +530,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -498,7 +556,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         }
       ]
     )
@@ -512,7 +570,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Not borrowable", "Incomplete"]
+          statuses: ["Not borrowable", "Incomplete", "Retired"]
         }
       ]
     )
@@ -526,15 +584,9 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
-        {
-          inventory_code: item_model_10_1.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_10_1.shelf,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_10_1)
       ]
     )
 
@@ -555,7 +607,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -576,14 +628,14 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -597,7 +649,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Not borrowable", "Incomplete"]
+          statuses: ["Not borrowable", "Incomplete", "Retired"]
         }
       ]
     )
@@ -611,7 +663,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -658,15 +710,9 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_9_1.shelf,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -674,9 +720,7 @@ feature "Inventory Page", type: :feature do
     # with_items=false
     visit "/inventory/#{pool_1.id}/list"
 
-    click_on "Status"
-    click_on "Broken"
-    click_on "Yes"
+    select_status_filter_submenu("Broken", "Yes")
 
     click_on "Status"
     click_on "In stock"
@@ -724,15 +768,9 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
-        {
-          inventory_code: item_model_10_1.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_10_1.shelf,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_10_1)
       ]
     )
 
@@ -753,7 +791,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -774,14 +812,14 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -795,7 +833,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Not borrowable", "Incomplete"]
+          statuses: ["Not borrowable", "Incomplete", "Retired"]
         }
       ]
     )
@@ -809,7 +847,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -861,15 +899,9 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_9_1.shelf,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -902,7 +934,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -923,14 +955,14 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -963,15 +995,9 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_9_1.shelf,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -1015,7 +1041,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -1037,15 +1063,9 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
-        {
-          inventory_code: item_model_10_1.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_10_1.shelf,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_10_1)
       ]
     )
 
@@ -1065,14 +1085,14 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -1086,7 +1106,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -1119,15 +1139,9 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_9_1.shelf,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -1204,7 +1218,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Incomplete", "Not borrowable"]
+          statuses: ["Incomplete", "Not borrowable", "Retired"]
         }
       ]
     )
@@ -1215,12 +1229,11 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/list"
 
     select_value("with_items", "with_items")
-    click_on "Status"
-    click_on "Broken"
-    click_on "Yes"
+    select_status_filter_submenu("Broken", "Yes")
     expect(page).to have_button("Status", text: "1")
 
-    expect(all("table tbody tr").count).to eq 2
+    expect(page).to have_current_path(/broken=true/, wait: 20)
+    expect(page).to have_selector("table tbody tr", count: 2, wait: 20)
 
     verify_row_details(
       model_2,
@@ -1278,7 +1291,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -1323,7 +1336,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -1348,8 +1361,9 @@ feature "Inventory Page", type: :feature do
     click_on "Inventory type"
     click_on "Package"
 
-    within(:button, "Inventory type") do
-      expect(page).to have_text("P")
+    within(:button, "Package") do
+      expect(page).to have_text("M")
+      expect(page).to have_css(".lucide-package")
     end
 
     expect(all("table tbody tr").count).to eq 1
@@ -1395,15 +1409,9 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_10,
-      "0 | 1",
+      "0 | 0",
       [
-        {
-          inventory_code: item_model_10_1.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_10_1.shelf,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_10_1)
       ]
     )
 
@@ -1424,7 +1432,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_2_2.shelf,
-          statuses: ["Not borrowable"]
+          statuses: ["Not borrowable", "Retired"]
         },
         {
           inventory_code: item_model_2_3.inventory_code,
@@ -1445,14 +1453,14 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_3,
-      "1 | 1",
+      "0 | 0",
       [
         {
           inventory_code: item_model_3_1.inventory_code,
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_3_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -1466,7 +1474,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_4_1.shelf,
-          statuses: ["Not borrowable", "Incomplete"]
+          statuses: ["Not borrowable", "Incomplete", "Retired"]
         }
       ]
     )
@@ -1480,7 +1488,7 @@ feature "Inventory Page", type: :feature do
           building_name: building.name,
           building_code: building.code,
           shelf: item_model_5_1.shelf,
-          statuses: ["Not borrowable", "Available"]
+          statuses: ["Not borrowable", "Available", "Retired"]
         }
       ]
     )
@@ -1506,15 +1514,9 @@ feature "Inventory Page", type: :feature do
 
     verify_row_details(
       model_9,
-      "0 | 1",
+      "0 | 0",
       [
-        {
-          inventory_code: item_model_9_1.inventory_code,
-          building_name: building.name,
-          building_code: building.code,
-          shelf: item_model_9_1.shelf,
-          statuses: ["Available"]
-        }
+        packaged_child_row(item_model_9_1)
       ]
     )
 
@@ -1547,9 +1549,7 @@ feature "Inventory Page", type: :feature do
     click_on "category-filter-button"
     click_on cat_1.id
 
-    click_on "Status"
-    click_on "Broken"
-    click_on "Yes"
+    select_status_filter_submenu("Broken", "Yes")
 
     click_on "Status"
     click_on "In stock"
@@ -1577,7 +1577,7 @@ feature "Inventory Page", type: :feature do
     click_on "Inventory type"
     click_on "Option"
 
-    within(:button, "Inventory type") do
+    within(:button, "Option") do
       expect(page).to have_text("O")
     end
 
@@ -1605,6 +1605,10 @@ feature "Inventory Page", type: :feature do
 
     expect(all("table tbody tr").count).to eq 0
   end
+end
+
+def packaged_child_row(item, statuses: ["Available"])
+  {inventory_code: item.inventory_code, part_of_package: true, statuses: statuses}
 end
 
 def verify_row_details(model, availabilty, items = [], is_package: false, is_option: false)
@@ -1644,6 +1648,8 @@ def verify_row_details(model, availabilty, items = [], is_package: false, is_opt
         expect(following_rows[index]).to have_content(details[:reservation_user_name])
         expect(following_rows[index]).to have_content(details[:reservation_end_date])
         expect(following_rows[index].find('[data-test-id="items"]').text).to eq(details[:package_items].size.to_s)
+      elsif details[:part_of_package]
+        expect(following_rows[index]).to have_content("is part of a package")
       else
         expect(following_rows[index]).to have_content(details[:building_name])
         expect(following_rows[index]).to have_content(details[:building_code])
@@ -1661,11 +1667,28 @@ def verify_row_details(model, availabilty, items = [], is_package: false, is_opt
         package_expand = following_rows[index].find('[data-test-id="expand-button"]')
         package_expand.click
 
-        details[:package_items].each_with_index do |pkg_item, pkg_index|
-          package_rows = following_rows[index].all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
-          expect(package_rows[pkg_index]).to have_content(pkg_item[:model_name])
-          expect(package_rows[pkg_index]).to have_content(pkg_item[:inventory_code])
-          expect(package_rows[pkg_index]).to have_content("is part of a package")
+        package_rows = []
+        current_row = following_rows[index]
+        while (next_row = current_row.first(:xpath, "following-sibling::tr[1]", minimum: 0, wait: 0))
+          break unless next_row["data-row"] == "item"
+
+          package_rows << next_row
+          current_row = next_row
+        end
+
+        wait_until { package_rows.size == details[:package_items].size }
+        expect(package_rows.size).to eq(details[:package_items].size)
+
+        details[:package_items].each do |pkg_item|
+          matched_row = package_rows.find { |row_item| row_item.has_content?(pkg_item[:inventory_code]) }
+
+          expect(matched_row).to be_present
+          expect(matched_row).to have_content("is part of a package")
+
+          if pkg_item[:statuses]
+            status_texts = matched_row.all('[data-test-id="item-status"] span').map(&:text)
+            expect(pkg_item[:statuses]).to include(*status_texts)
+          end
         end
 
         package_expand.click

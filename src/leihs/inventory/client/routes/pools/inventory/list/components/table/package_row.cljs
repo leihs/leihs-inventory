@@ -25,7 +25,7 @@
              "user_name" "model_name" "reservation_user_name" "url"
              "reservation_contract_id"])
 
-(defui main [{:keys [package]}]
+(defui main [{:keys [package type]}]
   (let [location (router/useLocation)
         [t] (useTranslation)
         params (router/useParams)
@@ -72,13 +72,14 @@
                                     (fn [item]
                                       (when (not (:is_package item))
                                         ($ ItemRow {:key (:id item)
+                                                    :type type
                                                     :is-package-item true
                                                     :item item})))
                                     (:data result))))}
 
        ($ TableCell
-          (if (:url package)
-            ($ ImageModal {:url (:url package)
+          (if (get-in package [:image :url])
+            ($ ImageModal {:url (get-in package [:image :url])
                            :alt (str (:product package) " " (:version package))})
             ($ Image {:class-name "w-12 h-12"})))
 
@@ -97,7 +98,7 @@
              ($ Button {:variant "outline"
                         :asChild true}
                 ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (str (:id package) "/edit")
+                         :to (str "../packages/" (:id package))
                          :viewTransition true}
                    (t "pool.models.list.actions.edit")))
 

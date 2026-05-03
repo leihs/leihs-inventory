@@ -130,6 +130,13 @@ jobs:
                 #!/usr/bin/env bash
                 set -euo pipefail
                 ./bin/rblint
+        ruby-commited:
+          scripts:
+            test:
+              body: |
+                #!/usr/bin/env bash
+                set -euo pipefail
+                ./bin/check-ruby-commited
 
   good-to-merge:
     name: ⚑ Good To Merge

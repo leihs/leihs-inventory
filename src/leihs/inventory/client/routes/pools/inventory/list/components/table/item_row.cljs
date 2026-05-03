@@ -15,8 +15,9 @@
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [item isPackageItem]
+(defui main [{:keys [item type isPackageItem]
               :or {isPackageItem false}}]
+
   (let [location (router/useLocation)
         [t] (useTranslation)
         ref (uix/use-ref nil)]
@@ -43,12 +44,16 @@
 
        ($ TableCell
           ($ :div {:className "flex gap-2 "}
-             ($ Badge {:className "w-6 h-5 justify-center bg-blue-500"}
-                (t "pool.models.list.item.badge"))))
+             (if (= type "Software")
+               ($ Badge {:className "w-6 h-5 justify-center bg-yellow-500"}
+                  "L")
+               ($ Badge {:className "w-6 h-5 justify-center bg-blue-500"}
+                  (t "pool.models.list.item.badge")))))
 
        ($ TableCell
           ($ ItemInfo {:item item
-                       :is-package-item isPackageItem}))
+                       :is-package-item isPackageItem
+                       :is-software-license (= type "Software")}))
 
        ($ TableCell {:className "text-right"}
           ($ ItemStatus {:item item}))
@@ -58,8 +63,18 @@
              ($ Button {:variant "outline"
                         :asChild true}
                 ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (str "../items/" (:id item))
+                         :to (case type
+                               "Software"
+                               (str "../licenses/" (:id item))
+
+                               "Package"
+                               (if isPackageItem
+                                 (str "../items/" (:id item))
+                                 (str "../packages/" (:id item)))
+
+                               (str "../items/" (:id item)))
                          :viewTransition true}
+
                    (t "pool.models.list.actions.edit")))
 
              ($ DropdownMenu
@@ -71,10 +86,22 @@
                       ($ ChevronDown {:className "w-4 h-4"})))
                 ($ DropdownMenuContent {:align "start"}
                    ($ DropdownMenuItem
-                      ($ Link {:to (str (:id item) "/items/create")
-                               :state #js {:searchParams (.. location -search)}
-                               :viewTransition true}
-                         (t "pool.models.list.actions.add_item"))))))))))
+                      (case type
+                        "Software"
+                        ($ Link {:to (str "../licenses/create?fromItem=" (:id item))
+                                 :state #js {:searchParams (.. location -search)}
+                                 :viewTransition true}
+                           (t "pool.models.list.actions.copy_license"))
+
+                        ($ Link {:to (str "../items/create?fromItem=" (:id item))
+                                 :state #js {:searchParams (.. location -search)}
+                                 :viewTransition true}
+                           (t "pool.models.list.actions.copy_item")))
+
+                      #_($ Link {:to (str "../items/create?fromItem=" (:id item))
+                                 :state #js {:searchParams (.. location -search)}
+                                 :viewTransition true}
+                           (t "pool.models.list.actions.copy_item"))))))))))
 
 (def ItemRow
   (uix/as-react

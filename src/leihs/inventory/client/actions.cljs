@@ -1,9 +1,33 @@
 (ns leihs.inventory.client.actions
   (:require
    ["~/i18n.config.js" :as i18n :refer [i18n]]
+   [clojure.string]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [promesa.core :as p]))
+
+(defn- handle-error [err]
+  (let [status (some-> err .-response .-status)]
+    #js {:status "error"
+         :httpStatus (or status 0)
+         :message (.-message err)}))
+
+(defn debug-action-error [action]
+  (p/let [form-data (.. action -request (formData))
+          error-type (.get form-data "error-type")
+          method (aget action "request" "method")]
+    (case method
+      "POST"
+      (case error-type
+        "not-found"
+        (-> http-client
+            (.get "/inventory/non-existent-debug-endpoint")
+            (.then (fn [_] #js {:status "ok"}))
+            (.catch handle-error))
+
+        "bad-request"
+        (handle-error #js {:response #js {:status 400}
+                           :message "Bad Request"})))))
 
 (defn profile [action]
   (p/let [request (.. action -request (formData))
@@ -17,10 +41,7 @@
           (.then (fn [_]
                    (.. i18n (changeLanguage request))
                    #js {:status "ok"}))
-
-          (.catch (fn [error]
-                    (js/console.error "Language change error:" error)
-                    #js {:error (.-message error)}))))))
+          (.catch handle-error)))))
 
 (defn export [action]
   (p/let [form-data (.. action -request (formData))
@@ -51,9 +72,7 @@
                      (.removeChild (.-body js/document) link)
                      (js/URL.revokeObjectURL url)
                      #js {:status "ok"})))
-          (.catch (fn [error]
-                    (js/console.error "Export error:" error)
-                    #js {:error (.-message error)}))))))
+          (.catch handle-error)))))
 
 (defn items-review-page [action]
   (p/let [form-data (.. action -request (formData))
@@ -70,6 +89,27 @@
                   (cj {:cache false}))
           (.then (fn [_]
                    #js {:status "ok"}))
-          (.catch (fn [error]
-                    (js/console.error "Serial number update error:" error)
-                    #js {:error (.-message error)}))))))
+          (.catch handle-error)))))
+
+(defn search-edit-page [action]
+  (p/let [request (.-request action)
+          json-data (.json request)
+          body (jc json-data)
+          params (.. ^js action -params)
+          pool-id (aget params "pool-id")
+          method (aget action "request" "method")]
+
+    (case method
+      "PATCH"
+      (let [items (:selected-items body)
+            data (cj (apply merge (:update body)))]
+        (-> (p/all
+             (map (fn [item-id]
+                    (-> http-client
+                        (.patch (str "/inventory/" pool-id "/items/" item-id)
+                                (js/JSON.stringify data)
+                                (cj {:cache false}))))
+                  items))
+            (.then (fn [_] #js {:status "ok"}))
+            (.catch handle-error))))))
+

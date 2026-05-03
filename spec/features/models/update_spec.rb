@@ -270,4 +270,84 @@ feature "Update model", type: :feature do
       assert_field("properties.1.value", third_property_value_new)
     end
   end
+
+  scenario "displays rentable count in entitlement allocations" do
+    # Create items for the model
+    3.times do
+      FactoryBot.create(:item,
+        leihs_model: @model,
+        inventory_pool_id: pool.id,
+        is_borrowable: true,
+        retired: nil,
+        parent_id: nil)
+    end
+
+    # Create a non-borrowable item (should not count)
+    FactoryBot.create(:item,
+      leihs_model: @model,
+      inventory_pool_id: pool.id,
+      is_borrowable: false,
+      retired: nil,
+      parent_id: nil)
+
+    # Create a retired item (should not count)
+    FactoryBot.create(:item,
+      leihs_model: @model,
+      inventory_pool_id: pool.id,
+      is_borrowable: true,
+      retired: Date.today,
+      parent_id: nil)
+
+    login(user)
+    visit "/inventory/#{pool.id}"
+    select_value("with_items", "all")
+    fill_in "search", with: "#{product_old} #{version_old}"
+    await_debounce
+    find("a", text: "edit").click
+
+    # Check that the rentable count is displayed correctly
+    # The label should show "Entitlements (3 items available)" or similar
+    within id: "pool.model.entitlements.title" do
+      # The rentable count appears in the label via translation key
+      # pool.model.entitlements.blocks.entitlements.label with amount parameter
+      expect(page).to have_content("(max 3)")
+    end
+  end
+
+  scenario "shows allocation indicator color based on rentable count" do
+    # Create 3 rentable items
+    3.times do
+      FactoryBot.create(:item,
+        leihs_model: @model,
+        inventory_pool_id: pool.id,
+        is_borrowable: true,
+        retired: nil,
+        parent_id: nil)
+    end
+
+    login(user)
+    visit "/inventory/#{pool.id}"
+    select_value("with_items", "all")
+    fill_in "search", with: "#{product_old} #{version_old}"
+    await_debounce
+    find("a", text: "edit").click
+
+    within id: "pool.model.entitlements.title" do
+      # The first row should have a green indicator (bg-green-500)
+      # because allocations (3) <= rentable (3)
+      expect(page).to have_content("(max 3)")
+      entitlement_row = find("tr", text: entitlement_group_1.name)
+      expect(entitlement_row).to have_css("td.bg-green-500")
+    end
+
+    # Now increase allocations to exceed rentable count
+    fill_in "entitlements.0.quantity", with: 1
+    fill_in "entitlements.1.quantity", with: 3
+
+    # Should now show red (over-allocated)
+    within id: "pool.model.entitlements.title" do
+      entitlement_row = find("tr", text: entitlement_group_1.name)
+      expect(entitlement_row).to have_css("td.bg-red-500")
+    end
+  end
 end

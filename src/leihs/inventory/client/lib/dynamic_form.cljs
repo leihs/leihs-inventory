@@ -8,6 +8,7 @@
     "radio"
     "checkbox"
     "attachment"
+    "composite"
     "autocomplete-search"
     "autocomplete"})
 
@@ -23,8 +24,7 @@
 ;;  
 ;;  ;; Optional - Standard field attributes
 ;;  :group "Group Name"             ;; Group name (default: "Mandatory data")
-;;  :position 50                    ;; Position for sorting within group (lower = earlier)
-;;  :label "Field Label"            ;; Display label for the field
+;;  :position 50                    ;; Position for sorting (supports floats like 5.1, 5.2 for fine-grained control)
 ;;  :required false                 ;; Is field required? (default: false)
 ;;  :default "default-value"        ;; Default value (type depends on field type)
 ;;  :description "Help text"        ;; Description/help text shown below field
@@ -53,7 +53,7 @@
 ;;   :component "input"
 ;;   :group "Mandatory data"
 ;;   :position 3
-;;   :label "Item Count"
+;;   :label -> will be generated from id "item_count" as "fields.Mandatory data.item_count"
 ;;   :required true
 ;;   :default 1
 ;;   :props {:type "number"
@@ -65,12 +65,36 @@
 ;;                (.max 999999 "Must be less than 1,000,000")
 ;;                (.int "Must be a whole number"))}]
 ;;
+;; Example - Custom group positioned between existing groups using floating point:
+;; [{:id "custom_field"
+;;   :type "text"
+;;   :component "input"
+;;   :group "My Custom Group"           ;; New group name
+;;   :position 5.1                       ;; Places group after position 5, before position 6+ 
+;;   }]
+;;
+;; Group Ordering:
+;; - Groups are automatically ordered by the minimum :position of fields within each group
+;; - Positions can be integers (0, 5, 10) or floating point numbers (5.1, 5.2) for fine-grained control
+;; - To insert a custom group between existing groups, use a floating point position between their positions
+;;   Example: If "Mandatory data" has fields at positions 0-5, and "Location" has fields at positions 10+,
+;;            use position 5.1 (or 6, 7.5, 9.9, etc.) to place your group in between
+;; - Groups with the same minimum position are sorted alphabetically by group name
+;; - Fields within each group are also sorted by their :position value (supports floats too)
+;; - Alternatively, you can pass a vector of group names to fields->structure to explicitly order groups
+;;   Groups not in the vector will be appended at the end, sorted by minimum :position
+;;
 ;; Usage:
 ;; (def custom-fields [{...}])
 ;; (def all-fields (concat (:fields api-response) custom-fields))
 ;; (dynamic-form/fields->structure all-fields)
 ;; (dynamic-form/fields->defaults all-fields)
 ;; (dynamic-validation/fields->schema all-fields)
+;;
+;; Custom Group Ordering:
+;; (dynamic-form/fields->structure all-fields ["Mandatory data" "Location" "Additional Information"])
+;; ;; Groups will appear in the specified order
+;; ;; Groups not in the vector appear after, sorted by minimum :position
 
 (defn- field-type->component [field]
   ;; If field has explicit component, use it (for custom fields)
@@ -86,6 +110,7 @@
         "attachment" "attachments"
         "autocomplete-search" "autocomplete-search"
         "autocomplete" "autocomplete"
+        "composite" "composite"
         nil)))
 
 (defn- transform-field-values [values field-type]
@@ -144,12 +169,21 @@
                     (:props field) (merge (:props field)))
 
             ;; Add visibility dependency if present
-            visibility-dep (when (and (:visibility_dependency_field_id field)
-                                      (:visibility_dependency_value field))
+            visibility-dep (cond
+                             (and (:visibility_dependency_field_id field)
+                                  (:visibility_dependency_value field))
                              {:field (:visibility_dependency_field_id field)
-                              :value (:visibility_dependency_value field)})
+                              :value (:visibility_dependency_value field)}
 
-            ;; Add values dependency if present (e.g., room depends on building)
+                             (:visibility_dependency_field_id field)
+                             {:field (:visibility_dependency_field_id field)}
+
+                             (:visibility_dependency_value field)
+                             {:value (:visibility_dependency_value field)}
+
+                             :else nil)
+
+;; Add values dependency if present (e.g., room depends on building)
             values-dep (when (:values_dependency_field_id field)
                          {:field (:values_dependency_field_id field)})]
 
@@ -160,28 +194,62 @@
           values-dep (assoc :values-dependency values-dep)
           (:protected field) (assoc :disabled-reason :protected))))))
 
-(defn- group-fields-by-group [fields]
+(defn- group-fields-by-group [fields main-group]
   (reduce (fn [acc field]
-            (let [group-name (or (:group field) "Mandatory data")]
+            (let [group-name (or (:group field) main-group "Mandatory data")]
               (update acc group-name (fnil conj []) field)))
           {}
           fields))
 
-(defn fields->structure [fields]
-  (let [;; Filter only implemented field types or fields with custom component
-        implemented-fields (filter #(or (implemented-field-types (:type %))
-                                        (:component %))
-                                   fields)
-        grouped (group-fields-by-group implemented-fields)]
+(defn- sort-groups-by-order
+  "Sorts grouped fields map by the specified group-order vector.
+   Groups in group-order appear first in that order.
+   Groups not in group-order are appended, sorted by minimum :position."
+  [grouped group-order]
+  (if (and group-order (seq group-order))
+    (let [;; Create index map for groups in group-order
+          order-index (into {} (map-indexed (fn [idx name] [name idx]) group-order))
+          ;; Calculate minimum position for each group (for unlisted groups)
+          group-min-positions (into {}
+                                    (map (fn [[group-name fields]]
+                                           [group-name (apply min (map :position fields))])
+                                         grouped))
+          ;; Separate ordered and unordered groups
+          ordered-groups (filter #(contains? order-index (first %)) grouped)
+          unordered-groups (filter #(not (contains? order-index (first %))) grouped)]
+      ;; Combine: ordered groups first (sorted by index), then unordered (sorted by min position)
+      (concat
+       (sort-by (fn [[group-name _]] (get order-index group-name)) ordered-groups)
+       (sort-by (fn [[group-name _]] (get group-min-positions group-name)) unordered-groups)))
+    ;; No group-order specified, sort by minimum position (original behavior)
+    (let [group-min-positions (into {}
+                                    (map (fn [[group-name fields]]
+                                           [group-name (apply min (map :position fields))])
+                                         grouped))]
+      (sort-by (fn [[group-name _]] (get group-min-positions group-name)) grouped))))
 
-    (mapv (fn [[group-name group-fields]]
-            {:title (str "fields." group-name ".title")
-             :blocks (->> group-fields
-                          (sort-by :position)
-                          (map transform-field)
-                          (filter some?)
-                          vec)})
-          grouped)))
+(defn fields->structure
+  "Transforms fields into form structure with optional group ordering."
+  ([fields & {:keys [group-order main-group]
+              :or {group-order nil
+                   main-group nil}}]
+   (let [implemented-fields (filter #(or (implemented-field-types (:type %))
+                                         (:component %))
+                                    fields)
+         ;; Group fields by group name
+         grouped (group-fields-by-group implemented-fields main-group)
+         ;; Sort groups according to group-order (if provided) or by minimum position
+         sorted-groups (sort-groups-by-order grouped group-order)]
+
+     ;; Map sorted groups to structure format
+     (mapv (fn [[group-name group-fields]]
+             {:title (str "fields." group-name ".title")
+              :blocks (->> group-fields
+                           (sort-by :position) ;; redundant sorting 
+                           (map transform-field)
+                           (filter some?)
+                           vec)})
+           sorted-groups))))
 
 (defn fields->defaults [fields]
   (let [;; Filter only implemented field types or fields with custom component
@@ -192,51 +260,60 @@
               (let [field-id (keyword (:id field))
                     field-type (:type field)
                     has-default? (contains? field :default)
-                    default-val (if has-default?
-                                  (if (boolean? (:default field))
-                                    (str (:default field))
-                                    (:default field))
-                                  ;; Set type-specific defaults when no default provided
-                                  (case field-type
-                                    "text" ""
-                                    "textarea" ""
-                                    "select" nil
-                                    "date" nil
-                                    "radio" false
-                                    "checkbox" false
-                                    "attachment" []
-                                    "autocomplete-search" {:value nil
-                                                           :label nil}
-                                    "autocomplete" {:value nil
-                                                    :label nil}
-                                    ;; Default for custom/unknown types
-                                    nil))
+                    default-value (if has-default?
+                                    (if (boolean? (:default field))
+                                      (str (:default field))
+                                      (:default field))
+                                    nil)
 
-                    ;; Convert default value based on field type
-                    converted-val (when (or (some? default-val)
-                                            (contains? #{"text" "textarea"} field-type))
-                                    (case field-type
+                    ;; Convert default value based on field type and handle nil defaults
+                    converted-value (case field-type
                                       "text"
-                                      (if (nil? default-val)
+                                      (if (nil? default-value)
                                         ""
-                                        (str default-val))
+                                        (str default-value))
 
                                       "textarea"
-                                      (if (nil? default-val)
+                                      (if (nil? default-value)
                                         ""
-                                        default-val)
+                                        default-value)
 
                                       "date"
-                                      (if (= default-val "today")
+                                      (if (= default-value "today")
                                         (js/Date.)
-                                        default-val)
+                                        default-value)
+
+                                      "radio"
+                                      (if (nil? default-value)
+                                        false
+                                        default-value)
+
+                                      "checkbox"
+                                      (if (nil? default-value)
+                                        []
+                                        default-value)
 
                                       "attachment"
-                                      (if (vector? default-val) default-val [])
+                                      (if (vector? default-value) default-value [])
+
+                                      "composite"
+                                      (if (nil? default-value)
+                                        []
+                                        default-value)
+
+                                      "autocomplete-search"
+                                      (if (nil? default-value)
+                                        {:value nil :label nil}
+                                        default-value)
+
+                                      "autocomplete"
+                                      (if (nil? default-value)
+                                        {:value nil :label nil}
+                                        default-value)
 
                                       ;; Default for custom/unknown types - use as-is
-                                      default-val))]
-                (assoc acc field-id converted-val)))
+                                      default-value)]
+                (assoc acc field-id converted-value)))
             {}
             implemented-fields)))
 

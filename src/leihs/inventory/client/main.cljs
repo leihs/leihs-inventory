@@ -1,6 +1,6 @@
 (ns leihs.inventory.client.main
   (:require
-   ["react-router-dom" :refer [RouterProvider ScrollRestoration]]
+   ["react-router-dom" :refer [RouterProvider]]
    [leihs.inventory.client.routes :refer [routes]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -10,8 +10,7 @@
 
 (defui app []
   ($ uix/strict-mode
-     ($ RouterProvider {:router routes}
-        ($ ScrollRestoration))))
+     ($ RouterProvider {:router routes})))
 
 (defonce root
   (uix.dom/create-root (js/document.getElementById "app")))

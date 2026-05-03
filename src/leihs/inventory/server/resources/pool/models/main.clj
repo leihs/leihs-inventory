@@ -54,7 +54,7 @@
           {:keys [search search_term type]} (query-params request)
           term (or search search_term) ; search_term needed for fields
           base-query (-> base-query
-                         (sql/select [[:count :i.id] :available])
+                         (sql/select [[:count :i.id] :borrowable_quantity])
                          (sql/left-join [:items :i]
                                         [:and
                                          [:= :i.model_id :models.id]
@@ -64,8 +64,10 @@
                                          [:= :i.parent_id nil]])
                          (cond-> term
                            (sql/where (make-multi-term-clause term :ilike :models.name)))
-                         (cond-> type
-                           (sql/where [:= :type (string/capitalize type)]))
+                         (cond->
+                          (= type "package") (sql/where [:= :models.is_package true])
+                           ; in this case either `model` or `software`
+                          (and type (not= type "package")) (sql/where [:= :models.type (string/capitalize type)]))
                          (sql/group-by :models.id
                                        :models.name
                                        :models.cover_image_id))

@@ -15,9 +15,11 @@
                        (sql/from :items)
                        (sql/where [:and
                                    [:= :items.inventory_pool_id pool-id]
+                                   [:= :items.parent_id nil]
                                    [:= :items.model_id :inventory.id]
-                                   [:= :items.is_borrowable true]]))
-                   :rentable]
+                                   [:= :items.is_borrowable true]
+                                   [:is :items.retired nil]]))
+                   :borrowable_quantity]
 
                   [(-> (sql/select :%count.*) ; [[:count :*]]
                        (sql/from :items)
@@ -26,13 +28,14 @@
                                    [:= :items.parent_id nil]
                                    [:= :items.is_borrowable true]
                                    [:= :items.model_id :inventory.id]
+                                   [:is :items.retired nil]
                                    [:not [:exists
                                           (-> (sql/select 1)
                                               (sql/from :reservations)
                                               (sql/where [:and
                                                           [:= :reservations.returned_date nil]
                                                           [:= :items.id :reservations.item_id]]))]]]))
-                   :in_stock])
+                   :in_stock_quantity])
 
       (sql/from :inventory)
       (sql/where [:or
@@ -68,7 +71,7 @@
                                             :broken broken
                                             :incomplete incomplete)
             (cond-> (presence search) (with-search-for-count search :inventory)))
-        :items])))
+        :items_quantity])))
 
 (defn all-items [query pool-id
                  & {:keys [retired borrowable incomplete broken
@@ -118,7 +121,7 @@
 
 (defn without-items [query pool-id]
   (-> query
-      (sql/select [0 :items])
+      (sql/select [0 :items_quantity])
       (sql/where [:<> :inventory.type "Option"])
       (sql/where
        [:not [:exists (-> (sql/select 1)

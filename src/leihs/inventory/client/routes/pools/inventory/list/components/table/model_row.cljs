@@ -7,7 +7,7 @@
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell]]
    ["@@/tooltip" :refer [Tooltip TooltipTrigger TooltipContent]]
-   ["lucide-react" :refer [Ellipsis Columns3Cog Image ChevronDown SquareMenu]]
+   ["lucide-react" :refer [Ellipsis Columns3Cog Image ChevronDown SquareMenu Package]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    ["sonner" :refer [toast]]
@@ -22,13 +22,8 @@
 
 (def query-keys [:owned :incomplete
                  :broken :retired :borrowable
-                 :fields :in_stock
+                 :fields :in_stock_quantity
                  :model_id :parent_id :inventory_pool_id :search])
-
-(def fields ["id" "is_package" "is_borrowable" "is_broken" "retired" "is_incomplete"
-             "price" "inventory_code" "shelf" "building_code" "package_items"
-             "building_name" "reservation_end_date" "shelf" "inventory_pool_name"
-             "user_name" "reservation_user_name" "url" "reservation_contract_id"])
 
 (defui main [{:keys [model className]}]
   (let [location (router/useLocation)
@@ -43,8 +38,7 @@
                         (let [param-map (into {}
                                               (for [[key val] (.entries search-params)]
                                                 [(keyword key) (str val)]))
-                              params (merge {:model_id (:id model)
-                                             :fields (str/join "," fields)}
+                              params (merge {:model_id (:id model)}
                                             (select-keys param-map query-keys))]
 
                           (if result
@@ -69,7 +63,7 @@
 
     ($ ExpandableRow {:key (-> model :id)
                       :data-row "model"
-                      :subrow-count (:items model)
+                      :subrow-count (:items_quantity model)
                       :class-name (str
                                    "[&+tr[data-row='item']]:shadow-[0_-0.5px_0_hsl(var(--shadow)),inset_0_4px_4px_-2px_hsl(var(--shadow))] "
                                    "[&+tr[data-row='package']]:shadow-[0_-0.5px_0_hsl(var(--shadow)),inset_0_4px_4px_-2px_hsl(var(--shadow))] "
@@ -82,14 +76,17 @@
                                     (fn [element]
                                       (if (not (:is_package element))
                                         ($ ItemRow {:key (:id element)
+                                                    :type (:type model)
+                                                    :is-package-item (:parent_id element)
                                                     :item element})
                                         ($ PackageRow {:key (:id element)
+                                                       :type (:type model)
                                                        :package element})))
                                     (:data result))))}
 
        ($ TableCell
-          (if (:url model)
-            ($ ImageModal {:url (:url model)
+          (if (get-in model [:image :url])
+            ($ ImageModal {:url (get-in model [:image :url])
                            :alt (str (:product model) " " (:version model))})
 
             (case (-> model :type)
@@ -97,19 +94,22 @@
               ($ Image {:class-name "w-12 h-12"}))))
 
        ($ TableCell
-          ($ :div {:className "flex gap-2"}
+          ($ :div {:className "flex gap-[2px] items-center"}
              ($ Badge {:className (str "w-6 h-5 justify-center shadow-none "
                                        (case (-> model :type)
-                                         "Package" "bg-lime-500"
+                                         "Package" "bg-slate-500"
                                          "Model" "bg-slate-500"
                                          "Option" "bg-emerald-500"
                                          "Software" "bg-orange-500"))
                        :data-test-id "type"}
                 (str (case (-> model :type)
-                       "Package" "P"
+                       "Package" "M"
                        "Model" "M"
                        "Option" "O"
-                       "Software" "S")))))
+                       "Software" "S")))
+
+             (when (= (:type model) "Package")
+               ($ Package {:className "w-3 h-3"}))))
 
        ($ TableCell {:className "font-bold"}
           (str (:product model) " " (:version model)))
@@ -123,13 +123,13 @@
             ($ Tooltip
                ($ TooltipTrigger {:asChild true}
                   ($ :span {:data-test-id "availability"}
-                     (str (-> model :in_stock str) " | " (-> model :rentable str))))
+                     (str (-> model :in_stock_quantity str) " | " (-> model :borrowable_quantity str))))
                ($ TooltipContent
                   ($ :<>
                      ($ :div (str (t "pool.models.list.tooltip.in_stock")
-                                  ": " (-> model :in_stock str)))
+                                  ": " (-> model :in_stock_quantity str)))
                      ($ :div (str (t "pool.models.list.tooltip.rentable")
-                                  ": " (-> model :rentable str))))))))
+                                  ": " (-> model :borrowable_quantity str))))))))
 
        ($ TableCell {:className "fit-content"}
           ($ ButtonGroup
@@ -154,10 +154,20 @@
                       ($ ChevronDown {:className "w-4 h-4"})))
                 ($ DropdownMenuContent {:align "start"}
                    ($ DropdownMenuItem
-                      ($ Link {:to (str "../models/" (:id model) "/items/create")
-                               :state #js {:searchParams (.. location -search)}
-                               :viewTransition true}
-                         (t "pool.models.list.actions.add_item"))))))))))
+                      (case (-> model :type)
+                        "Package" ($ Link {:to (str "../models/" (:id model) "/packages/create")
+                                           :state #js {:searchParams (.. location -search)}
+                                           :viewTransition true}
+                                     (t "pool.models.list.actions.add_package"))
+                        "Model" ($ Link {:to (str "../models/" (:id model) "/items/create")
+                                         :state #js {:searchParams (.. location -search)}
+                                         :viewTransition true}
+                                   (t "pool.models.list.actions.add_item"))
+                        "Software" ($ Link {:to (str "../software/" (:id model) "/licenses/create")
+                                            :state #js {:searchParams (.. location -search)}
+                                            :viewTransition true}
+                                      (t "pool.models.list.actions.add_license"))
+                        nil)))))))))
 
 (def ModelRow
   (uix/as-react

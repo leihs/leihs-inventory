@@ -65,7 +65,7 @@ const DragHandle = React.forwardRef(
         size="icon"
         {...props}
         {...listeners}
-        className="select-none cursor-grab"
+        className={cn("select-none cursor-grab", className)}
       >
         <GripHorizontal className="w-4 h-4" />
         {children}

@@ -39,6 +39,13 @@ def select_value(name, value)
   find("div[data-test-id='#{value}']", match: :first).click
 end
 
+def click_calendar_day(date)
+  unless date.month == Date.today.month && date.year == Date.today.year
+    find('[class*="rdp-button_previous"]').click
+  end
+  find("[data-day='#{date.strftime("%-m/%-d/%Y")}']").click
+end
+
 def attach_file_by_label(label_text, file_path)
   within find("label", text: label_text).find(:xpath, "..") do
     file_input = first("input[type='file']", minimum: 0, visible: :all)
@@ -48,4 +55,22 @@ def attach_file_by_label(label_text, file_path)
       raise "No file input found for label '#{label_text}'"
     end
   end
+end
+
+# Status filter uses Radix submenus in a portal; use the menu + button[name=…] so we do not
+# click the wrong control (e.g. another "Yes" or a stale match).
+STATUS_SUBMENU_BUTTON_NAME = {
+  "Owned" => "owned",
+  "In stock" => "in_stock",
+  "Broken" => "broken",
+  "Incomplete" => "incomplete"
+}.freeze
+
+def select_status_filter_submenu(submenu_label, yes_or_no)
+  click_on "Status"
+  # Radix mounts several [role=menu] portals; pick the Status menu (only it has an "Owned" row).
+  menu = find(:xpath, "//*[@role='menu'][.//button[normalize-space()='Owned']]", wait: 10)
+  menu.find(:button, submenu_label, match: :first).click
+  param = STATUS_SUBMENU_BUTTON_NAME.fetch(submenu_label)
+  find("button[name='#{param}']", text: yes_or_no, wait: 10).click
 end

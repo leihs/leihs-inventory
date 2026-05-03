@@ -10,6 +10,7 @@
    ["lucide-react" :refer [ChevronsUpDown CircleUser LayoutGrid Moon Search Sun]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   ["sonner" :refer [toast]]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
    [clojure.string :as str]
    [leihs.core.core :refer [detect]]
@@ -24,10 +25,25 @@
         {:keys [pool-id]} (jc (router/useParams))
         {:keys [theme set-theme]} (use-theme)
         fetcher (router/useFetcher)
+        last-fetcher-data (uix/use-ref nil)
         current-pool (->> available_inventory_pools (detect #(= pool-id (:id %))))
         current-lending-url (->> navigation :manage_nav_items (detect #(= (:name current-pool) (:name %))) :href)
         current-search-url (str/replace (or current-lending-url "") "/daily" "/search")
         current-lang (.. i18n -language)]
+
+    (uix/use-effect
+     (fn []
+       (let [data (.-data fetcher)
+             state (.-state fetcher)]
+         (when (and (= state "idle")
+                    (some? data)
+                    (not= data @last-fetcher-data))
+           (reset! last-fetcher-data data)
+           (when (= (aget data "status") "error")
+             (.. toast (error (t "error.action.error")
+                              (clj->js {:description (t "error.action.error_detail"
+                                                        #js {:httpStatus (aget data "httpStatus")})})))))))
+     [fetcher t])
 
     ($ :header {:className "bg-background sticky z-50 top-0 flex h-12 items-center gap-4 border-b h-16"}
        ($ :nav {:className "container w-full flex flex-row justify-between text-sm items-center"}

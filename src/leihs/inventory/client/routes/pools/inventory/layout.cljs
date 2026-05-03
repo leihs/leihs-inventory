@@ -1,13 +1,14 @@
 (ns leihs.inventory.client.routes.pools.inventory.layout
   (:require
+   ["@@/badge" :refer [Badge]]
    ["@@/breadcrumb" :refer [Breadcrumb BreadcrumbItem
                             BreadcrumbLink BreadcrumbList
                             BreadcrumbSeparator BreadcrumbPage]]
    ["@@/button" :refer [Button]]
-   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
+   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent DropdownMenuSeparator
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/tabs" :refer [Tabs TabsContent TabsList TabsTrigger]]
-   ["lucide-react" :refer [CirclePlus House List Search Users LayoutTemplate ChartArea]]
+   ["lucide-react" :refer [CirclePlus House List Search Users LayoutTemplate ChartArea Barcode]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [generatePath Link Outlet]]
    [clojure.string :as str]
@@ -29,9 +30,13 @@
                :search "?with_items=true&page=1&size=50"
                :label (t "pool.models.tabs.inventory_list")}
 
-              {:segment "advanced-search"
+              {:segment "search-edit"
                :search ""
-               :label (t "pool.models.tabs.advanced_search")}
+               :label (t "pool.models.tabs.search_edit")}
+
+              {:segment "scan-edit"
+               :search ""
+               :label (t "pool.models.tabs.scan_edit")}
 
               {:segment "statistics"
                :search ""
@@ -93,7 +98,8 @@
                 ($ BreadcrumbPage
                    (case last-segment
                      "list" (t "pool.models.tabs.inventory_list")
-                     "advanced-search" (t "pool.models.tabs.advanced_search")
+                     "search-edit" (t "pool.models.tabs.search_edit")
+                     "scan-edit" (t "pool.models.tabs.scan_edit")
                      "statistics" (t "pool.models.tabs.statistics")
                      "entitlement-groups" (t "pool.models.tabs.entitlement_groups")
                      "templates" (t "pool.models.tabs.templates"))))))
@@ -115,7 +121,8 @@
                           ($ :span {:class-name "inline md:hidden"}
                              (case (:segment tab)
                                "list" ($ List {:className "h-4 w-4"})
-                               "advanced-search" ($ Search {:className "h-4 w-4"})
+                               "search-edit" ($ Search {:className "h-4 w-4"})
+                               "scan-edit" ($ Barcode {:className "h-4 w-4"})
                                "statistics" ($ ChartArea {:className "h-4 w-4"})
                                "entitlement-groups" ($ Users {:className "h-4 w-4"})
                                "templates" ($ LayoutTemplate {:className "h-4 w-4"})))
@@ -142,28 +149,57 @@
                                     :to (generatePath "/inventory/:pool-id/models/create"
                                                       (cj {:pool-id pool-id}))
                                     :viewTransition true}
+                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-slate-500"}
+                                 "M")
                               (t "pool.models.dropdown.add_model")))
-
-                        ($ DropdownMenuItem {:asChild true}
-                           ($ Link {:state #js {:searchParams (.. location -search)}
-                                    :to (generatePath "/inventory/:pool-id/items/create"
-                                                      (cj {:pool-id pool-id}))
-                                    :viewTransition true}
-                              (t "pool.models.dropdown.add_item")))
-
-                        ($ DropdownMenuItem {:asChild true}
-                           ($ Link {:state #js {:searchParams (.. location -search)}
-                                    :to (generatePath "/inventory/:pool-id/options/create"
-                                                      (cj {:pool-id pool-id}))
-                                    :viewTransition true}
-                              (t "pool.models.dropdown.add_option")))
 
                         ($ DropdownMenuItem {:asChild true}
                            ($ Link {:state #js {:searchParams (.. location -search)}
                                     :to (generatePath "/inventory/:pool-id/software/create"
                                                       (cj {:pool-id pool-id}))
                                     :viewTransition true}
-                              (t "pool.models.dropdown.add_software")))))
+                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-orange-500"}
+                                 "S")
+                              (t "pool.models.dropdown.add_software")))
+
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/options/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-emerald-500"}
+                                 "O")
+                              (t "pool.models.dropdown.add_option")))
+
+                        ($ DropdownMenuSeparator)
+
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/packages/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-lime-500"}
+                                 "P")
+                              (t "pool.models.dropdown.add_package")))
+
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/items/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              ($ Badge {:className "w-6 h-5 justify-center bg-blue-500"}
+                                 (t "pool.models.list.item.badge"))
+                              (t "pool.models.dropdown.add_item")))
+
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/licenses/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              ($ Badge {:className "w-6 h-5 justify-center bg-yellow-500"}
+                                 "L")
+                              (t "pool.models.dropdown.add_license")))))
+
                   "entitlement-groups"
                   ($ Button {:asChild true}
                      ($ Link {:state #js {:searchParams (.. location -search)}

@@ -2,7 +2,7 @@
   (:require
    ["lucide-react" :refer [SquareCheck SquareMinus
                            SquareX SquareArrowRight
-                           SquarePause]]
+                           SquareSquare SquarePause]]
    ["react-i18next" :refer [useTranslation]]
    [uix.core :as uix :refer [$ defui]]))
 
@@ -16,7 +16,7 @@
             ($ SquareArrowRight {:className "inline ml-2 h-4 w-4 "})))
 
        (when (:is_broken item)
-         ($ :span {:className "text-rose-500"}
+         ($ :span {:className "text-red-500"}
             (t "pool.models.list.item.broken")
             ($ SquareX {:className "inline ml-2 h-4 w-4"})))
 
@@ -34,10 +34,16 @@
             ($ SquarePause {:className "inline ml-2 h-4 w-4 "})))
 
        (when (and (:is_borrowable item)
-                  (not (:reservation_user_name item)))
+                  (not (:reservation_user_name item))
+                  (not (:retired item)))
          ($ :span {:className "text-green-500"}
             (t "pool.models.list.item.available")
-            ($ SquareCheck {:className "inline ml-2 h-4 w-4"}))))))
+            ($ SquareCheck {:className "inline ml-2 h-4 w-4"})))
+
+       (when (:retired item)
+         ($ :span {:className "text-violet-500"}
+            (t "pool.models.list.item.retired")
+            ($ SquareSquare {:className "inline ml-2 h-4 w-4 "}))))))
 
 (def ItemStatus
   (uix/as-react

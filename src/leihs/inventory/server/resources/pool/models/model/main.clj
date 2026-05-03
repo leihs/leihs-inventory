@@ -95,6 +95,18 @@
         entitlements (jdbc/execute! tx query)]
     (filter-and-coerce-by-spec entitlements :json/entitlement)))
 
+(defn fetch-rentable [tx pool-id model-id]
+  (let [query (-> (sql/select [[[:count :items.id]] :rentable])
+                  (sql/from :items)
+                  (sql/where [:and
+                              [:= :items.inventory_pool_id pool-id]
+                              [:= :items.model_id model-id]
+                              [:= :items.is_borrowable true]
+                              [:is :items.retired nil]
+                              [:is :items.parent_id nil]])
+                  sql-format)]
+    (or (:rentable (jdbc/execute-one! tx query)) 0)))
+
 (defn fetch-categories [tx model-id]
   (let [query (-> (sql/select :mg.id :mg.type :mg.name)
                   (sql/from [:model_groups :mg])
@@ -125,9 +137,11 @@
           properties (fetch-properties tx model-id)
           entitlements (fetch-entitlements tx model-id)
           categories (fetch-categories tx model-id)
+          rentable (fetch-rentable tx pool-id model-id)
           result (if model-result
                    (-> (assoc model-result
                               :is_deletable (is-model-deletable? tx model-id)
+                              :rentable rentable
                               :attachments attachments
                               :accessories accessories
                               :compatibles compatibles

@@ -58,7 +58,7 @@
        ($ :button {:type "button"
                    :class-name (str (when (= 1 (:level data)) " font-bold ")
                                     (when (= 2 (:level data)) " font-medium ")
-                                    " truncate")}
+                                    " truncate text-left")}
           (str (:name data))))))
 
 ;; Select component - handles search and selection UI
@@ -90,7 +90,8 @@
                                               (when-let [value (get selected (keyword attr))]
                                                 [(keyword attr) value])))
                                        (into {})
-                                       (merge {:product (:product selected)
+                                       (merge {:quantity 1
+                                               :product (:product selected)
                                                :version (:version selected)
                                                :name (:name selected)
                                                :url (:url selected)
@@ -142,7 +143,7 @@
                         :ref buttonRef
                         :name name
                         :on-click (fn [] (set-open! (not open)))
-                        :class-name "w-full justify-between"}
+                        :class-name "w-full justify-between text-left"}
                 (t (-> props :text :select))
                 ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"}))))
 

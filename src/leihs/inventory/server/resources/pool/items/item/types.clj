@@ -1,10 +1,12 @@
 (ns leihs.inventory.server.resources.pool.items.item.types
   (:require
-   [leihs.inventory.server.resources.pool.items.types :refer [post-response properties]]
+   [leihs.inventory.server.resources.pool.items.types :refer [post-response-item properties]]
    [leihs.inventory.server.utils.schema :refer [Date]]
    [schema.core :as s]))
 
-(def get-response post-response)
+(def get-response
+  (merge post-response-item
+         {(s/optional-key :fields) [s/Any]}))
 
 (def patch-request
   (merge {(s/optional-key :inventory_code) s/Str
@@ -19,6 +21,7 @@
           (s/optional-key :is_broken) s/Bool
           (s/optional-key :is_incomplete) s/Bool
           (s/optional-key :is_inventory_relevant) s/Bool
+          (s/optional-key :item_ids) [s/Uuid]
           (s/optional-key :item_version) (s/maybe s/Str)
           (s/optional-key :last_check) (s/maybe Date)
           (s/optional-key :name) (s/maybe s/Str)
@@ -35,4 +38,4 @@
           (s/optional-key :supplier_id) (s/maybe s/Uuid)
           (s/optional-key :user_name) (s/maybe s/Str)} properties))
 
-(def patch-response post-response)
+(def patch-response post-response-item)

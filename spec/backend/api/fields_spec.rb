@@ -57,13 +57,30 @@ describe "Swagger Inventory Endpoints - Fields" do
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
     let(:inventory_pool_id) { @inventory_pool.id }
-    let(:url) { "/inventory/#{inventory_pool_id}/fields/" }
 
     context "GET /inventory/:pool-id/fields/" do
-      it "marks owner-only fields as protected when item is owned by different pool" do
-        resp = client.get url do |req|
+      it "does not add protected attribute when no resource_id is provided (creating as owner)" do
+        resp = client.get "/inventory/#{inventory_pool_id}/fields/" do |req|
           req.params["target_type"] = "item"
-          req.params["resource_id"] = @item_owned_by_other.id
+          req.headers["Accept"] = "application/json"
+        end
+
+        expect(resp.status).to eq(200)
+
+        owner_field = resp.body["fields"].find { |f| f["id"] == @owner_field.id }
+        regular_field = resp.body["fields"].find { |f| f["id"] == @regular_field.id }
+
+        expect(owner_field).not_to be_nil
+        expect(owner_field.key?("protected")).to be false
+
+        expect(regular_field).not_to be_nil
+        expect(regular_field.key?("protected")).to be false
+      end
+    end
+
+    context "GET /inventory/:pool-id/items/:item-id" do
+      it "marks owner-only fields as protected when item is owned by different pool" do
+        resp = client.get "/inventory/#{inventory_pool_id}/items/#{@item_owned_by_other.id}" do |req|
           req.headers["Accept"] = "application/json"
         end
 
@@ -83,9 +100,7 @@ describe "Swagger Inventory Endpoints - Fields" do
       end
 
       it "does not mark owner-only fields as protected when item is owned by same pool" do
-        resp = client.get url do |req|
-          req.params["target_type"] = "item"
-          req.params["resource_id"] = @item_owned_by_pool.id
+        resp = client.get "/inventory/#{inventory_pool_id}/items/#{@item_owned_by_pool.id}" do |req|
           req.headers["Accept"] = "application/json"
         end
 
@@ -95,24 +110,6 @@ describe "Swagger Inventory Endpoints - Fields" do
         expect(owner_field).not_to be_nil
         expect(owner_field["protected"]).to be false
         expect(owner_field.key?("protected_reason")).to be false
-      end
-
-      it "does not add protected attribute when no resource_id is provided (creating as owner)" do
-        resp = client.get url do |req|
-          req.params["target_type"] = "item"
-          req.headers["Accept"] = "application/json"
-        end
-
-        expect(resp.status).to eq(200)
-
-        owner_field = resp.body["fields"].find { |f| f["id"] == @owner_field.id }
-        regular_field = resp.body["fields"].find { |f| f["id"] == @regular_field.id }
-
-        expect(owner_field).not_to be_nil
-        expect(owner_field.key?("protected")).to be false
-
-        expect(regular_field).not_to be_nil
-        expect(regular_field.key?("protected")).to be false
       end
     end
   end

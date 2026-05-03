@@ -1,10 +1,26 @@
 {
+  "OK": "OK",
+  "Yes": "Ja",
+  "No": "Nein",
+  "Unborrowable": "Nicht Ausleihbar",
+  "Incomplete": "Unvollständig",
+  "Broken": "Defekt",
+  "Running Account": "Laufende Rechnung",
+  "Investment": "Investition",
   "fields": {
     "Mandatory data": {
       "title": "Pflichtangaben",
       "count": "Anzahl Gegenstände erstellen",
       "inventory_code": "Inventarcode",
-      "model_id": "Modell"
+      "model_id": "Modell",
+      "software_model_id": "Software",
+      "license_version": "Lizenzversion"
+    },
+    "Content": {
+      "title": "Inhalt"
+    },
+    "Package": {
+      "title": "Paket"
     },
     "Inventory": {
       "title": "Inventar",
@@ -25,7 +41,8 @@
       "properties_reference": "Bezug",
       "properties_warranty_expiration": "Garantieablaufdatum",
       "properties_p4u": "P4U-Nummer",
-      "properties_contract_expiration": "Vertragsablaufdatum"
+      "properties_contract_expiration": "Vertragsablaufdatum",
+      "properties_procured_by": "Beschafft von"
     },
     "General Information": {
       "title": "Allgemeine Informationen",
@@ -34,7 +51,15 @@
       "properties_mac_address": "MAC-Adresse",
       "name": "Name",
       "attachments": "Anhänge",
-      "note": "Notiz"
+      "note": "Notiz",
+      "properties_total_quantity": "Gesamtanzahl",
+      "properties_quantity_allocations": "Anzahl Zuteilungen",
+      "properties_operating_system": "Betriebssystem",
+      "properties_installation": "Installation",
+      "properties_license_expiration": "Lizenzablaufdatum",
+      "properties_activation_type": "Aktivierungstyp",
+      "properties_dongle_id": "Dongle ID",
+      "properties_license_type": "Lizenztyp"
     },
     "Status": {
       "title": "Zustand",
@@ -55,6 +80,25 @@
       "room_id": "Raum",
       "building_id": "Gebäude",
       "shelf": "Gestell"
+    },
+    "License Info": {
+      "title": "Lizenzinformationen"
+    },
+    "Activation": {
+      "title": "Aktivierung"
+    },
+    "Quantity": {
+      "title": "Anzahl"
+    },
+    "System Requirements": {
+      "title": "Systemanforderungen"
+    },
+    "Maintenance": {
+      "title": "Wartung",
+      "properties_maintenance_contract": "Maintenance Vertrag",
+      "properties_maintenance_expiration": "Maintenance Ablaufdatum",
+      "properties_maintenance_currency": "Währung",
+      "properties_maintenance_price": "Preis"
     }
   },
   "pagination": {
@@ -114,11 +158,13 @@
           "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
           "submit": "Speichern",
           "delete": "Löschen",
+          "cancel": "Abbrechen",
           "success": "Gegenstand wurde erfolgreich gespeichert",
           "invalid_one": "Gegenstand konnte nicht gespeichert werden, da ein Feld ungültig ist",
           "invalid_other": "Gegenstand konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
           "conflict": "Inventarcode existiert bereits",
-          "error": "Beim speichern ist ein Fehler aufgetreten"
+          "error": "Beim speichern ist ein Fehler aufgetreten",
+          "package_item": "Gegenstand ist teil eines Pakets"
         },
         "delete": {
           "title": "Gegenstand löschen",
@@ -176,6 +222,97 @@
         "back_to_inventory": "Zurück zum Inventar"
       }
     },
+    "packages": {
+      "package": {
+        "create": {
+          "title": "Neues Paket erstellen",
+          "description": "Geben Sie alle erforderlichen Informationen an",
+          "submit": "Paket",
+          "cancel": "Abbrechen",
+          "success": "Paket wurde erfolgreich erstellt",
+          "invalid_one": "Paket konnte nicht erstellt werden, da ein Feld ungültig ist",
+          "invalid_other": "Paket konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
+        },
+        "edit": {
+          "title": "Paket bearbeiten",
+          "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Speichern",
+          "retire": "Ausmustern",
+          "delete": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Paket wurde erfolgreich gespeichert",
+          "invalid_one": "Paket konnte nicht gespeichert werden, da ein Feld ungültig ist",
+          "invalid_other": "Paket konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Speichern ist ein Fehler aufgetreten",
+          "empty_package": "Alle Gegenstände wurden aus dem Paket entfernt. Ausmusterung und der Ausmusterungsgrund wurden automatisch gesetzt.",
+          "auto_retire_reason": "Automatische Ausmusterung aufgrund leerem Paket"
+        },
+        "delete": {
+          "title": "Paket löschen",
+          "description": "Sind Sie sicher, dass Sie dieses Paket löschen möchten?",
+          "confirm": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Paket wurde erfolgreich gelöscht",
+          "error": "Paket konnte nicht gelöscht werden"
+        },
+        "fields": {
+          "disabled": {
+            "protected": "Nur der Besitzer kann dieses Feld bearbeiten",
+            "generic": "Dieses Feld ist derzeit deaktiviert"
+          },
+          "autocomplete": {
+            "select": "Auswahl treffen",
+            "search": "Suchbegriff eingeben",
+            "empty": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
+          },
+          "items": {
+            "label": "Gegenstände",
+            "select": "Gegenstände auswählen",
+            "search": "Gegenstände suchen",
+            "searching": "Suche läuft...",
+            "search_empty": "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
+            "not_found": "Keine Gegenstände gefunden"
+          }
+        }
+      }
+    },
+    "licenses": {
+      "license": {
+        "create": {
+          "title": "Neue Lizenz erstellen",
+          "description": "Geben Sie alle erforderlichen Informationen an",
+          "submit": "Erstellen",
+          "cancel": "Abbrechen",
+          "success": "Lizenz wurde erfolgreich erstellt",
+          "invalid_one": "Lizenz konnte nicht erstellt werden, da ein Feld ungültig ist",
+          "invalid_other": "Lizenz konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
+        },
+        "edit": {
+          "title": "Lizenz bearbeiten",
+          "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Speichern",
+          "cancel": "Abbrechen",
+          "success": "Lizenz wurde erfolgreich gespeichert",
+          "invalid_one": "Lizenz konnte nicht gespeichert werden, da ein Feld ungültig ist",
+          "invalid_other": "Lizenz konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+          "conflict": "Inventarcode existiert bereits",
+          "error": "Beim Speichern ist ein Fehler aufgetreten"
+        },
+        "fields": {
+          "entitlements": {
+            "add": "Zuteilung hinzufügen",
+            "quantity": "Anzahl",
+            "location": "Ort",
+            "remaining": "Verbleibend"
+          }
+        }
+      }
+    },
     "models": {
       "title": "Inventarliste",
       "filters": {
@@ -228,15 +365,18 @@
       "dropdown": {
         "title": "Inventar hinzufügen",
         "add_model": "Neues Modell",
+        "add_package": "Neues Paket",
         "add_item": "Neuen Gegenstand",
         "add_option": "Neue Option",
-        "add_software": "Neue Software"
+        "add_software": "Neue Software",
+        "add_license": "Neue Lizenz"
       },
       "add_entitlement_group": "Anspruchsgruppe hinzufügen",
       "add_template": "Vorlage hinzufügen",
       "tabs": {
         "inventory_list": "Inventarliste",
-        "advanced_search": "Erweiterte Suche",
+        "search_edit": "Suchen & Editieren",
+        "scan_edit": "Scannen & Editieren",
         "statistics": "Statistik",
         "entitlement_groups": "Anspruchsgruppen",
         "templates": "Vorlagen"
@@ -255,7 +395,8 @@
           "broken": "Defekt",
           "rented": "Ausgeliehen",
           "not_borrowable": "Nicht ausleihbar",
-          "incomplete": "Unvollständig"
+          "incomplete": "Unvollständig",
+          "retired": "Ausgemustert"
         },
         "header": {
           "quantity": "Menge",
@@ -264,7 +405,50 @@
         },
         "actions": {
           "edit": "editieren",
-          "add_item": "Gegenstand hinzufügen"
+          "add_item": "Gegenstand hinzufügen",
+          "copy_item": "Gegenstand duplizieren",
+          "add_license": "Lizenz hinzufügen",
+          "copy_license": "Lizenz duplizieren",
+          "add_package": "Paket hinzufügen",
+          "copy_package": "Paket duplizieren"
+        }
+      },
+      "search_edit": {
+        "no_items": "Keine Gegenstände gefunden",
+        "add_filter_prompt": "Fügen Sie Filter hinzu, um Ihre Suche zu starten.",
+        "or_separator": "ODER",
+        "add_or": "ODER hinzufügen",
+        "add_and": "Suchparameter hinzufügen",
+        "table": {
+          "inventory_code": "Inventarcode",
+          "location": "Ort",
+          "view_details": "Details anzeigen",
+          "delete": "Löschen"
+        },
+        "dialog": {
+          "title_one": "{{count}} Gegenstand bearbeiten",
+          "title_other": "{{count}} Gegenstände bearbeiten",
+          "description": "Wählen Sie die Felder aus, die Sie für alle ausgewählten Gegenstände aktualisieren möchten.",
+          "cancel": "Abbrechen",
+          "submitting": "Wird gespeichert",
+          "submit": "Speichern",
+          "add_field": "Feld hinzufügen",
+          "success_one": "{{count}} Gegenstand wurde erfolgreich aktualisiert",
+          "success_other": "{{count}} Gegenstände wurden erfolgreich aktualisiert",
+          "warning_description_one": "{{count}} Gegenstand wird bearbeitet",
+          "warning_description_other": "{{count}} Gegenstände werden bearbeitet",
+          "fields_fetch_error": "Bearbeitbare Felder konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+          "restricted_fields_warning": "Da nicht alle ausgewählten Gegenstände diesem Pool gehören, werden in der Liste nur bearbeitbare Felder für alle Gegenstände angezeigt."
+        },
+        "info": {
+          "until": "bis"
+        },
+        "page": {
+          "title": "Erweiterte Suche mit Export und Multi-Editieren",
+          "description": "Suchen Sie die Gegenstände mit den gewünschten Parametern. Anschliessend können die gefundenen Gegenstände exportiert oder editiert werden.",
+          "search_results": "Suchergebnisse",
+          "edit_items": "Bearbeiten",
+          "export_items": "Exportieren"
         }
       }
     },
@@ -722,6 +906,10 @@
     "back-to-home": "Zurück zur Startseite"
   },
   "error": {
+    "action": {
+      "error": "Beim Ändern ist ein Fehler aufgetreten",
+      "error_detail": "Fehlercode: {{httpStatus}}"
+    },
     "alerts": {
       "offline": {
         "title": "Keine Internetverbindung",
