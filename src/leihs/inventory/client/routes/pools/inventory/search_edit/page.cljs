@@ -9,8 +9,10 @@
    ["lucide-react" :refer [Download SquarePen]]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :refer [useLoaderData useParams useSearchParams]]
+   ["react-router-dom" :refer [useLoaderData useParams useSearchParams useLocation]]
    ["sonner" :refer [toast]]
+   [clojure.string :as str]
+   [leihs.inventory.client.components.export :refer [Export]]
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client]]
@@ -119,6 +121,14 @@
 
         editable-blocks (remove #(contains? protected-fields (:name %)) blocks)
 
+        export-url (fn []
+                     (let [base-url (str "/inventory/" pool-id "/items/")]
+                       (if (empty? selected-items)
+                         (str base-url "?" search-params)
+                         (str base-url "?" (->> selected-items
+                                                (map #(str "ids=" %))
+                                                (str/join "&"))))))
+
         handle-edit
         (fn []
           (if (empty? non-owned-items)
@@ -207,11 +217,10 @@
 
                ;; Bulk action buttons - show when items selected
                ($ :div {:class-name "flex gap-2"}
-                  ($ Button {:data-test-id "export-button"
-                             :disabled (empty? selected-items)
-                             :class-name "disabled:hover:bg-primary"}
-                     ($ Download {:class-name "w-4 h-4"})
-                     (t "pool.models.search_edit.page.export_items"))
+                  ($ Export {:url (export-url)
+                             :count (str (if (empty? selected-items)
+                                           (:total_rows pagination)
+                                           (count selected-items)))})
 
                   ($ Button {:data-test-id "edit-button"
                              :disabled (or (empty? selected-items) edit-loading?)

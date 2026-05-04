@@ -73,7 +73,8 @@
     "Eigenschaften": {
       "title": "Properties",
       "properties_electrical_power": "Power consumption in kw/h",
-      "properties_ampere": "Ampère"
+      "properties_ampere": "Ampère",
+      "properties_installation_status": "Installation status"
     },
     "Location": {
       "title": "Location",

@@ -1,5 +1,6 @@
 (ns leihs.inventory.client.components.export
   (:require
+   ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuTrigger
                                DropdownMenuContent DropdownMenuItem]]
@@ -11,10 +12,8 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defui main [{:keys [url className]}]
-  (let [location (router/useLocation)
-        fetcher (router/useFetcher)
-        search-params (.-search location)
+(defui Export [{:keys [url count className]}]
+  (let [fetcher (router/useFetcher)
         last-data (uix/use-ref nil)
         [t] (useTranslation)]
 
@@ -34,7 +33,8 @@
 
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild true}
-          ($ Button {:variant "outline"
+          ($ Button {:data-test-id "export-button"
+                     :variant "outline"
                      :disabled (= (.-state fetcher) "submitting")
                      :className (str "ml-auto " className)}
 
@@ -43,6 +43,10 @@
                ($ Spinner {:className "h-4 w-4 xl:mr-2"}))
              ($ :div {:class-name "hidden xl:flex items-center"}
                 "Export"
+                (when count
+                  ($ Badge {:variant "primary"
+                            :class-name "ml-2 rounded-full"}
+                     count))
                 ($ ChevronDown {:className "h-4 w-4 ml-2"}))))
 
        ($ DropdownMenuContent
@@ -50,7 +54,7 @@
                            :action "/export"}
              ($ :input {:type "hidden"
                         :name "url"
-                        :value (str url search-params)})
+                        :value url})
              ($ :input {:type "hidden"
                         :name "format"
                         :value "csv"})
@@ -63,7 +67,7 @@
                            :action "/export"}
              ($ :input {:type "hidden"
                         :name "url"
-                        :value (str url search-params)})
+                        :value url})
              ($ :input {:type "hidden"
                         :name "format"
                         :value "excel"})
@@ -71,8 +75,3 @@
                 ($ :button {:type "submit"
                             :className "w-full cursor-pointer"}
                    "Excel")))))))
-
-(def Export
-  (uix/as-react
-   (fn [props]
-     (main props))))
