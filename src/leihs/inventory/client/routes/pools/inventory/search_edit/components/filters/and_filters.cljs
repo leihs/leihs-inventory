@@ -16,7 +16,6 @@
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.field-dispatcher :refer [FieldDispatcher]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.or-context :refer [use-or]]
-   [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.retired-reason-field :refer [RetiredReasonField]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defn default-operator [block]
