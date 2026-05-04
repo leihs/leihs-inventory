@@ -117,10 +117,11 @@ function InputGroupText({ className, ...props }) {
   )
 }
 
-function InputGroupInput({ className, ...props }) {
+const InputGroupInput = React.forwardRef(({ className, ...props }, ref) => {
   return (
     <Input
       data-slot="input-group-control"
+      ref={ref}
       className={cn(
         "flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent",
         className,
@@ -128,7 +129,7 @@ function InputGroupInput({ className, ...props }) {
       {...props}
     />
   )
-}
+})
 
 function InputGroupTextarea({ className, ...props }) {
   return (

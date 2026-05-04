@@ -104,14 +104,46 @@
     (case method
       "PATCH"
       (let [items (:selected-items body)
-            data (cj (apply merge (:update body)))]
+            payload (cj (apply merge (:update body)))]
         (-> (p/all
              (map (fn [item-id]
                     (-> http-client
                         (.patch (str "/inventory/" pool-id "/items/" item-id)
-                                (js/JSON.stringify data)
+                                (js/JSON.stringify payload)
                                 (cj {:cache false}))))
                   items))
             (.then (fn [_] #js {:status "ok"}))
             (.catch handle-error))))))
 
+(defn scan-edit-page [action]
+  (p/let [request (.-request action)
+          json-data (.json request)
+          body (jc json-data)
+          params (.. ^js action -params)
+          pool-id (aget params "pool-id")
+          method (aget action "request" "method")]
+
+    (case method
+      "PATCH"
+      (p/let [inventory_code (:inventory_code body)
+              payload (cj (apply merge (:update body)))
+
+              item (when inventory_code
+                     (-> http-client
+                         (.get (str "/inventory/" pool-id "/items/?owned=true&only_items=true&search_term=" inventory_code)
+                               #js {:cache false})
+                         (.then #(jc (.-data %)))))
+
+              id (or (:id body) (:id (first item)))]
+
+        (if (and inventory_code
+                 (empty? item))
+          #js {:status "error"
+               :message "invalid inventory code"
+               :httpStatus 400}
+          (-> http-client
+              (.patch (str "/inventory/" pool-id "/items/" id)
+                      (js/JSON.stringify payload)
+                      (cj {:cache false}))
+              (.then (fn [_] #js {:status "ok"}))
+              (.catch handle-error)))))))

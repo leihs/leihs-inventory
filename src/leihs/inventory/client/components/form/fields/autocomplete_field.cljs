@@ -127,6 +127,7 @@
                                         :name name
                                         :data-test-id name
                                         :role "combobox"
+                                        :on-focus (-> props :on-focus)
                                         :class-name "w-full justify-between"}
 
                                 ;; the value in form can either be a string or a map with label and value

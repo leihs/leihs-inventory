@@ -52,7 +52,7 @@
                            clj->js)})))))
 
 ;; Main EditDialog Component
-(defui PatchItemForm [{:keys [blocks on-submit on-invalid]}]
+(defui PatchItemForm [{:keys [blocks on-submit on-invalid class-name]}]
   (let [[t] (useTranslation)
         params (useParams)
         pool-id (aget params "pool-id")
@@ -125,10 +125,10 @@
         handle-submit (.. form -handleSubmit)]
 
     ($ Form (merge form)
-       ($ :form {:id "edit-dialog-form"
+       ($ :form {:id "patch-item-form"
                  :no-validate true
                  :on-submit (handle-submit on-submit on-invalid)
-                 :class-name "space-y-2 px-2 border border-dashed rounded"}
+                 :class-name (str "space-y-2 px-2 border border-dashed rounded " class-name)}
 
           ($ :div {:class-name "space-y-2 py-2"}
               ;; Render all update field rows

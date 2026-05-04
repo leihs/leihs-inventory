@@ -78,7 +78,7 @@ feature "Search & Edit", type: :feature do
     # Dialog opens — add a field to edit
     expect(page).to have_content("Add field")
 
-    within find('[id="edit-dialog-form"]') do
+    within find('[id="patch-item-form"]') do
       # Choose "Status note" field in the dialog selector
       click_on "field-select-0"
     end
@@ -229,7 +229,7 @@ feature "Search & Edit", type: :feature do
       expect(page).to have_content("Add field")
       expect(page).not_to have_content("not all selected items are owned by this pool")
 
-      within find('[id="edit-dialog-form"]') do
+      within find('[id="patch-item-form"]') do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do
@@ -264,7 +264,7 @@ feature "Search & Edit", type: :feature do
       expect(page).to have_content("Add field")
       expect(page).to have_content("Not all selected items are owned by this pool, only fields that are editable for all selected items are shown in the field selection.")
 
-      within find('[id="edit-dialog-form"]') do
+      within find('[id="patch-item-form"]') do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do

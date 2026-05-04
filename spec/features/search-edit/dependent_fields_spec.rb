@@ -142,7 +142,7 @@ feature "Search & Edit - Dependent Fields", type: :feature do
     scenario "retired=Yes auto-adds retired_reason; reverting to No removes it" do
       open_edit_dialog
 
-      within find('[id="edit-dialog-form"]') do
+      within find('[id="patch-item-form"]') do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do
@@ -159,7 +159,7 @@ feature "Search & Edit - Dependent Fields", type: :feature do
       expect(page).to have_css("textarea[name='update.1.value']")
 
       # The trash button on the retired_reason row should be invisible
-      rows = all("#edit-dialog-form .grid.grid-cols-12")
+      rows = all("#patch-item-form .grid.grid-cols-12")
       retired_reason_row = rows[1]
       expect(retired_reason_row).to have_css("button.invisible", visible: :all)
 
@@ -176,7 +176,7 @@ feature "Search & Edit - Dependent Fields", type: :feature do
     scenario "selecting a building auto-adds room_id; changing building resets room value" do
       open_edit_dialog
 
-      within find('[id="edit-dialog-form"]') do
+      within find('[id="patch-item-form"]') do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do
@@ -212,7 +212,7 @@ feature "Search & Edit - Dependent Fields", type: :feature do
     scenario "deleting building_id row also removes auto-added room_id row" do
       open_edit_dialog
 
-      within find('[id="edit-dialog-form"]') do
+      within find('[id="patch-item-form"]') do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do
@@ -227,7 +227,7 @@ feature "Search & Edit - Dependent Fields", type: :feature do
       expect(page).to have_css('button[data-test-id="update.1.value"]')
 
       # Click trash on the building_id row
-      rows = all("#edit-dialog-form .grid.grid-cols-12")
+      rows = all("#patch-item-form .grid.grid-cols-12")
       within rows[0] do
         find("button.col-span-1").click
       end

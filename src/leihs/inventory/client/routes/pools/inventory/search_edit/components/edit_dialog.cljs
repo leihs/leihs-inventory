@@ -85,7 +85,7 @@
                 (t "pool.models.search_edit.dialog.cancel"))
              ($ Button {:data-test-id "apply-button"
                         :type "submit"
-                        :form "edit-dialog-form"
+                        :form "patch-item-form"
                         :class-name "disabled:hover:bg-primary/50"
                         :disabled (or (zero? item-count)
                                       (= (.-state fetcher) "submitting")

@@ -136,6 +136,22 @@
   },
   "intlDateTime": "{{- val, datetime}}",
   "pool": {
+    "scan_edit": {
+      "title": "Scan & Edit",
+      "apply_button": "Apply",
+      "success": "Item has been successfully updated",
+      "invalid_item": {
+        "error": "Item cannot be updated",
+        "description": "Item does not exist, or you are not the owner."
+      },
+      "barcode_placeholder": "Scan barcode",
+      "description": "Scan the barcodes of the items to update or choose a item manually",
+      "autocomplete": {
+        "select": "Make a selection",
+        "search": "Enter search term",
+        "empty": "No results found for this search term"
+      }
+    },
     "inventory": {
       "breadcrumbs": {
         "inventory": "Inventory"

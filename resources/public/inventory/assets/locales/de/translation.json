@@ -136,6 +136,22 @@
   },
   "intlDateTime": "{{val, datetime}}",
   "pool": {
+    "scan_edit": {
+      "title": "Scan & Edit",
+      "apply_button": "Anwenden",
+      "success": "Gegenstand wurde erfolgreich geändert",
+      "invalid_item": {
+        "error": "Gegenstand kann nicht geändert werden",
+        "description": "Gegenstand existiert nicht oder Sie sind nicht Besitzer."
+      },
+      "barcode_placeholder": "Barcode scannen",
+      "description": "Scannen Sie die Barcodes der zu ändernden Gegenstände oder wählen den Gegenstand manuell aus",
+      "autocomplete": {
+        "select": "Auswahl treffen",
+        "search": "Suchbegriff eingeben",
+        "empty": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
+      }
+    },
     "inventory": {
       "breadcrumbs": {
         "inventory": "Inventar"

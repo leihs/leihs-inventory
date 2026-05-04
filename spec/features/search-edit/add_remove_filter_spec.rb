@@ -117,7 +117,7 @@ feature "Search & Edit - Filters", type: :feature do
     scenario "can add a second field row" do
       open_edit_dialog
 
-      within find('[id="edit-dialog-form"]') do
+      within find('[id="patch-item-form"]') do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do
@@ -126,7 +126,7 @@ feature "Search & Edit - Filters", type: :feature do
 
       find("textarea[name='update.0.value']")
 
-      within find('[id="edit-dialog-form"]') do
+      within find('[id="patch-item-form"]') do
         find('[data-test-id="field-select-0"]')
         click_on "Add field"
       end
@@ -138,21 +138,21 @@ feature "Search & Edit - Filters", type: :feature do
     scenario "can remove a field row" do
       open_edit_dialog
 
-      within find('[id="edit-dialog-form"]') do
+      within find('[id="patch-item-form"]') do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do
         find("span", text: "Status note").click
       end
 
-      within find('[id="edit-dialog-form"]') do
+      within find('[id="patch-item-form"]') do
         click_on "Add field"
       end
       await_debounce
       expect(page).to have_css('[data-test-id="field-select-1"]')
 
       # Remove the first row
-      rows = all("#edit-dialog-form .grid.grid-cols-12")
+      rows = all("#patch-item-form .grid.grid-cols-12")
       within rows[0] do
         find("button.col-span-1").click
       end

@@ -15,7 +15,6 @@
    [leihs.inventory.client.routes.pools.inventory.list.page :rename {page list-page}]
    [leihs.inventory.client.routes.pools.inventory.scan-edit.page :rename {page scan-edit-page}]
    [leihs.inventory.client.routes.pools.inventory.search-edit.page :rename {page search-edit-page}]
-   [leihs.inventory.client.routes.pools.inventory.statistics.page :rename {page statistics-page}]
    [leihs.inventory.client.routes.pools.inventory.templates.crud.page :rename {page template-crud-page}]
    [leihs.inventory.client.routes.pools.inventory.templates.page :rename {page templates-page}]
    [leihs.inventory.client.routes.pools.items.crud.page :rename {page items-crud-page}]
@@ -82,10 +81,8 @@
 
                  {:path "scan-edit"
                   :loader loader/scan-edit-page
+                  :action actions/scan-edit-page
                   :element ($ scan-edit-page)}
-
-                 {:path "statistics"
-                  :element ($ statistics-page)}
 
                  {:path "entitlement-groups"
                   :loader loader/entitlement-groups-page

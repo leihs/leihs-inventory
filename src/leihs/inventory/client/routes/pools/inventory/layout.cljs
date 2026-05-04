@@ -38,10 +38,6 @@
                :search ""
                :label (t "pool.models.tabs.scan_edit")}
 
-              {:segment "statistics"
-               :search ""
-               :label (t "pool.models.tabs.statistics")}
-
               {:segment "entitlement-groups"
                :search ""
                :label (t "pool.models.tabs.entitlement_groups")}
