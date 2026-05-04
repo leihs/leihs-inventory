@@ -43,8 +43,8 @@
         navigation (router/useNavigation)
         loading-list? (and (= (.-state navigation) "loading")
                            (str/includes? (.. navigation -location -pathname) "/list"))
-        [query-params _] (router/useSearchParams)
-        size (js/parseInt (or (.. query-params (get "size"))
+        [search-params _] (router/useSearchParams)
+        size (js/parseInt (or (.. search-params (get "size"))
                               "50"))
         handle-reset (fn []
                        (navigate (str "?page=1&size=" size "&with_items=true")))
@@ -87,7 +87,7 @@
                         ($ BeforeLastCheckFilter {:class-name "!max-w-full"})
                         ($ Reset {:class-name "mt-2 w-full"
                                   :on-reset handle-reset}))))
-               ($ Export {:url (str "/inventory/" pool-id "/list/")})))
+               ($ Export {:url (str "/inventory/" pool-id "/list/?" search-params)})))
 
           ;; Desktop filters
           (when is-desktop?

@@ -35,7 +35,7 @@ feature "Search & Edit - Filters", type: :feature do
     add_first_filter_group
     click_on "or-0-field-select-0"
     within find('[data-test-id="field-options"]') do
-      click_on "Inventory Code"
+      find("span", text: "Inventory Code").click
     end
     await_debounce
     find("input[name='$or.0.$and.0.value']").set(item.inventory_code)
@@ -121,7 +121,7 @@ feature "Search & Edit - Filters", type: :feature do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do
-        click_on "Status note"
+        find("span", text: "Status note").click
       end
 
       find("textarea[name='update.0.value']")
@@ -142,7 +142,7 @@ feature "Search & Edit - Filters", type: :feature do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do
-        click_on "Status note"
+        find("span", text: "Status note").click
       end
 
       within find('[id="edit-dialog-form"]') do

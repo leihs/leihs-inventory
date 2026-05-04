@@ -35,7 +35,7 @@ feature "Search & Edit - Dependent Fields", type: :feature do
   def select_filter_field(and_index, label)
     click_on "or-0-field-select-#{and_index}"
     within find('[data-test-id="field-options"]') do
-      click_on label
+      find("span", text: label).click
     end
   end
 
@@ -46,7 +46,7 @@ feature "Search & Edit - Dependent Fields", type: :feature do
     expect(page).to have_button("Add search parameter")
     click_on "or-0-field-select-0"
     within find('[data-test-id="field-options"]') do
-      click_on "Inventory Code"
+      find("span", text: "Inventory Code").click
     end
     await_debounce
     find("input[name='$or.0.$and.0.value']").set(item.inventory_code)
@@ -146,7 +146,7 @@ feature "Search & Edit - Dependent Fields", type: :feature do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do
-        click_on "Retirement"
+        find("span", text: "Retirement").click
       end
 
       # Set to Yes → retired_reason textarea should appear
@@ -180,7 +180,7 @@ feature "Search & Edit - Dependent Fields", type: :feature do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do
-        click_on "Building"
+        find("span", text: "Building").click
       end
 
       # Pick Building A → room_id should appear
@@ -216,7 +216,7 @@ feature "Search & Edit - Dependent Fields", type: :feature do
         click_on "field-select-0"
       end
       within find('[data-test-id="field-options"]') do
-        click_on "Building"
+        find("span", text: "Building").click
       end
 
       find('button[data-test-id="update.0.value"]').click

@@ -16,7 +16,6 @@
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.field-dispatcher :refer [FieldDispatcher]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.or-context :refer [use-or]]
-   [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.retired-reason-field :refer [RetiredReasonField]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defn default-operator [block]
@@ -151,7 +150,8 @@
 
                    :else
                     ;; Field selector dropdown
-                   ($ Select {:value (:name field)
+                   ($ Select {:name "select-and-filter"
+                              :value (:name field)
                               :disabled is-retired-reason
                               :onValueChange #(handle-update-field % field-index)}
                       ($ SelectTrigger {:data-test-id (str "or-" index "-field-select-" field-index)
@@ -173,8 +173,7 @@
                                                              max-allowed (if (= (:component block) "calendar") 2 1)]
                                                          (>= occurrences max-allowed)))
                                             :value (:name block)}
-                                ($ :button {:type "button"}
-                                   (t (:label block)))))))))
+                                (t (:label block))))))))
 
                  ;; Equals sign
                  ($ ToggleGroup {:type "single"
@@ -217,7 +216,7 @@
                                                "invisible"))}
                     ($ Trash {:class-name "h-4 w-4"}))))))
 
-        ;; Add and filter button (disabled if no more fields available)
+       ;; Add and filter button (disabled if no more fields available)
        ($ Button {:type "button"
                   :variant "secondary"
                   :size "sm"

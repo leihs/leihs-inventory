@@ -218,6 +218,26 @@
   environment_variables:
     FEATURE_NAME: "Create item 04"
     FEATURE: './spec/features/items/create_spec.rb[1:4]'
+'./spec/features/items/export_spec.rb[1:1]':
+  name: "Items Export 01"
+  environment_variables:
+    FEATURE_NAME: "Items Export 01"
+    FEATURE: './spec/features/items/export_spec.rb[1:1]'
+'./spec/features/items/export_spec.rb[1:2]':
+  name: "Items Export 02"
+  environment_variables:
+    FEATURE_NAME: "Items Export 02"
+    FEATURE: './spec/features/items/export_spec.rb[1:2]'
+'./spec/features/items/export_spec.rb[1:3]':
+  name: "Items Export 03"
+  environment_variables:
+    FEATURE_NAME: "Items Export 03"
+    FEATURE: './spec/features/items/export_spec.rb[1:3]'
+'./spec/features/items/export_spec.rb[1:4]':
+  name: "Items Export 04"
+  environment_variables:
+    FEATURE_NAME: "Items Export 04"
+    FEATURE: './spec/features/items/export_spec.rb[1:4]'
 './spec/features/items/update_spec.rb[1:1]':
   name: "Update item 01"
   environment_variables:

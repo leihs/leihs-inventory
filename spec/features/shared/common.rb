@@ -40,20 +40,16 @@ def select_value(name, value)
 end
 
 def click_calendar_day(date)
-  unless date.month == Date.today.month && date.year == Date.today.year
-    find('[class*="rdp-button_previous"]').click
-  end
+  find('[class*="rdp-button_previous"]').click unless date.month == Date.today.month && date.year == Date.today.year
   find("[data-day='#{date.strftime("%-m/%-d/%Y")}']").click
 end
 
 def attach_file_by_label(label_text, file_path)
   within find("label", text: label_text).find(:xpath, "..") do
     file_input = first("input[type='file']", minimum: 0, visible: :all)
-    if file_input
-      file_input.attach_file file_path
-    else
-      raise "No file input found for label '#{label_text}'"
-    end
+    raise "No file input found for label '#{label_text}'" unless file_input
+
+    file_input.attach_file file_path
   end
 end
 
@@ -65,6 +61,21 @@ STATUS_SUBMENU_BUTTON_NAME = {
   "Broken" => "broken",
   "Incomplete" => "incomplete"
 }.freeze
+
+def wait_for_download(filename, timeout: 15)
+  path = File.join(BROWSER_DOWNLOAD_DIR, filename)
+  Timeout.timeout(timeout) do
+    sleep 0.2 until File.exist?(path) && File.size(path) > 0
+  end
+  path
+rescue Timeout::Error
+  nil
+end
+
+def cleanup_download(filename)
+  path = File.join(BROWSER_DOWNLOAD_DIR, filename)
+  FileUtils.rm_f(path)
+end
 
 def select_status_filter_submenu(submenu_label, yes_or_no)
   click_on "Status"

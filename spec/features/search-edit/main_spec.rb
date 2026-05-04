@@ -49,7 +49,7 @@ feature "Search & Edit", type: :feature do
     click_on "or-0-field-select-0"
 
     within find('[data-test-id="field-options"]') do
-      click_on "Inventory Code"
+      find("span", text: "Inventory Code").click
     end
 
     # Enter the inventory code value
@@ -83,7 +83,7 @@ feature "Search & Edit", type: :feature do
       click_on "field-select-0"
     end
     within find('[data-test-id="field-options"]') do
-      click_on "Status note"
+      find("span", text: "Status note").click
     end
 
     # Fill in the new status note value
@@ -124,7 +124,7 @@ feature "Search & Edit", type: :feature do
     click_on "or-0-field-select-0"
 
     within find('[data-test-id="field-options"]') do
-      click_on "Inventory Code"
+      find("span", text: "Inventory Code").click
     end
     await_debounce
     find("input[name='$or.0.$and.0.value']").set(inv_code_a)
@@ -141,7 +141,7 @@ feature "Search & Edit", type: :feature do
     click_on "or-1-field-select-0"
 
     within find('[data-test-id="field-options"]') do
-      click_on "Inventory Code"
+      find("span", text: "Inventory Code").click
     end
 
     await_debounce
@@ -171,7 +171,7 @@ feature "Search & Edit", type: :feature do
     click_on "or-0-field-select-0"
 
     within find('[data-test-id="field-options"]') do
-      click_on "Inventory Code"
+      find("span", text: "Inventory Code").click
     end
 
     await_debounce
@@ -203,7 +203,7 @@ feature "Search & Edit", type: :feature do
       expect(page).to have_button("Add search parameter")
       click_on "or-0-field-select-0"
       within find('[data-test-id="field-options"]') do
-        click_on "Inventory Code"
+        find("span", text: "Inventory Code").click
       end
       await_debounce
       find("input[name='$or.0.$and.0.value']").set(prefix)

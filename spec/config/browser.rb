@@ -37,7 +37,8 @@ Capybara.register_driver :firefox do |app|
   options.accept_insecure_certs = true
 
   profile = Selenium::WebDriver::Firefox::Profile.new
-  profile["browser.helperApps.neverAsk.saveToDisk"] = "image/jpeg,application/pdf,application/json"
+  profile["browser.helperApps.neverAsk.saveToDisk"] =
+    "image/jpeg,application/pdf,application/json,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   profile["browser.download.folderList"] = 2 # Custom location
   profile["browser.download.dir"] = BROWSER_DOWNLOAD_DIR.to_s
 
