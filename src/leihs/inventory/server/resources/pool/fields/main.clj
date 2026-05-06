@@ -143,6 +143,23 @@
       (sql/where (target-type-expr ttype))
       (sql/where (min-req-role-expr (keyword role)))))
 
+(defn- field-submission-alias
+  "Returns the single-element :attribute value as the submission key alias, or nil."
+  [field]
+  (let [attribute (get-in field [:data :attribute])]
+    (when (and (vector? attribute) (= 1 (count attribute)))
+      (first attribute))))
+
+(defn field->submission-keys
+  "Returns all keys under which a raw field row may be submitted."
+  [field]
+  (let [id (keyword (:id field))
+        form-name (some-> (get-in field [:data :form_name]) keyword)
+        attr-key (some-> (field-submission-alias field) keyword)]
+    (cond-> [id]
+      form-name (conj form-name)
+      attr-key (conj attr-key))))
+
 (defn transform-field-data [field & {:keys [tx pool user-id target-type]
                                      {resource-id :id :as item-data} :item-data}]
   (let [base (reduce (fn [f data-key]
@@ -169,18 +186,10 @@
         (merge (select-keys (:data base)
                             (-> base :type keyword type-data-keys)))
 
-        ;; NOTE: Some fields (e.g. `license_version`) have no `form_name` but use a
-        ;; single-element `attribute` array (e.g. `["item_version"]`) to reference the
-        ;; actual item column they map to. We promote that value as `:form_name` here,
-        ;; before `:data` is removed by `excluded-keys`, so that `handle-item-defaults`
-        ;; can use the existing `form_name` fallback to look up the correct value from
-        ;; `item-data` (e.g. `:item_version` instead of `:license_version`).
-        (#(let [attr (get-in % [:data :attribute])]
-            (if (and (nil? (:form_name %))
-                     (vector? attr)
-                     (= 1 (count attr)))
-              (assoc % :form_name (first attr))
-              %)))
+        ;; Promote single-element :attribute to :form_name so handle-item-defaults
+        ;; can resolve the correct item-data key (e.g. license_version → item_version).
+        (#(let [alias (field-submission-alias %)]
+            (cond-> % (and (nil? (:form_name %)) alias) (assoc :form_name alias))))
 
         ;; Remove excluded keys
         (#(apply dissoc % excluded-keys))
