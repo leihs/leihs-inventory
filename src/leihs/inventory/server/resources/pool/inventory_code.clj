@@ -20,6 +20,16 @@
               number (Double/parseDouble last-match)]
           (int (Math/ceil number)))))))
 
+(defn- strip-pool-prefix
+  "Strip shortname (and optional P- package prefix) from code before number extraction.
+   Needed when shortname is purely numeric to avoid blending prefix digits with suffix."
+  [code shortname]
+  (let [pkg-prefix (str "P-" shortname)]
+    (cond
+      (str/starts-with? code pkg-prefix) (subs code (count pkg-prefix))
+      (str/starts-with? code shortname) (subs code (count shortname))
+      :else code)))
+
 (defn propose
   "Proposes next inventory code. Fetches latest 1000 items matching shortname prefix,
    extracts numbers (incl floats), returns shortname + (max+1). For packages, adds P- prefix."
@@ -41,6 +51,7 @@
              results (jdbc/query tx (sql-format query))
              max-number (->> results
                              (map :inventory_code)
+                             (map #(strip-pool-prefix % shortname))
                              (map extract-last-number)
                              (apply max 0))
              next-number (inc max-number)

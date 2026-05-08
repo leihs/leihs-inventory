@@ -256,6 +256,165 @@ describe "Swagger Inventory Endpoints - Items Create" do
         # Should propose {shortname}4 because max existing is P-{shortname}3
         expect(resp.body["proposed_code"]).to eq("#{pool_shortname}4")
       end
+
+      it "proposes correct next code when pool shortname is numeric" do
+        @inventory_pool.update(shortname: "01")
+
+        FactoryBot.create(:item,
+          inventory_code: "011",
+          model_id: @model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        item_data = {
+          inventory_code: "011",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["proposed_code"]).to eq("012")
+      end
+
+      it "proposes first code when pool has no items" do
+        @inventory_pool.update(shortname: "TEST")
+        other_pool = FactoryBot.create(:inventory_pool)
+        FactoryBot.create(:item,
+          inventory_code: "TAKEN",
+          model_id: @model.id,
+          inventory_pool_id: other_pool.id,
+          owner: other_pool,
+          room_id: @room.id)
+
+        item_data = {
+          inventory_code: "TAKEN",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["proposed_code"]).to eq("TEST1")
+      end
+
+      it "proposes next after single item with alphabetic shortname" do
+        pool_shortname = @inventory_pool.shortname
+        FactoryBot.create(:item,
+          inventory_code: "#{pool_shortname}3",
+          model_id: @model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        item_data = {
+          inventory_code: "#{pool_shortname}3",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["proposed_code"]).to eq("#{pool_shortname}4")
+      end
+
+      it "proposes max+1 regardless of creation order" do
+        pool_shortname = @inventory_pool.shortname
+        FactoryBot.create(:item,
+          inventory_code: "#{pool_shortname}3",
+          model_id: @model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+        FactoryBot.create(:item,
+          inventory_code: "#{pool_shortname}1",
+          model_id: @model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        item_data = {
+          inventory_code: "#{pool_shortname}1",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(409)
+        # max is 3, proposes 4 (gap at 2 is not filled)
+        expect(resp.body["proposed_code"]).to eq("#{pool_shortname}4")
+      end
+
+      it "proposes correct next after multiple items with numeric shortname" do
+        @inventory_pool.update(shortname: "01")
+        FactoryBot.create(:item,
+          inventory_code: "011",
+          model_id: @model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+        FactoryBot.create(:item,
+          inventory_code: "012",
+          model_id: @model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        item_data = {
+          inventory_code: "011",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["proposed_code"]).to eq("013")
+      end
+
+      it "proposes correct next with numeric shortname and mixed items and packages" do
+        @inventory_pool.update(shortname: "01")
+        FactoryBot.create(:item,
+          inventory_code: "011",
+          model_id: @model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+        FactoryBot.create(:item,
+          inventory_code: "P-012",
+          model_id: @package_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+
+        item_data = {
+          inventory_code: "011",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["proposed_code"]).to eq("013")
+      end
     end
 
     context "with count parameter (batch creation)" do
