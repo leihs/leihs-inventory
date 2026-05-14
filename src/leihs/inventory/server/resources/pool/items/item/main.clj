@@ -14,7 +14,7 @@
                                                                       split-item-data
                                                                       validate-field-permissions
                                                                       validate-retired-reason-requires-retired!]]
-   [leihs.inventory.server.resources.pool.items.main :refer [assign-items-to-package]]
+   [leihs.inventory.server.resources.pool.items.main :refer [assign-items-to-package serial-number-exists?]]
    [next.jdbc :as jdbc]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]
@@ -112,16 +112,33 @@
         (if-let [validation-error (validate-field-permissions request-with-type)]
           (bad-request validation-error)
           (let [item-ids-param (:item_ids update-params)
+                on-conflict (:on_conflict update-params)
                 {:keys [item-data properties]} (-> update-params
-                                                   (dissoc :id :item_ids)
+                                                   (dissoc :id :item_ids :on_conflict)
                                                    split-item-data)
                 inventory-code (:inventory_code item-data)
+                serial-number (:serial_number item-data)
                 merged-item-data (merge (select-keys item [:retired :retired_reason]) item-data)]
             (validate-retired-reason-requires-retired! merged-item-data)
-            (if (and inventory-code (inventory-code-exists? tx inventory-code item_id))
-              (status {:body {:error "Inventory code already exists"
-                              :proposed_code (inv-code/propose tx pool_id (model-is-package? tx (:model_id item)))}}
-                      409)
+            (cond
+              (contains? on-conflict :inventory_code)
+              (status {:body {:errors [{:code "UNSUPPORTED_CONFLICT_STRATEGY"
+                                        :message "on_conflict strategy is not supported for DUPLICATE_INVENTORY_CODE"}]}}
+                      400)
+
+              (and inventory-code (inventory-code-exists? tx inventory-code item_id))
+              (status {:body {:errors [{:code "DUPLICATE_INVENTORY_CODE"
+                                        :message "Inventory code already exists."
+                                        :proposed_code (inv-code/propose tx pool_id (model-is-package? tx (:model_id item)))}]}}
+                      422)
+
+              (and (not= (get on-conflict :serial_number) "overwrite")
+                   (serial-number-exists? tx serial-number item_id))
+              (status {:body {:errors [{:code "DUPLICATE_SERIAL_NUMBER"
+                                        :message "Same or similar serial number already exists."}]}}
+                      422)
+
+              :else
               (let [item-data-coerced (coerce-field-values item-data in-coercions)
                     properties-json (merge (:properties item) properties)
                     item-data-with-properties (assoc item-data-coerced

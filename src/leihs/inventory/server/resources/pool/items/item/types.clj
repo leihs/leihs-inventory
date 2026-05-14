@@ -36,6 +36,8 @@
           (s/optional-key :shelf) (s/maybe s/Str)
           (s/optional-key :status_note) (s/maybe s/Str)
           (s/optional-key :supplier_id) (s/maybe s/Uuid)
-          (s/optional-key :user_name) (s/maybe s/Str)} properties))
+          (s/optional-key :user_name) (s/maybe s/Str)
+          (s/optional-key :on_conflict) {(s/optional-key :serial_number) s/Str
+                                         (s/optional-key :inventory_code) s/Str}} properties))
 
 (def patch-response post-response-item)

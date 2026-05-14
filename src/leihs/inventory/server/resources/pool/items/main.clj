@@ -223,6 +223,17 @@
     (-> (jdbc/execute-one! tx query)
         some?)))
 
+(defn serial-number-exists? [tx serial-number exclude-id]
+  (when (seq serial-number)
+    (let [normalized (-> serial-number (clojure.string/replace " " "") clojure.string/lower-case)]
+      (-> (sql/select :id)
+          (sql/from :items)
+          (sql/where [:= [:raw "lower(replace(serial_number, ' ', ''))"] normalized])
+          (cond-> exclude-id (sql/where [:not= :id exclude-id]))
+          sql-format
+          (->> (jdbc/execute-one! tx))
+          some?))))
+
 (defn validate-item-ids-for-package
   ([tx item-ids] (validate-item-ids-for-package tx item-ids nil))
   ([tx item-ids exclude-parent-id]
@@ -299,7 +310,7 @@
     (let [tx (:tx request)
           {:keys [pool_id]} (path-params request)
           body-params (body-params request)
-          {:keys [inventory_code count type item_ids]} body-params
+          {:keys [inventory_code count type item_ids serial_number on_conflict]} body-params
           validation-error (validate-field-permissions request)]
       (bcond
        validation-error
@@ -314,8 +325,13 @@
        (and (not inventory_code) (not count))
        (bad-request {:error "Must provide either inventory_code or count"})
 
+       (contains? on_conflict :inventory_code)
+       (status {:body {:errors [{:code "UNSUPPORTED_CONFLICT_STRATEGY"
+                                 :message "on_conflict strategy is not supported for DUPLICATE_INVENTORY_CODE"}]}}
+               400)
+
        :let [{:keys [item-data properties]} (split-item-data
-                                             (dissoc body-params :count :item_ids :type))
+                                             (dissoc body-params :count :item_ids :type :on_conflict))
              item-data (cond-> item-data
                          (and (= type "license") (nil? (:room_id item-data)))
                          (assoc :room_id (get-general-room-id tx)))
@@ -328,6 +344,14 @@
              (when-not (seq item_ids)
                (throw (ex-info "Package must have at least one item" {:status 400}))))
 
+       (and count (> count 1)
+            (not= type "package")
+            (not= (get on_conflict :serial_number) "overwrite")
+            (serial-number-exists? tx serial_number nil))
+       (status {:body {:errors [{:code "DUPLICATE_SERIAL_NUMBER"
+                                 :message "Same or similar serial number already exists."}]}}
+               422)
+
        (and count (> count 1))
        (let [codes (generate-inventory-codes tx pool_id count (= type "package"))
              created-items (doall (map #(create-item tx
@@ -336,10 +360,19 @@
                                        codes))]
          (response created-items))
 
-       (inventory-code-exists? tx inventory_code nil)
-       (status {:body {:error "Inventory code already exists"
-                       :proposed_code (inv-code/propose tx pool_id (= type "package"))}}
-               409)
+       :let [inv-code-err (when (inventory-code-exists? tx inventory_code nil)
+                            {:code "DUPLICATE_INVENTORY_CODE"
+                             :message "Inventory code already exists."
+                             :proposed_code (inv-code/propose tx pool_id (= type "package"))})
+             serial-err (when (and (not= type "package")
+                                   (not= (get on_conflict :serial_number) "overwrite")
+                                   (serial-number-exists? tx serial_number nil))
+                          {:code "DUPLICATE_SERIAL_NUMBER"
+                           :message "Same or similar serial number already exists."})
+             conflict-errors (keep identity [inv-code-err serial-err])]
+
+       (seq conflict-errors)
+       (status {:body {:errors conflict-errors}} 422)
 
        :else
        (let [result (create-item tx item-data-coerced properties-json)]

@@ -66,7 +66,7 @@
         permitted-field-ids (->> permitted-fields
                                  (mapcat fields/field->submission-keys)
                                  set)
-        body-keys (-> body-params (dissoc :id :type :item_ids :count) keys set)
+        body-keys (-> body-params (dissoc :id :type :item_ids :count :on_conflict) keys set)
         unpermitted-fields (set/difference body-keys permitted-field-ids)
         owner-id (:owner_id item-data)
         model-id (:model_id item-data)

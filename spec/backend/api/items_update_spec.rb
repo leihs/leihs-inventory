@@ -259,10 +259,10 @@ describe "Swagger Inventory Endpoints - Items Update" do
 
         resp = patch_with_headers(client, url, update_data)
 
-        expect(resp.status).to eq(409)
-        expect(resp.body["error"]).to eq("Inventory code already exists")
-        expect(resp.body["proposed_code"]).to be_a(String)
-        expect(resp.body["proposed_code"]).not_to start_with("P-")
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_INVENTORY_CODE")
+        expect(resp.body["errors"].first["proposed_code"]).to be_a(String)
+        expect(resp.body["errors"].first["proposed_code"]).not_to start_with("P-")
       end
 
       it "rejects duplicate inventory_code on package update and returns 409 with P-prefixed proposed_code" do
@@ -291,10 +291,85 @@ describe "Swagger Inventory Endpoints - Items Update" do
 
         resp = patch_with_headers(client, url, update_data)
 
-        expect(resp.status).to eq(409)
-        expect(resp.body["error"]).to eq("Inventory code already exists")
-        expect(resp.body["proposed_code"]).to be_a(String)
-        expect(resp.body["proposed_code"]).to start_with("P-")
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_INVENTORY_CODE")
+        expect(resp.body["errors"].first["proposed_code"]).to be_a(String)
+        expect(resp.body["errors"].first["proposed_code"]).to start_with("P-")
+      end
+
+      it "rejects duplicate serial_number on update and returns 409" do
+        FactoryBot.create(:item,
+          inventory_code: "SERIAL-OTHER",
+          serial_number: "SN-99999",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {serial_number: "SN-99999"}
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
+      end
+
+      it "allows updating item with its own serial_number and returns 200" do
+        @item.update(serial_number: "SN-MINE")
+
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {serial_number: "SN-MINE", note: "updated"}
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["serial_number"]).to eq("SN-MINE")
+      end
+
+      it "rejects case- and space-insensitive serial_number duplicate on update and returns 409" do
+        FactoryBot.create(:item,
+          inventory_code: "SERIAL-OTHER-2",
+          serial_number: "ab 12",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {serial_number: "AB12"}
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
+      end
+
+      it "allows updating with duplicate serial_number when on_conflict overwrite and returns 200" do
+        FactoryBot.create(:item,
+          inventory_code: "SERIAL-OTHER-3",
+          serial_number: "SN-UPDATE-OVERWRITE",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {serial_number: "SN-UPDATE-OVERWRITE", on_conflict: {serial_number: "overwrite"}}
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(200)
+      end
+
+      it "rejects on_conflict for inventory_code on update and returns 400" do
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {on_conflict: {inventory_code: "overwrite"}}
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["errors"].first["code"]).to eq("UNSUPPORTED_CONFLICT_STRATEGY")
       end
     end
   end

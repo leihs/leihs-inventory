@@ -34,5 +34,5 @@
                             :body types/post-response}
                        400 {:description "Bad Request"}
                        404 {:description "Not Found"}
-                       409 {:description "Conflict - Inventory code already exists"}
+                       422 {:description "Unprocessable - Duplicate inventory code or serial number"}
                        500 {:description "Internal Server Error"}}}}])

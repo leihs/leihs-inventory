@@ -211,9 +211,9 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(409)
-        expect(resp.body["error"]).to eq("Inventory code already exists")
-        expect(resp.body["proposed_code"]).to be_a(String)
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_INVENTORY_CODE")
+        expect(resp.body["errors"].first["proposed_code"]).to be_a(String)
       end
 
       it "proposes item codes considering both items and packages (shared sequence)" do
@@ -252,9 +252,9 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(409)
+        expect(resp.status).to eq(422)
         # Should propose {shortname}4 because max existing is P-{shortname}3
-        expect(resp.body["proposed_code"]).to eq("#{pool_shortname}4")
+        expect(resp.body["errors"].first["proposed_code"]).to eq("#{pool_shortname}4")
       end
 
       it "proposes correct next code when pool shortname is numeric" do
@@ -277,8 +277,8 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(409)
-        expect(resp.body["proposed_code"]).to eq("012")
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["proposed_code"]).to eq("012")
       end
 
       it "proposes first code when pool has no items" do
@@ -301,8 +301,8 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(409)
-        expect(resp.body["proposed_code"]).to eq("TEST1")
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["proposed_code"]).to eq("TEST1")
       end
 
       it "proposes next after single item with alphabetic shortname" do
@@ -324,8 +324,8 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(409)
-        expect(resp.body["proposed_code"]).to eq("#{pool_shortname}4")
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["proposed_code"]).to eq("#{pool_shortname}4")
       end
 
       it "proposes max+1 regardless of creation order" do
@@ -353,9 +353,9 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(409)
+        expect(resp.status).to eq(422)
         # max is 3, proposes 4 (gap at 2 is not filled)
-        expect(resp.body["proposed_code"]).to eq("#{pool_shortname}4")
+        expect(resp.body["errors"].first["proposed_code"]).to eq("#{pool_shortname}4")
       end
 
       it "proposes correct next after multiple items with numeric shortname" do
@@ -383,8 +383,8 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(409)
-        expect(resp.body["proposed_code"]).to eq("013")
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["proposed_code"]).to eq("013")
       end
 
       it "proposes correct next with numeric shortname and mixed items and packages" do
@@ -412,8 +412,147 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(409)
-        expect(resp.body["proposed_code"]).to eq("013")
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["proposed_code"]).to eq("013")
+      end
+
+      it "rejects duplicate serial_number and returns status 409" do
+        FactoryBot.create(:item,
+          inventory_code: "SERIAL-ITEM-1",
+          serial_number: "SN-12345",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        item_data = {
+          inventory_code: "SERIAL-ITEM-2",
+          serial_number: "SN-12345",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
+      end
+
+      it "returns both errors when inventory_code and serial_number are both duplicates" do
+        existing_code = "DUAL-DUP-CODE"
+        existing_serial = "SN-DUAL-DUP"
+        FactoryBot.create(:item,
+          inventory_code: existing_code,
+          serial_number: existing_serial,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        item_data = {
+          inventory_code: existing_code,
+          serial_number: existing_serial,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(422)
+        codes = resp.body["errors"].map { |e| e["code"] }
+        expect(codes).to include("DUPLICATE_INVENTORY_CODE", "DUPLICATE_SERIAL_NUMBER")
+      end
+
+      it "rejects case- and space-insensitive serial_number duplicate and returns status 409" do
+        FactoryBot.create(:item,
+          inventory_code: "SERIAL-ITEM-3",
+          serial_number: "ab cd",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        item_data = {
+          inventory_code: "SERIAL-ITEM-4",
+          serial_number: "AB CD",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
+      end
+
+      it "allows creating item with unique serial_number and returns status 200" do
+        FactoryBot.create(:item,
+          inventory_code: "SERIAL-ITEM-5",
+          serial_number: "SN-UNIQUE-1",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        item_data = {
+          inventory_code: "SERIAL-ITEM-6",
+          serial_number: "SN-UNIQUE-2",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["serial_number"]).to eq("SN-UNIQUE-2")
+      end
+
+      it "allows creating with duplicate serial_number when on_conflict overwrite and returns 200" do
+        FactoryBot.create(:item,
+          inventory_code: "SERIAL-ITEM-7",
+          serial_number: "SN-OVERWRITE",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        item_data = {
+          inventory_code: "SERIAL-ITEM-8",
+          serial_number: "SN-OVERWRITE",
+          on_conflict: {serial_number: "overwrite"},
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(200)
+      end
+
+      it "rejects on_conflict for inventory_code and returns 400" do
+        item_data = {
+          inventory_code: "SERIAL-ITEM-9",
+          on_conflict: {inventory_code: "overwrite"},
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(400)
+        expect(resp.body["errors"].first["code"]).to eq("UNSUPPORTED_CONFLICT_STRATEGY")
       end
     end
 
@@ -486,6 +625,49 @@ describe "Swagger Inventory Endpoints - Items Create" do
         codes = resp.body.map { |item| item["inventory_code"] }
         numbers = codes.map { |c| c.gsub(/\D/, "").to_i }
         expect(numbers).to eq([106, 107, 108])
+      end
+
+      it "rejects duplicate serial_number on batch create and returns 409" do
+        FactoryBot.create(:item,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          serial_number: "SN-BATCH-DUP")
+
+        resp = post_with_headers(client, url, {
+          count: 2,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          serial_number: "SN-BATCH-DUP"
+        })
+
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
+      end
+
+      it "allows batch create with duplicate serial_number when on_conflict overwrite and returns 200" do
+        FactoryBot.create(:item,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          serial_number: "SN-BATCH-OVERWRITE")
+
+        resp = post_with_headers(client, url, {
+          count: 2,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          serial_number: "SN-BATCH-OVERWRITE",
+          on_conflict: {serial_number: "overwrite"}
+        })
+
+        expect(resp.status).to eq(200)
+        expect(resp.body.length).to eq(2)
       end
     end
   end

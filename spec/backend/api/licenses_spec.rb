@@ -230,6 +230,50 @@ describe "Swagger Inventory Endpoints - Licenses" do
         expect(resp.body["error"]).to eq("Unpermitted fields")
         expect(resp.body["unpermitted-fields"]).to include("properties_mac_address")
       end
+
+      it "rejects duplicate serial_number on license update and returns 409" do
+        FactoryBot.create(:item,
+          inventory_code: "LIC-SERIAL-OTHER",
+          serial_number: "LIC-SN-111",
+          model_id: @software_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        url = "/inventory/#{inventory_pool_id}/items/#{@license.id}"
+        data = {serial_number: "LIC-SN-111", model_id: @software_model.id}
+
+        resp = patch_with_headers(client, url, data)
+
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
+      end
+    end
+
+    context "POST /inventory/:pool-id/items/ serial_number validation for licenses" do
+      it "rejects duplicate serial_number on license create and returns 409" do
+        FactoryBot.create(:item,
+          inventory_code: "LIC-SERIAL-BASE",
+          serial_number: "LIC-SN-222",
+          model_id: @software_model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        data = {
+          type: "license",
+          inventory_code: "LIC-NEW-#{SecureRandom.hex(4)}",
+          serial_number: "LIC-SN-222",
+          model_id: @software_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, items_url, data)
+
+        expect(resp.status).to eq(422)
+        expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
+      end
     end
   end
 end
