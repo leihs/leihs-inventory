@@ -2,7 +2,7 @@
   (:require
    ["date-fns" :refer [format]]
    ["zod" :as z]
-   [leihs.inventory.client.lib.utils :refer [cj jc]]))
+   [leihs.inventory.client.lib.utils :refer [cj]]))
 
 ;; Zod validation schema for advanced search filters
 ;;
@@ -26,34 +26,32 @@
 ;; Transforms from full condition object to simplified structure
 (def and-condition-schema
   (-> (z/object
-       (cj {:name (z/string) ;; field name (e.g., "inventory_code", "properties_reference")
+       (cj {:name (-> (z/string) (.optional)) ;; field name (e.g., "inventory_code", "properties_reference")
             :value (z/any) ;; the actual value entered by user
-            :operator (z/literal #js ["$eq" "$ilike" "$gte" "$lte"])}))
+            :operator (-> (z/enum #js ["$eq" "$ilike" "$gte" "$lte"]) (.optional))}))
       (.transform
        (fn [condition]
           ;; Transform to query structure -> {:field_name {:$operator value}}
           ;; Returns nil if the resolved value is nil (so parent can filter it out)
-         (let [val (.-value condition)
-                ;; Format dates to YYYY-MM-DD if the value is a Date object
-               formatted-val (if (instance? js/Date val)
-                               (format val "yyyy-MM-dd")
-                               val)
-                ;; Coerce "true"/"false" strings to booleans
-               coerced-val (cond
-                             (= formatted-val "true") true
-                             (= formatted-val "false") false
-                             (= (.-name condition) "price")
-                             (if (= (.-value condition) "")
-                               0
-                               (js/parseFloat formatted-val))
-                             :else formatted-val)
-                ;; Unwrap object values (e.g. select option {:value "..." :label "..."})
-               final-val (if (and (object? coerced-val) (some? (.-value coerced-val)))
-                           (.-value coerced-val)
-                           coerced-val)]
-           (when (some? final-val)
-             (cj {(keyword (.-name condition))
-                  {(keyword (.-operator condition)) final-val}})))))))
+         (when (.-name condition)
+           (let [val (.-value condition)
+                 formatted-val (if (instance? js/Date val)
+                                 (format val "yyyy-MM-dd")
+                                 val)
+                 coerced-val (cond
+                               (= formatted-val "true") true
+                               (= formatted-val "false") false
+                               (= (.-name condition) "price")
+                               (if (= (.-value condition) "")
+                                 0
+                                 (js/parseFloat formatted-val))
+                               :else formatted-val)
+                 final-val (if (and (object? coerced-val) (some? (.-value coerced-val)))
+                             (.-value coerced-val)
+                             coerced-val)]
+             (when (some? final-val)
+               (cj {(keyword (.-name condition))
+                    {(keyword (.-operator condition)) final-val}}))))))))
 
 ;; Schema for an OR group
 ;; Transforms from group with id to just the $and array

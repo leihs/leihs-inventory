@@ -108,7 +108,7 @@
                      ($ BeforeLastCheckFilter)
                      ($ Reset {:on-reset handle-reset})))
 
-               ($ Export {:url (str "/inventory/" pool-id "/list/")}))))
+               ($ Export {:url (str "/inventory/" pool-id "/list/?" search-params)}))))
 
        ($ CardContent {:class-name "pb-0"}
           ($ :div {:class-name "border rounded-md"}

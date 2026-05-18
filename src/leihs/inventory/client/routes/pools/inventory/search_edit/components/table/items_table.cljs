@@ -4,19 +4,16 @@
    ["@@/button" :refer [Button]]
    ["@@/button-group" :refer [ButtonGroup]]
    ["@@/checkbox" :refer [Checkbox]]
-   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
-                               DropdownMenuItem DropdownMenuTrigger]]
    ["@@/skeleton" :refer [Skeleton]]
-   ["@@/table" :refer [Table TableBody TableCell TableHead
-                       TableHeader TableRow]]
-   ["lucide-react" :refer [Image ChevronDown]]
+   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
+                       TableRow]]
+   ["lucide-react" :refer [ChevronDown Image]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
    [leihs.inventory.client.components.typo :refer [Typo]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.table.item-info :refer [ItemInfo]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
-
+   [leihs.inventory.client.routes.pools.inventory.search-edit.components.table.item-info :refer [ItemInfo]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui SkeletonItemRow []
@@ -113,7 +110,10 @@
                                    ($ Image {:class-name "w-7 h-7 inline"})))
 
                               ($ TableCell
-                                 (:inventory_code item))
+                                 ($ Typo {:variant "link"}
+                                    ($ Link {:to (str "../items/" (:id item))
+                                             :viewTransition true}
+                                       (:inventory_code item))))
 
                               ($ TableCell
                                  ($ :div {:class-name "w-90 overflow-hidden whitespace-nowrap text-ellipsis"}

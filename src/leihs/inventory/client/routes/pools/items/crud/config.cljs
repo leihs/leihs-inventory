@@ -19,6 +19,7 @@
                          :position 0
                          :required true
                          :default 1
+                         :label ""
                          :props {:type "number"
                                  :min 0
                                  :max 999999
@@ -41,6 +42,7 @@
                        :type "array"
                        :component "items"
                        :group "Content"
+                       :label nil
                        :required true
                        :default (or items [])
                        :props {:text {:select "pool.packages.package.fields.items.select"

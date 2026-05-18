@@ -77,7 +77,7 @@ feature "Duplicate Item from Inventory List", type: :feature do
     assert_field("Name", original_name)
     assert_field("Note", original_note)
     assert_field("Shelf", original_shelf)
-    assert_field("Initial Price", original_price)
+    assert_field("Initial Price", format_price_display(original_price))
     # expect(find('button[data-test-id="supplier_id"]')).to have_text(supplier.name)
     assert_checked(find('button[data-test-id="is_borrowable-true"]'))
 
@@ -145,7 +145,7 @@ feature "Duplicate Item from Inventory List", type: :feature do
     assert_field("Shelf", original_shelf)
     expect(find('button[data-test-id="building_id"]')).to have_text(building.name)
     expect(find('button[data-test-id="room_id"]')).to have_text(room.name)
-    assert_field("Initial Price", original_price)
+    assert_field("Initial Price", format_price_display(original_price))
     # expect(find('button[data-test-id="supplier_id"]')).to have_text(supplier.name)
     assert_checked(find('button[data-test-id="is_borrowable-true"]'))
   end

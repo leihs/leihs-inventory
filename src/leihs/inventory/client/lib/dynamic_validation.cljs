@@ -4,7 +4,8 @@
    [clojure.set]))
 
 (defn- field->zod-validator [field]
-  (let [field-type (:type field)
+  (let [field-id (:id field)
+        field-type (:type field)
         is-required (:required field)
         is-protected (:protected field)
         ;; Fields with dependencies should be treated as optional in base validation
@@ -13,98 +14,106 @@
                            (:values_dependency_field_id field))
         treat-as-optional (and is-required has-dependency)
 
-        base-validator (case field-type
-                         "text"
-                         (let [base-string (if (and is-required (not treat-as-optional))
-                                             (-> (z/string)
-                                                 (.min 1))
-                                             (z/string))]
-                           (.transform base-string
-                                       (fn [val]
-                                         (when val
-                                           (if (re-matches #"^\d+[,]\d+$" val)
-                                             (.replace val "," ".")
-                                             val)))))
-
-                         "textarea"
-                         (if (and is-required (not treat-as-optional))
-                           (-> (z/string)
-                               (.min 1))
-                           (z/string))
-
-                         "date"
-                         (-> (.. z -coerce (date))
-                             ;; transform to "YYYY-MM-DD" format
-                             (.transform (fn [date]
-                                           (when date
-                                             (let [year (.getFullYear date)
-                                                   month (-> (.getMonth date) inc (str) (.padStart 2 "0"))
-                                                   day (-> (.getDate date) (str) (.padStart 2 "0"))]
-                                               (str year "-" month "-" day))))))
-
-                         "select"
-                         (if (and is-required (not treat-as-optional))
-                           (-> (z/string)
-                               (.min 1))
-                           (z/string))
-
-                         "radio"
-                         (if (and is-required (not treat-as-optional))
-                           (-> (z/string)
-                               (.min 1 "Please select an option"))
-                           (z/string))
-
-                         "checkbox"
-                         (if (and is-required (not treat-as-optional))
-                           (-> (z/array (z/string))
-                               (.min 1 "At least one option must be selected"))
-                           (z/array (z/string)))
-
-                         "composite"
-                         (let [item-schema (z/object (clj->js {:quantity (-> (.. z -coerce (number))
-                                                                             (.pipe (-> (z/number)
-                                                                                        (.int)
-                                                                                        (.min 0))))
-                                                               :location (z/string)}))]
+        base-validator (if (= field-id "price")
+                         (let [price-schema (-> (.. z -coerce (number))
+                                                (.lt 1000000)
+                                                (.gt 0)
+                                                (.multipleOf 0.01))]
                            (if (and is-required (not treat-as-optional))
-                             (-> (z/array item-schema)
+                             (-> (z/string) (.min 1) (.pipe price-schema))
+                             (-> (z/string) (.pipe price-schema))))
+                         (case field-type
+                           "text"
+                           (let [base-string (if (and is-required (not treat-as-optional))
+                                               (-> (z/string)
+                                                   (.min 1))
+                                               (z/string))]
+                             (.transform base-string
+                                         (fn [val]
+                                           (when val
+                                             (if (re-matches #"^\d+[,]\d+$" val)
+                                               (.replace val "," ".")
+                                               val)))))
+
+                           "textarea"
+                           (if (and is-required (not treat-as-optional))
+                             (-> (z/string)
                                  (.min 1))
-                             (z/array item-schema)))
+                             (z/string))
+
+                           "date"
+                           (-> (.. z -coerce (date))
+                             ;; transform to "YYYY-MM-DD" format
+                               (.transform (fn [date]
+                                             (when date
+                                               (let [year (.getFullYear date)
+                                                     month (-> (.getMonth date) inc (str) (.padStart 2 "0"))
+                                                     day (-> (.getDate date) (str) (.padStart 2 "0"))]
+                                                 (str year "-" month "-" day))))))
+
+                           "select"
+                           (if (and is-required (not treat-as-optional))
+                             (-> (z/string)
+                                 (.min 1))
+                             (z/string))
+
+                           "radio"
+                           (if (and is-required (not treat-as-optional))
+                             (-> (z/string)
+                                 (.min 1 "Please select an option"))
+                             (z/string))
+
+                           "checkbox"
+                           (if (and is-required (not treat-as-optional))
+                             (-> (z/array (z/string))
+                                 (.min 1 "At least one option must be selected"))
+                             (z/array (z/string)))
+
+                           "composite"
+                           (let [item-schema (z/object (clj->js {:quantity (-> (.. z -coerce (number))
+                                                                               (.pipe (-> (z/number)
+                                                                                          (.int)
+                                                                                          (.min 0))))
+                                                                 :location (z/string)}))]
+                             (if (and is-required (not treat-as-optional))
+                               (-> (z/array item-schema)
+                                   (.min 1))
+                               (z/array item-schema)))
 
                          ;; Both autocomplete types validate as object, transform to string
-                         "autocomplete-search"
-                         (if (and is-required (not treat-as-optional))
-                           (-> (z/object (clj->js {:value (-> (z/string)
-                                                              (.min 1))
-                                                   :label (z/nullish (z/string))}))
-                               (.transform (fn [obj] (.-value obj))))
-                           (-> (z/object (clj->js {:value (z/nullish (z/string))
-                                                   :label (z/nullish (z/string))}))
-                               (.transform (fn [obj] (.-value obj)))))
+                           "autocomplete-search"
+                           (if (and is-required (not treat-as-optional))
+                             (-> (z/object (clj->js {:value (-> (z/string)
+                                                                (.min 1))
+                                                     :label (z/nullish (z/string))}))
+                                 (.transform (fn [obj] (.-value obj))))
+                             (-> (z/object (clj->js {:value (z/nullish (z/string))
+                                                     :label (z/nullish (z/string))}))
+                                 (.transform (fn [obj] (.-value obj)))))
 
-                         "autocomplete"
-                         (if (and is-required (not treat-as-optional))
-                           (-> (z/object (clj->js {:value (-> (z/string)
-                                                              (.min 1))
-                                                   :label (z/nullish (z/string))}))
-                               (.transform (fn [obj] (.-value obj))))
-                           (-> (z/object (clj->js {:value (z/nullish (z/string))
-                                                   :label (z/nullish (z/string))}))
-                               (.transform (fn [obj] (.-value obj)))))
+                           "autocomplete"
+                           (if (and is-required (not treat-as-optional))
+                             (-> (z/object (clj->js {:value (-> (z/string)
+                                                                (.min 1))
+                                                     :label (z/nullish (z/string))}))
+                                 (.transform (fn [obj] (.-value obj))))
+                             (-> (z/object (clj->js {:value (z/nullish (z/string))
+                                                     :label (z/nullish (z/string))}))
+                                 (.transform (fn [obj] (.-value obj)))))
 
-                         "attachment"
-                         (if (and is-required (not treat-as-optional))
-                           (-> (z/array (z/any))
-                               (.min 1 "At least one attachment is required"))
-                           (z/array (z/any)))
+                           "attachment"
+                           (if (and is-required (not treat-as-optional))
+                             (-> (z/array (z/any))
+                                 (.min 1 "At least one attachment is required"))
+                             (z/array (z/any)))
 
                          ;; Default for custom/unknown types
-                         (if-let [custom-validator (:validator field)]
-                           custom-validator
+                           (if-let [custom-validator (:validator field)]
+                             custom-validator
                            ;; Fall back to string validation
-                           (if (and is-required (not treat-as-optional))
-                             (-> (z/string) (.min 1))
-                             (z/string))))]
+                             (if (and is-required (not treat-as-optional))
+                               (-> (z/string) (.min 1))
+                               (z/string)))))]
 
     (if (or (not is-required) (not is-protected) treat-as-optional)
       (z/nullish (z/optional base-validator))

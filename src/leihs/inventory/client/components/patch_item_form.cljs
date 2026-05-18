@@ -65,10 +65,11 @@
                                   (assoc :value (case (:component block)
                                                   "textarea" ""
                                                   "input" ""
+                                                  "price" ""
                                                   nil))))
         form (hook-form/useForm
               #js {:resolver (zodResolver edit-dialog-schema)
-                   :defaultValues (cj {:update [(create-update-entry (first blocks))]})})
+                   :defaultValues (cj {:update [{:id (str (random-uuid))}]})})
 
         control (.-control form)
         field-array (hook-form/useFieldArray
@@ -93,8 +94,7 @@
                         first)
 
         handle-add-field (fn []
-                           (when next-block
-                             (append (cj (create-update-entry next-block)))))
+                           (append (cj {:id (str (random-uuid))})))
 
         handle-update-field (fn [field-name idx]
                               (let [selected-block (->> blocks
@@ -151,11 +151,11 @@
                          (t "fields.Location.room_id"))
 
                       :else
-                      ($ Select {:value (:name field)
+                      ($ Select {:value (or (:name field) "")
                                  :onValueChange #(handle-update-field % idx)}
                          ($ SelectTrigger {:data-test-id (str "field-select-" idx)
                                            :class-name "col-span-4"}
-                            ($ SelectValue))
+                            ($ SelectValue {:placeholder (t "pool.models.search_edit.select_field_placeholder")}))
                          ($ SelectContent {:data-test-id "field-options"}
                             (for [block blocks]
                               (when (and (not= (:name block) "retired_reason")
@@ -166,9 +166,10 @@
                                                :value (:name block)}
 
                                    ($ :button {:type "button"}
-                                      (t (:label block)))))))))
+                                      (:label block))))))))
 
-                    ($ Equal {:class-name "col-span-1 justify-self-center"})
+                    ($ Equal {:class-name (str "col-span-1 justify-self-center"
+                                               (when (nil? (:name field)) " invisible"))})
 
                     ;; Value input (no default value)
                     ($ :div {:class-name "col-span-6"}

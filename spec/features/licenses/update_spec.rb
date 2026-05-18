@@ -125,20 +125,20 @@ feature "Update license", type: :feature do
     fill_in "License Version", with: license_version_new
 
     # Update activation type (test visibility change)
-    click_on "Activation type"
+    click_on "Activation Type"
     click_on "Serial Number"
 
     # Dongle ID field should disappear
     expect(page).not_to have_content "Dongle ID"
 
     # Change back to dongle to test visibility again
-    click_on "Activation type"
+    click_on "Activation Type"
     click_on "Dongle"
     expect(page).to have_content "Dongle ID"
     fill_in "Dongle ID", with: dongle_id_new
 
     # Update license type
-    click_on "License type"
+    click_on "License Type"
     click_on "Multiple Workplace"
 
     # Update checkboxes (uncheck old, check new)

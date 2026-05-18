@@ -12,6 +12,7 @@
    :h3 "text-lg"
    :h4 "font-semibold leading-none tracking-tight"
    :p "leading-7"
+   :bold "font-bold"
    :link "text-primary underline underline-offset-4 hover:text-primary/80"
    :caption "text-xs text-muted-foreground"
    :label "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -24,6 +25,7 @@
    :h2 :h2
    :h3 :h3
    :p :p
+   :bold :span
    :link :span
    :caption :span
    :label :span

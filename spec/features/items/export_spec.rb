@@ -44,12 +44,12 @@ feature "Items Export", type: :feature do
     cleanup_download("items.xlsx")
   end
 
-  # Navigate to search-edit with a pre-encoded filter_d that matches our EXPORTTEST- items.
+  # Navigate to search-edit with a pre-encoded filter_q that matches our EXPORTTEST- items.
   # The filter JSON mirrors the shape the page produces when the user types in the
   # inventory_code field: {"$or":[{"$and":[{"inventory_code":{"$ilike":"EXPORTTEST%"}}]}]}
   def search_edit_url(pool_id)
-    filter = CGI.escape('{"$or":[{"$and":[{"inventory_code":{"$ilike":"EXPORTTEST%"}}]}]}')
-    "/inventory/#{pool_id}/search-edit?filter_d=#{filter}&page=1&size=50"
+    filter = CGI.escape('{:$or [{:$and [{:inventory_code {:$ilike "EXPORTTEST%"}}]}]}')
+    "/inventory/#{pool_id}/search-edit/?filter_q=#{filter}&page=1&size=50"
   end
 
   scenario "export button shows total filtered count when nothing is selected" do

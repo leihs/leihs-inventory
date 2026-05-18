@@ -1,6 +1,7 @@
 (ns leihs.inventory.client.loader
   (:require
    ["react-router-dom" :as router]
+   [clojure.edn :as edn]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [jc cj]]
    [promesa.core :as p]))
@@ -100,12 +101,13 @@
 (defn search-edit-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
         search-params (.-searchParams url)
-        filter (.get search-params "filter_d")
+        filter (.get search-params "filter_q")
         page (or (.get search-params "page") "1")
         size (or (.get search-params "size") "50")]
+
     (p/let [params (.. ^js route-data -params)
             pool-id (aget params "pool-id")
-            parsed-filter (when filter (jc (js/JSON.parse filter)))
+            parsed-filter (when filter (jc (edn/read-string filter)))
 
             query (js/encodeURIComponent parsed-filter)
 
@@ -250,8 +252,15 @@
 
 (defn packages-crud-page [route-data]
   (p/let [params (.. ^js route-data -params)
+          query-params (-> (js/URL. (.. route-data -request -url))
+                           (.-search)
+                           (js/URLSearchParams.))
+
           pool-id (aget params "pool-id")
           item-id (or (aget params "item-id") nil)
+          copy-item-id (or (aget params "fromItem")
+                           (.get query-params "fromItem")
+                           nil)
           model-id (or (aget params "model-id") nil)
 
           model (when model-id
@@ -276,10 +285,17 @@
                    (-> http-client
                        (.get (str "/inventory/" pool-id "/fields/?target_type=package")
                              #js {:cache false})
-                       (.then #(jc (.-data %)))))]
+                       (.then #(jc (.-data %)))))
+
+          copy-data (when copy-item-id
+                      (-> http-client
+                          (.get (str "/inventory/" pool-id "/items/" copy-item-id)
+                                #js {:cache false})
+                          (.then #(jc (.-data %)))))]
 
     (try
       {:data (if item-id {:fields (:fields package)} fields)
+       :copy-data (when copy-item-id {:fields (:fields copy-data)})
        :package package
        :items (if items items nil)
        :model (if model model nil)}

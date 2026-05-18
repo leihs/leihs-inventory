@@ -115,7 +115,7 @@
         :name name
         :render #($ FormItem {:class-name (str "mt-6 " class-name)}
                     (when label
-                      ($ FormLabel (t label)
+                      ($ FormLabel label
                          (when (-> props :required) "*")))
                     ($ Popover {:open open
                                 :on-open-change handle-open-change}
