@@ -7,7 +7,7 @@
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell]]
    ["@@/tooltip" :refer [Tooltip TooltipTrigger TooltipContent]]
-   ["lucide-react" :refer [Ellipsis Columns3Cog Image ChevronDown SquareMenu Package]]
+   ["lucide-react" :refer [Ellipsis Columns3Cog ImageOff ChevronDown SquareMenu Package]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    ["sonner" :refer [toast]]
@@ -93,7 +93,8 @@
 
             (case (-> model :type)
               "Option" ($ Columns3Cog {:class-name "w-12 h-12"})
-              ($ Image {:class-name "w-12 h-12"}))))
+              ($ :div {:class-name "flex min-w-12 h-12 justify-center items-center rounded border p-2"}
+                 ($ ImageOff {:class-name "w-6 h-6 text-border"})))))
 
        ($ TableCell
           ($ :div {:className "flex gap-[2px] items-center"}

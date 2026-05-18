@@ -6,7 +6,7 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell]]
-   ["lucide-react" :refer [Image ChevronDown]]
+   ["lucide-react" :refer [ImageOff ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    ["sonner" :refer [toast]]
@@ -81,7 +81,8 @@
           (if (:url model-image)
             ($ ImageModal {:url (:url model-image)
                            :alt (str (:product package) " " (:version package))})
-            ($ Image {:class-name "w-12 h-12"})))
+            ($ :div {:class-name "flex justify-center min-w-12 h-12 items-center rounded border p-2"}
+               ($ ImageOff {:class-name "w-6 h-6"}))))
 
        ($ TableCell
           ($ :div {:className "flex gap-2"}
