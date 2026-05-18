@@ -4,7 +4,7 @@ export const schema = z.object({
   product: z.string().min(1),
   inventory_code: z.string().min(1),
   version: z.string().optional(),
-  price: z.coerce.number().min(0),
+  price: z.coerce.number().lt(1000000).gte(0).multipleOf(0.01),
 })
 
 export const structure = [
@@ -40,9 +40,8 @@ export const structure = [
       {
         name: "price",
         label: "pool.option.option.blocks.price.label",
-        component: "input",
+        component: "price",
         props: {
-          type: "number",
           "auto-complete": "off",
         },
       },

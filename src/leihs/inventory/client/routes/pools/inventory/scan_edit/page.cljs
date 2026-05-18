@@ -5,7 +5,6 @@
    ["@@/form" :refer [Form FormControl FormField FormItem]]
    ["@@/input-group" :refer [InputGroup InputGroupAddon InputGroupInput]]
    ["@@/spinner" :refer [Spinner]]
-   ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["lucide-react" :refer [Barcode SquarePen]]
    ["react-hook-form" :refer [useForm]]
    ["react-i18next" :refer [useTranslation]]
@@ -35,12 +34,16 @@
         reset (aget form "reset")
         resetField (aget form "resetField")
         fields (:fields data)
-        structure (dynamic-form/fields->structure fields)
+        structure (-> (dynamic-form/fields->structure fields)
+                      (dynamic-form/patch "price" {:component "price"}))
         blocks (uix/use-memo
                 (fn []
                   (->> structure
                        (mapcat :blocks)
-                       (sort #(.localeCompare (t (:label %1)) (t (:label %2))))
+                       (map #(if (and (:label %) (not (str/starts-with? (:name %) "properties_")))
+                               (update % :label t)
+                               %))
+                       (sort #(.localeCompare (:label %1) (:label %2)))
                        (remove #(#{"attachments"} (:name %)))
                        vec))
                 [structure t])

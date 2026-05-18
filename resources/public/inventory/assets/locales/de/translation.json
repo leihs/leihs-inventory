@@ -38,12 +38,7 @@
       "invoice_date": "Rechnungsdatum",
       "price": "Anschaffungswert",
       "properties_project_number": "Projektnummer",
-      "supplier_id": "Lieferant",
-      "properties_reference": "Bezug",
-      "properties_warranty_expiration": "Garantieablaufdatum",
-      "properties_p4u": "P4U-Nummer",
-      "properties_contract_expiration": "Vertragsablaufdatum",
-      "properties_procured_by": "Beschafft von"
+      "supplier_id": "Lieferant"
     },
     "General Information": {
       "title": "Allgemeine Informationen",
@@ -52,15 +47,7 @@
       "properties_mac_address": "MAC-Adresse",
       "name": "Name",
       "attachments": "Anhänge",
-      "note": "Notiz",
-      "properties_total_quantity": "Gesamtanzahl",
-      "properties_quantity_allocations": "Anzahl Zuteilungen",
-      "properties_operating_system": "Betriebssystem",
-      "properties_installation": "Installation",
-      "properties_license_expiration": "Lizenzablaufdatum",
-      "properties_activation_type": "Aktivierungstyp",
-      "properties_dongle_id": "Dongle ID",
-      "properties_license_type": "Lizenztyp"
+      "note": "Notiz"
     },
     "Status": {
       "title": "Zustand",
@@ -72,10 +59,7 @@
       "status_note": "Statusnotiz"
     },
     "Eigenschaften": {
-      "title": "Eigenschaften",
-      "properties_electrical_power": "Verbrauch in kw/h",
-      "properties_ampere": "Ampère",
-      "properties_installation_status": "Installationsstatus"
+      "title": "Eigenschaften"
     },
     "Location": {
       "title": "Ort",
@@ -96,11 +80,7 @@
       "title": "Systemanforderungen"
     },
     "Maintenance": {
-      "title": "Wartung",
-      "properties_maintenance_contract": "Maintenance Vertrag",
-      "properties_maintenance_expiration": "Maintenance Ablaufdatum",
-      "properties_maintenance_currency": "Währung",
-      "properties_maintenance_price": "Preis"
+      "title": "Wartung"
     }
   },
   "pagination": {
@@ -384,7 +364,7 @@
           "title": "Inventur vor"
         },
         "with_items": {
-          "all": "Alle Modelle",
+          "all": "gesamtes Inventar",
           "with_items": "nur Modelle mit Gegenständen",
           "without_items": "nur Modelle ohne Gegenstände"
         },
@@ -454,6 +434,7 @@
         "or_separator": "ODER",
         "add_or": "ODER hinzufügen",
         "add_and": "Suchparameter hinzufügen",
+        "select_field_placeholder": "Feld auswählen...",
         "table": {
           "inventory_code": "Inventarcode",
           "location": "Ort",
@@ -481,6 +462,7 @@
         "page": {
           "title": "Erweiterte Suche mit Export und Multi-Editieren",
           "description": "Suchen Sie die Gegenstände mit den gewünschten Parametern. Anschliessend können die gefundenen Gegenstände exportiert oder editiert werden.",
+          "selection_info": "Die maximale Anzahl von Gegenständen, die gleichzeitig geändert werden können, entspricht der in der Tabelle ausgewählten Anzahl.",
           "search_results": "Suchergebnisse",
           "edit_items": "Bearbeiten",
           "export_items": "Exportieren"

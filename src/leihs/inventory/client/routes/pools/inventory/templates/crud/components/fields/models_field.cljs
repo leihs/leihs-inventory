@@ -4,6 +4,7 @@
                       FormControl FormField]]
    ["@@/input" :refer [Input]]
    ["@@/table" :refer [TableCell]]
+   ["react-hook-form" :refer [useWatch]]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray FormFieldArrayItems
                                                                     use-array-item]]
@@ -14,7 +15,10 @@
 
 (defui ModelItem []
   (let [[t] (useTranslation)
-        {:keys [field index form]} (use-array-item)]
+        {:keys [field index form]} (use-array-item)
+        quantity (useWatch #js {:control (.-control form)
+                                :name (str "models." index ".quantity")})]
+
     ($ :<>
        ;; Image cell with preview dialog
        ($ ImageCell {:field field})
@@ -26,14 +30,12 @@
        ($ TableCell {:class-name "w-1/5"}
 
           (cond
-            (and (:quantity field)
-                 (> (:quantity field)
-                    (:borrowable_quantity field)))
+            (and quantity
+                 (> quantity (:borrowable_quantity field)))
             ($ :span {:class-name "text-red-500"}
                (t "pool.templates.template.quantity_error"))
 
-            (and (:quantity field)
-                 (< (:quantity field) 0))
+            (and quantity (< quantity 0))
             (let [models-err (aget (aget form "formState" "errors") "models")]
               (when (and models-err (aget models-err index))
                 ($ :span {:class-name "text-red-500"}
@@ -56,20 +58,19 @@
        ($ TableCell (:borrowable_quantity field)))))
 
 (defui ModelsField [{:keys [form block]}]
-  (let [[t] (useTranslation)]
-    ($ FormFieldArray {:form form
-                       :name (:name block)}
-       ($ FormItem {:class-name "mt-6"}
-          ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
-          ($ SelectModel {:form form
-                          :name (:name block)
-                          :props (:props block)}))
+  ($ FormFieldArray {:form form
+                     :name (:name block)}
+     ($ FormItem {:class-name "mt-6"}
+        ($ FormLabel (:label block) (when (:required (:props block)) "*"))
+        ($ SelectModel {:form form
+                        :name (:name block)
+                        :props (:props block)}))
 
-       ($ FormDescription
-          ($ :<> (:description block)))
+     ($ FormDescription
+        ($ :<> (:description block)))
 
-       ($ FormMessage)
+     ($ FormMessage)
 
-       ($ FormFieldArrayItems {:form form
-                               :name (:name block)}
-          ($ ModelItem)))))
+     ($ FormFieldArrayItems {:form form
+                             :name (:name block)}
+        ($ ModelItem))))
