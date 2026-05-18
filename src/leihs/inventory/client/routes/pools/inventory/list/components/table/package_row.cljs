@@ -6,7 +6,7 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell]]
-   ["lucide-react" :refer [Image ChevronDown]]
+   ["lucide-react" :refer [ImageOff ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    ["sonner" :refer [toast]]
@@ -25,7 +25,7 @@
              "user_name" "model_name" "reservation_user_name" "url"
              "reservation_contract_id"])
 
-(defui main [{:keys [package type]}]
+(defui PackageRow [{:keys [package type model-image]}]
   (let [location (router/useLocation)
         [t] (useTranslation)
         params (router/useParams)
@@ -78,10 +78,11 @@
                                     (:data result))))}
 
        ($ TableCell
-          (if (get-in package [:image :url])
-            ($ ImageModal {:url (get-in package [:image :url])
+          (if (:url model-image)
+            ($ ImageModal {:url (:url model-image)
                            :alt (str (:product package) " " (:version package))})
-            ($ Image {:class-name "w-12 h-12"})))
+            ($ :div {:class-name "flex justify-center min-w-12 h-12 items-center rounded border p-2"}
+               ($ ImageOff {:class-name "w-6 h-6"}))))
 
        ($ TableCell
           ($ :div {:className "flex gap-2"}
@@ -111,12 +112,7 @@
                       ($ ChevronDown {:className "w-4 h-4"})))
                 ($ DropdownMenuContent {:align "start"}
                    ($ DropdownMenuItem
-                      ($ Link {:to (str (:id package) "/items/create")
+                      ($ Link {:to (str "../packages/create?fromItem=" (:id package))
                                :state #js {:searchParams (.. location -search)}
                                :viewTransition true}
-                         (t "pool.models.list.actions.add_item"))))))))))
-
-(def PackageRow
-  (uix/as-react
-   (fn [props]
-     (main props))))
+                         (t "pool.models.list.actions.copy_package"))))))))))

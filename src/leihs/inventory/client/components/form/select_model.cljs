@@ -83,7 +83,6 @@
         buttonRef (uix/use-ref nil)
 
         handle-select (fn []
-                        (set-open! false)
                         (if (not (check-path-existing (:id selected) fields))
                           (append (->> props
                                        :attributes

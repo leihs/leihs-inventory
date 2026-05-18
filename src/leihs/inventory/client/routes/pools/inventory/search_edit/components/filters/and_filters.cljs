@@ -4,13 +4,10 @@
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
    ["@@/toggle-group" :refer [ToggleGroup ToggleGroupItem]]
-   ["lucide-react" :refer [ChevronLeft ChevronRight Equal Trash CirclePlus]]
+   ["lucide-react" :refer [ChevronLeft ChevronRight CirclePlus Equal Trash]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [useParams]]
-
-   [leihs.inventory.client.components.form.fields.common-field :refer [CommonField]]
-
+   ["react-router-dom" :as router]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.hooks :refer [use-dependent-fields]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -30,10 +27,10 @@
     {:operator "$eq"}
     "textarea"
     {:operator "$ilike"}
+    "price"
+    {:operator "$eq"}
     "input"
-    (if (= (:name block) "price")
-      {:operator "$eq"}
-      {:operator "$ilike"})
+    {:operator "$ilike"}
     "autocomplete"
     {:operator "$eq"}
     "autocomplete-search"
@@ -71,7 +68,7 @@
         init (uix/use-ref false)
 
         ;; Find next available block
-        used-field-names (set (map :name fields))
+        used-field-names (set (filter some? (map :name fields)))
         next-block (->> blocks
                         (filter #(not (contains? used-field-names (:name %))))
                         first)
@@ -85,7 +82,7 @@
 
         handle-add-and (fn []
                          (when next-block
-                           (append (cj (create-and-filter next-block)))))
+                           (append (cj {:id (str (random-uuid))}))))
 
         handle-update-field (fn [field-name index]
                               (let [selected-block (->> blocks
@@ -151,12 +148,12 @@
                    :else
                     ;; Field selector dropdown
                    ($ Select {:name "select-and-filter"
-                              :value (:name field)
+                              :value (or (:name field) "")
                               :disabled is-retired-reason
                               :onValueChange #(handle-update-field % field-index)}
                       ($ SelectTrigger {:data-test-id (str "or-" index "-field-select-" field-index)
                                         :class-name "col-span-3"}
-                         ($ SelectValue))
+                         ($ SelectValue {:placeholder (t "pool.models.search_edit.select_field_placeholder")}))
 
                       ($ SelectContent {:data-test-id "field-options"}
                          (for [block blocks]
@@ -173,13 +170,13 @@
                                                              max-allowed (if (= (:component block) "calendar") 2 1)]
                                                          (>= occurrences max-allowed)))
                                             :value (:name block)}
-                                (t (:label block))))))))
+                                (:label block)))))))
 
                  ;; Equals sign
                  ($ ToggleGroup {:type "single"
                                  :variant "outline"
                                  :size "xs"
-                                 :class-name " col-span-2 self-center justify-self-center"
+                                 :class-name "col-span-2 self-center justify-self-center"
                                  :value (:operator field)
                                  :on-value-change (fn [value]
                                                     (handle-update-operator value field field-index))}
@@ -198,9 +195,10 @@
 
                  ;; Field input (dynamic based on field type)
                  ($ :div {:class-name "col-span-6"}
-                    ($ FieldDispatcher {:form form
-                                        :block (assoc field
-                                                      :name (str name "." field-index ".value"))}))
+                    (when (:component field)
+                      ($ FieldDispatcher {:form form
+                                          :block (assoc field
+                                                        :name (str name "." field-index ".value"))})))
 
                  ;; Remove and filter button (hidden for auto-managed retired_reason)
                  ($ Button {:data-test-id (str "remove-and-" field-index)

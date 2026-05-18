@@ -77,20 +77,19 @@
                 (t "pool.entitlement_groups.entitlement_group.models.blocks.models.items_count_tooltip")))))))
 
 (defui ModelsField [{:keys [form block]}]
-  (let [[t] (useTranslation)]
-    ($ FormFieldArray {:form form
-                       :name (:name block)}
-       ($ FormItem {:class-name "mt-6"}
-          ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
-          ($ SelectModel {:form form
-                          :name (:name block)
-                          :props (:props block)})
+  ($ FormFieldArray {:form form
+                     :name (:name block)}
+     ($ FormItem {:class-name "mt-6"}
+        ($ FormLabel (:label block) (when (:required (:props block)) "*"))
+        ($ SelectModel {:form form
+                        :name (:name block)
+                        :props (:props block)})
 
-          ($ FormDescription
-             ($ :<> (:description block)))
+        ($ FormDescription
+           ($ :<> (:description block)))
 
-          ($ FormMessage))
+        ($ FormMessage))
 
-       ($ FormFieldArrayItems {:form form
-                               :name (:name block)}
-          ($ ModelItem)))))
+     ($ FormFieldArrayItems {:form form
+                             :name (:name block)}
+        ($ ModelItem))))

@@ -74,7 +74,7 @@
                                               :name (:name block)}
                               ($ FormItem {:class-name "mt-6 flex flex-col"}
                                  ($ :div {:class-name "flex items-center"}
-                                    ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
+                                    ($ FormLabel (:label block) (when (:required (:props block)) "*"))
                                     ($ Typo {:variant "label"
                                              :class-name (str "ml-auto " (when (< remaining 0) "text-red-500"))}
                                        (str (t "pool.licenses.license.fields.entitlements.remaining") " " remaining)))

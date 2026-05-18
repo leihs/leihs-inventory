@@ -38,12 +38,7 @@
       "invoice_date": "Invoice Date",
       "price": "Initial Price",
       "properties_project_number": "Project Number",
-      "supplier_id": "Supplier",
-      "properties_reference": "Reference",
-      "properties_warranty_expiration": "Warranty expiration",
-      "properties_p4u": "P4U-Nummer",
-      "properties_contract_expiration": "Contract expiration",
-      "properties_procured_by": "Procured by"
+      "supplier_id": "Supplier"
     },
     "General Information": {
       "title": "General Information",
@@ -52,15 +47,7 @@
       "properties_mac_address": "MAC-Address",
       "name": "Name",
       "attachments": "Attachments",
-      "note": "Note",
-      "properties_total_quantity": "Total quantity",
-      "properties_quantity_allocations": "Quantity allocations",
-      "properties_operating_system": "Operating system",
-      "properties_installation": "Installation",
-      "properties_license_expiration": "License expiration",
-      "properties_activation_type": "Activation type",
-      "properties_dongle_id": "Dongle ID",
-      "properties_license_type": "License type"
+      "note": "Note"
     },
     "Status": {
       "title": "Status",
@@ -73,9 +60,7 @@
     },
     "Eigenschaften": {
       "title": "Properties",
-      "properties_electrical_power": "Power consumption in kw/h",
-      "properties_ampere": "Ampère",
-      "properties_installation_status": "Installation status"
+      "properties_electrical_power": "Power consumption in kw/h"
     },
     "Location": {
       "title": "Location",
@@ -96,11 +81,7 @@
       "title": "System Requirements"
     },
     "Maintenance": {
-      "title": "Maintenance",
-      "properties_maintenance_contract": "Maintenance contract",
-      "properties_maintenance_expiration": "Maintenance expiration",
-      "properties_maintenance_currency": "Currency",
-      "properties_maintenance_price": "Price"
+      "title": "Maintenance"
     }
   },
   "pagination": {
@@ -388,7 +369,7 @@
           "title": "Inventory before"
         },
         "with_items": {
-          "all": "All Models",
+          "all": "complete inventory",
           "with_items": "only models with items",
           "without_items": "only models without items"
         },
@@ -458,6 +439,7 @@
         "or_separator": "OR",
         "add_or": "Add OR",
         "add_and": "Add search parameter",
+        "select_field_placeholder": "Select field...",
         "table": {
           "inventory_code": "Inventory code",
           "location": "Location",
@@ -485,6 +467,7 @@
         "page": {
           "title": "Advanced Search with Export and Multi-Edit",
           "description": "Search for items with the desired parameters. The found items can then be exported or edited.",
+          "selection_info": "The maximum number of items that can be changed at one time is the number selected in the table.",
           "search_results": "Search Results",
           "edit_items": "Edit",
           "export_items": "Export "

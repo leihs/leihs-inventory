@@ -1,7 +1,7 @@
 (ns leihs.inventory.client.lib.form-helper
   (:require
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.lib.utils :refer [cj]]
    [promesa.core :as p]))
 
 ;; Replaces nil values with empty strings in maps or vectors, only at top level
