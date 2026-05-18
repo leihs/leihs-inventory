@@ -3,6 +3,7 @@
    ["date-fns" :refer [format]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   [leihs.inventory.client.components.typo :refer [Typo]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [item isPackageItem isSoftwareLicense]
@@ -43,11 +44,13 @@
 
             ($ :div {:class-name "flex flex-wrap gap-1"}
                (if (:reservation_user_name item)
-                 ($ :a {:href (str "/manage/" pool-id "/contracts/" (:reservation_contract_id item))
-                        :target "_blank"
-                        :rel "noreferrer"}
-                    (str (:reservation_user_name item) " until "
-                         (format (:reservation_end_date item) "dd.MM.yyyy")))
+                 ($ Typo {:variant :link
+                          :class-name "text-muted-foreground"}
+                    ($ :a {:href (str "/manage/" pool-id "/contracts/" (:reservation_contract_id item))
+                           :target "_blank"
+                           :rel "noreferrer"}
+                       (str (:reservation_user_name item) " until "
+                            (format (:reservation_end_date item) "dd.MM.yyyy"))))
 
                  (if isSoftwareLicense
                    (let [os-values (seq (:properties_operating_system item))
