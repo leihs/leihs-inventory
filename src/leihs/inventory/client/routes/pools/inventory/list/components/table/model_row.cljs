@@ -25,7 +25,7 @@
                  :fields :in_stock_quantity
                  :model_id :parent_id :inventory_pool_id :search])
 
-(defui main [{:keys [model className]}]
+(defui ModelRow [{:keys [model className]}]
   (let [location (router/useLocation)
         {:keys [settings]} (router/useRouteLoaderData "root")
         [t] (useTranslation)
@@ -74,6 +74,7 @@
                                  (when (seq (:data result))
                                    (map
                                     (fn [element]
+                                      ;; (js/console.debug element)
                                       (if (not (:is_package element))
                                         ($ ItemRow {:key (:id element)
                                                     :type (:type model)
@@ -81,7 +82,8 @@
                                                     :item element})
                                         ($ PackageRow {:key (:id element)
                                                        :type (:type model)
-                                                       :package element})))
+                                                       :package element
+                                                       :model-image (:image model)})))
                                     (:data result))))}
 
        ($ TableCell
@@ -169,7 +171,3 @@
                                       (t "pool.models.list.actions.add_license"))
                         nil)))))))))
 
-(def ModelRow
-  (uix/as-react
-   (fn [props]
-     (main props))))
