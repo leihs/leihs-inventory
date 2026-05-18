@@ -935,14 +935,14 @@ def verify_inventory_list_row(model, availabilty, items = [], is_package: false,
   within("tr", text: model.name) do
     if is_option
       expect(page).to have_selector('[data-test-id="items"]', visible: false)
-      expect(page).to have_button("expand-button", visible: false)
+      expect(page).to_not have_button("expand-button")
       expect(find('[data-test-id="price"]').text).to eq(availabilty)
       return "option row correct"
     end
 
     if items.empty?
       expect(find('[data-test-id="items"]').text).to eq("0")
-      expect(page).to have_button("expand-button", disabled: true)
+      expect(page).to_not have_button("expand-button")
       expect(find('[data-test-id="availability"]').text).to eq(availabilty)
       return "rows correct"
     end

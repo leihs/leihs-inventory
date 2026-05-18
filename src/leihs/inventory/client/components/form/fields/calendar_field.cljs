@@ -6,18 +6,16 @@
    ["@@/form" :refer [FormControl FormField FormItem FormLabel FormMessage]]
    ["date-fns" :refer [format]]
    ["lucide-react" :refer [CalendarIcon]]
-   ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [cj]]
    [uix.core :refer [$ defui]]))
 
 (defui CalendarField [{:keys [form block class-name]}]
-  (let [[t] (useTranslation)
-        label (:label block)]
+  (let [label (:label block)]
     ($ FormField {:control (cj (.-control form))
                   :name (:name block)
                   :render #($ FormItem {:class-name (str "flex flex-col mt-6 " class-name)}
                               (when label
-                                ($ FormLabel (t label)
+                                ($ FormLabel label
                                    (when (-> block :props :required) "*")))
                               (let [field-value (aget % "field" "value")]
                                 ($ Popover
@@ -37,7 +35,8 @@
                                                       :align "start"}
                                       ($ Calendar (merge {:captionLayout "dropdown"
                                                           :onSelect (aget % "field" "onChange")
-                                                          :selected (aget % "field" "value")}
+                                                          :selected (aget % "field" "value")
+                                                          :defaultMonth (aget % "field" "value")}
                                                          (:props block))))))
 
                               ($ FormMessage))})))

@@ -5,7 +5,6 @@
                       FormMessage]]
    ["@@/input" :refer [Input]]
    ["@@/textarea" :refer [Textarea]]
-   ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [jc]]
    [uix.core :as uix :refer [$ defui]]))
 
@@ -16,14 +15,13 @@
 
 (defui CommonField [{:keys [form block class-name]}]
   (let [comp (get fields-map (:component block))
-        [t] (useTranslation)
         label (:label block)]
     (when comp
       ($ FormField {:control (.-control form)
                     :name (:name block)
                     :render #($ FormItem {:class-name (str "mt-6 " class-name)}
                                 (when label
-                                  ($ FormLabel (t label)
+                                  ($ FormLabel label
                                      (when (-> block :props :required) "*")))
                                 ($ FormControl
                                    ($ comp (merge

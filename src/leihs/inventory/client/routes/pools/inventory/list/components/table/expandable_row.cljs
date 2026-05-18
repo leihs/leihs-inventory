@@ -42,13 +42,11 @@
                            :on-click handle-expand
                            :size "icon"
                            :class-name (cond
-                                         (zero? subrowCount)
-                                         "cursor-not-allowed"
-                                         (nil? subrowCount)
+                                         (or (nil? subrowCount)
+                                             (zero? subrowCount))
                                          "invisible"
                                          :else
-                                         "")
-                           :disabled (zero? subrowCount)}
+                                         "")}
                    (if loading
                      ($ Loader2Icon {:className "h-4 w-4 animate-spin"})
                      (if subrows

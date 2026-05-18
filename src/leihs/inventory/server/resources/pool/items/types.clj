@@ -3,7 +3,7 @@
    [clojure.string :as clj-str]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.types :refer [pagination]]
-   [leihs.inventory.server.utils.schema :refer [Date]]
+   [leihs.inventory.server.utils.schema :refer [Date Price]]
    [schema.core :as s]))
 
 (s/defschema path-params {:pool_id s/Uuid})
@@ -103,7 +103,7 @@
           (s/optional-key :needs_permission) s/Bool
           (s/optional-key :note) (s/maybe s/Str)
           (s/optional-key :parent_id) (s/maybe s/Uuid)
-          (s/optional-key :price) (s/maybe s/Str)
+          (s/optional-key :price) (s/maybe Price)
           (s/optional-key :responsible) (s/maybe s/Str)
           (s/optional-key :retired_reason) (s/maybe s/Str)
           (s/optional-key :retired) s/Bool
@@ -182,7 +182,7 @@
     (s/optional-key :owner_id) s/Uuid
     (s/optional-key :package_items) (s/maybe s/Int)
     (s/optional-key :parent_id) (s/maybe s/Uuid)
-    (s/optional-key :price) (s/maybe s/Num) ; numeric(8,2)
+    (s/optional-key :price) (s/maybe s/Num)
     (s/optional-key :reservation_contract_id) (s/maybe s/Uuid)
     (s/optional-key :reservation_end_date) (s/maybe s/Str)
     (s/optional-key :reservation_user_id) (s/maybe s/Uuid)
