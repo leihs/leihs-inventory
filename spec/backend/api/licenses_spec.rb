@@ -245,7 +245,7 @@ describe "Swagger Inventory Endpoints - Licenses" do
 
         resp = patch_with_headers(client, url, data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
       end
     end
@@ -271,7 +271,7 @@ describe "Swagger Inventory Endpoints - Licenses" do
 
         resp = post_with_headers(client, items_url, data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
       end
     end

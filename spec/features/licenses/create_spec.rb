@@ -255,9 +255,7 @@ feature "Create license", type: :feature do
     click_on "Create"
 
     expect(page).to have_text "Inventory code already exists"
-    click_on "Update"
-
-    click_on "Create"
+    click_on "Save"
 
     expect(page).to have_text "License was successfully created"
   end

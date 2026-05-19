@@ -134,7 +134,8 @@
                            non-protected-fields)
         excluded-fields (set (map :id (filter :exclude_from_submit fields)))
         protected-fields (set (map :id (filter :protected fields)))
-        base-schema (z/object (clj->js schema-obj))
+        base-schema (-> (z/object (clj->js schema-obj))
+                        (.passthrough))
 
         ;; Add conditional cross-field refinements:
         refined-schema (.superRefine

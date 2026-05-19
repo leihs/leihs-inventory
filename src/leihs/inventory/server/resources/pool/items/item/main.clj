@@ -130,13 +130,13 @@
               (status {:body {:errors [{:code "DUPLICATE_INVENTORY_CODE"
                                         :message "Inventory code already exists."
                                         :proposed_code (inv-code/propose tx pool_id (model-is-package? tx (:model_id item)))}]}}
-                      422)
+                      409)
 
               (and (not= (get on-conflict :serial_number) "overwrite")
                    (serial-number-exists? tx serial-number item_id))
               (status {:body {:errors [{:code "DUPLICATE_SERIAL_NUMBER"
                                         :message "Same or similar serial number already exists."}]}}
-                      422)
+                      409)
 
               :else
               (let [item-data-coerced (coerce-field-values item-data in-coercions)

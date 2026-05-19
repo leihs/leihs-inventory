@@ -342,4 +342,48 @@ feature "Batch create items", type: :feature do
     click_on "Back to Inventory"
     expect(page).to have_content "Inventory List"
   end
+
+  scenario "duplicate serial number on review page can be overwritten" do
+    login(user)
+    click_on "Add inventory"
+    click_on "New item"
+
+    fill_in "Create number of items", with: "2"
+
+    click_on "model_id"
+    fill_in "model_id-input", with: model.product
+    expect(page).to have_content model.product
+    click_on model.product
+
+    click_on "building_id"
+    click_on "general building"
+
+    click_on "Room"
+    click_on "general room"
+
+    click_on "2 x Create"
+    expect(page).to have_text "Items successfully created"
+
+    # Set serial number on first item
+    within "table tbody tr:nth-child(1)" do
+      fill_in "serial_number", with: serial_number
+      find("button[type='submit']").click
+    end
+    expect(page).to have_text("Serial number updated", wait: 5)
+
+    # Try to set the same serial number on second item
+    within "table tbody tr:nth-child(2)" do
+      fill_in "serial_number", with: serial_number
+      find("button[type='submit']").click
+    end
+
+    # Expect duplicate error toast with description and overwrite action
+    expect(page).to have_text("Serial number already exists", wait: 5)
+    expect(page).to have_text("Click Save to save the serialnumber anyway")
+
+    # Click the "Save" action button in the toast to overwrite
+    click_on "Save"
+
+    expect(page).to have_text("Serial number updated", wait: 5)
+  end
 end

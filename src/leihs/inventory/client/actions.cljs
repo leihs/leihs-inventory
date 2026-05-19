@@ -7,9 +7,11 @@
    [promesa.core :as p]))
 
 (defn- handle-error [err]
-  (let [status (some-> err .-response .-status)]
+  (let [status (some-> err .-response .-status)
+        errors (some-> err .-response .-data .-errors)]
     #js {:status "error"
          :httpStatus (or status 0)
+         :errors errors
          :message (.-message err)}))
 
 (defn debug-action-error [action]
@@ -81,17 +83,21 @@
           item-id (.get form-data "item-id")
           pool-id (.get form-data "pool-id")
           serial-number (.get form-data "serial_number")
+          on-conflict-sn (.get form-data "on_conflict_serial_number")
           method (aget action "request" "method")]
 
     (case method
       "PATCH"
-      (-> http-client
-          (.patch (str "/inventory/" pool-id "/items/" item-id)
-                  (js/JSON.stringify (cj {:serial_number serial-number}))
-                  (cj {:cache false}))
-          (.then (fn [_]
-                   #js {:status "ok"}))
-          (.catch handle-error)))))
+      (let [payload (cond-> {:serial_number serial-number}
+                      on-conflict-sn (assoc :on_conflict {:serial_number on-conflict-sn}))]
+        (-> http-client
+            (.patch (str "/inventory/" pool-id "/items/" item-id)
+                    (js/JSON.stringify (cj payload))
+                    (cj {:cache false}))
+            (.then (fn [_]
+                     #js {:status "ok"
+                          :httpStatus 200}))
+            (.catch handle-error))))))
 
 (defn search-edit-page [action]
   (p/let [request (.-request action)

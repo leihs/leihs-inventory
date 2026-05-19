@@ -247,9 +247,84 @@ feature "Create item", type: :feature do
     click_on "Create"
 
     expect(page).to have_text "Inventory code already exists"
-    click_on "Update"
+    click_on "Save"
+
+    expect(page).to have_text "Item was successfully created"
+  end
+
+  scenario "fails with duplicate serial number and saves anyway" do
+    FactoryBot.create(:item,
+      inventory_code: "OTHER-#{SecureRandom.hex(4)}",
+      serial_number: serial_number,
+      inventory_pool: pool,
+      owner: pool,
+      leihs_model: model)
+
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+    click_on "Add inventory"
+    click_on "New item"
+
+    fill_in "Inventory Code", with: inventory_code
+    fill_in "Serial Number", with: serial_number
+
+    click_on "model_id"
+    expect(page).to have_field(placeholder: "Enter search term")
+    fill_in "model_id-input", with: model.product
+    expect(page).to have_content model.product
+    click_on model.product
+
+    click_on "building_id"
+    expect(page).to have_field(placeholder: "Enter search term")
+    click_on "general building"
+
+    click_on "Room"
+    expect(page).to have_field(placeholder: "Enter search term")
+    click_on "general room"
 
     click_on "Create"
+
+    expect(page).to have_text "Serial number already exists"
+    click_on "Save"
+
+    expect(page).to have_text "Item was successfully created"
+  end
+
+  scenario "fails with both duplicate inventory code and serial number and fixes all" do
+    FactoryBot.create(:item,
+      inventory_code: inventory_code,
+      serial_number: serial_number,
+      inventory_pool: pool,
+      owner: pool,
+      leihs_model: model)
+
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+    click_on "Add inventory"
+    click_on "New item"
+
+    fill_in "Inventory Code", with: inventory_code
+    fill_in "Serial Number", with: serial_number
+
+    click_on "model_id"
+    expect(page).to have_field(placeholder: "Enter search term")
+    fill_in "model_id-input", with: model.product
+    expect(page).to have_content model.product
+    click_on model.product
+
+    click_on "building_id"
+    expect(page).to have_field(placeholder: "Enter search term")
+    click_on "general building"
+
+    click_on "Room"
+    expect(page).to have_field(placeholder: "Enter search term")
+    click_on "general room"
+
+    click_on "Create"
+
+    expect(page).to have_text "Inventory code already exists"
+    expect(page).to have_text "Serial number already exists"
+    click_on "Save"
 
     expect(page).to have_text "Item was successfully created"
   end

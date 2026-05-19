@@ -350,7 +350,7 @@
             (serial-number-exists? tx serial_number nil))
        (status {:body {:errors [{:code "DUPLICATE_SERIAL_NUMBER"
                                  :message "Same or similar serial number already exists."}]}}
-               422)
+               409)
 
        (and count (> count 1))
        (let [codes (generate-inventory-codes tx pool_id count (= type "package"))
@@ -372,7 +372,7 @@
              conflict-errors (keep identity [inv-code-err serial-err])]
 
        (seq conflict-errors)
-       (status {:body {:errors conflict-errors}} 422)
+       (status {:body {:errors conflict-errors}} 409)
 
        :else
        (let [result (create-item tx item-data-coerced properties-json)]

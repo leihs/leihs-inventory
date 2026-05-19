@@ -12,7 +12,7 @@
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
-   ["lucide-react" :refer [ChevronDownIcon]]
+   ["lucide-react" :refer [ChevronDownIcon CircleAlert]]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
@@ -38,6 +38,7 @@
         navigate (router/useNavigate)
         params (router/useParams)
         [search-params _] (router/useSearchParams)
+        item-form-ref (uix/use-ref nil)
 
         ;; Determine entity (item, package, license) from route params
         entity (cond
@@ -103,6 +104,9 @@
         watched-items (useWatch (cj {:control control
                                      :name "item_ids"}))
 
+        watched-sn-conflict (useWatch (cj {:control control
+                                           :name "on_conflict.serial_number"}))
+
         building-ref (uix/use-ref field-building)
         prev-items-count-ref (uix/use-ref (or (count watched-items) 0))
 
@@ -165,7 +169,6 @@
 
         handle-submit (.. form -handleSubmit)
         on-submit (fn [submit-data event]
-                    (js/console.debug submit-data)
                     (go
                       (let [attachments (if is-create
                                           (if batch? nil (:attachments (jc submit-data)))
@@ -247,15 +250,48 @@
                                      (.then #(.-data %))))))
 
                         (case (:status item-res)
-                          409 (.. toast
-                                  (error (if is-create
-                                           (t (str t-ns ".create.conflict"))
-                                           (t (str t-ns ".edit.conflict")))
-                                         (cj {:duration 20000
-                                              :action
-                                              {:label "Update"
-                                               :onClick (fn []
-                                                          (set-value "inventory_code" (:proposed_code (:data item-res))))}})))
+                          409
+                          (let [errors (get-in item-res [:data :errors])
+                                inv-code-err (first (filter #(= (:code %) "DUPLICATE_INVENTORY_CODE") errors))
+                                serial-err (first (filter #(= (:code %) "DUPLICATE_SERIAL_NUMBER") errors))
+                                error->message (fn [error]
+                                                 (case (:code error)
+                                                   "DUPLICATE_INVENTORY_CODE"
+                                                   (if is-create
+                                                     (t (str t-ns ".create.duplicate_inventory_code"))
+                                                     (t (str t-ns ".edit.duplicate_inventory_code")))
+                                                   "DUPLICATE_SERIAL_NUMBER"
+                                                   (if is-create
+                                                     (t (str t-ns ".create.duplicate_serialnumber"))
+                                                     (t (str t-ns ".edit.duplicate_serialnumber")))
+                                                   (:message error)))
+                                message ($ :span {:class-name "whitespace-pre-line"}
+                                           (->> errors (map error->message) (str/join "\n")))
+
+                                description (when (or inv-code-err serial-err)
+                                              (cond
+                                                (and inv-code-err serial-err)
+                                                (t (str t-ns ".actions.duplicate_both_description"))
+                                                inv-code-err
+                                                (t (str t-ns ".actions.duplicate_inventory_code_description"))
+                                                :else
+                                                (t (str t-ns ".actions.duplicate_serialnumber_description"))))
+
+                                action (when (or inv-code-err serial-err)
+                                         {:label (t (str t-ns ".actions.update"))
+                                          :onClick (fn []
+                                                     (when inv-code-err
+                                                       (set-value "inventory_code" (:proposed_code inv-code-err)))
+                                                     (when serial-err
+                                                       (set-value "on_conflict.serial_number" "overwrite"))
+
+                                                     (.requestSubmit @item-form-ref))})]
+
+                            (.. toast
+                                (error message
+                                       (cj {:duration 20000
+                                            :description description
+                                            :action action}))))
 
                           500 (.. toast (error (if is-create
                                                  (t (str t-ns ".create.error"))
@@ -381,6 +417,7 @@
                      ($ Form (merge form)
                         ($ VisibilityProvider {:form form}
                            ($ :form {:id "item-form"
+                                     :ref item-form-ref
                                      :className "space-y-12 "
                                      :no-validate true
                                      :on-submit (handle-submit on-submit on-invalid)}
@@ -399,9 +436,10 @@
                                                          :form form
                                                          :block block}))))))))
 
-                  ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem]"}
+                  ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem] "}
                      ($ Button {:type "submit"
                                 :form "item-form"}
+
                         (if is-create
                           (str (when (and (= entity :item) batch?)
                                  (str field-count " x "))

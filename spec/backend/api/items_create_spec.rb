@@ -211,7 +211,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_INVENTORY_CODE")
         expect(resp.body["errors"].first["proposed_code"]).to be_a(String)
       end
@@ -252,7 +252,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         # Should propose {shortname}4 because max existing is P-{shortname}3
         expect(resp.body["errors"].first["proposed_code"]).to eq("#{pool_shortname}4")
       end
@@ -277,7 +277,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["proposed_code"]).to eq("012")
       end
 
@@ -301,7 +301,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["proposed_code"]).to eq("TEST1")
       end
 
@@ -324,7 +324,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["proposed_code"]).to eq("#{pool_shortname}4")
       end
 
@@ -353,7 +353,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         # max is 3, proposes 4 (gap at 2 is not filled)
         expect(resp.body["errors"].first["proposed_code"]).to eq("#{pool_shortname}4")
       end
@@ -383,7 +383,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["proposed_code"]).to eq("013")
       end
 
@@ -412,7 +412,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["proposed_code"]).to eq("013")
       end
 
@@ -436,7 +436,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
       end
 
@@ -462,7 +462,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         codes = resp.body["errors"].map { |e| e["code"] }
         expect(codes).to include("DUPLICATE_INVENTORY_CODE", "DUPLICATE_SERIAL_NUMBER")
       end
@@ -487,7 +487,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
       end
 
@@ -644,7 +644,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
           serial_number: "SN-BATCH-DUP"
         })
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
       end
 

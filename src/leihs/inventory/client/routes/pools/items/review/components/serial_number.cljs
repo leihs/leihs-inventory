@@ -8,8 +8,10 @@
    ["lucide-react" :refer [Save CircleCheck]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+
    ["sonner" :refer [toast]]
    [clojure.string :as str]
+   [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [item poolId onSave]}]
@@ -37,17 +39,39 @@
          (reset! last-submission-data data)
 
          (let [result data]
-           (if (= (aget result "status") "ok")
+           (case (aget result "httpStatus")
+             200
              (do
                (.. toast (success (t "pool.items.review.serial_number.success")))
                ;; After successful save, focus next if flag is set
                (when onSave
                  (onSave)))
 
+             409
+             (let [errors (jc (.-errors data))
+                   serial-err (first (filter #(= (:code %) "DUPLICATE_SERIAL_NUMBER") errors))]
+               (if serial-err
+                 (.. toast (error (t "pool.items.review.serial_number.duplicate_error")
+                                  (cj {:duration 20000
+                                       :description (t "pool.items.review.serial_number.description")
+                                       :action {:label (t "pool.items.review.serial_number.overwrite")
+                                                :onClick (fn []
+                                                           (.submit fetcher
+                                                                    #js {"item-id" (:id item)
+                                                                         "pool-id" poolId
+                                                                         "serial_number" input
+                                                                         "on_conflict_serial_number" "overwrite"}
+                                                                    #js {:method "patch"}))}})))
+
+                 (.. toast (error (t "pool.items.review.serial_number.error")
+                                  (cj {:description (t "error.action.error_detail"
+                                                       #js {:httpStatus (aget result "httpStatus")})})))))
+
              (.. toast (error (t "pool.items.review.serial_number.error")
-                              (clj->js {:description (t "error.action.error_detail"
-                                                        #js {:httpStatus (aget result "httpStatus")})})))))))
-     [state data onSave t])
+                              (cj {:description (t "error.action.error_detail"
+                                                   #js {:httpStatus (aget result "httpStatus")})})))))))
+
+     [state data onSave t fetcher item poolId input])
 
     ($ TableCell
        ($ fetcher.Form {:method "patch"}

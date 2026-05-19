@@ -34,4 +34,5 @@
                              :body types/patch-response}
                         400 {:description "Bad Request"}
                         404 {:description "Not Found"}
+                        409 {:description "Conflict - Duplicate inventory code or serial number"}
                         500 {:description "Internal Server Error"}}}}])

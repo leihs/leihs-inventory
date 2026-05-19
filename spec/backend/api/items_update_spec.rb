@@ -259,7 +259,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
 
         resp = patch_with_headers(client, url, update_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_INVENTORY_CODE")
         expect(resp.body["errors"].first["proposed_code"]).to be_a(String)
         expect(resp.body["errors"].first["proposed_code"]).not_to start_with("P-")
@@ -291,7 +291,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
 
         resp = patch_with_headers(client, url, update_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_INVENTORY_CODE")
         expect(resp.body["errors"].first["proposed_code"]).to be_a(String)
         expect(resp.body["errors"].first["proposed_code"]).to start_with("P-")
@@ -311,7 +311,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
 
         resp = patch_with_headers(client, url, update_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
       end
 
@@ -341,7 +341,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
 
         resp = patch_with_headers(client, url, update_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
       end
 

@@ -225,7 +225,7 @@ describe "Swagger Inventory Endpoints - Packages Create" do
 
         resp = post_with_headers(client, url, package_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_INVENTORY_CODE")
         expect(resp.body["errors"].first["proposed_code"]).to be_a(String)
         expect(resp.body["errors"].first["proposed_code"]).to start_with("P-")
@@ -269,7 +269,7 @@ describe "Swagger Inventory Endpoints - Packages Create" do
 
         resp = post_with_headers(client, url, package_data)
 
-        expect(resp.status).to eq(422)
+        expect(resp.status).to eq(409)
         # Should propose P-{shortname}4 because max existing is 3 (from regular item)
         expect(resp.body["errors"].first["proposed_code"]).to eq("P-#{pool_shortname}4")
       end

@@ -167,7 +167,8 @@
           "success": "Item was successfully created",
           "invalid_one": "Item could not be created because one field is invalid",
           "invalid_other": "Item could not be created because {{count}} fields are invalid",
-          "conflict": "Inventory code already exists",
+          "duplicate_inventory_code": "Inventory code already exists",
+          "duplicate_serialnumber": "Serial number already exists",
           "error": "An error occurred while creating"
         },
         "edit": {
@@ -179,7 +180,8 @@
           "success": "Item was successfully saved",
           "invalid_one": "Item could not be saved because one field is invalid",
           "invalid_other": "Item could not be saved because {{count}} fields are invalid",
-          "conflict": "Inventory code already exists",
+          "duplicate_inventory_code": "Inventory code already exists",
+          "duplicate_serialnumber": "Serial number already exists",
           "error": "An error occurred while saving",
           "package_item": "Item is part of package"
         },
@@ -205,6 +207,12 @@
             "search": "Enter search term",
             "empty": "No results found for this search term"
           }
+        },
+        "actions": {
+          "update": "Save",
+          "duplicate_inventory_code_description": "Pressing Save will automatically use a valid inventory code",
+          "duplicate_serialnumber_description": "Pressing Save will save despite the duplicate serial number",
+          "duplicate_both_description": "Pressing Save will use the suggested inventory code and save despite the duplicate serial number"
         }
       },
       "review": {
@@ -234,7 +242,10 @@
         "serial_number": {
           "placeholder": "Enter serial number",
           "success": "Serial number updated",
-          "error": "Failed to update serial number"
+          "error": "Failed to update serial number",
+          "duplicate_error": "Serial number already exists",
+          "overwrite": "Save",
+          "description": "Click Save to save the serialnumber anyway"
         },
         "back_to_inventory": "Back to Inventory"
       }
@@ -249,7 +260,7 @@
           "success": "Package was successfully created",
           "invalid_one": "Package could not be created because one field is invalid",
           "invalid_other": "Package could not be created because {{count}} fields are invalid",
-          "conflict": "Inventory code already exists",
+          "duplicate_inventory_code": "Inventory code already exists",
           "error": "An error occurred while creating"
         },
         "edit": {
@@ -262,7 +273,7 @@
           "success": "Package was successfully saved",
           "invalid_one": "Package could not be saved because one field is invalid",
           "invalid_other": "Package could not be saved because {{count}} fields are invalid",
-          "conflict": "Inventory code already exists",
+          "duplicate_inventory_code": "Inventory code already exists",
           "error": "An error occurred while saving",
           "empty_package": "All items have been removed from this package. Retired and retire reason have been automatically set.",
           "auto_retire_reason": "Package was automatically retired because it has no items assigned"
@@ -292,6 +303,10 @@
             "search_empty": "Type at least 2 characters to search",
             "not_found": "No items found"
           }
+        },
+        "actions": {
+          "update": "Save",
+          "duplicate_inventory_code_description": "Pressing Save will use a valid inventory code"
         }
       }
     },
@@ -305,7 +320,7 @@
           "success": "License was successfully created",
           "invalid_one": "License could not be created because one field is invalid",
           "invalid_other": "License could not be created because {{count}} fields are invalid",
-          "conflict": "Inventory code already exists",
+          "duplicate_inventory_code": "Inventory code already exists",
           "error": "An error occurred while creating"
         },
         "edit": {
@@ -316,7 +331,7 @@
           "success": "License was successfully saved",
           "invalid_one": "License could not be saved because one field is invalid",
           "invalid_other": "License could not be saved because {{count}} fields are invalid",
-          "conflict": "Inventory code already exists",
+          "duplicate_inventory_code": "Inventory code already exists",
           "error": "An error occurred while saving"
         },
         "fields": {
@@ -326,6 +341,10 @@
             "location": "Location",
             "remaining": "Remaining"
           }
+        },
+        "actions": {
+          "update": "Save",
+          "duplicate_inventory_code_description": "Pressing Save will use the suggested inventory code"
         }
       }
     },

@@ -167,7 +167,8 @@
           "success": "Gegenstand wurde erfolgreich erstellt",
           "invalid_one": "Gegenstand konnte nicht erstellt werden, da ein Feld ungültig ist",
           "invalid_other": "Gegenstand konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
-          "conflict": "Inventarcode existiert bereits",
+          "duplicate_inventory_code": "Inventarcode existiert bereits",
+          "duplicate_serialnumber": "Seriennummer existiert bereits",
           "error": "Beim Erstellen ist ein Fehler aufgetreten"
         },
         "edit": {
@@ -179,7 +180,8 @@
           "success": "Gegenstand wurde erfolgreich gespeichert",
           "invalid_one": "Gegenstand konnte nicht gespeichert werden, da ein Feld ungültig ist",
           "invalid_other": "Gegenstand konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
-          "conflict": "Inventarcode existiert bereits",
+          "duplicate_inventory_code": "Inventarcode existiert bereits",
+          "duplicate_serialnumber": "Seriennummer existiert bereits",
           "error": "Beim speichern ist ein Fehler aufgetreten",
           "package_item": "Gegenstand ist teil eines Pakets"
         },
@@ -205,6 +207,12 @@
             "search": "Suchbegriff eingeben",
             "empty": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
           }
+        },
+        "actions": {
+          "update": "Speichern",
+          "duplicate_inventory_code_description": "Durch das Drücken von Speichern wird automatisch ein gültiger Inventarcode verwendet",
+          "duplicate_serialnumber_description": "Durch das Drücken von Speichern wird trotz der doppelten Seriennummer gespeichert",
+          "duplicate_both_description": "Durch das Drücken von Speichern wird automatisch ein gültiger Inventarcode verwendet und trotz der doppelten Seriennummer gespeichert"
         }
       },
       "review": {
@@ -234,7 +242,10 @@
         "serial_number": {
           "placeholder": "Seriennummer eingeben",
           "success": "Seriennummer aktualisiert",
-          "error": "Seriennummer konnte nicht aktualisiert werden"
+          "error": "Seriennummer konnte nicht aktualisiert werden",
+          "duplicate_error": "Seriennummer existiert bereits",
+          "overwrite": "Speichern",
+          "description": " Speichern klicken, um die Seriennummer trotzdem zu speichern."
         },
         "back_to_inventory": "Zurück zum Inventar"
       }
@@ -244,12 +255,12 @@
         "create": {
           "title": "Neues Paket erstellen",
           "description": "Geben Sie alle erforderlichen Informationen an",
-          "submit": "Paket",
+          "submit": "Erstellen",
           "cancel": "Abbrechen",
           "success": "Paket wurde erfolgreich erstellt",
           "invalid_one": "Paket konnte nicht erstellt werden, da ein Feld ungültig ist",
           "invalid_other": "Paket konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
-          "conflict": "Inventarcode existiert bereits",
+          "duplicate_inventory_code": "Inventarcode existiert bereits",
           "error": "Beim Erstellen ist ein Fehler aufgetreten"
         },
         "edit": {
@@ -262,7 +273,7 @@
           "success": "Paket wurde erfolgreich gespeichert",
           "invalid_one": "Paket konnte nicht gespeichert werden, da ein Feld ungültig ist",
           "invalid_other": "Paket konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
-          "conflict": "Inventarcode existiert bereits",
+          "duplicate_inventory_code": "Inventarcode existiert bereits",
           "error": "Beim Speichern ist ein Fehler aufgetreten",
           "empty_package": "Alle Gegenstände wurden aus dem Paket entfernt. Ausmusterung und der Ausmusterungsgrund wurden automatisch gesetzt.",
           "auto_retire_reason": "Automatische Ausmusterung aufgrund leerem Paket"
@@ -306,7 +317,7 @@
           "success": "Lizenz wurde erfolgreich erstellt",
           "invalid_one": "Lizenz konnte nicht erstellt werden, da ein Feld ungültig ist",
           "invalid_other": "Lizenz konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
-          "conflict": "Inventarcode existiert bereits",
+          "duplicate_inventory_code": "Inventarcode existiert bereits. Speichern klicken, um mit einem gültigen Inventarcode zu speichern.",
           "error": "Beim Erstellen ist ein Fehler aufgetreten"
         },
         "edit": {
@@ -317,7 +328,7 @@
           "success": "Lizenz wurde erfolgreich gespeichert",
           "invalid_one": "Lizenz konnte nicht gespeichert werden, da ein Feld ungültig ist",
           "invalid_other": "Lizenz konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
-          "conflict": "Inventarcode existiert bereits",
+          "duplicate_inventory_code": "Inventarcode existiert bereits. Speichern klicken, um mit einem gültigen Inventarcode zu speichern.",
           "error": "Beim Speichern ist ein Fehler aufgetreten"
         },
         "fields": {
@@ -327,6 +338,9 @@
             "location": "Ort",
             "remaining": "Verbleibend"
           }
+        },
+        "actions": {
+          "update": "Speichern"
         }
       }
     },
