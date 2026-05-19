@@ -112,8 +112,7 @@
                       ($ ChevronDown {:className "w-4 h-4"})))
                 ($ DropdownMenuContent {:align "start"}
                    ($ DropdownMenuItem
-                      ($ Link {:to (str (:id package) "/items/create")
+                      ($ Link {:to (str "../packages/create?fromItem=" (:id package))
                                :state #js {:searchParams (.. location -search)}
                                :viewTransition true}
-                         (t "pool.models.list.actions.add_item"))))))))))
-
+                         (t "pool.models.list.actions.copy_package"))))))))))
