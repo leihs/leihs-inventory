@@ -5,9 +5,6 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn ^:dev/after-load start []
-  (js/console.log "start"))
-
 (defui app []
   ($ uix/strict-mode
      ($ RouterProvider {:router routes})))
@@ -18,5 +15,11 @@
 (defn render []
   (uix.dom/render-root ($ app) root))
 
+#_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
+(defn ^:dev/after-load on-after-load []
+  (js/console.log "after-load")
+  (render))
+
 (defn ^:export init []
+  (js/console.log "init")
   (render))
