@@ -436,6 +436,7 @@
         "or_separator": "ODER",
         "add_or": "ODER hinzufügen",
         "add_and": "Suchparameter hinzufügen",
+        "select_field_placeholder": "Feld auswählen...",
         "table": {
           "inventory_code": "Inventarcode",
           "location": "Ort",

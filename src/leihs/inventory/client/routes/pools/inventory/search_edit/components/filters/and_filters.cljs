@@ -71,7 +71,7 @@
         init (uix/use-ref false)
 
         ;; Find next available block
-        used-field-names (set (map :name fields))
+        used-field-names (set (filter some? (map :name fields)))
         next-block (->> blocks
                         (filter #(not (contains? used-field-names (:name %))))
                         first)
@@ -83,9 +83,11 @@
                                 (dissoc :label)
                                 (merge (default-operator block))))
 
+        has-empty-row (some #(nil? (:name %)) fields)
+
         handle-add-and (fn []
                          (when next-block
-                           (append (cj (create-and-filter next-block)))))
+                           (append (cj {:id (str (random-uuid))}))))
 
         handle-update-field (fn [field-name index]
                               (let [selected-block (->> blocks
@@ -151,12 +153,12 @@
                    :else
                     ;; Field selector dropdown
                    ($ Select {:name "select-and-filter"
-                              :value (:name field)
+                              :value (or (:name field) "")
                               :disabled is-retired-reason
                               :onValueChange #(handle-update-field % field-index)}
                       ($ SelectTrigger {:data-test-id (str "or-" index "-field-select-" field-index)
                                         :class-name "col-span-3"}
-                         ($ SelectValue))
+                         ($ SelectValue {:placeholder (t "pool.models.search_edit.select_field_placeholder")}))
 
                       ($ SelectContent {:data-test-id "field-options"}
                          (for [block blocks]
@@ -198,9 +200,10 @@
 
                  ;; Field input (dynamic based on field type)
                  ($ :div {:class-name "col-span-6"}
-                    ($ FieldDispatcher {:form form
-                                        :block (assoc field
-                                                      :name (str name "." field-index ".value"))}))
+                    (when (:component field)
+                      ($ FieldDispatcher {:form form
+                                          :block (assoc field
+                                                        :name (str name "." field-index ".value"))})))
 
                  ;; Remove and filter button (hidden for auto-managed retired_reason)
                  ($ Button {:data-test-id (str "remove-and-" field-index)

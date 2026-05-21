@@ -435,6 +435,7 @@
         "or_separator": "OR",
         "add_or": "Add OR",
         "add_and": "Add search parameter",
+        "select_field_placeholder": "Select field...",
         "table": {
           "inventory_code": "Inventory code",
           "location": "Location",
