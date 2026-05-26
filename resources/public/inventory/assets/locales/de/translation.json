@@ -464,6 +464,7 @@
         "page": {
           "title": "Erweiterte Suche mit Export und Multi-Editieren",
           "description": "Suchen Sie die Gegenstände mit den gewünschten Parametern. Anschliessend können die gefundenen Gegenstände exportiert oder editiert werden.",
+          "selection_info": "Die maximale Anzahl von Gegenständen, die gleichzeitig geändert werden können, entspricht der in der Tabelle ausgewählten Anzahl.",
           "search_results": "Suchergebnisse",
           "edit_items": "Bearbeiten",
           "export_items": "Exportieren"

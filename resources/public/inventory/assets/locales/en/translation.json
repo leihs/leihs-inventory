@@ -463,6 +463,7 @@
         "page": {
           "title": "Advanced Search with Export and Multi-Edit",
           "description": "Search for items with the desired parameters. The found items can then be exported or edited.",
+          "selection_info": "The maximum number of items that can be changed at one time is the number selected in the table.",
           "search_results": "Search Results",
           "edit_items": "Edit",
           "export_items": "Export "

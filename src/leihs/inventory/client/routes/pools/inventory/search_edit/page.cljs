@@ -84,7 +84,7 @@
                                    {:allowed-operators ["$ilike"]}
                                    "input"
                                    (if (= (:name %) "price")
-                                     {:allowed-operators ["$eq"]}
+                                     {:allowed-operators ["$eq" "$gte" "$lte"]}
                                      {:allowed-operators ["$ilike"]})
                                    "autocomplete"
                                    {:allowed-operators ["$eq"]}
@@ -204,10 +204,16 @@
                                  :form form}
                       ($ AndFilters))))
 
-             ($ Typo {:variant "caption"
-                      :as-child true
-                      :class-name "w-80"}
-                ($ :p (t "pool.models.search_edit.page.description")))))
+             ($ :div {:class-name "flex flex-col"}
+                ($ Typo {:variant "caption"
+                         :as-child true
+                         :class-name "w-80"}
+                   ($ :p (t "pool.models.search_edit.page.description")))
+
+                ($ Typo {:variant "caption"
+                         :as-child true
+                         :class-name "w-80 mt-4"}
+                   ($ :p (t "pool.models.search_edit.page.selection_info"))))))
 
        ;; Search Results Section
        (when items
