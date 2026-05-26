@@ -41,6 +41,7 @@
                        :type "array"
                        :component "items"
                        :group "Content"
+                       :label nil
                        :required true
                        :default (or items [])
                        :props {:text {:select "pool.packages.package.fields.items.select"

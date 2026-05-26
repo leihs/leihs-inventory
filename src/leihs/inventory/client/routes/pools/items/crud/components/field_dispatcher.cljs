@@ -3,6 +3,7 @@
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["lucide-react" :refer [Lock]]
    ["react-i18next" :refer [useTranslation]]
+   [clojure.string :as str]
    [leihs.inventory.client.components.form.fields.attachments-field :refer [AttachmentsField]]
    [leihs.inventory.client.components.form.fields.autocomplete-field :refer [AutocompleteField]]
    [leihs.inventory.client.components.form.fields.calendar-field :refer [CalendarField]]
@@ -23,6 +24,10 @@
 
 (defui FieldDispatcher [{:keys [form block]}]
   (let [[t] (useTranslation)
+        translated-block (cond-> block
+                           (and (:label block)
+                                (not (str/starts-with? (:name block) "properties_")))
+                           (update :label t))
         {:keys [is-visible
                 values-dependency
                 watched-dependency-value]} (use-field-visibility block)
@@ -51,29 +56,29 @@
               ;; Package-specific: item selection field
               (= (:name block) "item_ids")
               ($ ItemsField {:form form
-                             :block block})
+                             :block translated-block})
 
               (-> block :component (= "attachments"))
               ($ AttachmentsField {:form form
-                                   :label (t (:label block))
-                                   :name (:name block)
-                                   :props (:props block)})
+                                   :label (:label translated-block)
+                                   :name (:name translated-block)
+                                   :props (:props translated-block)})
 
               ;; instant search via values-url
               (-> block :component (= "autocomplete-search"))
               ($ AutocompleteField {:form form
-                                    :name (:name block)
-                                    :label (:label block)
+                                    :name (:name translated-block)
+                                    :label (:label translated-block)
                                     :props (merge
                                             translations
                                             {:remap (fn [item] {:value (str (:id item))
                                                                 :label (:name item)})}
-                                            (:props block))})
+                                            (:props translated-block))})
 
               (-> block :component (= "autocomplete"))
               ($ AutocompleteField {:form form
-                                    :name (:name block)
-                                    :label (:label block)
+                                    :name (:name translated-block)
+                                    :label (:label translated-block)
                                     :props (merge translations
                                                   (if values-dependency
                                                     (let [values-url (-> block :props :values-url)
@@ -81,32 +86,32 @@
                                                       {:remap (fn [item] {:value (str (:id item))
                                                                           :label (str (:name item))})
                                                        :values-url (str values-url "?" dep "=" (.-value watched-dependency-value))})
-                                                    (label-inactive (:props block))))})
+                                                    (label-inactive (:props translated-block))))})
 
               (-> block :component (= "checkbox"))
               ($ CheckboxGroupField {:form form
-                                     :block block})
+                                     :block translated-block})
 
               (-> block :component (= "composite"))
               ($ CompositeField {:form form
-                                 :block block})
+                                 :block translated-block})
 
               (-> block :component (= "radio-group"))
               ($ RadioGroupField {:form form
-                                  :block block})
+                                  :block translated-block})
 
               (-> block :component (= "select"))
               ($ SelectField {:form form
-                              :block block})
+                              :block translated-block})
 
               (-> block :component (= "calendar"))
               ($ CalendarField {:form form
-                                :block block})
+                                :block translated-block})
 
               ;; default case - renders a component from the component map
               :else
               ($ CommonField {:form form
-                              :block block})))
+                              :block translated-block})))
 
          (when (:disabled (:props block))
            ($ PopoverContent {:side "top"

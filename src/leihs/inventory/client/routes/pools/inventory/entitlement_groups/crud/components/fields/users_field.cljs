@@ -159,20 +159,19 @@
                         (user-label element props t))))))))))
 
 (defui UsersField [{:keys [form block]}]
-  (let [[t] (useTranslation)]
-    ($ FormFieldArray {:form form
-                       :name (:name block)}
-       ($ FormItem {:class-name "mt-6"}
-          ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
-          ($ SelectUser {:form form
-                         :name (:name block)
-                         :props (:props block)})
+  ($ FormFieldArray {:form form
+                     :name (:name block)}
+     ($ FormItem {:class-name "mt-6"}
+        ($ FormLabel (:label block) (when (:required (:props block)) "*"))
+        ($ SelectUser {:form form
+                       :name (:name block)
+                       :props (:props block)})
 
-          ($ FormDescription
-             ($ :<> (:description block)))
+        ($ FormDescription
+           ($ :<> (:description block)))
 
-          ($ FormMessage))
+        ($ FormMessage))
 
-       ($ FormFieldArrayItems {:form form
-                               :name (:name block)}
-          ($ UserItem)))))
+     ($ FormFieldArrayItems {:form form
+                             :name (:name block)}
+        ($ UserItem))))

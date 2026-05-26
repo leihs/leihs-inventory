@@ -1,4 +1,6 @@
-(ns leihs.inventory.client.lib.dynamic-form)
+(ns leihs.inventory.client.lib.dynamic-form
+  (:require
+   [clojure.string :as str]))
 
 (def implemented-field-types
   #{"text"
@@ -138,14 +140,17 @@
         group-name (or (:group field) "Mandatory data")]
     (when component
       (let [base-block {:name (:id field)
-                        :label (str "fields." group-name "." (:id field))
+                        :label (if (or (str/starts-with? (:id field) "properties")
+                                       (nil? (:label field)))
+                                 (:label field)
+                                 (str "fields." group-name "." (:id field)))
                         :component component}
             ;; For autocomplete-search, construct proper resource URL with search param
             search-resource (when (= field-type "autocomplete-search")
                               (let [base-url (:values_url field)
                                     search-attr (:search_attr field "search_term")
                                    ;; Check if URL already has query params
-                                    separator (if (clojure.string/includes? base-url "?") "&" "?")]
+                                    separator (if (str/includes? base-url "?") "&" "?")]
                                 (str base-url separator search-attr "=")))
 
             props (cond-> {}

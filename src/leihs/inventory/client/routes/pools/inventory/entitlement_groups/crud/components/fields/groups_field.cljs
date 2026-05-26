@@ -148,20 +148,19 @@
                         (:name element))))))))))
 
 (defui GroupsField [{:keys [form block]}]
-  (let [[t] (useTranslation)]
-    ($ FormFieldArray {:form form
-                       :name (:name block)}
-       ($ FormItem {:class-name "mt-6"}
-          ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
-          ($ SelectGroup {:form form
-                          :name (:name block)
-                          :props (:props block)})
+  ($ FormFieldArray {:form form
+                     :name (:name block)}
+     ($ FormItem {:class-name "mt-6"}
+        ($ FormLabel (:label block) (when (:required (:props block)) "*"))
+        ($ SelectGroup {:form form
+                        :name (:name block)
+                        :props (:props block)})
 
-          ($ FormDescription
-             ($ :<> (:description block)))
+        ($ FormDescription
+           ($ :<> (:description block)))
 
-          ($ FormMessage))
+        ($ FormMessage))
 
-       ($ FormFieldArrayItems {:form form
-                               :name (:name block)}
-          ($ GroupItem)))))
+     ($ FormFieldArrayItems {:form form
+                             :name (:name block)}
+        ($ GroupItem))))
