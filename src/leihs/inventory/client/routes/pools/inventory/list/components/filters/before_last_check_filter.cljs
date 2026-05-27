@@ -47,6 +47,7 @@
 
        ($ PopoverContent {:className "w-[280px]"}
           ($ Calendar {:mode "single"
+                       :captionLayout "dropdown"
                        :data-test-id "before-last-check-calendar"
                        :selected (js/Date. before-last-check)
                        :onSelect handle-before-last-check})))))
