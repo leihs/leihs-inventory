@@ -349,7 +349,7 @@
           "title": "Inventory before"
         },
         "with_items": {
-          "all": "All Models",
+          "all": "complete inventory",
           "with_items": "only models with items",
           "without_items": "only models without items"
         },

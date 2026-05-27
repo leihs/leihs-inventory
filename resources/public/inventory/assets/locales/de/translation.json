@@ -349,7 +349,7 @@
           "title": "Inventur vor"
         },
         "with_items": {
-          "all": "Alle Modelle",
+          "all": "gesamtes Inventar",
           "with_items": "nur Modelle mit Gegenständen",
           "without_items": "nur Modelle ohne Gegenstände"
         },
