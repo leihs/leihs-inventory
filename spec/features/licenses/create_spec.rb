@@ -57,7 +57,7 @@ feature "Create license", type: :feature do
     expect(page).not_to have_content "Dongle ID"
 
     # Select activation type = "dongle"
-    click_on "Activation type"
+    click_on "Activation Type"
     expect(page).to have_content "Dongle"
     click_on "Dongle"
 
@@ -216,7 +216,7 @@ feature "Create license", type: :feature do
     click_on software_model.product
 
     # Test conditional required field: Dongle ID when activation type = dongle
-    click_on "Activation type"
+    click_on "Activation Type"
     click_on "Dongle"
 
     click_on "Create"
