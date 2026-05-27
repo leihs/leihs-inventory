@@ -35,7 +35,8 @@
                                                       :align "start"}
                                       ($ Calendar (merge {:captionLayout "dropdown"
                                                           :onSelect (aget % "field" "onChange")
-                                                          :selected (aget % "field" "value")}
+                                                          :selected (aget % "field" "value")
+                                                          :defaultMonth (aget % "field" "value")}
                                                          (:props block))))))
 
                               ($ FormMessage))})))
