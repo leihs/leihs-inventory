@@ -181,7 +181,7 @@
                  ($ ToggleGroup {:type "single"
                                  :variant "outline"
                                  :size "xs"
-                                 :class-name " col-span-2 self-center justify-self-center"
+                                 :class-name "col-span-2 self-center justify-self-center"
                                  :value (:operator field)
                                  :on-value-change (fn [value]
                                                     (handle-update-operator value field field-index))}
