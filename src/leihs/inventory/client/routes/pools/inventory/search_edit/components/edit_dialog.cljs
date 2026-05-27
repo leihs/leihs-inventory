@@ -1,6 +1,6 @@
 (ns leihs.inventory.client.routes.pools.inventory.search-edit.components.edit-dialog
   (:require
-   ["@@/alert" :refer [Alert AlertDescription AlertTitle]]
+   ["@@/alert" :refer [Alert AlertDescription]]
    ["@@/button" :refer [Button]]
    ["@@/dialog" :refer [Dialog DialogContent DialogDescription DialogFooter
                         DialogHeader DialogTitle]]

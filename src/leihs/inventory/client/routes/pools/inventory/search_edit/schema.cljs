@@ -2,7 +2,7 @@
   (:require
    ["date-fns" :refer [format]]
    ["zod" :as z]
-   [leihs.inventory.client.lib.utils :refer [cj jc]]))
+   [leihs.inventory.client.lib.utils :refer [cj]]))
 
 ;; Zod validation schema for advanced search filters
 ;;
