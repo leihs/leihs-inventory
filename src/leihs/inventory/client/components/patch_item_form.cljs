@@ -166,7 +166,7 @@
                                                :value (:name block)}
 
                                    ($ :button {:type "button"}
-                                      (t (:label block)))))))))
+                                      (:label block))))))))
 
                     ($ Equal {:class-name "col-span-1 justify-self-center"})
 

@@ -175,7 +175,7 @@
                                                              max-allowed (if (= (:component block) "calendar") 2 1)]
                                                          (>= occurrences max-allowed)))
                                             :value (:name block)}
-                                (t (:label block))))))))
+                                (:label block)))))))
 
                  ;; Equals sign
                  ($ ToggleGroup {:type "single"

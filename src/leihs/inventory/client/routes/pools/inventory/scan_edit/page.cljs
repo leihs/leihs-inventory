@@ -40,7 +40,10 @@
                 (fn []
                   (->> structure
                        (mapcat :blocks)
-                       (sort #(.localeCompare (t (:label %1)) (t (:label %2))))
+                       (map #(if (and (:label %) (not (str/starts-with? (:name %) "properties_")))
+                               (update % :label t)
+                               %))
+                       (sort #(.localeCompare (:label %1) (:label %2)))
                        (remove #(#{"attachments"} (:name %)))
                        vec))
                 [structure t])

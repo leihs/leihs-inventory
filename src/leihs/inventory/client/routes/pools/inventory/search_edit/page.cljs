@@ -60,8 +60,11 @@
 
         blocks (->> structure
                     (mapcat :blocks)
+                    (map #(if (and (:label %) (not (str/starts-with? (:name %) "properties_")))
+                            (update % :label t)
+                            %))
                     ;; overwrite default values for specific fields, otherwise use the default from structure
-                    (sort #(.localeCompare (t (:label %1)) (t (:label %2))))
+                    (sort #(.localeCompare (:label %1) (:label %2)))
                     (map #(merge {:value (case (:component %)
                                            "autocomplete" nil
                                            "autocomplete-search" nil
