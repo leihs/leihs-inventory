@@ -1,7 +1,6 @@
 (ns leihs.inventory.client.routes.pools.models.crud.components.fields.entitlement-allocations-field
   (:require
-   ["@/components/ui/command" :refer [Command CommandEmpty CommandGroup
-                                      CommandInput CommandItem CommandList]]
+   ["@/components/ui/command" :refer [Command CommandEmpty CommandInput CommandItem CommandList]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
    ["@@/form" :refer [FormControl FormField FormItem FormMessage]]
@@ -63,7 +62,7 @@
                    #js {:amount rentable}))
 
        ($ Popover {:open open
-                   :on-open-change #(set-open! %)}
+                   :on-open-change (fn [val] (when val (set-open! true)))}
           ($ PopoverTrigger {:as-child true}
              ($ Button {:ref button-ref
                         :on-click #(set-open! (not open))
@@ -75,34 +74,33 @@
                 ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
 
           ($ PopoverContent {:class-name "p-0"
-                             :style {:width (str width "px")}}
+                             :style {:width (str width "px")}
+                             :on-pointer-down-outside (fn [] (set-open! false))
+                             :on-escape-key-down (fn [] (set-open! false))}
              ($ Command
                 ($ CommandInput {:placeholder (t "pool.model.entitlements.blocks.entitlements.select")})
                 ($ CommandList
                    ($ CommandEmpty (t "pool.model.entitlements.blocks.entitlements.not_found"))
-                   ($ CommandGroup
-                      (for [entitlement entitlement-groups]
-                        ($ CommandItem
-                           {:value (:id entitlement)
-                            :keywords #js [(:name entitlement)]
-                            :onSelect #(do
-                                         (set-open! false)
-                                         (if (not (check-path-existing (:id entitlement) fields))
-                                           (append (cj {:id nil
-                                                        :group_id (:id entitlement)
-                                                        :name (:name entitlement)
-                                                        :quantity "0"}))
-                                           (remove (find-index-from-path (:id entitlement) fields))))
-                            :key (:id entitlement)}
+                   (for [entitlement entitlement-groups]
+                     ($ CommandItem
+                        {:value (:id entitlement)
+                         :keywords #js [(:name entitlement)]
+                         :on-select #(if (not (check-path-existing (:id entitlement) fields))
+                                       (append (cj {:id nil
+                                                    :group_id (:id entitlement)
+                                                    :name (:name entitlement)
+                                                    :quantity "0"}))
+                                       (remove (find-index-from-path (:id entitlement) fields)))
+                         :key (:id entitlement)}
 
-                           ($ Check
-                              {:class-name (str "mr-2 h-4 w-4 "
-                                                (if (check-path-existing (:id entitlement) fields)
-                                                  "visible"
-                                                  "invisible"))})
+                        ($ Check
+                           {:class-name (str "mr-2 h-4 w-4 "
+                                             (if (check-path-existing (:id entitlement) fields)
+                                               "visible"
+                                               "invisible"))})
 
-                           ($ :button {:type "button"}
-                              (:name entitlement))))))))))))
+                        ($ :button {:type "button"}
+                           (:name entitlement)))))))))))
 
 ;; Row item component — rendered per field by FormFieldArrayItems
 (defui EntitlementAllocationItem []

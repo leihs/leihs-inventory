@@ -91,7 +91,6 @@
         buttonRef (uix/use-ref nil)
 
         handle-select (fn []
-                        (set-open! false)
                         (if (not (check-path-existing (:id selected) fields))
                           (append (cj {:id (:id selected)
                                        :inventory_code (:inventory_code selected)
