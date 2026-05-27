@@ -94,7 +94,6 @@ feature "Create model", type: :feature do
 
     click_on "Select category"
     click_on leaf_category_1_1.name
-    click_on "Select category"
     click_on parent_category_2_1.name
 
     within id: "pool.model.images.title" do
