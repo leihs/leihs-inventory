@@ -4,13 +4,10 @@
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
    ["@@/toggle-group" :refer [ToggleGroup ToggleGroupItem]]
-   ["lucide-react" :refer [ChevronLeft ChevronRight Equal Trash CirclePlus]]
+   ["lucide-react" :refer [ChevronLeft ChevronRight CirclePlus Equal Trash]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [useParams]]
-
-   [leihs.inventory.client.components.form.fields.common-field :refer [CommonField]]
-
+   ["react-router-dom" :as router]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.hooks :refer [use-dependent-fields]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -82,8 +79,6 @@
                                 (assoc :id (str (random-uuid)))
                                 (dissoc :label)
                                 (merge (default-operator block))))
-
-        has-empty-row (some #(nil? (:name %)) fields)
 
         handle-add-and (fn []
                          (when next-block

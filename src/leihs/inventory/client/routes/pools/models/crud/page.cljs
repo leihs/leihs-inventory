@@ -70,7 +70,6 @@
 
         is-loading (.. form -formState -isLoading)
 
-        control (.. form -control)
         params (router/useParams)
         on-invalid (fn [data]
                      (let [invalid-filds-count (count (jc data))]

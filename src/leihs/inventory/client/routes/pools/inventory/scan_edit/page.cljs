@@ -5,7 +5,6 @@
    ["@@/form" :refer [Form FormControl FormField FormItem]]
    ["@@/input-group" :refer [InputGroup InputGroupAddon InputGroupInput]]
    ["@@/spinner" :refer [Spinner]]
-   ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["lucide-react" :refer [Barcode SquarePen]]
    ["react-hook-form" :refer [useForm]]
    ["react-i18next" :refer [useTranslation]]
