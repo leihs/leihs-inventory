@@ -140,7 +140,9 @@
                          (sql/where [:not= :models.type "Software"])))
 
                    ;; Advanced filter support (filter_q: URL-encoded EDN, MQL-style)
-                   (cond-> (and filter_q (seq (str filter_q)))
+                   ;; Run parser whenever filter_q param is present, including blank values.
+                   ;; Blank values must be rejected by parse-filter-edn with 400.
+                   (cond-> (some? filter_q)
                      (create-filter-query-and-validate! request filter_q {:rooms "rs"}))
 
                    ; in legacy no query params are passed down to the children,
