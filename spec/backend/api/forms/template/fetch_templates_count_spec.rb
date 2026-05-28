@@ -207,6 +207,38 @@ end
           expect_qty_availability(resp.body["models"], [[0, 0, true]])
         end
       end
+
+      describe "two models with same desired quantity, one with insufficient items" do
+        let!(:data) do
+          models = Array.new(2) do
+            FactoryBot.create(:leihs_model, id: SecureRandom.uuid, product: Faker::Commerce.product_name)
+          end
+          3.times do
+            FactoryBot.create(:item,
+              leihs_model: models.first,
+              inventory_pool_id: @inventory_pool.id,
+              responsible: @inventory_pool,
+              is_borrowable: true)
+          end
+          template = FactoryBot.create(:template, inventory_pool: @inventory_pool)
+          db = defined?(Sequel::Model) ? Sequel::Model.db : database
+          models.each { |m| db[:model_links].insert(model_group_id: template.id, model_id: m.id, quantity: 2) }
+          OpenStruct.new(models: models, template: template)
+        end
+
+        let(:response) { client.get "/inventory/#{pool_id}/templates/" }
+
+        it "returns is_quantity_ok=false for template overview" do
+          expect(response.status).to eq(200)
+          expect(response.body.first["is_quantity_ok"]).to eq(false)
+        end
+
+        it "returns correct per-model availability" do
+          resp = client.get "/inventory/#{pool_id}/templates/#{response.body.first["id"]}"
+          expect(resp.status).to eq(200)
+          expect_qty_availability(resp.body["models"], [[2, 3, true], [2, 0, false]])
+        end
+      end
     end
   end
 end

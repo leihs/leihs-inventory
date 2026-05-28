@@ -67,7 +67,7 @@
                   [:in :ml.model_group_id template-ids]
                   [:= :mg.type "Template"]
                   [:= :ipmg.inventory_pool_id pool-id]])
-      (sql/group-by :mg.id :ml.quantity)
+      (sql/group-by :mg.id :m.id :ml.quantity)
       sql-format))
 
 (defn- group-quantity-ok [rows]
