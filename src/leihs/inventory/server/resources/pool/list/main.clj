@@ -36,6 +36,21 @@
         (dissoc :image_id :content_type :url)
         (assoc :image image))))
 
+(defn- build-item-opts
+  [type {:keys [retired borrowable incomplete broken inventory_pool_id
+                owned in_stock search before_last_check]}]
+  (when (not= type :option)
+    (cond-> {:retired retired
+             :borrowable borrowable
+             :incomplete incomplete
+             :broken broken
+             :inventory_pool_id inventory_pool_id
+             :owned owned
+             :in_stock in_stock
+             :search search}
+      (not= type :software)
+      (assoc :before_last_check before_last_check))))
+
 (defn index-resources [request]
   (let [tx (:tx request)
         {pool-id :pool_id} (path-params request)
@@ -82,7 +97,17 @@
                   (cond-> (and category_id (not (some #{type} [:option :software])))
                     (#(from-category tx % category_id))))
 
-        accept-header (get-accept-header request)]
+        accept-header (get-accept-header request)
+        export-opts {:with_items with_items
+                     :item-opts (build-item-opts type {:retired retired
+                                                       :borrowable borrowable
+                                                       :incomplete incomplete
+                                                       :broken broken
+                                                       :inventory_pool_id inventory_pool_id
+                                                       :owned owned
+                                                       :in_stock in_stock
+                                                       :search search
+                                                       :before_last_check before_last_check})}]
 
     (debug (sql-format query :inline true))
 
