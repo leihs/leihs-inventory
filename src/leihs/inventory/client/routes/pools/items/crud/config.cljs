@@ -19,6 +19,7 @@
                          :position 0
                          :required true
                          :default 1
+                         :label ""
                          :props {:type "number"
                                  :min 0
                                  :max 999999

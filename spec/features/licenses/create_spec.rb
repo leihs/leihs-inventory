@@ -66,7 +66,7 @@ feature "Create license", type: :feature do
     fill_in "Dongle ID", with: dongle_id
 
     # License Type
-    click_on "License type"
+    click_on "License Type"
     expect(page).to have_content "Site License"
     click_on "Site License"
 

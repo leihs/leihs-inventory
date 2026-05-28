@@ -138,7 +138,7 @@ feature "Update license", type: :feature do
     fill_in "Dongle ID", with: dongle_id_new
 
     # Update license type
-    click_on "License type"
+    click_on "License Type"
     click_on "Multiple Workplace"
 
     # Update checkboxes (uncheck old, check new)
