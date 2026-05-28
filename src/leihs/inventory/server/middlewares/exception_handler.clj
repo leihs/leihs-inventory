@@ -99,12 +99,14 @@
         (build-coercion-response request e status))
 
       (instance? ExceptionInfo e)
-      (let [{:keys [status]} (ex-data e)
+      (let [data (ex-data e)
+            status (or (:status data) 500)
+            details (:details data)
             msg (ex-message e)]
         (create-response-by-accept request accept status {:status "failure"
-                                                          :message message
+                                                          :message msg
                                                           :type (str (class e))
-                                                          :details msg}))
+                                                          :details (or details msg)}))
 
       :else (create-response-by-accept request accept 500 {:status "failure"
                                                            :message message
