@@ -2,7 +2,7 @@
   (:require
    ["react-router-dom" :as router]
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.utils :refer [jc cj]]
+   [leihs.inventory.client.lib.utils :refer [filter-d-json->filter-q-encoded jc cj]]
    [promesa.core :as p]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -105,9 +105,7 @@
         size (or (.get search-params "size") "50")]
     (p/let [params (.. ^js route-data -params)
             pool-id (aget params "pool-id")
-            parsed-filter (when filter (jc (js/JSON.parse filter)))
-
-            query (js/encodeURIComponent parsed-filter)
+            query (filter-d-json->filter-q-encoded filter)
 
             data (-> http-client
                      (.get (str "/inventory/" pool-id "/fields/?target_type=item")

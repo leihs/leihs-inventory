@@ -3,7 +3,7 @@
    ["~/i18n.config.js" :as i18n :refer [i18n]]
    [clojure.string]
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.lib.utils :refer [cj coerce-items-api-url jc]]
    [promesa.core :as p]))
 
 (defn- handle-error [err]
@@ -45,7 +45,7 @@
 
 (defn export [action]
   (p/let [form-data (.. action -request (formData))
-          url (.get form-data "url")
+          url (coerce-items-api-url (.get form-data "url"))
           format (.get form-data "format")
           accept-header (case format
                           "csv" "text/csv"

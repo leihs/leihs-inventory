@@ -25,6 +25,14 @@
    [uix.core :as uix :refer [$]]
    [uix.dom]))
 
+(defn- export-action? [form-action]
+  (and form-action (= form-action "/export")))
+
+(defn skip-revalidate-on-export [args]
+  (if (export-action? (.-formAction args))
+    false
+    (.-defaultShouldRevalidate args)))
+
 (def routes
   (router/createBrowserRouter
    (cj
@@ -71,11 +79,13 @@
 
                  {:path "list"
                   :loader loader/list-page
+                  :shouldRevalidate skip-revalidate-on-export
                   :id "models-page"
                   :element ($ list-page)}
 
                  {:path "search-edit"
                   :loader loader/search-edit-page
+                  :shouldRevalidate skip-revalidate-on-export
                   :action actions/search-edit-page
                   :element ($ search-edit-page)}
 

@@ -18,7 +18,7 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
    [leihs.inventory.client.lib.hooks :as hooks]
-   [leihs.inventory.client.lib.utils :refer [jc]]
+   [leihs.inventory.client.lib.utils :refer [filter-d-json->filter-q-query-param jc]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.edit-dialog :refer [EditDialog]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.and-filters :refer [AndFilters]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.or-filters :refer [OrFilters]]
@@ -127,7 +127,10 @@
         export-url (fn []
                      (let [base-url (str "/inventory/" pool-id "/items/")]
                        (if (empty? selected-items)
-                         (str base-url "?" search-params)
+                         (if-let [filter-q (filter-d-json->filter-q-query-param
+                                             (.get search-params "filter_d"))]
+                           (str base-url "?" filter-q)
+                           base-url)
                          (str base-url "?" (->> selected-items
                                                 (map #(str "ids=" %))
                                                 (str/join "&"))))))
