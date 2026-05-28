@@ -6,6 +6,10 @@
 
 (def get-response
   (merge post-response-item
+         {(s/optional-key :building_code) (s/maybe s/Str)
+          (s/optional-key :building_name) (s/maybe s/Str)
+          (s/optional-key :room_description) (s/maybe s/Str)
+          (s/optional-key :room_name) (s/maybe s/Str)}
          {(s/optional-key :fields) [s/Any]}))
 
 (def patch-request

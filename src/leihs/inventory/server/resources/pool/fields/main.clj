@@ -54,10 +54,17 @@
                          (assoc :default {:value (:id pool),
                                           :label (:name pool)})))]
     {:building_id (fn [f & {:keys [tx]}]
-                    (assoc f :values
-                           (-> buildings/base-query (dissoc :select)
-                               (sql/select [:id :value] [:name :label])
-                               sql-format (->> (jdbc/query tx)))))
+                    (let [buildings (-> buildings/base-query
+                                        (dissoc :select)
+                                        (sql/select :id :name :code)
+                                        sql-format
+                                        (->> (jdbc/query tx)))]
+                      (assoc f :values
+                             (vec (map (fn [building]
+                                         {:value (:id building)
+                                          :name (:name building)
+                                          :code (:code building)})
+                                       buildings)))))
      :supplier_id (fn [f & {:keys [tx]}]
                     (assoc f :values
                            (-> suppliers/base-query (dissoc :select)
@@ -94,7 +101,14 @@
         item-id (:id item-data)]
     (if (and (uuid? value) (contains? hooks field-id))
       (let [res ((hooks field-id) tx value)]
-        {:value (:id res), :label (:name res)})
+        (case field-id
+          :room_id {:value (:id res)
+                    :name (:name res)
+                    :description (:description res)}
+          :building_id {:value (:id res)
+                        :name (:name res)
+                        :code (:code res)}
+          {:value (:id res) :label (:name res)}))
       (case field-id
         :attachments (let [as (attachments/get-by-item-id tx item-id)]
                        (when (seq as)
@@ -107,7 +121,9 @@
                               as)))
         :building_id (let [room-id (:room_id item-data)
                            building (buildings/get-by-room-id tx room-id)]
-                       {:value (:id building), :label (:name building)})
+                       {:value (:id building)
+                        :name (:name building)
+                        :code (:code building)})
         :retired (some? value)
         value))))
 
