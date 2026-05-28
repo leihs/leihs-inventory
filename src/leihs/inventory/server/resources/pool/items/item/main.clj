@@ -25,8 +25,14 @@
 (def ERROR_UPDATE_ITEM "Failed to update item")
 
 (defn get-one [tx item-id]
-  (-> (sql/select :*)
+  (-> (sql/select :items.*
+                  [:r.name :room_name]
+                  [:r.description :room_description]
+                  [:b.name :building_name]
+                  [:b.code :building_code])
       (sql/from :items)
+      (sql/left-join [:rooms :r] [:= :items.room_id :r.id])
+      (sql/left-join [:buildings :b] [:= :r.building_id :b.id])
       (sql/where [:= :items.id item-id])
       sql-format
       (->> (jdbc/execute-one! tx))))
