@@ -83,20 +83,24 @@
                                             :quantity (:quantity entry)}])
                               sql-format))))
 
-(defn process-update-template-models [tx entries-to-update]
+(defn process-update-template-models [tx entries-to-update template-id]
   (debug "process: update models" entries-to-update)
   (doseq [{:keys [id quantity]} entries-to-update]
     (jdbc/execute-one! tx (-> (sql/update [:model_links :ml])
                               (sql/set {:quantity quantity})
-                              (sql/where [:= :ml.model_id id])
+                              (sql/where [:and
+                                          [:= :ml.model_id id]
+                                          [:= :ml.model_group_id template-id]])
                               (sql/returning :*)
                               sql-format))))
 
-(defn process-delete-template-models [tx entries-to-delete]
+(defn process-delete-template-models [tx entries-to-delete template-id]
   (debug "process: delete models" entries-to-delete)
   (doseq [{:keys [id]} entries-to-delete]
     (jdbc/execute-one! tx (-> (sql/delete-from :model_links)
-                              (sql/where [:= :model_id id])
+                              (sql/where [:and
+                                          [:= :model_id id]
+                                          [:= :model_group_id template-id]])
                               (sql/returning :*)
                               sql-format))))
 

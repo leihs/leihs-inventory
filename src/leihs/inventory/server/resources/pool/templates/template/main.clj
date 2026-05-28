@@ -54,8 +54,8 @@
                                           [:= :type "Template"]])
                               sql-format)))
 
-      (process-delete-template-models tx entries-to-delete)
-      (process-update-template-models tx entries-to-update)
+      (process-delete-template-models tx entries-to-delete template-id)
+      (process-update-template-models tx entries-to-update template-id)
       (process-create-template-models tx entries-to-insert template-id pool-id)
 
       (if-let [template (fetch-template-with-models! tx template-id pool-id)]
