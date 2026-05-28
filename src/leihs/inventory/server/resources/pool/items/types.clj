@@ -8,28 +8,40 @@
 
 (s/defschema path-params {:pool_id s/Uuid})
 
-(s/defschema query-params {(s/optional-key :fields) s/Str
-                           (s/optional-key :ids) [s/Uuid]
-                           (s/optional-key :model_id) s/Uuid
-                           (s/optional-key :only_items) s/Bool
-                           (s/optional-key :parent_id) s/Uuid
-                           (s/optional-key :search) s/Str
-                           (s/optional-key :search_term) s/Str
-                           (s/optional-key :for_package) s/Bool
+(def ^:private allowed-query-params
+  #{:fields :ids :model_id :only_items :parent_id :search :search_term
+    :for_package :filter_q
+    :borrowable :broken :in_stock :incomplete :inventory_pool_id :owned :retired
+    :before_last_check
+    :page :size})
 
-                           (s/optional-key :filter_q) s/Str
+(s/defschema query-params
+  (s/constrained
+   {(s/optional-key :fields) s/Str
+    (s/optional-key :ids) [s/Uuid]
+    (s/optional-key :model_id) s/Uuid
+    (s/optional-key :only_items) s/Bool
+    (s/optional-key :parent_id) s/Uuid
+    (s/optional-key :search) s/Str
+    (s/optional-key :search_term) s/Str
+    (s/optional-key :for_package) s/Bool
 
-                           ;; item filters
-                           (s/optional-key :borrowable) s/Bool
-                           (s/optional-key :broken) s/Bool
-                           (s/optional-key :in_stock) s/Bool
-                           (s/optional-key :incomplete) s/Bool
-                           (s/optional-key :inventory_pool_id) s/Uuid
-                           (s/optional-key :owned) s/Bool
-                           (s/optional-key :retired) s/Bool
+    (s/optional-key :filter_q) s/Str
 
-                           (s/optional-key :page) s/Int
-                           (s/optional-key :size) s/Int})
+    ;; item filters
+    (s/optional-key :borrowable) s/Bool
+    (s/optional-key :broken) s/Bool
+    (s/optional-key :in_stock) s/Bool
+    (s/optional-key :incomplete) s/Bool
+    (s/optional-key :inventory_pool_id) s/Uuid
+    (s/optional-key :owned) s/Bool
+    (s/optional-key :retired) s/Bool
+    (s/optional-key :before_last_check) s/Str
+
+    (s/optional-key :page) s/Int
+    (s/optional-key :size) s/Int}
+   #(every? allowed-query-params (keys %))
+   'known-query-params-only))
 
 (def required-columns #{:inventory_code
                         :model_id

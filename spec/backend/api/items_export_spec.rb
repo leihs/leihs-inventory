@@ -59,11 +59,13 @@ describe "Items Export" do
   let(:inventory_pool_id) { @inventory_pool.id }
   let(:base_url) { "/inventory/#{inventory_pool_id}/items/" }
   let(:ids_params) { {ids: @batch_ids} }
+  let(:encoded_ids_query) { Faraday::FlatParamsEncoder.encode(ids_params) }
 
   def export_client(accept)
     headers = {"accept" => accept}
     headers[:Cookie] = @user_cookies.map(&:to_s).join("; ")
     Faraday.new(url: api_base_url, headers: headers) do |conn|
+      conn.options.params_encoder = Faraday::FlatParamsEncoder
       conn.adapter Faraday.default_adapter
     end
   end
