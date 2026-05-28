@@ -12,6 +12,7 @@
    [leihs.inventory.client.components.form.fields.composite-field :refer [CompositeField]]
    [leihs.inventory.client.components.form.fields.radio-group-field :refer [RadioGroupField]]
    [leihs.inventory.client.components.form.fields.select-field :refer [SelectField]]
+   [leihs.inventory.client.lib.location-labels :as location-labels]
    [leihs.inventory.client.provider.visibility-provider :refer [use-field-visibility]]
    [leihs.inventory.client.routes.pools.items.crud.components.fields.items-field :refer [ItemsField]]
    [uix.core :refer [$ defui]]))
@@ -31,6 +32,11 @@
         {:keys [is-visible
                 values-dependency
                 watched-dependency-value]} (use-field-visibility block)
+
+        room-remap (if (= (:name block) "room_id")
+                     location-labels/room-autocomplete-option
+                     (fn [item] {:value (str (:id item))
+                                 :label (:name item)}))
 
         label-inactive (fn [props]
                          (let [without-options (dissoc props :options)
@@ -83,10 +89,10 @@
                                                   (if values-dependency
                                                     (let [values-url (-> block :props :values-url)
                                                           dep (:field values-dependency)]
-                                                      {:remap (fn [item] {:value (str (:id item))
-                                                                          :label (str (:name item))})
+                                                      {:remap room-remap
                                                        :values-url (str values-url "?" dep "=" (.-value watched-dependency-value))})
-                                                    (label-inactive (:props translated-block))))})
+                                                    (assoc (label-inactive (:props translated-block))
+                                                           :remap room-remap)))})
 
               (-> block :component (= "checkbox"))
               ($ CheckboxGroupField {:form form

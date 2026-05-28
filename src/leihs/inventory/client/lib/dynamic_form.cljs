@@ -1,6 +1,7 @@
 (ns leihs.inventory.client.lib.dynamic-form
   (:require
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [leihs.inventory.client.lib.location-labels :as location-labels]))
 
 (def implemented-field-types
   #{"text"
@@ -125,6 +126,10 @@
                  :label (:label v)
                  :is_active (:is_active v)}
 
+                (and (contains? v :code) (contains? v :name))
+                {:value (str (:value v))
+                 :label (location-labels/format-building-label v)}
+
                 (contains? v :value)
                 {:value (str (:value v))
                  :label (:label v)}
@@ -132,6 +137,17 @@
                 :else v)
               {:value (str v) :label (str v)}))
           values)))
+
+(defn- format-location-default [field-id default-value]
+  (when (map? default-value)
+    (cond
+      (= field-id :room_id)
+      (assoc default-value :label (location-labels/format-room-label default-value))
+
+      (= field-id :building_id)
+      (assoc default-value :label (location-labels/format-building-label default-value))
+
+      :else default-value)))
 
 (defn- transform-field [field]
   (let [id (:id field)
@@ -309,12 +325,12 @@
                                       "autocomplete-search"
                                       (if (nil? default-value)
                                         {:value nil :label nil}
-                                        default-value)
+                                        (format-location-default field-id default-value))
 
                                       "autocomplete"
                                       (if (nil? default-value)
                                         {:value nil :label nil}
-                                        default-value)
+                                        (format-location-default field-id default-value))
 
                                       ;; Default for custom/unknown types - use as-is
                                       default-value)]

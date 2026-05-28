@@ -7,6 +7,7 @@
    [leihs.inventory.client.components.form.fields.common-field :refer [CommonField]]
    [leihs.inventory.client.components.form.fields.radio-group-field :refer [RadioGroupField]]
    [leihs.inventory.client.components.form.fields.select-field :refer [SelectField]]
+   [leihs.inventory.client.lib.location-labels :as location-labels]
    [uix.core :refer [$ defui]]))
 
 (def translations
@@ -17,6 +18,11 @@
 
 (defui FieldDispatcher [{:keys [form block]}]
   (let [[t] (useTranslation)
+        room-remap (if (= (:name block) "room_id")
+                     location-labels/room-autocomplete-option
+                     (fn [item] {:value (str (:id item))
+                                 :label (:name item)}))
+
         label-inactive (fn [props]
                          (let [without-options (dissoc props :options)
                                text (t "pool.items.item.fields.inactive")
@@ -51,8 +57,7 @@
                             :name (:name block)
                             :label (:label block)
                             :props (merge translations
-                                          {:remap (fn [item] {:value (str (:id item))
-                                                              :label (:name item)})}
+                                          {:remap room-remap}
                                           (label-inactive (:props block)))
                             :class-name "mt-0 flex-1"})
 
