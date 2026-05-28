@@ -1206,5 +1206,14 @@ describe "Swagger Inventory Endpoints - Items List (pagination)" do
         end
       end
     end
+
+    context "query param coercion" do
+      it "rejects invalid before_last_check values" do
+        resp = client.get "#{url}?before_last_check=abc"
+        expect(resp.status).to eq(404)
+        expect(resp.body["reason"]).to eq("Coercion-Error")
+        expect(resp.body["scope"]).to eq("request/query-params")
+      end
+    end
   end
 end

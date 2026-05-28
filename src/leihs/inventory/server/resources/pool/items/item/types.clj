@@ -1,11 +1,15 @@
 (ns leihs.inventory.server.resources.pool.items.item.types
   (:require
    [leihs.inventory.server.resources.pool.items.types :refer [post-response-item properties]]
-   [leihs.inventory.server.utils.schema :refer [Date]]
+   [leihs.inventory.server.utils.schema :refer [Date Price]]
    [schema.core :as s]))
 
 (def get-response
   (merge post-response-item
+         {(s/optional-key :building_code) (s/maybe s/Str)
+          (s/optional-key :building_name) (s/maybe s/Str)
+          (s/optional-key :room_description) (s/maybe s/Str)
+          (s/optional-key :room_name) (s/maybe s/Str)}
          {(s/optional-key :fields) [s/Any]}))
 
 (def patch-request
@@ -28,7 +32,7 @@
           (s/optional-key :needs_permission) s/Bool
           (s/optional-key :note) (s/maybe s/Str)
           (s/optional-key :parent_id) (s/maybe s/Uuid)
-          (s/optional-key :price) (s/maybe s/Str)
+          (s/optional-key :price) (s/maybe Price)
           (s/optional-key :responsible) (s/maybe s/Str)
           (s/optional-key :retired_reason) (s/maybe s/Str)
           (s/optional-key :retired) s/Bool
