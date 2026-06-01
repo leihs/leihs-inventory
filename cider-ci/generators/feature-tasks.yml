@@ -118,6 +118,11 @@
   environment_variables:
     FEATURE_NAME: "Duplicate License 01"
     FEATURE: './spec/features/inventory-list/duplicate_license_spec.rb[1:1]'
+'./spec/features/inventory-list/group_manager_read_only_spec.rb[1:1]':
+  name: "Inventory list read-only pool (group_manager) 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory list read-only pool (group_manager) 01"
+    FEATURE: './spec/features/inventory-list/group_manager_read_only_spec.rb[1:1]'
 './spec/features/inventory-list/main_spec.rb[1:1]':
   name: "Inventory Page 01"
   environment_variables:
@@ -133,6 +138,16 @@
   environment_variables:
     FEATURE_NAME: "Inventory Page 03"
     FEATURE: './spec/features/inventory-list/main_spec.rb[1:3]'
+'./spec/features/inventory-list/manager_timeline_actions_spec.rb[1:1]':
+  name: "Inventory list manager timeline actions 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory list manager timeline actions 01"
+    FEATURE: './spec/features/inventory-list/manager_timeline_actions_spec.rb[1:1]'
+'./spec/features/inventory-list/manager_timeline_actions_spec.rb[1:2]':
+  name: "Inventory list manager timeline actions 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory list manager timeline actions 02"
+    FEATURE: './spec/features/inventory-list/manager_timeline_actions_spec.rb[1:2]'
 './spec/features/inventory-list/model_item_row_shelf_spec.rb[1:1]':
   name: "Model item row location on inventory list 01"
   environment_variables:

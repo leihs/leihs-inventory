@@ -1,11 +1,12 @@
 (ns leihs.inventory.server.resources.profile.main
   (:require
-   [clojure.set]
+   [clojure.set :as set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.core.remote-navbar.shared :refer [sub-apps]]
    [leihs.core.settings :refer [settings]]
+   [leihs.inventory.server.middlewares.authorize.main :refer [AUTHORIZED-ROLES READONLY-ROLES]]
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
@@ -29,16 +30,32 @@
      :manage-nav-items (map #(assoc % :url (:href %)) (:manage sub-apps))
      :documentation-url (:documentation_link settings)}))
 
-(defn get-pools-access-rights-of-user-query [min-raw user-id]
-  (let [min (boolean min-raw)
-        select (if min (sql/select :i.id :i.name) (sql/select :i.is_active :i.name :u.*))
-        query (-> select
-                  (sql/from [:unified_access_rights :u])
-                  (sql/join [:inventory_pools :i] [:= :u.inventory_pool_id :i.id])
-                  (sql/where [:= :u.user_id user-id])
-                  (sql/where [:in :u.role ["inventory_manager" "lending_manager"]])
-                  sql-format)]
-    query))
+(def profile-pool-roles (set/union AUTHORIZED-ROLES READONLY-ROLES))
+
+(defn role->permission [role]
+  (case role
+    ("inventory_manager" "lending_manager") "edit"
+    "group_manager" "read"
+    nil))
+
+(defn format-pool-for-profile [pool]
+  (-> pool
+      (select-keys [:id :name :role])
+      (assoc :permission (role->permission (:role pool)))
+      (dissoc :role)))
+
+(defn get-pools-access-rights-of-user-query [user-id]
+  (-> (sql/select :i.id :i.name :u.role)
+      (sql/from [:access_rights :u])
+      (sql/join [:inventory_pools :i] [:= :u.inventory_pool_id :i.id])
+      (sql/where [:= :u.user_id user-id])
+      (sql/where [:in :u.role (vec profile-pool-roles)])
+      (sql/where [:= :i.is_active true])
+      sql-format))
+
+(defn get-pools-for-profile [tx user-id]
+  (->> (jdbc/execute! tx (get-pools-access-rights-of-user-query user-id))
+       (map format-pool-for-profile)))
 
 (defn get-resource [request]
   (try
@@ -47,7 +64,7 @@
                       (:id (:authenticated-entity request)))
           auth (convert-to-map (:authenticated-entity request))
           user-details (get-one tx (:target-user-id request) user-id)
-          pools (jdbc/execute! tx (get-pools-access-rights-of-user-query true user-id))]
+          pools (get-pools-for-profile tx user-id)]
       (response {:navigation (snake-case-keys (get-navigation tx auth))
                  :available_inventory_pools pools
                  :user_details (snake-case-keys user-details)

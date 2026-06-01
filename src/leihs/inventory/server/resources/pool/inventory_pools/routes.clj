@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.resources.pool.inventory-pools.routes
   (:require
    [clojure.set]
+   [leihs.inventory.server.middlewares.authorize.main :refer [READONLY-ROLES]]
    [leihs.inventory.server.resources.pool.inventory-pools.main :as inventory-pools]
    [leihs.inventory.server.resources.pool.inventory-pools.types :refer [get-response]]
    [reitit.coercion.schema]
@@ -10,7 +11,8 @@
 
 (defn routes []
   ["/inventory-pools/"
-   {:get {:accept "application/json"
+   {:get {:extra-roles READONLY-ROLES
+          :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}

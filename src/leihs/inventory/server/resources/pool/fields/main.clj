@@ -141,6 +141,7 @@
   [:in
    [:raw "fields.data->'permissions'->>'role'"]
    (case min-req-role
+     :group_manager ["lending_manager"]
      :lending_manager ["lending_manager"]
      :inventory_manager ["lending_manager" "inventory_manager"])])
 

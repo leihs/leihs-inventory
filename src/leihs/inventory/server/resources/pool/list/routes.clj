@@ -1,5 +1,6 @@
 (ns leihs.inventory.server.resources.pool.list.routes
   (:require
+   [leihs.inventory.server.middlewares.authorize.main :refer [READONLY-ROLES]]
    [leihs.inventory.server.resources.pool.list.main :as list]
    [leihs.inventory.server.resources.pool.list.types :refer [get-response]]
    [leihs.inventory.server.utils.schema :refer [Date]]
@@ -10,7 +11,8 @@
 
 (defn routes []
   ["/list/"
-   {:get {:accept "application/json"
+   {:get {:extra-roles READONLY-ROLES
+          :accept "application/json"
           :summary "InventoryList-Endpoint with filters for models, software, options and packages"
           :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
           :coercion reitit.coercion.schema/coercion

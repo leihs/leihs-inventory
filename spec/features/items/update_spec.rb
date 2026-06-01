@@ -84,6 +84,7 @@ feature "Update item", type: :feature do
 
   scenario "works" do
     yesterday = Date.today - 1
+    target_date = Date.today
 
     @item = FactoryBot.create(:item,
       inventory_code: inventory_code_old,
@@ -177,8 +178,8 @@ feature "Update item", type: :feature do
 
     click_on "Last Checked"
 
-    today = Date.today
-    find("[data-day='#{today.strftime("%-m/%-d/%Y")}']").click
+    find("[data-day='#{target_date.strftime("%-m/%-d/%Y")}']").click
+    selected_last_check_text = find('button[name="last_check"]').text.strip
 
     fill_in "Responsible person", with: user_name_new
     fill_in "User/Typical usage", with: typical_usage_new
@@ -188,7 +189,8 @@ feature "Update item", type: :feature do
     fill_in "Invoice Number", with: invoice_number_new
 
     click_on "Invoice Date"
-    find("[data-day='#{today.strftime("%-m/%-d/%Y")}']").click
+    find("[data-day='#{target_date.strftime("%-m/%-d/%Y")}']").click
+    selected_invoice_date_text = find('button[name="invoice_date"]').text.strip
 
     fill_in "Initial Price", with: price_new
 
@@ -199,10 +201,12 @@ feature "Update item", type: :feature do
     click_on supplier_new.name
 
     click_on "Warranty expiration"
-    find("[data-day='#{today.strftime("%-m/%-d/%Y")}']").click
+    find("[data-day='#{target_date.strftime("%-m/%-d/%Y")}']").click
+    selected_warranty_date_text = find('button[name="properties_warranty_expiration"]').text.strip
 
     click_on "Contract expiration"
-    find("[data-day='#{today.strftime("%-m/%-d/%Y")}']").click
+    find("[data-day='#{target_date.strftime("%-m/%-d/%Y")}']").click
+    selected_contract_date_text = find('button[name="properties_contract_expiration"]').text.strip
 
     click_on "building_id"
     expect(page).to have_field(placeholder: "Enter search term")
@@ -251,7 +255,7 @@ feature "Update item", type: :feature do
     expect(find('button[name="is_inventory_relevant"]')).to have_text("Yes")
 
     expect(find('button[data-test-id="owner_id"]')).to have_text(pool.name)
-    expect(find('button[name="last_check"]')).to have_text(today.strftime("%Y-%m-%d"))
+    expect(find('button[name="last_check"]')).to have_text(selected_last_check_text)
 
     assert_field "Responsible person", user_name_new
     assert_field "User/Typical usage", typical_usage_new
@@ -260,14 +264,14 @@ feature "Update item", type: :feature do
 
     assert_field "Invoice Number", invoice_number_new
 
-    expect(find('button[name="invoice_date"]')).to have_text(today.strftime("%Y-%m-%d"))
+    expect(find('button[name="invoice_date"]')).to have_text(selected_invoice_date_text)
 
     assert_field "Initial Price", format_price_display(price_new)
 
     expect(find('button[data-test-id="supplier_id"]')).to have_text(supplier_new.name)
 
-    expect(find('button[name="properties_warranty_expiration"]')).to have_text(today.strftime("%Y-%m-%d"))
-    expect(find('button[name="properties_contract_expiration"]')).to have_text(today.strftime("%Y-%m-%d"))
+    expect(find('button[name="properties_warranty_expiration"]')).to have_text(selected_warranty_date_text)
+    expect(find('button[name="properties_contract_expiration"]')).to have_text(selected_contract_date_text)
 
     expect(find('button[data-test-id="building_id"]')).to have_text("general building")
     expect(find('button[data-test-id="room_id"]')).to have_text("general room")
