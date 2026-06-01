@@ -12,8 +12,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [generatePath Link Outlet]]
    [clojure.string :as str]
-   [leihs.core.core :refer [detect]]
-   [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.lib.utils :refer [cj current-pool jc pool-read-only?]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -26,46 +25,51 @@
                          (str/split #"/")
                          last)
         [t] (useTranslation)
-        tabs [{:segment "list"
-               :search "?with_items=true&page=1&size=50"
-               :label (t "pool.models.tabs.inventory_list")}
+        all-tabs [{:segment "list"
+                   :search "?with_items=true&page=1&size=50"
+                   :label (t "pool.models.tabs.inventory_list")}
 
-              {:segment "search-edit"
-               :search ""
-               :label (t "pool.models.tabs.search_edit")}
+                  {:segment "search-edit"
+                   :search ""
+                   :label (t "pool.models.tabs.search_edit")}
 
-              {:segment "scan-edit"
-               :search ""
-               :label (t "pool.models.tabs.scan_edit")}
+                  {:segment "scan-edit"
+                   :search ""
+                   :label (t "pool.models.tabs.scan_edit")}
 
-              {:segment "entitlement-groups"
-               :search ""
-               :label (t "pool.models.tabs.entitlement_groups")}
+                  {:segment "entitlement-groups"
+                   :search ""
+                   :label (t "pool.models.tabs.entitlement_groups")}
 
-              {:segment "templates"
-               :search ""
-               :label (t "pool.models.tabs.templates")}]
+                  {:segment "templates"
+                   :search ""
+                   :label (t "pool.models.tabs.templates")}]
 
         {:keys [profile]} (router/useRouteLoaderData "root")
-        pool (->> profile :available_inventory_pools (detect #(= (:id %) pool-id)))]
+        pool (current-pool pool-id profile)
+        read-only? (pool-read-only? pool)
+        tabs (if read-only?
+               [(first all-tabs)]
+               all-tabs)]
 
     (uix/use-effect
      (fn []
-       (let [on-key-down
-             (fn [e]
-               (when (and (= (.. e -code) "KeyN")
-                          (.-altKey e)
-                          (.-shiftKey e)
-                          (not (.-ctrlKey e))
-                          (not (.-metaKey e)))
-                 (.preventDefault e)
-                 (when ref
-                   (when-let [input-element (.-current ref)]
-                     (.. input-element (click))))))]
+       (when-not read-only?
+         (let [on-key-down
+               (fn [e]
+                 (when (and (= (.. e -code) "KeyN")
+                            (.-altKey e)
+                            (.-shiftKey e)
+                            (not (.-ctrlKey e))
+                            (not (.-metaKey e)))
+                   (.preventDefault e)
+                   (when ref
+                     (when-let [input-element (.-current ref)]
+                       (.. input-element (click))))))]
 
-         (js/window.addEventListener "keydown" on-key-down)
-         (fn [] (js/window.removeEventListener "keydown" on-key-down))))
-     [])
+           (js/window.addEventListener "keydown" on-key-down)
+           (fn [] (js/window.removeEventListener "keydown" on-key-down)))))
+     [read-only?])
 
     ($ :section
        ($ Breadcrumb {:className "my-8"}
@@ -128,73 +132,74 @@
              ($ :div {:className "ml-auto"}
                 (case last-segment
                   "list"
-                  ($ DropdownMenu {:open open?
-                                   :on-open-change set-open!}
-                     ($ DropdownMenuTrigger {:asChild "true"}
-                        ($ Button {:ref ref
-                                   :on-click #(set-open! (not open?))}
-                           ($ CirclePlus {:className "h-4 w-4"})
-                           ($ :span {:class-name "hidden md:inline"}
-                              (t "pool.models.dropdown.title"))))
+                  (when-not read-only?
+                    ($ DropdownMenu {:open open?
+                                     :on-open-change set-open!}
+                       ($ DropdownMenuTrigger {:asChild "true"}
+                          ($ Button {:ref ref
+                                     :on-click #(set-open! (not open?))}
+                             ($ CirclePlus {:className "h-4 w-4"})
+                             ($ :span {:class-name "hidden md:inline"}
+                                (t "pool.models.dropdown.title"))))
 
-                     ($ DropdownMenuContent {:data-test-id "add-inventory-dropdown"
-                                             :align "start"}
+                       ($ DropdownMenuContent {:data-test-id "add-inventory-dropdown"
+                                               :align "start"}
 
-                        ($ DropdownMenuItem {:asChild true}
-                           ($ Link {:state #js {:searchParams (.. location -search)}
-                                    :to (generatePath "/inventory/:pool-id/models/create"
-                                                      (cj {:pool-id pool-id}))
-                                    :viewTransition true}
-                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-slate-500"}
-                                 "M")
-                              (t "pool.models.dropdown.add_model")))
+                          ($ DropdownMenuItem {:asChild true}
+                             ($ Link {:state #js {:searchParams (.. location -search)}
+                                      :to (generatePath "/inventory/:pool-id/models/create"
+                                                        (cj {:pool-id pool-id}))
+                                      :viewTransition true}
+                                ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-slate-500"}
+                                   "M")
+                                (t "pool.models.dropdown.add_model")))
 
-                        ($ DropdownMenuItem {:asChild true}
-                           ($ Link {:state #js {:searchParams (.. location -search)}
-                                    :to (generatePath "/inventory/:pool-id/software/create"
-                                                      (cj {:pool-id pool-id}))
-                                    :viewTransition true}
-                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-orange-500"}
-                                 "S")
-                              (t "pool.models.dropdown.add_software")))
+                          ($ DropdownMenuItem {:asChild true}
+                             ($ Link {:state #js {:searchParams (.. location -search)}
+                                      :to (generatePath "/inventory/:pool-id/software/create"
+                                                        (cj {:pool-id pool-id}))
+                                      :viewTransition true}
+                                ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-orange-500"}
+                                   "S")
+                                (t "pool.models.dropdown.add_software")))
 
-                        ($ DropdownMenuItem {:asChild true}
-                           ($ Link {:state #js {:searchParams (.. location -search)}
-                                    :to (generatePath "/inventory/:pool-id/options/create"
-                                                      (cj {:pool-id pool-id}))
-                                    :viewTransition true}
-                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-emerald-500"}
-                                 "O")
-                              (t "pool.models.dropdown.add_option")))
+                          ($ DropdownMenuItem {:asChild true}
+                             ($ Link {:state #js {:searchParams (.. location -search)}
+                                      :to (generatePath "/inventory/:pool-id/options/create"
+                                                        (cj {:pool-id pool-id}))
+                                      :viewTransition true}
+                                ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-emerald-500"}
+                                   "O")
+                                (t "pool.models.dropdown.add_option")))
 
-                        ($ DropdownMenuSeparator)
+                          ($ DropdownMenuSeparator)
 
-                        ($ DropdownMenuItem {:asChild true}
-                           ($ Link {:state #js {:searchParams (.. location -search)}
-                                    :to (generatePath "/inventory/:pool-id/packages/create"
-                                                      (cj {:pool-id pool-id}))
-                                    :viewTransition true}
-                              ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-lime-500"}
-                                 "P")
-                              (t "pool.models.dropdown.add_package")))
+                          ($ DropdownMenuItem {:asChild true}
+                             ($ Link {:state #js {:searchParams (.. location -search)}
+                                      :to (generatePath "/inventory/:pool-id/packages/create"
+                                                        (cj {:pool-id pool-id}))
+                                      :viewTransition true}
+                                ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-lime-500"}
+                                   "P")
+                                (t "pool.models.dropdown.add_package")))
 
-                        ($ DropdownMenuItem {:asChild true}
-                           ($ Link {:state #js {:searchParams (.. location -search)}
-                                    :to (generatePath "/inventory/:pool-id/items/create"
-                                                      (cj {:pool-id pool-id}))
-                                    :viewTransition true}
-                              ($ Badge {:className "w-6 h-5 justify-center bg-blue-500"}
-                                 (t "pool.models.list.item.badge"))
-                              (t "pool.models.dropdown.add_item")))
+                          ($ DropdownMenuItem {:asChild true}
+                             ($ Link {:state #js {:searchParams (.. location -search)}
+                                      :to (generatePath "/inventory/:pool-id/items/create"
+                                                        (cj {:pool-id pool-id}))
+                                      :viewTransition true}
+                                ($ Badge {:className "w-6 h-5 justify-center bg-blue-500"}
+                                   (t "pool.models.list.item.badge"))
+                                (t "pool.models.dropdown.add_item")))
 
-                        ($ DropdownMenuItem {:asChild true}
-                           ($ Link {:state #js {:searchParams (.. location -search)}
-                                    :to (generatePath "/inventory/:pool-id/licenses/create"
-                                                      (cj {:pool-id pool-id}))
-                                    :viewTransition true}
-                              ($ Badge {:className "w-6 h-5 justify-center bg-yellow-500"}
-                                 "L")
-                              (t "pool.models.dropdown.add_license")))))
+                          ($ DropdownMenuItem {:asChild true}
+                             ($ Link {:state #js {:searchParams (.. location -search)}
+                                      :to (generatePath "/inventory/:pool-id/licenses/create"
+                                                        (cj {:pool-id pool-id}))
+                                      :viewTransition true}
+                                ($ Badge {:className "w-6 h-5 justify-center bg-yellow-500"}
+                                   "L")
+                                (t "pool.models.dropdown.add_license"))))))
 
                   "entitlement-groups"
                   ($ Button {:asChild true}

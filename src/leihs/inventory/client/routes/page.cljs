@@ -2,6 +2,7 @@
   (:require
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
+   [leihs.inventory.client.lib.utils :refer [pool-read-only?]]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
 
@@ -21,6 +22,9 @@
           (for [pool pools]
             ($ :li {:key (:id pool)}
                ($ Link {:class-name "underline"
-                        :to (str (:id pool))}
+                        :to (str (:id pool))
+                        :style (when (pool-read-only? pool)
+                                 #js {:fontStyle "oblique"
+                                      :color "gray"})}
                   (:name pool))))))))
 

@@ -11,8 +11,10 @@
    ["react-router-dom" :as router :refer [Link]]
 
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
+   [leihs.inventory.client.lib.utils :refer [current-pool pool-read-only?]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-info :refer [ItemInfo]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.table.list-edit-actions :refer [EditActionsPlaceholder]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [item type isPackageItem]
@@ -20,7 +22,11 @@
 
   (let [location (router/useLocation)
         [t] (useTranslation)
-        ref (uix/use-ref nil)]
+        ref (uix/use-ref nil)
+        {:keys [profile]} (router/useRouteLoaderData "root")
+        pool-id (aget (router/useParams) "pool-id")
+        pool (current-pool pool-id profile)
+        read-only? (pool-read-only? pool)]
 
     ($ TableRow {:ref ref
                  :key (-> item :id)
@@ -59,49 +65,51 @@
           ($ ItemStatus {:item item}))
 
        ($ TableCell {:className "fit-content"}
-          ($ ButtonGroup
-             ($ Button {:variant "outline"
-                        :asChild true}
-                ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (case type
-                               "Software"
-                               (str "../licenses/" (:id item))
+          (if read-only?
+            ($ EditActionsPlaceholder)
+            ($ ButtonGroup
+               ($ Button {:variant "outline"
+                          :asChild true}
+                  ($ Link {:state #js {:searchParams (.. location -search)}
+                           :to (case type
+                                 "Software"
+                                 (str "../licenses/" (:id item))
 
-                               "Package"
-                               (if isPackageItem
-                                 (str "../items/" (:id item))
-                                 (str "../packages/" (:id item)))
+                                 "Package"
+                                 (if isPackageItem
+                                   (str "../items/" (:id item))
+                                   (str "../packages/" (:id item)))
 
-                               (str "../items/" (:id item)))
-                         :viewTransition true}
+                                 (str "../items/" (:id item)))
+                           :viewTransition true}
 
-                   (t "pool.models.list.actions.edit")))
+                     (t "pool.models.list.actions.edit")))
 
-             ($ DropdownMenu
-                ($ DropdownMenuTrigger {:asChild true}
-                   ($ Button {:data-test-id "edit-dropdown"
-                              :class-name ""
-                              :variant "outline"
-                              :size "icon"}
-                      ($ ChevronDown {:className "w-4 h-4"})))
-                ($ DropdownMenuContent {:align "start"}
-                   ($ DropdownMenuItem
-                      (case type
-                        "Software"
-                        ($ Link {:to (str "../licenses/create?fromItem=" (:id item))
-                                 :state #js {:searchParams (.. location -search)}
-                                 :viewTransition true}
-                           (t "pool.models.list.actions.copy_license"))
+               ($ DropdownMenu
+                  ($ DropdownMenuTrigger {:asChild true}
+                     ($ Button {:data-test-id "edit-dropdown"
+                                :class-name ""
+                                :variant "outline"
+                                :size "icon"}
+                        ($ ChevronDown {:className "w-4 h-4"})))
+                  ($ DropdownMenuContent {:align "start"}
+                     ($ DropdownMenuItem
+                        (case type
+                          "Software"
+                          ($ Link {:to (str "../licenses/create?fromItem=" (:id item))
+                                   :state #js {:searchParams (.. location -search)}
+                                   :viewTransition true}
+                             (t "pool.models.list.actions.copy_license"))
 
-                        ($ Link {:to (str "../items/create?fromItem=" (:id item))
-                                 :state #js {:searchParams (.. location -search)}
-                                 :viewTransition true}
-                           (t "pool.models.list.actions.copy_item")))
+                          ($ Link {:to (str "../items/create?fromItem=" (:id item))
+                                   :state #js {:searchParams (.. location -search)}
+                                   :viewTransition true}
+                             (t "pool.models.list.actions.copy_item")))
 
-                      #_($ Link {:to (str "../items/create?fromItem=" (:id item))
-                                 :state #js {:searchParams (.. location -search)}
-                                 :viewTransition true}
-                           (t "pool.models.list.actions.copy_item"))))))))))
+                        #_($ Link {:to (str "../items/create?fromItem=" (:id item))
+                                   :state #js {:searchParams (.. location -search)}
+                                   :viewTransition true}
+                             (t "pool.models.list.actions.copy_item")))))))))))
 
 (def ItemRow
   (uix/as-react

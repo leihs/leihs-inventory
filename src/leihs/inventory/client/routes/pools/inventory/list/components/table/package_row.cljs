@@ -13,11 +13,12 @@
    [clojure.string :as str]
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.lib.utils :refer [cj current-pool jc pool-read-only?]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.expandable-row :refer [ExpandableRow]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-info :refer [ItemInfo]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-row :refer [ItemRow]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.table.list-edit-actions :refer [EditActionsPlaceholder]]
    [uix.core :as uix :refer [$ defui]]))
 
 (def fields ["id" "is_package" "is_borrowable" "is_broken" "retired"
@@ -30,6 +31,9 @@
         [t] (useTranslation)
         params (router/useParams)
         pool-id (aget params "pool-id")
+        {:keys [profile]} (router/useRouteLoaderData "root")
+        pool (current-pool pool-id profile)
+        read-only? (pool-read-only? pool)
         [search-params _] (router/useSearchParams)
         [result set-result!] (uix/use-state nil)
 
@@ -94,27 +98,29 @@
           ($ ItemStatus {:item package}))
 
        ($ TableCell {:className "fit-content"}
-          ($ ButtonGroup
-             ($ Button {:variant "outline"
-                        :asChild true}
-                ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (str "../packages/" (:id package))
-                         :viewTransition true}
-                   (t "pool.models.list.actions.edit")))
+          (if read-only?
+            ($ EditActionsPlaceholder)
+            ($ ButtonGroup
+               ($ Button {:variant "outline"
+                          :asChild true}
+                  ($ Link {:state #js {:searchParams (.. location -search)}
+                           :to (str "../packages/" (:id package))
+                           :viewTransition true}
+                     (t "pool.models.list.actions.edit")))
 
-             ($ DropdownMenu
-                ($ DropdownMenuTrigger {:asChild true}
-                   ($ Button {:data-test-id "edit-dropdown"
-                              :class-name ""
-                              :variant "outline"
-                              :size "icon"}
-                      ($ ChevronDown {:className "w-4 h-4"})))
-                ($ DropdownMenuContent {:align "start"}
-                   ($ DropdownMenuItem
-                      ($ Link {:to (str (:id package) "/items/create")
-                               :state #js {:searchParams (.. location -search)}
-                               :viewTransition true}
-                         (t "pool.models.list.actions.add_item"))))))))))
+               ($ DropdownMenu
+                  ($ DropdownMenuTrigger {:asChild true}
+                     ($ Button {:data-test-id "edit-dropdown"
+                                :class-name ""
+                                :variant "outline"
+                                :size "icon"}
+                        ($ ChevronDown {:className "w-4 h-4"})))
+                  ($ DropdownMenuContent {:align "start"}
+                     ($ DropdownMenuItem
+                        ($ Link {:to (str (:id package) "/items/create")
+                                 :state #js {:searchParams (.. location -search)}
+                                 :viewTransition true}
+                           (t "pool.models.list.actions.add_item")))))))))))
 
 (def PackageRow
   (uix/as-react
