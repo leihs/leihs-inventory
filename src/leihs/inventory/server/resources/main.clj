@@ -10,7 +10,7 @@
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
    [leihs.core.sign-out.back :as so]
    [leihs.inventory.server.constants :refer [INVENTORY_VIEW_PATH]]
-   [leihs.inventory.server.resources.profile.main :refer [get-pools-access-rights-of-user-query]]
+   [leihs.inventory.server.resources.profile.main :refer [get-pools-for-profile]]
    [leihs.inventory.server.utils.response :refer [add-csrf-tags]]
    [leihs.inventory.server.utils.transform :refer [convert-to-map]]
    [next.jdbc :as jdbc]
@@ -86,7 +86,7 @@
                                                          (sql/where [:= :token_hash token-hash])
                                                          sql-format))
                 form-params (convert-to-map (:form-params req))
-                pools (jdbc/execute! tx (get-pools-access-rights-of-user-query true user_id))
+                pools (get-pools-for-profile tx user_id)
                 return-to-param (:return-to form-params)
                 return-to (if (and return-to-param (not (str/blank? return-to-param)))
                             return-to-param

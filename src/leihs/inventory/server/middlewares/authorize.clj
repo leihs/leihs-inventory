@@ -1,5 +1,6 @@
 (ns leihs.inventory.server.middlewares.authorize
   (:require
+   [clojure.set :as set]
    [clojure.string :as str]
    [leihs.inventory.server.middlewares.authorize.main :refer [authorized-role-for-pool
                                                               AUTHORIZED-ROLES]]
@@ -58,7 +59,10 @@
 
       (if public?
         (handler request)
-        (let [role (authorized-role-for-pool request pool-id)]
-          (if (contains? AUTHORIZED-ROLES role)
+        (let [role (authorized-role-for-pool request pool-id)
+              allowed-roles (if-let [extra (:authorized-roles route-data)]
+                              (set/union AUTHORIZED-ROLES extra)
+                              AUTHORIZED-ROLES)]
+          (if (contains? allowed-roles role)
             (handler (assoc-in request [:authenticated-entity :role] role))
             (unauthorized-response request)))))))
