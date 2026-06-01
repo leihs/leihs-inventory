@@ -440,6 +440,7 @@
         },
         "actions": {
           "edit": "edit",
+          "timeline": "Timeline",
           "add_item": "Add Item",
           "copy_item": "Duplicate item",
           "add_license": "Add license",

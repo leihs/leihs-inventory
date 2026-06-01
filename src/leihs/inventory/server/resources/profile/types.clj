@@ -19,7 +19,8 @@
 
 (s/defschema inventory-pool-schema
   {:id s/Uuid
-   :name s/Str})
+   :name s/Str
+   :permission (s/enum "read" "edit")})
 
 (s/defschema language-schema
   {:name s/Str
