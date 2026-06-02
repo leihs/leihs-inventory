@@ -1,6 +1,7 @@
 (ns leihs.inventory.client.loader
   (:require
    ["react-router-dom" :as router]
+   [clojure.edn :as edn]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [jc cj]]
    [promesa.core :as p]))
@@ -100,12 +101,13 @@
 (defn search-edit-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
         search-params (.-searchParams url)
-        filter (.get search-params "filter_d")
+        filter (.get search-params "filter_q")
         page (or (.get search-params "page") "1")
         size (or (.get search-params "size") "50")]
+
     (p/let [params (.. ^js route-data -params)
             pool-id (aget params "pool-id")
-            parsed-filter (when filter (jc (js/JSON.parse filter)))
+            parsed-filter (when filter (jc (edn/read-string filter)))
 
             query (js/encodeURIComponent parsed-filter)
 

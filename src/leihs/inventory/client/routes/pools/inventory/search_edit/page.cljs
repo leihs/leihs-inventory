@@ -11,6 +11,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useLoaderData useParams useSearchParams]]
    ["sonner" :refer [toast]]
+   [clojure.edn :as edn]
    [clojure.string :as str]
    [leihs.inventory.client.components.export :refer [Export]]
    [leihs.inventory.client.components.pagination :as pagination]
@@ -18,7 +19,7 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
    [leihs.inventory.client.lib.hooks :as hooks]
-   [leihs.inventory.client.lib.utils :refer [jc]]
+   [leihs.inventory.client.lib.utils :refer [jc cj]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.edit-dialog :refer [EditDialog]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.and-filters :refer [AndFilters]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.or-filters :refer [OrFilters]]
@@ -41,10 +42,11 @@
   (let [[t] (useTranslation)
         {:keys [data items]} (useLoaderData)
         [search-params set-search-params!] (useSearchParams)
-        query (jc (js/JSON.parse (.get search-params "filter_d")))
+        query (jc (edn/read-string (.get search-params "filter_q")))
 
         form-ref (uix/use-ref nil)
-        prev-filter-ref (uix/use-ref (js/JSON.stringify (js/JSON.parse (.get search-params "filter_d"))))
+        prev-filter-ref (uix/use-ref
+                         (str (edn/read-string (.get search-params "filter_q"))))
 
         {:keys [pool-id]} (jc (useParams))
         [selected-items set-selected-items!] (uix/use-state #{})
@@ -162,7 +164,7 @@
 
         on-submit (uix/use-callback
                    (fn [data]
-                     (let [next-query (js/JSON.stringify data)
+                     (let [next-query (str (jc data))
                            no-filters? (= (count ^js (.-$or data)) 0)]
 
                        (set-selected-items! #{})
@@ -172,10 +174,10 @@
                          (set-search-params!
                           (fn [search-params]
                             (if no-filters?
-                              (do (.delete search-params "filter_d") search-params)
+                              (do (.delete search-params "filter_q") search-params)
                               (do (.set search-params "page" "1")
                                   (.set search-params "size" "50")
-                                  (.set search-params "filter_d" next-query)
+                                  (.set search-params "filter_q" (str (jc data)))
                                   search-params)))))))
                    [set-search-params!])
 
