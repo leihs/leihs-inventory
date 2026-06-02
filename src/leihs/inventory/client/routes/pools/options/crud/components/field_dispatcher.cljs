@@ -2,10 +2,14 @@
   (:require
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.fields.common-field :refer [CommonField]]
+   [leihs.inventory.client.components.form.fields.price-field :refer [PriceField]]
    [uix.core :refer [$ defui]]))
 
 (defui FieldDispatcher [{:keys [form block]}]
   (let [[t] (useTranslation)
         translated-block (if (:label block) (update block :label t) block)]
-    ($ CommonField {:form form
-                    :block translated-block})))
+    (if (= (:component block) "price-input")
+      ($ PriceField {:form form
+                     :block translated-block})
+      ($ CommonField {:form form
+                      :block translated-block}))))

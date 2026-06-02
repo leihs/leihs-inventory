@@ -40,9 +40,8 @@ export const structure = [
       {
         name: "price",
         label: "pool.option.option.blocks.price.label",
-        component: "input",
+        component: "price-input",
         props: {
-          type: "number",
           "auto-complete": "off",
         },
       },

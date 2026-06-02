@@ -10,6 +10,7 @@
    [leihs.inventory.client.components.form.fields.checkbox-group-field :refer [CheckboxGroupField]]
    [leihs.inventory.client.components.form.fields.common-field :refer [CommonField]]
    [leihs.inventory.client.components.form.fields.composite-field :refer [CompositeField]]
+   [leihs.inventory.client.components.form.fields.price-field :refer [PriceField]]
    [leihs.inventory.client.components.form.fields.radio-group-field :refer [RadioGroupField]]
    [leihs.inventory.client.components.form.fields.select-field :refer [SelectField]]
    [leihs.inventory.client.provider.visibility-provider :refer [use-field-visibility]]
@@ -118,6 +119,10 @@
               (-> block :component (= "calendar"))
               ($ CalendarField {:form form
                                 :block translated-block})
+
+              (-> block :component (= "price-input"))
+              ($ PriceField {:form form
+                             :block translated-block})
 
               ;; default case - renders a component from the component map
               :else

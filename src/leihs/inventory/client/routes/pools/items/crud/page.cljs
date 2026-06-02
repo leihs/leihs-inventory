@@ -142,6 +142,11 @@
                                            {:props {:disabled true}
                                             :disabled-reason :owner-locked})
 
+                       ;; Use locale-aware price formatting
+                       true
+                       (dynamic-form/patch "price"
+                                           {:component "price-input"})
+
                        ;; Licenses: bypass i18n for certain fields
                        (and (= entity :license) (not is-loading))
                        (-> (dynamic-form/patch "properties_maintenance_currency"
