@@ -27,10 +27,10 @@
     {:operator "$eq"}
     "textarea"
     {:operator "$ilike"}
+    "price-input"
+    {:operator "$eq"}
     "input"
-    (if (= (:name block) "price")
-      {:operator "$eq"}
-      {:operator "$ilike"})
+    {:operator "$ilike"}
     "autocomplete"
     {:operator "$eq"}
     "autocomplete-search"

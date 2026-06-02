@@ -13,7 +13,7 @@
                                            :maximumFractionDigits 2})
                n))))
 
-(defui ^:private PriceInput [{:keys [field block language]}]
+(defui ^:private PriceInput [{:keys [field block language class-name]}]
   (let [raw-value (.-value field)
         [display-val set-display-val!] (uix/use-state
                                         (or (format-price raw-value language)
@@ -26,7 +26,7 @@
        (set-display-val! (or (format-price raw-value language) (str raw-value) "")))
      [raw-value language])
 
-    ($ FormItem {:class-name "mt-6"}
+    ($ FormItem {:class-name (str "mt-6 " class-name)}
        (when (:label block)
          ($ FormLabel (:label block)
             (when (-> block :props :required) "*")))
@@ -49,11 +49,12 @@
                      :ref ^js (.-ref field)})))
        ($ FormMessage))))
 
-(defui PriceField [{:keys [form block]}]
+(defui PriceField [{:keys [form block class-name]}]
   (let [[_ i18n] (useTranslation)
         language (.-language i18n)]
     ($ FormField {:control (.-control form)
                   :name (:name block)
                   :render #($ PriceInput {:field (aget % "field")
                                           :block block
-                                          :language language})})))
+                                          :language language
+                                          :class-name class-name})})))

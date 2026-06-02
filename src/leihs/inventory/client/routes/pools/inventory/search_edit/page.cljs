@@ -54,7 +54,8 @@
         [edit-loading? set-edit-loading!] (uix/use-state false)
         [protected-fields set-protected-fields!] (uix/use-state #{})
         fields (:fields data)
-        structure (dynamic-form/fields->structure fields {:group-order groups})
+        structure (-> (dynamic-form/fields->structure fields {:group-order groups})
+                      (dynamic-form/patch "price" {:component "price-input"}))
         defaults (dynamic-form/fields->defaults fields)
 
         item-list (:data items)
@@ -70,7 +71,8 @@
                     (map #(merge {:value (case (:component %)
                                            "autocomplete" nil
                                            "autocomplete-search" nil
-                                           "input" (if (= (:name %) "price") 0 "")
+                                           "price-input" ""
+                                           "input" ""
                                            "calendar" (js/Date.)
                                            ((keyword (:name %)) defaults))}
                                  %))
@@ -87,10 +89,10 @@
                                    {:allowed-operators ["$eq"]}
                                    "textarea"
                                    {:allowed-operators ["$ilike"]}
+                                   "price-input"
+                                   {:allowed-operators ["$eq" "$gte" "$lte"]}
                                    "input"
-                                   (if (= (:name %) "price")
-                                     {:allowed-operators ["$eq" "$gte" "$lte"]}
-                                     {:allowed-operators ["$ilike"]})
+                                   {:allowed-operators ["$ilike"]}
                                    "autocomplete"
                                    {:allowed-operators ["$eq"]}
                                    "autocomplete-search"
