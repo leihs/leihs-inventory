@@ -72,7 +72,7 @@
                         :block block
                         :class-name "mt-0 flex-1"})
 
-      (-> block :component (= "price-input"))
+      (-> block :component (= "price"))
       ($ PriceField {:form form
                      :block block
                      :class-name "mt-0 flex-1"})

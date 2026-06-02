@@ -120,7 +120,7 @@
               ($ CalendarField {:form form
                                 :block translated-block})
 
-              (-> block :component (= "price-input"))
+              (-> block :component (= "price"))
               ($ PriceField {:form form
                              :block translated-block})
 

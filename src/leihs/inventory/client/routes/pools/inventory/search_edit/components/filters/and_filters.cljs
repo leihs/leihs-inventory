@@ -27,7 +27,7 @@
     {:operator "$eq"}
     "textarea"
     {:operator "$ilike"}
-    "price-input"
+    "price"
     {:operator "$eq"}
     "input"
     {:operator "$ilike"}

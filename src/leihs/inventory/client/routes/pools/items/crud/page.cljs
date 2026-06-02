@@ -145,7 +145,7 @@
                        ;; Use locale-aware price formatting
                        true
                        (dynamic-form/patch "price"
-                                           {:component "price-input"})
+                                           {:component "price"})
 
                        ;; Licenses: bypass i18n for certain fields
                        (and (= entity :license) (not is-loading))

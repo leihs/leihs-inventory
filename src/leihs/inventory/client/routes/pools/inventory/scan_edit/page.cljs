@@ -35,7 +35,7 @@
         resetField (aget form "resetField")
         fields (:fields data)
         structure (-> (dynamic-form/fields->structure fields)
-                      (dynamic-form/patch "price" {:component "price-input"}))
+                      (dynamic-form/patch "price" {:component "price"}))
         blocks (uix/use-memo
                 (fn []
                   (->> structure

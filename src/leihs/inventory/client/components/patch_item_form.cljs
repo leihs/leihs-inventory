@@ -65,7 +65,7 @@
                                   (assoc :value (case (:component block)
                                                   "textarea" ""
                                                   "input" ""
-                                                  "price-input" ""
+                                                  "price" ""
                                                   nil))))
         form (hook-form/useForm
               #js {:resolver (zodResolver edit-dialog-schema)
