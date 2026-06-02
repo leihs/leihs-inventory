@@ -61,7 +61,6 @@
                           "text/csv")
           method (aget action "request" "method")]
 
-    (js/console.debug (js/decodeURIComponent url))
     (case method
       "POST"
       (-> http-client

@@ -125,6 +125,11 @@
                  :label (:label v)
                  :is_active (:is_active v)}
 
+                (contains? v :code)
+                {:value (str (:value v))
+                 :label (:name v)
+                 :code (:code v)}
+
                 (contains? v :value)
                 {:value (str (:value v))
                  :label (:label v)}

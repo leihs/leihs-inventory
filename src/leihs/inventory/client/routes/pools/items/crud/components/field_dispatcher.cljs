@@ -35,10 +35,20 @@
         label-inactive (fn [props]
                          (let [without-options (dissoc props :options)
                                text (t "pool.items.item.fields.inactive")
-                               annotated (map #(if (and (boolean? (:is_active %))
-                                                        (false? (:is_active %)))
-                                                 (assoc % :label (str (:label %) " ( " text " )"))
-                                                 %)
+                               annotated (map (fn [item]
+                                                (let [label (cond-> (or (:label item)
+                                                                        (:name item)
+                                                                        "")
+                                                              (:code item)
+                                                              (str (:name item) " (" (:code item) ")")
+
+                                                              (:description item)
+                                                              (str (:name item) " (" (:description item) ")")
+
+                                                              (and (boolean? (:is_active item))
+                                                                   (false? (:is_active item)))
+                                                              (str " (" text ")"))]
+                                                  (assoc item :label label)))
                                               (-> props :options))]
                            (assoc without-options :options annotated)))]
 
@@ -84,7 +94,8 @@
                                                     (let [values-url (-> block :props :values-url)
                                                           dep (:field values-dependency)]
                                                       {:remap (fn [item] {:value (str (:id item))
-                                                                          :label (str (:name item))})
+                                                                          :label (str (:name item) (when (:description item)
+                                                                                                     (str " (" (:description item) ")")))})
                                                        :values-url (str values-url "?" dep "=" (.-value watched-dependency-value))})
                                                     (label-inactive (:props translated-block))))})
 
