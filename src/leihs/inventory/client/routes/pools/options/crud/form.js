@@ -4,7 +4,7 @@ export const schema = z.object({
   product: z.string().min(1),
   inventory_code: z.string().min(1),
   version: z.string().optional(),
-  price: z.coerce.number().min(0),
+  price: z.coerce.number().lt(1000000).gt(-1000000).multipleOf(0.01),
 })
 
 export const structure = [
