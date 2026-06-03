@@ -14,6 +14,8 @@
 
 (def Date java.time.LocalDate)
 
+(def Price (s/constrained s/Num #(< -1000000 % 1000000) 'price-in-range))
+
 (defn instant-to-date-string [date]
   (when date
     (if (instance? LocalDate date)
