@@ -57,6 +57,10 @@ feature "Items Export", type: :feature do
     visit search_edit_url(pool.id)
 
     click_on "Add filters to start your search."
+    click_on "Select field"
+    within find('[data-test-id="field-options"]') do
+      find("span", text: "Inventory Code").click
+    end
     expect(page).to have_selector('[data-test-id="export-button"]', wait: 10)
 
     within('[data-test-id="export-button"]') do
@@ -69,6 +73,10 @@ feature "Items Export", type: :feature do
     visit search_edit_url(pool.id)
 
     click_on "Add filters to start your search."
+    click_on "Select field"
+    within find('[data-test-id="field-options"]') do
+      find("span", text: "Inventory Code").click
+    end
     expect(page).to have_selector('[data-test-id="export-button"]', wait: 10)
 
     find('[data-test-id="export-button"]').click
@@ -96,6 +104,10 @@ feature "Items Export", type: :feature do
     visit search_edit_url(pool.id)
 
     click_on "Add filters to start your search."
+    click_on "Select field"
+    within find('[data-test-id="field-options"]') do
+      find("span", text: "Inventory Code").click
+    end
     # Wait for the results table to appear
     expect(page).to have_selector("table tbody tr", wait: 10)
 
@@ -129,6 +141,10 @@ feature "Items Export", type: :feature do
     visit search_edit_url(pool.id)
 
     click_on "Add filters to start your search."
+    click_on "Select field"
+    within find('[data-test-id="field-options"]') do
+      find("span", text: "Inventory Code").click
+    end
     expect(page).to have_selector('[data-test-id="export-button"]', wait: 10)
 
     find('[data-test-id="export-button"]').click
