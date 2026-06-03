@@ -2,6 +2,7 @@
   (:require
    [clojure.set]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.list.search :as list-search]
    [ring.middleware.accept]
    [taoensso.timbre :as timbre :refer [debug spy]]))
 
@@ -65,3 +66,31 @@
         (sql/where [:= :items.is_broken broken]))
       (cond-> (boolean? incomplete)
         (sql/where [:= :items.is_incomplete incomplete]))))
+
+(defn filtered-items-subquery
+  "Correlated subquery of item ids for list export — same filters/search as GET /items/."
+  [pool-id {:keys [search inventory_pool_id owned in_stock before_last_check
+                   retired borrowable broken incomplete]}]
+  (-> (sql/select :items.id)
+      (sql/from :items)
+      (sql/where [:= :items.model_id :inventory.id])
+      (sql/where (owner-or-responsible-cond pool-id))
+      (item-query-params pool-id
+                         :inventory_pool_id inventory_pool_id
+                         :owned owned
+                         :in_stock in_stock
+                         :before_last_check before_last_check
+                         :retired retired
+                         :borrowable borrowable
+                         :broken broken
+                         :incomplete incomplete)
+      (cond-> search
+        (list-search/with-search search :inventory))))
+
+(defn items-join-conditions
+  [pool-id with-items? item-opts]
+  (if (and with-items? item-opts)
+    [:and [:= :inventory.id :items.model_id]
+     [:in :items.id (filtered-items-subquery pool-id item-opts)]]
+    [:and [:= :inventory.id :items.model_id]
+     (owner-or-responsible-cond pool-id)]))

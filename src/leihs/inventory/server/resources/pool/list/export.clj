@@ -149,11 +149,18 @@
                               #uuid "8bd16d45-056d-5590-bc7f-12849f034351")
   (sql-format (property-field-select "ampere" "properties_ampere")))
 
-(defn sql-prepare [tx query pool-id]
+(defn sql-prepare
+  [tx query pool-id {:keys [with_items item-opts]}]
   (let [property-fields (get-active-property-fields tx pool-id)
         property-selects (map (fn [{:keys [id key]}]
                                 (property-field-select key id))
-                              property-fields)]
+                              property-fields)
+        items-join-cond (items-shared/items-join-conditions pool-id
+                                                            (true? with_items)
+                                                            item-opts)
+        join-items (if (true? with_items)
+                     #(sql/join % :items items-join-cond)
+                     #(sql/left-join % :items items-join-cond))]
     (-> query
         (dissoc :select)
         (#(apply sql/select %
@@ -164,8 +171,7 @@
                          timestamps)))
         (sql/left-join :models [:and [:= :inventory.id :models.id]])
         (sql/left-join :options [:and [:= :inventory.id :options.id]])
-        (sql/left-join :items [:and [:= :inventory.id :items.model_id]
-                               (items-shared/owner-or-responsible-cond pool-id)])
+        (join-items)
         (sql/left-join :reservations [:and
                                       [:= :items.id :reservations.item_id]
                                       [:= :reservations.status "signed"]
