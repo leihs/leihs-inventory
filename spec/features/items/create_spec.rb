@@ -171,7 +171,7 @@ feature "Create item", type: :feature do
 
     expect(find('button[name="invoice_date"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
 
-    assert_field "Initial Price", price
+    assert_field "Initial Price", format_price_display(price)
 
     expect(find('button[data-test-id="supplier_id"]')).to have_text(supplier.name)
 

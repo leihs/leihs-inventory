@@ -175,7 +175,7 @@ feature "Create package", type: :feature do
 
     assert_field "Shelf", shelf
 
-    assert_field "Initial Price", price
+    assert_field "Initial Price", format_price_display(price)
   end
 
   scenario "fails with invalid mandatory fields" do

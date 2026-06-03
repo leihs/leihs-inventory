@@ -23,6 +23,12 @@ def assert_field(label, value)
   expect(find_field(label, wait: 10).value).to eq value
 end
 
+def format_price_display(price)
+  integer_part, decimal_part = price.to_s.split(".")
+  formatted_integer = integer_part.reverse.scan(/.{1,3}/).join(",").reverse
+  decimal_part ? "#{formatted_integer}.#{decimal_part}" : formatted_integer
+end
+
 def assert_button(name, value)
   button = find("button[name='#{name}']", wait: 10)
   expect(button).to have_text(value)
