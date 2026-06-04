@@ -1,4 +1,5 @@
 {
+  "limit_result": "results are limited to {{count}} items",
   "OK": "OK",
   "Yes": "Yes",
   "No": "No",

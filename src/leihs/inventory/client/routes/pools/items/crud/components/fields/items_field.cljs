@@ -18,6 +18,7 @@
                                                                     use-array-items
                                                                     use-array-item]]
    [leihs.inventory.client.components.image-cell :refer [ImageCell]]
+   [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client safe-query]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -115,10 +116,11 @@
                        (set-loading! true)
                        (-> http-client
                            (.get (safe-query (str path "/") {:search_term debounced-search
-                                                             :for_package true})
+                                                             :for_package true
+                                                             :size 300})
                                  #js {:cache false})
                            (.then (fn [response]
-                                    (let [result (jc (.-data response))]
+                                    (let [result (jc (.. response -data -data))]
                                       (set-loading! false)
                                       (set-data! result))))
                            (.catch
@@ -170,6 +172,10 @@
                                   (empty? data)
                                   (t (-> props :text :not_found))))
 
+                (when (= (count data) 300)
+                  ($ Typo {:variant "caption"
+                           :class-name "absolute z-50 right-0 bottom-0 p-2"}
+                     (t "limit_result" #js {:count 300})))
                 (for [element data]
                   ($ Tooltip {:key (:id element)
                               :open (= (:id selected)

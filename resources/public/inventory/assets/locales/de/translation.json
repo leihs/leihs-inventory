@@ -1,4 +1,5 @@
 {
+  "limit_result": "Resultat limitiert auf {{count}} Einträge",
   "OK": "OK",
   "Yes": "Ja",
   "No": "Nein",

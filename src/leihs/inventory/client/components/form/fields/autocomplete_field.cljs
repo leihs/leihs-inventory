@@ -9,6 +9,7 @@
    ["lucide-react" :refer [Check ChevronsUpDown FilePlusCorner]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client safe-concat]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -83,9 +84,9 @@
          (let [fetch (fn []
                        (set-loading! true)
                        (-> http-client
-                           (.get (safe-concat values-url debounced-search))
+                           (.get (str (safe-concat values-url debounced-search) "&size=300"))
                            (.then (fn [response]
-                                    (let [data (jc (.. response -data))]
+                                    (let [data (jc (.. response -data -data))]
                                       (if remap
                                         (set-options! (map remap data))
                                         (set-options! data))
@@ -181,6 +182,10 @@
                                      ($ CommandSeparator {:alwaysRender true})))
 
                                 ;; options
+                                (when (= (count options) 300)
+                                  ($ Typo {:variant "caption"
+                                           :class-name "absolute z-50 right-0 bottom-0 p-2"}
+                                     (t "limit_result" #js {:count 300})))
                                 (for [option options]
                                   ($ CommandItem {:value (:value option)
                                                   :onSelect handle-select

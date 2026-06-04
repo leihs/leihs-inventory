@@ -11,6 +11,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    [leihs.inventory.client.components.form.form-field-array :refer [use-array-items]]
+   [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client safe-query]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -115,10 +116,11 @@
          (let [fetch (fn []
                        (set-loading! true)
                        (-> http-client
-                           (.get (safe-query (str path "/") {:search debounced-search})
+                           (.get (safe-query (str path "/") {:search debounced-search
+                                                             :size 300})
                                  #js {:cache false})
                            (.then (fn [response]
-                                    (let [data (jc (.-data response))]
+                                    (let [data (jc (.. response -data -data))]
                                       (set-loading! false)
                                       (set-data! data))))
                            (.catch
@@ -170,6 +172,10 @@
                                   (empty? data)
                                   (t (-> props :text :not_found))))
 
+                (when (= (count data) 300)
+                  ($ Typo {:variant "caption"
+                           :class-name "absolute z-50 right-0 bottom-0 p-2"}
+                     (t "limit_result" #js {:count 300})))
                 (for [element data]
                   ($ Tooltip {:key (:id element)
                               :open (= (:url selected)
