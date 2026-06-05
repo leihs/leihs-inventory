@@ -5,6 +5,44 @@
    [leihs.inventory.server.resources.pool.items.shared :as items-shared]
    [next.jdbc :as jdbc]))
 
+(defn- categories-aggregation []
+  (-> (sql/select :model_links.model_id
+                  [[:string_agg
+                    [:distinct
+                     [:coalesce :model_group_links.label :model_groups.name]]
+                    "; "]
+                   :categories])
+      (sql/from :model_groups)
+      (sql/join :model_group_links
+                [:= :model_groups.id :model_group_links.child_id])
+      (sql/join :model_links
+                [:= :model_groups.id :model_links.model_group_id])
+      (sql/where [:= :model_groups.type "Category"])
+      (sql/group-by :model_links.model_id)))
+
+(defn- accessories-aggregation []
+  (-> (sql/select :accessories.model_id
+                  [[:string_agg :accessories.name "; "] :accessories])
+      (sql/from :accessories)
+      (sql/group-by :accessories.model_id)))
+
+(defn- compatibles-aggregation []
+  (-> (sql/select :models_compatibles.model_id
+                  [[:string_agg :compatibles.name "; "] :compatibles])
+      (sql/from :models_compatibles)
+      (sql/join [:models :compatibles]
+                [:= :models_compatibles.compatible_id :compatibles.id])
+      (sql/group-by :models_compatibles.model_id)))
+
+(defn- model-properties-aggregation []
+  (-> (sql/select :properties.model_id
+                  [[:string_agg
+                    [:concat_ws ": " :properties.key :properties.value]
+                    "; "]
+                   :properties])
+      (sql/from :properties)
+      (sql/group-by :properties.model_id)))
+
 (def select-model-fields
   [:inventory.product
    :inventory.version
@@ -13,62 +51,17 @@
    :models.technical_detail
    :models.internal_description
    :models.hand_over_note
-
-   ; categories
-   [(-> (sql/select [[:string_agg
-                      [:distinct
-                       [:coalesce :model_group_links.label
-                        :model_groups.name]]
-                      "; "]])
-        (sql/from :model_groups)
-        (sql/join :model_group_links
-                  [:= :model_groups.id :model_group_links.child_id])
-        (sql/join :model_links
-                  [:= :model_groups.id :model_links.model_group_id])
-        (sql/where [:= :model_groups.type "Category"])
-        (sql/where [:= :model_links.model_id :models.id])
-        (sql/group-by :model_links.model_id)) :categories]
-
-   ; accessories
-   [(-> (sql/select [[:string_agg :accessories.name "; "]])
-        (sql/from :accessories)
-        (sql/where [:= :accessories.model_id :models.id])
-        (sql/group-by :accessories.model_id)) :accessories]
-
-   ; models-compatibles
-   [(-> (sql/select [[:string_agg :compatibles.name "; "]])
-        (sql/from :models_compatibles)
-        (sql/join [:models :compatibles]
-                  [:= :models_compatibles.compatible_id :compatibles.id])
-        (sql/where [:= :models_compatibles.model_id :models.id])
-        (sql/group-by :models_compatibles.model_id)) :compatibles]
-
-   ; properties
-   [(-> (sql/select [[:string_agg
-                      [:concat_ws ": " :properties.key
-                       :properties.value]
-                      "; "]])
-        (sql/from :properties)
-        (sql/where [:= :properties.model_id :models.id])
-        (sql/group-by :properties.model_id)) :properties]])
+   :export_categories.categories
+   :export_accessories.accessories
+   :export_compatibles.compatibles
+   :export_model_properties.properties])
 
 (def select-item-fields
   [[[:coalesce :items.inventory_code :inventory.inventory_code] :inventory_code]
    :items.serial_number
-   [(-> (sql/select :suppliers.name)
-        (sql/from :suppliers)
-        (sql/where [:= :suppliers.id :items.supplier_id]))
-    :supplier]
-   [(-> (sql/select :inventory_pools.name)
-        (sql/from :inventory_pools)
-        (sql/where [:= :inventory_pools.id :items.owner_id]))
-    :owner]
-   [(-> (sql/select :inventory_pools.name)
-        (sql/from :inventory_pools)
-        (sql/where [:or
-                    [:= :inventory_pools.id :items.inventory_pool_id]
-                    [:= :inventory_pools.id :inventory.inventory_pool_id]]))
-    :responsible]
+   [:suppliers.name :supplier]
+   [:export_owner_pool.name :owner]
+   [:export_responsible_pool.name :responsible]
    :items.invoice_number
    :items.invoice_date
    :items.last_check
@@ -86,13 +79,8 @@
    :items.name
    :items.user_name
    :items.item_version
-   [(-> (sql/select :buildings.name)
-        (sql/from :buildings)
-        (sql/join :rooms [:= :rooms.building_id :buildings.id])
-        (sql/where [:= :rooms.id :items.room_id])) :building]
-   [(-> (sql/select :rooms.name)
-        (sql/from :rooms)
-        (sql/where [:= :rooms.id :items.room_id])) :room]
+   [:export_buildings.name :building]
+   [:export_rooms.name :room]
    :items.shelf
    [[:coalesce :delegated_users.firstname :users.firstname] :firstname]
    [[:coalesce :delegated_users.lastname :users.lastname] :lastname]
@@ -143,6 +131,29 @@
     "Package-Model"
     :else :inventory.type] :type])
 
+(defn export-aggregation-joins [query]
+  (-> query
+      (sql/left-join [(categories-aggregation) :export_categories]
+                     [:= :export_categories.model_id :models.id])
+      (sql/left-join [(accessories-aggregation) :export_accessories]
+                     [:= :export_accessories.model_id :models.id])
+      (sql/left-join [(compatibles-aggregation) :export_compatibles]
+                     [:= :export_compatibles.model_id :models.id])
+      (sql/left-join [(model-properties-aggregation) :export_model_properties]
+                     [:= :export_model_properties.model_id :models.id])))
+
+(defn export-item-joins [query]
+  (-> query
+      (sql/left-join :suppliers [:= :suppliers.id :items.supplier_id])
+      (sql/left-join [:inventory_pools :export_owner_pool]
+                     [:= :export_owner_pool.id :items.owner_id])
+      (sql/left-join [:inventory_pools :export_responsible_pool]
+                     [:= :export_responsible_pool.id
+                      [:coalesce :items.inventory_pool_id :inventory.inventory_pool_id]])
+      (sql/left-join [:rooms :export_rooms] [:= :export_rooms.id :items.room_id])
+      (sql/left-join [:buildings :export_buildings]
+                     [:= :export_buildings.id :export_rooms.building_id])))
+
 (comment
   (require '[leihs.core.db :as db])
   (get-active-property-fields (db/get-ds)
@@ -163,9 +174,11 @@
                          property-selects
                          timestamps)))
         (sql/left-join :models [:and [:= :inventory.id :models.id]])
+        (export-aggregation-joins)
         (sql/left-join :options [:and [:= :inventory.id :options.id]])
         (sql/left-join :items [:and [:= :inventory.id :items.model_id]
                                (items-shared/owner-or-responsible-cond pool-id)])
+        (export-item-joins)
         (sql/left-join :reservations [:and
                                       [:= :items.id :reservations.item_id]
                                       [:= :reservations.status "signed"]

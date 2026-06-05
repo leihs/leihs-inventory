@@ -88,22 +88,18 @@
 
     (cond
       (and accept-header (re-find (re-pattern ACCEPT-CSV) accept-header))
-      (let [data (-> query
-                     (#(list-export/sql-prepare tx % pool-id))
-                     sql-format
-                     (->> (export/jdbc-execute! tx)))]
-        (export/csv-response data :filename (str EXPORT-FILE-NAME ".csv")))
+      (let [export-sql (-> query
+                           (#(list-export/sql-prepare tx % pool-id))
+                           sql-format)]
+        (export/csv-stream-response tx export-sql
+                                    :filename (str EXPORT-FILE-NAME ".csv")))
 
       (and accept-header (re-find (re-pattern ACCEPT-EXCEL) accept-header))
-      (let [array-data (-> query
+      (let [export-sql (-> query
                            (#(list-export/sql-prepare tx % pool-id))
-                           sql-format
-                           (->> (export/jdbc-execute! tx)))
-            [header & _] array-data
-            data (export/arrays-to-maps array-data)]
-        (export/excel-response data
-                               :keys (map keyword header)
-                               :filename (str EXPORT-FILE-NAME ".xlsx")))
+                           sql-format)]
+        (export/excel-stream-response tx export-sql
+                                      :filename (str EXPORT-FILE-NAME ".xlsx")))
 
       :else
       (let [query-with-models (-> query

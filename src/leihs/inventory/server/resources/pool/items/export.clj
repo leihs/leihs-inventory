@@ -1,8 +1,7 @@
 (ns leihs.inventory.server.resources.pool.items.export
   (:require
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.list.export :refer [get-active-property-fields
-                                                              property-field-select]]))
+   [leihs.inventory.server.resources.pool.list.export :as list-export]))
 
 (def select-model-fields
   [:models.product
@@ -12,60 +11,17 @@
    :models.technical_detail
    :models.internal_description
    :models.hand_over_note
-
-   ;; categories
-   [(-> (sql/select [[:string_agg
-                      [:distinct
-                       [:coalesce :model_group_links.label
-                        :model_groups.name]]
-                      "; "]])
-        (sql/from :model_groups)
-        (sql/join :model_group_links
-                  [:= :model_groups.id :model_group_links.child_id])
-        (sql/join :model_links
-                  [:= :model_groups.id :model_links.model_group_id])
-        (sql/where [:= :model_groups.type "Category"])
-        (sql/where [:= :model_links.model_id :models.id])
-        (sql/group-by :model_links.model_id)) :categories]
-
-   ;; accessories
-   [(-> (sql/select [[:string_agg :accessories.name "; "]])
-        (sql/from :accessories)
-        (sql/where [:= :accessories.model_id :models.id])
-        (sql/group-by :accessories.model_id)) :accessories]
-
-   ;; compatibles
-   [(-> (sql/select [[:string_agg :compatibles.name "; "]])
-        (sql/from :models_compatibles)
-        (sql/join [:models :compatibles]
-                  [:= :models_compatibles.compatible_id :compatibles.id])
-        (sql/where [:= :models_compatibles.model_id :models.id])
-        (sql/group-by :models_compatibles.model_id)) :compatibles]
-
-   ;; model properties
-   [(-> (sql/select [[:string_agg
-                      [:concat_ws ": " :properties.key
-                       :properties.value]
-                      "; "]])
-        (sql/from :properties)
-        (sql/where [:= :properties.model_id :models.id])
-        (sql/group-by :properties.model_id)) :properties]])
+   :export_categories.categories
+   :export_accessories.accessories
+   :export_compatibles.compatibles
+   :export_model_properties.properties])
 
 (def select-item-fields
   [:items.inventory_code
    :items.serial_number
-   [(-> (sql/select :suppliers.name)
-        (sql/from :suppliers)
-        (sql/where [:= :suppliers.id :items.supplier_id]))
-    :supplier]
-   [(-> (sql/select :inventory_pools.name)
-        (sql/from :inventory_pools)
-        (sql/where [:= :inventory_pools.id :items.owner_id]))
-    :owner]
-   [(-> (sql/select :inventory_pools.name)
-        (sql/from :inventory_pools)
-        (sql/where [:= :inventory_pools.id :items.inventory_pool_id]))
-    :responsible]
+   [:suppliers.name :supplier]
+   [:export_owner_pool.name :owner]
+   [:export_responsible_pool.name :responsible]
    :items.invoice_number
    :items.invoice_date
    :items.last_check
@@ -83,23 +39,29 @@
    :items.name
    :items.user_name
    :items.item_version
-   [(-> (sql/select :buildings.name)
-        (sql/from :buildings)
-        (sql/join :rooms [:= :rooms.building_id :buildings.id])
-        (sql/where [:= :rooms.id :items.room_id])) :building]
-   [(-> (sql/select :rooms.name)
-        (sql/from :rooms)
-        (sql/where [:= :rooms.id :items.room_id])) :room]
+   [:export_buildings.name :building]
+   [:export_rooms.name :room]
    :items.shelf])
 
 (def timestamps
   [:items.created_at
    :items.updated_at])
 
+(defn- export-item-joins [query]
+  (-> query
+      (sql/left-join :suppliers [:= :suppliers.id :items.supplier_id])
+      (sql/left-join [:inventory_pools :export_owner_pool]
+                     [:= :export_owner_pool.id :items.owner_id])
+      (sql/left-join [:inventory_pools :export_responsible_pool]
+                     [:= :export_responsible_pool.id :items.inventory_pool_id])
+      (sql/left-join [:rooms :export_rooms] [:= :export_rooms.id :items.room_id])
+      (sql/left-join [:buildings :export_buildings]
+                     [:= :export_buildings.id :export_rooms.building_id])))
+
 (defn sql-prepare [tx query pool-id]
-  (let [property-fields (get-active-property-fields tx pool-id)
+  (let [property-fields (list-export/get-active-property-fields tx pool-id)
         property-selects (map (fn [{:keys [id key]}]
-                                (property-field-select key id))
+                                (list-export/property-field-select key id))
                               property-fields)]
     (-> query
         (dissoc :select)
@@ -108,4 +70,6 @@
                          select-item-fields
                          property-selects
                          timestamps)))
+        (list-export/export-aggregation-joins)
+        (export-item-joins)
         (sql/order-by :items.inventory_code))))
