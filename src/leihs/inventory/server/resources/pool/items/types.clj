@@ -36,7 +36,7 @@
     (s/optional-key :inventory_pool_id) s/Uuid
     (s/optional-key :owned) s/Bool
     (s/optional-key :retired) s/Bool
-    (s/optional-key :before_last_check) s/Str
+    (s/optional-key :before_last_check) Date
 
     (s/optional-key :page) s/Int
     (s/optional-key :size) s/Int}

@@ -158,7 +158,7 @@
         items-join-cond (items-shared/items-join-conditions pool-id
                                                             (true? with_items)
                                                             item-opts)
-        join-items (if (true? with_items)
+        join-items (if (and (true? with_items) item-opts)
                      #(sql/join % :items items-join-cond)
                      #(sql/left-join % :items items-join-cond))]
     (-> query

@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.items.item.types
   (:require
    [leihs.inventory.server.resources.pool.items.types :refer [post-response-item properties]]
-   [leihs.inventory.server.utils.schema :refer [Date]]
+   [leihs.inventory.server.utils.schema :refer [Date Price]]
    [schema.core :as s]))
 
 (def get-response
@@ -32,7 +32,7 @@
           (s/optional-key :needs_permission) s/Bool
           (s/optional-key :note) (s/maybe s/Str)
           (s/optional-key :parent_id) (s/maybe s/Uuid)
-          (s/optional-key :price) (s/maybe s/Num)
+          (s/optional-key :price) (s/maybe Price)
           (s/optional-key :responsible) (s/maybe s/Str)
           (s/optional-key :retired_reason) (s/maybe s/Str)
           (s/optional-key :retired) s/Bool

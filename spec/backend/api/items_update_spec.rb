@@ -241,6 +241,23 @@ describe "Swagger Inventory Endpoints - Items Update" do
         expect(resp.body["unpermitted-fields"]).to include("properties_mac_address")
       end
 
+      it "rejects price values outside the allowed range" do
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {
+          inventory_code: @item.inventory_code,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          price: 2_000_000
+        }
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(422)
+        expect(resp.body["reason"]).to eq("Coercion-Error")
+      end
+
       it "rejects duplicate inventory_code on item update and returns 409 with non-prefixed proposed_code" do
         # Create another item with a code we'll try to use
         FactoryBot.create(:item,

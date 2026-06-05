@@ -224,6 +224,37 @@ describe "Inventory List Export" do
     end
   end
 
+  context "option export with with_items=true" do
+    let(:json_client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+    let(:option_product) { "Export Option #{SecureRandom.hex(4)}" }
+    let(:list_url) { "/inventory/#{inventory_pool_id}/list/?type=option&with_items=true&page=1&size=100" }
+
+    before do
+      FactoryBot.create(:option,
+        inventory_pool_id: @inventory_pool.id,
+        product: option_product)
+    end
+
+    it "includes options in CSV export despite with_items=true" do
+      headers = {"accept" => ACCEPT_CSV, "Cookie" => @user_cookies.map(&:to_s).join("; ")}
+      client = Faraday.new(url: api_base_url, headers: headers) do |conn|
+        conn.adapter Faraday.default_adapter
+      end
+
+      json_resp = json_client.get list_url
+      expect(json_resp.status).to eq(200)
+      json_products = json_resp.body["data"].map { |row| row["product"] }
+      expect(json_products).to include(option_product)
+
+      csv_resp = client.get list_url
+      expect(csv_resp.status).to eq(200)
+      csv_data = CSV.parse(csv_resp.body)
+      product_idx = csv_data[0].index("product")
+      csv_products = csv_data[1..].map { |row| row[product_idx] }
+      expect(csv_products).to include(option_product)
+    end
+  end
+
   context "Column Order Consistency" do
     it "has the same column order in CSV and Excel exports" do
       headers = {"accept" => ACCEPT_CSV}
