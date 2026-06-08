@@ -134,7 +134,7 @@
       }
     }
   },
-  "intlDateTime": "{{val, datetime}}",
+  "intlDateTime": "{{- val, datetime}}",
   "pool": {
     "scan_edit": {
       "title": "Scan & Edit",
@@ -415,6 +415,9 @@
       "list": {
         "empty": "Keine Einträge gefunden",
         "package_item": "ist Bestandteil eines Pakets",
+        "info": {
+          "until": "bis"
+        },
         "shelf": "Lager",
         "tooltip": {
           "in_stock": "an Lager",

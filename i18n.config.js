@@ -15,7 +15,7 @@ const resources = {
 i18n.use(initReactI18next).init({
   resources,
   lng: "en",
-  supportedLngs: ["de", "de-CH", "gsw", "gsw-CH", "en", "en-GB", "es"],
+  supportedLngs: ["de", "de-CH", "gsw", "gsw-CH", "en", "en-GB", "es", "fr"],
   load: "languageOnly",
   fallbackLng: {
     gsw: ["de"],
@@ -24,6 +24,17 @@ i18n.use(initReactI18next).init({
     default: ["en"],
   },
   debug: true,
+})
+
+// Map locale tag "gsw" (swiss german, not supported by `Intl`) to "de-CH"
+const intlLocaleMap = {
+  gsw: "de-CH",
+  "gsw-CH": "de-CH",
+}
+
+i18n.services.formatter.add("datetime", (value, lng, options) => {
+  const locale = intlLocaleMap[lng] || lng
+  return new Intl.DateTimeFormat(locale, options).format(value)
 })
 
 // Set up language change handler

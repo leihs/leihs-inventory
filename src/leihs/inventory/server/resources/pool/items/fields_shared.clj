@@ -117,6 +117,7 @@
   {:retired (fn [v _] (some? v))
    :last_check (fn [v _] (instant-to-date-string v))
    :invoice_date (fn [v _] (instant-to-date-string v))
+   :reservation_end_date (fn [v _] (instant-to-date-string v))
    :price (fn [v _] (when v (format "%.2f" v)))})
 
 (defn coerce-field-values [item-data c-set]

@@ -419,6 +419,9 @@
       "list": {
         "empty": "No entries found",
         "package_item": "is part of a package",
+        "info": {
+          "until": "until"
+        },
         "shelf": "Storage",
         "tooltip": {
           "in_stock": "in stock",

@@ -257,7 +257,7 @@ feature "Inventory list availability counts (models, packages, options, software
       {
         inventory_code: pkg_parent.inventory_code,
         reservation_user_name: "#{pkg_borrower.firstname} #{pkg_borrower.lastname}",
-        reservation_end_date: pkg_reservation.end_date.strftime("%d.%m.%Y"),
+        reservation_end_date: pkg_reservation.end_date.strftime("%d/%m/%Y"),
         statuses: ["Rented"],
         package_items: [
           {
@@ -378,7 +378,7 @@ feature "Inventory list availability counts (models, packages, options, software
       {
         inventory_code: lic_1.inventory_code,
         reservation_user_name: "#{sw_borrower.firstname} #{sw_borrower.lastname}",
-        reservation_end_date: sw_reservation.end_date.strftime("%d.%m.%Y"),
+        reservation_end_date: sw_reservation.end_date.strftime("%d/%m/%Y"),
         statuses: ["Rented"]
       },
       {
@@ -605,7 +605,7 @@ feature "Inventory list availability counts (models, packages, options, software
     rows << {
       inventory_code: st07.inventory_code,
       reservation_user_name: "#{borrower.firstname} #{borrower.lastname}",
-      reservation_end_date: reservation.end_date.strftime("%d.%m.%Y"),
+      reservation_end_date: reservation.end_date.strftime("%d/%m/%Y"),
       statuses: ["Rented"]
     }
     verify_inventory_list_row(st_model.reload, "4 | 5", rows)
@@ -641,7 +641,7 @@ feature "Inventory list availability counts (models, packages, options, software
     rows << {
       inventory_code: st08.inventory_code,
       reservation_user_name: "#{broken_borrower.firstname} #{broken_borrower.lastname}",
-      reservation_end_date: broken_reservation.end_date.strftime("%d.%m.%Y"),
+      reservation_end_date: broken_reservation.end_date.strftime("%d/%m/%Y"),
       statuses: ["Broken", "Rented"]
     }
     verify_inventory_list_row(st_model.reload, "4 | 6", rows)
@@ -677,7 +677,7 @@ feature "Inventory list availability counts (models, packages, options, software
     rows << {
       inventory_code: st09.inventory_code,
       reservation_user_name: "#{inc_borrower.firstname} #{inc_borrower.lastname}",
-      reservation_end_date: inc_reservation.end_date.strftime("%d.%m.%Y"),
+      reservation_end_date: inc_reservation.end_date.strftime("%d/%m/%Y"),
       statuses: ["Incomplete", "Rented"]
     }
     verify_inventory_list_row(st_model.reload, "4 | 7", rows)
@@ -901,7 +901,7 @@ feature "Inventory list availability counts (models, packages, options, software
 
     row_i1_rented = row_i1.call.merge(
       reservation_user_name: "#{renter.firstname} #{renter.lastname}",
-      reservation_end_date: rent_res.end_date.strftime("%d.%m.%Y"),
+      reservation_end_date: rent_res.end_date.strftime("%d/%m/%Y"),
       statuses: ["Rented"]
     )
 

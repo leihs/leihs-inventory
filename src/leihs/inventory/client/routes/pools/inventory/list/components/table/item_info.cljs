@@ -1,8 +1,8 @@
 (ns leihs.inventory.client.routes.pools.inventory.list.components.table.item-info
   (:require
-   ["date-fns" :refer [format]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   [leihs.inventory.client.lib.date-helper :refer [string-to-plain-date]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [item isPackageItem isSoftwareLicense]
@@ -46,8 +46,8 @@
                  ($ :a {:href (str "/manage/" pool-id "/contracts/" (:reservation_contract_id item))
                         :target "_blank"
                         :rel "noreferrer"}
-                    (str (:reservation_user_name item) " until "
-                         (format (:reservation_end_date item) "dd.MM.yyyy")))
+                    (str (:reservation_user_name item) " " (t "pool.models.list.info.until") " "
+                         (t "intlDateTime" #js {:val (string-to-plain-date (:reservation_end_date item))})))
 
                  (if isSoftwareLicense
                    (let [os-values (seq (:properties_operating_system item))

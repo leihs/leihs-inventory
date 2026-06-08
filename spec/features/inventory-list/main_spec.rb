@@ -443,7 +443,7 @@ feature "Inventory Page", type: :feature do
         {
           inventory_code: package.inventory_code,
           reservation_user_name: "#{user_2.firstname} #{user_2.lastname}",
-          reservation_end_date: reservation.end_date.strftime("%d.%m.%Y"),
+          reservation_end_date: reservation.end_date.strftime("%d/%m/%Y"),
           statuses: ["Rented"],
           package_items: [
             {
@@ -689,7 +689,7 @@ feature "Inventory Page", type: :feature do
         {
           inventory_code: package.inventory_code,
           reservation_user_name: "#{user_2.firstname} #{user_2.lastname}",
-          reservation_end_date: reservation.end_date.strftime("%d.%m.%Y"),
+          reservation_end_date: reservation.end_date.strftime("%d/%m/%Y"),
           statuses: ["Rented"],
           package_items: [
             {
@@ -878,7 +878,7 @@ feature "Inventory Page", type: :feature do
         {
           inventory_code: package.inventory_code,
           reservation_user_name: "#{user_2.firstname} #{user_2.lastname}",
-          reservation_end_date: reservation.end_date.strftime("%d.%m.%Y"),
+          reservation_end_date: reservation.end_date.strftime("%d/%m/%Y"),
           statuses: ["Rented"],
           package_items: [
             {
@@ -974,7 +974,7 @@ feature "Inventory Page", type: :feature do
         {
           inventory_code: package.inventory_code,
           reservation_user_name: "#{user_2.firstname} #{user_2.lastname}",
-          reservation_end_date: reservation.end_date.strftime("%d.%m.%Y"),
+          reservation_end_date: reservation.end_date.strftime("%d/%m/%Y"),
           statuses: ["Rented"],
           package_items: [
             {
@@ -1118,7 +1118,7 @@ feature "Inventory Page", type: :feature do
         {
           inventory_code: package.inventory_code,
           reservation_user_name: "#{user_2.firstname} #{user_2.lastname}",
-          reservation_end_date: reservation.end_date.strftime("%d.%m.%Y"),
+          reservation_end_date: reservation.end_date.strftime("%d/%m/%Y"),
           statuses: ["Rented"],
           package_items: [
             {
@@ -1164,7 +1164,7 @@ feature "Inventory Page", type: :feature do
         {
           inventory_code: package.inventory_code,
           reservation_user_name: "#{user_2.firstname} #{user_2.lastname}",
-          reservation_end_date: reservation.end_date.strftime("%d.%m.%Y"),
+          reservation_end_date: reservation.end_date.strftime("%d/%m/%Y"),
           statuses: ["Rented"],
           package_items: [
             {
@@ -1374,7 +1374,7 @@ feature "Inventory Page", type: :feature do
         {
           inventory_code: package.inventory_code,
           reservation_user_name: "#{user_2.firstname} #{user_2.lastname}",
-          reservation_end_date: reservation.end_date.strftime("%d.%m.%Y"),
+          reservation_end_date: reservation.end_date.strftime("%d/%m/%Y"),
           statuses: ["Rented"],
           package_items: [
             {

@@ -1,8 +1,8 @@
 (ns leihs.inventory.client.routes.pools.inventory.search-edit.components.table.item-info
   (:require
-   ["date-fns" :refer [format]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   [leihs.inventory.client.lib.date-helper :refer [string-to-plain-date]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui ItemInfo [{:keys [item]}]
@@ -19,7 +19,7 @@
                    :target "_blank"
                    :rel "noreferrer"}
                (str (:reservation_user_name item) " " (t "pool.models.search_edit.info.until") " "
-                    (format (:reservation_end_date item) "dd.MM.yyyy")))
+                    (t "intlDateTime" #js {:val (string-to-plain-date (:reservation_end_date item))})))
 
             (str (:building_name item)
                  " ( " (:building_code item) " ) "
