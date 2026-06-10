@@ -16,8 +16,11 @@
 (defui main [{:keys [className]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
         [t] (useTranslation)
+        [open? set-open!] (uix/use-state false)
         with_items (.. search-params (get "with_items"))
         type (.. search-params (get "type"))
+        disabled (or (= with_items "false")
+                     (= type "option"))
         owned (.. search-params (get "owned"))
         in_stock (.. search-params (get "in_stock"))
         incomplete (.. search-params (get "incomplete"))
@@ -77,11 +80,11 @@
                           (.set search-params "page" "1")
                           (set-search-params! search-params)))]
 
-    ($ DropdownMenu
+    ($ DropdownMenu {:open open?
+                     :on-open-change (when (not disabled) set-open!)}
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:variant "outline"
-                     :disabled (or (= with_items "false")
-                                   (= type "option"))
+                     :disabled disabled
                      :class-name (str "min-w-48 max-w-48 " className)}
 
              ($ CirclePlus {:className "h-4 w-4"})

@@ -83,6 +83,8 @@
         category-name (find-category-name categories category-id)
         [open set-open!] (uix/use-state false)
         type (.. search-params (get "type"))
+        disabled (or (= type "option")
+                     (= type "software"))
         [is-searching? set-is-searching!] (uix/use-state false)
         handle-search (fn [e]
                         (let [value (.. e -target -value)
@@ -111,18 +113,17 @@
 
     ($ RadioGroup
        ($ DropdownMenu {:open open
-                        :on-open-change set-open!}
+                        :on-open-change (when (not disabled) set-open!)}
           ($ DropdownMenuTrigger {:asChild "true"}
              ($ Button {:variant "outline"
                         :data-test-id "category-filter-button"
-                        :on-click #(set-open! (not open))
-                        :disabled (or (= type "option")
-                                      (= type "software"))
+                        :disabled disabled
                         :class-name (str "min-w-48 max-w-48" className)}
                 ($ List {:className "h-4 w-4 "})
 
                 (if category-name
-                  ($ :span {:class-name "truncate" :title category-name}
+                  ($ :span {:class-name "truncate"
+                            :title category-name}
                      category-name)
                   (t "pool.models.filters.categories.title"))
                 ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))
