@@ -183,8 +183,7 @@
         (sql/left-join :models [:and [:= :inventory.id :models.id]])
         (export-aggregation-joins)
         (sql/left-join :options [:and [:= :inventory.id :options.id]])
-        (sql/left-join :items [:and [:= :inventory.id :items.model_id]
-                               (items-shared/owner-or-responsible-cond pool-id)])
+        (join-items)
         (export-item-joins)
         (sql/left-join :reservations [:and
                                       [:= :items.id :reservations.item_id]

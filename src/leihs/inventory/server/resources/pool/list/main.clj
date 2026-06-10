@@ -114,14 +114,14 @@
     (cond
       (and accept-header (re-find (re-pattern ACCEPT-CSV) accept-header))
       (let [export-sql (-> query
-                           (#(list-export/sql-prepare tx % pool-id))
+                           (#(list-export/sql-prepare tx % pool-id export-opts))
                            sql-format)]
         (export/csv-stream-response tx export-sql
                                     :filename (str EXPORT-FILE-NAME ".csv")))
 
       (and accept-header (re-find (re-pattern ACCEPT-EXCEL) accept-header))
       (let [export-sql (-> query
-                           (#(list-export/sql-prepare tx % pool-id))
+                           (#(list-export/sql-prepare tx % pool-id export-opts))
                            sql-format)]
         (export/excel-stream-response tx export-sql
                                       :filename (str EXPORT-FILE-NAME ".xlsx")))
