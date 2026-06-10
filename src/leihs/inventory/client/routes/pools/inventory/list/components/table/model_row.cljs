@@ -14,6 +14,7 @@
    [clojure.string :as str]
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.expandable-row :refer [ExpandableRow]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-row :refer [ItemRow]]
@@ -25,7 +26,7 @@
                  :fields :in_stock_quantity
                  :model_id :parent_id :inventory_pool_id :search])
 
-(defui main [{:keys [model className]}]
+(defui main [{:keys [model className permission]}]
   (let [location (router/useLocation)
         {:keys [settings]} (router/useRouteLoaderData "root")
         [t] (useTranslation)
@@ -78,10 +79,12 @@
                                         ($ ItemRow {:key (:id element)
                                                     :type (:type model)
                                                     :is-package-item (:parent_id element)
-                                                    :item element})
+                                                    :item element
+                                                    :permission permission})
                                         ($ PackageRow {:key (:id element)
                                                        :type (:type model)
-                                                       :package element})))
+                                                       :package element
+                                                       :permission permission})))
                                     (:data result))))}
 
        ($ TableCell
@@ -132,42 +135,56 @@
                                   ": " (-> model :borrowable_quantity str))))))))
 
        ($ TableCell {:className "fit-content"}
-          ($ ButtonGroup
-             ($ Button {:variant "outline"
-                        :class-name ""
-                        :asChild true}
-                ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (case (-> model :type)
-                               "Model" (str "../models/" (:id model))
-                               "Package" (str "../models/" (:id model))
-                               "Option" (str "../options/" (:id model))
-                               "Software" (str "../software/" (:id model)))
-                         :viewTransition true}
-                   (t "pool.models.list.actions.edit")))
+          (if (= permission "read")
 
-             ($ DropdownMenu
-                ($ DropdownMenuTrigger {:asChild true}
-                   ($ Button {:data-test-id "edit-dropdown"
-                              :class-name ""
-                              :variant "outline"
-                              :size "icon"}
-                      ($ ChevronDown {:className "w-4 h-4"})))
-                ($ DropdownMenuContent {:align "start"}
-                   ($ DropdownMenuItem
-                      (case (-> model :type)
-                        "Package" ($ Link {:to (str "../models/" (:id model) "/packages/create")
+            ($ Button {:variant "outline"
+                       :asChild true}
+               ($ :a {:href (str "/manage/" pool-id "/models/" (:id model) "/timeline")
+                      :target "_blank"
+                      :rel "noreferrer"}
+                  (t "pool.models.list.actions.timeline")))
+
+            ($ ButtonGroup
+               ($ Button {:variant "outline"
+                          :asChild true}
+                  ($ Link {:state #js {:searchParams (.. location -search)}
+                           :to (case (-> model :type)
+                                 "Model" (str "../models/" (:id model))
+                                 "Package" (str "../models/" (:id model))
+                                 "Option" (str "../options/" (:id model))
+                                 "Software" (str "../software/" (:id model)))
+                           :viewTransition true}
+                     (t "pool.models.list.actions.edit")))
+
+               ($ DropdownMenu
+                  ($ DropdownMenuTrigger {:asChild true}
+                     ($ Button {:data-test-id "edit-dropdown"
+                                :class-name ""
+                                :variant "outline"
+                                :size "icon"}
+                        ($ ChevronDown {:className "w-4 h-4"})))
+                  ($ DropdownMenuContent {:align "start"}
+                     ($ DropdownMenuItem
+                        (case (-> model :type)
+                          "Package" ($ Link {:to (str "../models/" (:id model) "/packages/create")
+                                             :state #js {:searchParams (.. location -search)}
+                                             :viewTransition true}
+                                       (t "pool.models.list.actions.add_package"))
+                          "Model" ($ Link {:to (str "../models/" (:id model) "/items/create")
                                            :state #js {:searchParams (.. location -search)}
                                            :viewTransition true}
-                                     (t "pool.models.list.actions.add_package"))
-                        "Model" ($ Link {:to (str "../models/" (:id model) "/items/create")
-                                         :state #js {:searchParams (.. location -search)}
-                                         :viewTransition true}
-                                   (t "pool.models.list.actions.add_item"))
-                        "Software" ($ Link {:to (str "../software/" (:id model) "/licenses/create")
-                                            :state #js {:searchParams (.. location -search)}
-                                            :viewTransition true}
-                                      (t "pool.models.list.actions.add_license"))
-                        nil)))))))))
+                                     (t "pool.models.list.actions.add_item"))
+                          "Software" ($ Link {:to (str "../software/" (:id model) "/licenses/create")
+                                              :state #js {:searchParams (.. location -search)}
+                                              :viewTransition true}
+                                        (t "pool.models.list.actions.add_license"))
+                          nil))
+
+                     ($ DropdownMenuItem
+                        ($ :a {:href (str "/manage/" pool-id "/models/" (:id model) "/timeline")
+                               :target "_blank"
+                               :rel "noreferrer"}
+                           (t "pool.models.list.actions.timeline")))))))))))
 
 (def ModelRow
   (uix/as-react

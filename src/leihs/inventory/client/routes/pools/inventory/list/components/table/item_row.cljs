@@ -9,13 +9,12 @@
    ["lucide-react" :refer [Image ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
-
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-info :refer [ItemInfo]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [item type isPackageItem]
+(defui main [{:keys [item type isPackageItem permission]
               :or {isPackageItem false}}]
 
   (let [location (router/useLocation)
@@ -59,49 +58,56 @@
           ($ ItemStatus {:item item}))
 
        ($ TableCell {:className "fit-content"}
-          ($ ButtonGroup
-             ($ Button {:variant "outline"
-                        :asChild true}
-                ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (case type
-                               "Software"
-                               (str "../licenses/" (:id item))
+          (if (= permission "read")
 
-                               "Package"
-                               (if isPackageItem
-                                 (str "../items/" (:id item))
-                                 (str "../packages/" (:id item)))
+            ($ Button {:variant "outline"
+                       :class-name "invisible"}
+               (t "pool.models.list.actions.timeline"))
 
-                               (str "../items/" (:id item)))
-                         :viewTransition true}
+            ($ ButtonGroup {:class-name (when (= permission "read")
+                                          "invisible")}
+               ($ Button {:variant "outline"
+                          :asChild true}
+                  ($ Link {:state #js {:searchParams (.. location -search)}
+                           :to (case type
+                                 "Software"
+                                 (str "../licenses/" (:id item))
 
-                   (t "pool.models.list.actions.edit")))
+                                 "Package"
+                                 (if isPackageItem
+                                   (str "../items/" (:id item))
+                                   (str "../packages/" (:id item)))
 
-             ($ DropdownMenu
-                ($ DropdownMenuTrigger {:asChild true}
-                   ($ Button {:data-test-id "edit-dropdown"
-                              :class-name ""
-                              :variant "outline"
-                              :size "icon"}
-                      ($ ChevronDown {:className "w-4 h-4"})))
-                ($ DropdownMenuContent {:align "start"}
-                   ($ DropdownMenuItem
-                      (case type
-                        "Software"
-                        ($ Link {:to (str "../licenses/create?fromItem=" (:id item))
-                                 :state #js {:searchParams (.. location -search)}
-                                 :viewTransition true}
-                           (t "pool.models.list.actions.copy_license"))
+                                 (str "../items/" (:id item)))
+                           :viewTransition true}
 
-                        ($ Link {:to (str "../items/create?fromItem=" (:id item))
-                                 :state #js {:searchParams (.. location -search)}
-                                 :viewTransition true}
-                           (t "pool.models.list.actions.copy_item")))
+                     (t "pool.models.list.actions.edit")))
 
-                      #_($ Link {:to (str "../items/create?fromItem=" (:id item))
-                                 :state #js {:searchParams (.. location -search)}
-                                 :viewTransition true}
-                           (t "pool.models.list.actions.copy_item"))))))))))
+               ($ DropdownMenu
+                  ($ DropdownMenuTrigger {:asChild true}
+                     ($ Button {:data-test-id "edit-dropdown"
+                                :class-name ""
+                                :variant "outline"
+                                :size "icon"}
+                        ($ ChevronDown {:className "w-4 h-4"})))
+                  ($ DropdownMenuContent {:align "start"}
+                     ($ DropdownMenuItem
+                        (case type
+                          "Software"
+                          ($ Link {:to (str "../licenses/create?fromItem=" (:id item))
+                                   :state #js {:searchParams (.. location -search)}
+                                   :viewTransition true}
+                             (t "pool.models.list.actions.copy_license"))
+
+                          ($ Link {:to (str "../items/create?fromItem=" (:id item))
+                                   :state #js {:searchParams (.. location -search)}
+                                   :viewTransition true}
+                             (t "pool.models.list.actions.copy_item")))
+
+                        #_($ Link {:to (str "../items/create?fromItem=" (:id item))
+                                   :state #js {:searchParams (.. location -search)}
+                                   :viewTransition true}
+                             (t "pool.models.list.actions.copy_item")))))))))))
 
 (def ItemRow
   (uix/as-react

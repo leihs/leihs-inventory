@@ -48,6 +48,10 @@ def create_and_add_items_to_models(inventory_pool, models)
   end
 end
 
+def deactivate_inventory_pool!(pool)
+  database[:inventory_pools].where(id: pool.id).update(is_active: false)
+end
+
 def create_and_add_category_to_models(models)
   models.each do |model|
     FactoryBot.create(:category, direct_models: [model])
