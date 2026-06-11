@@ -2,6 +2,7 @@
   (:require
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.date-helper :refer [string-to-plain-date]]
    [uix.core :as uix :refer [$ defui]]))
 
@@ -43,11 +44,13 @@
 
             ($ :div {:class-name "flex flex-wrap gap-1"}
                (if (:reservation_user_name item)
-                 ($ :a {:href (str "/manage/" pool-id "/contracts/" (:reservation_contract_id item))
-                        :target "_blank"
-                        :rel "noreferrer"}
-                    (str (:reservation_user_name item) " " (t "pool.models.list.info.until") " "
-                         (t "intlDateTime" #js {:val (string-to-plain-date (:reservation_end_date item))})))
+                 ($ Typo {:variant :link
+                          :class-name "text-muted-foreground"}
+                    ($ :a {:href (str "/manage/" pool-id "/contracts/" (:reservation_contract_id item))
+                           :target "_blank"
+                           :rel "noreferrer"}
+                       (str (:reservation_user_name item) " " (t "pool.models.list.info.until") " "
+                            (t "intlDateTime" #js {:val (string-to-plain-date (:reservation_end_date item))}))))
 
                  (if isSoftwareLicense
                    (let [os-values (seq (:properties_operating_system item))

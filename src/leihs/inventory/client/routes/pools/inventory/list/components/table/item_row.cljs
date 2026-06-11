@@ -6,7 +6,7 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell TableRow]]
-   ["lucide-react" :refer [Image ChevronDown]]
+   ["lucide-react" :refer [ImageOff ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
 
@@ -40,7 +40,8 @@
             ($ ImageModal {:class-name "w-7 h-7 !p-0"
                            :url (:url item)
                            :alt (str (:product item) " " (:version item))})
-            ($ Image {:class-name "w-7 h-7 inline"})))
+            ($ :div {:class-name "flex w-7 h-7 ml-auto justify-center items-center rounded border p-2"}
+               ($ ImageOff {:class-name "w-5 h-5 text-border"}))))
 
        ($ TableCell
           ($ :div {:className "flex gap-2 "}

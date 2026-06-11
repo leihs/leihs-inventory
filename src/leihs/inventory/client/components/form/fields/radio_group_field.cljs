@@ -12,7 +12,7 @@
                   :name (:name block)
                   :render #($ FormItem {:class-name (str "mt-6 " class-name)}
                               (when (:label block)
-                                ($ FormLabel (t (:label block))
+                                ($ FormLabel (:label block)
                                    (when (-> block :props :required) "*")))
 
                               ($ FormControl

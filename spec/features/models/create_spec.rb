@@ -94,7 +94,6 @@ feature "Create model", type: :feature do
 
     click_on "Select category"
     click_on leaf_category_1_1.name
-    click_on "Select category"
     click_on parent_category_2_1.name
 
     within id: "pool.model.images.title" do
@@ -117,17 +116,21 @@ feature "Create model", type: :feature do
 
     click_on "compatibles"
     fill_in "models-input", with: compatible_model_1.product
+    expect(page).to have_text compatible_model_1.product
     expect(page).to have_css("img[alt='#{compatible_model_1.product} #{compatible_model_1.version}']")
     within find("[data-test-id='models-list']") do
-      click_on "#{compatible_model_1.product} #{compatible_model_1.version}"
+      click_on compatible_model_1.product
     end
 
     click_on "compatibles"
+    click_on "compatibles"
     fill_in "models-input", with: compatible_model_2.product
+    expect(page).to have_text compatible_model_2.product
     within find("[data-test-id='models-list']") do
-      click_on "#{compatible_model_2.product} #{compatible_model_2.version}"
+      click_on compatible_model_2.product
     end
 
+    click_on "compatibles"
     within id: "pool.model.model_properties.title" do
       click_on "Add property"
       fill_in "properties.0.key", with: first_property_key

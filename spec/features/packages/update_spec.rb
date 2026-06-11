@@ -240,7 +240,7 @@ feature "Update package", type: :feature do
 
     assert_field "Shelf", shelf_new
 
-    assert_field "Initial Price", price_new
+    assert_field "Initial Price", format_price_display(price_new)
   end
 
   scenario "removing all items shows toast and auto-sets retirement" do

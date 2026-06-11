@@ -77,7 +77,6 @@ feature "Create package", type: :feature do
     click_on "ITEM-001"
 
     # Search for item 2 by model name (auto-clears)
-    click_on "Select items"
     expect(page).to have_field("items-input", wait: 10)
     fill_in "items-input", with: "Regular Item Model"
     await_debounce
@@ -176,7 +175,7 @@ feature "Create package", type: :feature do
 
     assert_field "Shelf", shelf
 
-    assert_field "Initial Price", price
+    assert_field "Initial Price", format_price_display(price)
   end
 
   scenario "fails with invalid mandatory fields" do

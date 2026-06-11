@@ -1,5 +1,6 @@
 (ns leihs.inventory.client.routes.pools.models.crud.components.field-dispatcher
   (:require
+   ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.fields.attachments-field :refer [AttachmentsField]]
    [leihs.inventory.client.components.form.fields.autocomplete-field :refer [AutocompleteField]]
    [leihs.inventory.client.components.form.fields.checkbox-field :refer [CheckboxField]]
@@ -13,49 +14,51 @@
    [uix.core :as uix :refer [$ defui]]))
 
 (defui FieldDispatcher [{:keys [form block]}]
-  (cond
-    (-> block :component (= "accessory-list"))
-    ($ AccessoryListField {:form form
-                           :block block})
+  (let [[t] (useTranslation)
+        translated-block (if (:label block) (update block :label t) block)]
+    (cond
+      (-> block :component (= "accessory-list"))
+      ($ AccessoryListField {:form form
+                             :block translated-block})
 
-    (-> block :component (= "entitlement-allocations"))
-    ($ EntitlementAllocationsField {:block block
-                                    :form form})
+      (-> block :component (= "entitlement-allocations"))
+      ($ EntitlementAllocationsField {:block translated-block
+                                      :form form})
 
-    (-> block :component (= "category-assignment"))
-    ($ CategoryAssignmentField {:form form})
+      (-> block :component (= "category-assignment"))
+      ($ CategoryAssignmentField {:form form})
 
-    (-> block :component (= "image-dropzone"))
-    ($ ImageUploadField {:form form
-                         :block block})
+      (-> block :component (= "image-dropzone"))
+      ($ ImageUploadField {:form form
+                           :block translated-block})
 
-    (-> block :component (= "attachments"))
-    ($ AttachmentsField {:form form
-                         :name (:name block)
-                         :props (:props block)})
+      (-> block :component (= "attachments"))
+      ($ AttachmentsField {:form form
+                           :name (:name translated-block)
+                           :props (:props translated-block)})
 
-    (-> block :component (= "compatible-models"))
-    ($ CompatibleModelsField {:form form
-                              :block block})
+      (-> block :component (= "compatible-models"))
+      ($ CompatibleModelsField {:form form
+                                :block translated-block})
 
-    (-> block :component (= "model-properties"))
-    ($ ModelPropertiesField {:block block
-                             :form form})
+      (-> block :component (= "model-properties"))
+      ($ ModelPropertiesField {:block translated-block
+                               :form form})
 
-    (-> block :component (= "autocomplete"))
-    ($ AutocompleteField {:form form
-                          :name (:name block)
-                          :label (:label block)
-                          :props (merge
-                                  {:remap (fn [item] {:value item
-                                                      :label item})}
-                                  (:props block))})
+      (-> block :component (= "autocomplete"))
+      ($ AutocompleteField {:form form
+                            :name (:name translated-block)
+                            :label (:label translated-block)
+                            :props (merge
+                                    {:remap (fn [item] {:value item
+                                                        :label item})}
+                                    (:props translated-block))})
 
-    (-> block :component (= "checkbox"))
-    ($ CheckboxField {:form form
-                      :block block})
+      (-> block :component (= "checkbox"))
+      ($ CheckboxField {:form form
+                        :block translated-block})
 
-      ;; "default case - this renders a component from the component map"
-    :else
-    ($ CommonField {:form form
-                    :block block})))
+      ;; default case - renders a component from the component map
+      :else
+      ($ CommonField {:form form
+                      :block translated-block}))))

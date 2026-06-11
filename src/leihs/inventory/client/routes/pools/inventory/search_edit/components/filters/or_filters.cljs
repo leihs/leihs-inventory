@@ -68,6 +68,7 @@
                   :variant "secondary"
                   :size "sm"
                   :on-click handle-add-or
-                  :class-name "border border-border"}
+                  :class-name (str "border border-border"
+                                   (when (empty? fields) " hidden"))}
           ($ CirclePlus {:class-name "h-4 w-4"})
           (t "pool.models.search_edit.add_or")))))

@@ -45,9 +45,17 @@
                    #js {:status "ok"}))
           (.catch handle-error)))))
 
+(defn- strip-pagination-params [url]
+  (let [url-obj (js/URL. url js/window.location.origin)
+        params (.-searchParams url-obj)]
+    (.delete params "page")
+    (.delete params "size")
+    (str (.-pathname url-obj) (.-search url-obj))))
+
 (defn export [action]
   (p/let [form-data (.. action -request (formData))
-          url (.get form-data "url")
+          raw-url (.get form-data "url")
+          url (strip-pagination-params raw-url)
           format (.get form-data "format")
           accept-header (case format
                           "csv" "text/csv"
