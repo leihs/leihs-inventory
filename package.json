@@ -38,7 +38,7 @@
     "postcss-import": "^16.1.0",
     "prettier": "3.2.5",
     "react-refresh": "^0.14.2",
-    "shadow-cljs": "2.26.3",
+    "shadow-cljs": "^3.4.11",
     "tailwindcss": "^3.3.1"
   },
   "dependencies": {
