@@ -17,7 +17,7 @@
         base-validator (if (= field-id "price")
                          (let [price-schema (-> (.. z -coerce (number))
                                                 (.lt 1000000)
-                                                (.gt 0)
+                                                (.gt -1000000)
                                                 (.multipleOf 0.01))]
                            (if (and is-required (not treat-as-optional))
                              (-> (z/string) (.min 1) (.pipe price-schema))
