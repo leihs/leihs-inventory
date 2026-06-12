@@ -37,6 +37,10 @@
                     coerced-val (cond
                                   (= formatted-val "true") true
                                   (= formatted-val "false") false
+                                  (and (= (.-name field) "price")
+                                       (string? formatted-val)
+                                       (not= formatted-val ""))
+                                  (js/parseFloat formatted-val)
                                   :else formatted-val)]
                 (if (and (object? coerced-val) (some? (.-value coerced-val)))
                   (.-value coerced-val)
