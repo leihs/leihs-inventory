@@ -67,6 +67,7 @@
                                            "autocomplete-search" nil
                                            "input" (if (= (:name %) "price") 0 "")
                                            "calendar" (js/Date.)
+                                           "checkbox" []
                                            ((keyword (:name %)) defaults))}
                                  %))
 

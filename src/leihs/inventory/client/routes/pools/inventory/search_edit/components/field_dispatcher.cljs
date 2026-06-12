@@ -4,6 +4,7 @@
    [leihs.inventory.client.components.form.fields.attachments-field :refer [AttachmentsField]]
    [leihs.inventory.client.components.form.fields.autocomplete-field :refer [AutocompleteField]]
    [leihs.inventory.client.components.form.fields.calendar-field :refer [CalendarField]]
+   [leihs.inventory.client.components.form.fields.checkbox-group-field :refer [CheckboxGroupField]]
    [leihs.inventory.client.components.form.fields.common-field :refer [CommonField]]
    [leihs.inventory.client.components.form.fields.radio-group-field :refer [RadioGroupField]]
    [leihs.inventory.client.components.form.fields.select-field :refer [SelectField]]
@@ -71,6 +72,10 @@
       ($ CalendarField {:form form
                         :block block
                         :class-name "mt-0 flex-1"})
+
+      (-> block :component (= "checkbox"))
+      ($ CheckboxGroupField {:form form
+                             :block block})
 
       ;; default case - renders a component from the component map
       :else
