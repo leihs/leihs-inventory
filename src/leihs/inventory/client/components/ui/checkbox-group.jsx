@@ -9,11 +9,12 @@ const CheckboxGroup = React.forwardRef(
     { className, value = [], onValueChange, disabled, children, ...props },
     ref,
   ) => {
+    const normalizedValue = Array.isArray(value) ? value : []
+
     const handleToggle = (itemValue) => {
-      const currentValue = Array.isArray(value) ? value : []
-      const newValue = currentValue.includes(itemValue)
-        ? currentValue.filter((v) => v !== itemValue)
-        : [...currentValue, itemValue]
+      const newValue = normalizedValue.includes(itemValue)
+        ? normalizedValue.filter((v) => v !== itemValue)
+        : [...normalizedValue, itemValue]
       onValueChange?.(newValue)
     }
 
@@ -26,7 +27,7 @@ const CheckboxGroup = React.forwardRef(
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child) && child.props.value !== undefined) {
             return React.cloneElement(child, {
-              checked: value.includes(child.props.value),
+              checked: normalizedValue.includes(child.props.value),
               onCheckedChange: () => handleToggle(child.props.value),
               disabled: disabled || child.props.disabled,
             })

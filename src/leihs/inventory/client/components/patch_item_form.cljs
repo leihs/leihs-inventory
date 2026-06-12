@@ -20,11 +20,25 @@
 
 ;; Schema for a single update field entry
 ;; Transforms {name: "inventory_code", value: "ABC"} → {:inventory_code "ABC"}
+(defn- patch-value-valid? [component value]
+  (case component
+    ("textarea" "input") true
+    ("checkbox" "composite" "attachment")
+    (and (array? value) (pos? (count value)))
+    (some? value)))
+
 (def update-field-schema
   (-> (z/object
        (cj {:name (z/string)
-            :value (-> (z/any)
-                       (.refine (fn [v] (some? v))))}))
+            :value (z/any)
+            :component (z/optional (z/string))
+            :id (z/optional (z/string))
+            :props (z/optional (z/any))}))
+      (.superRefine
+       (fn [^js field ctx]
+         (when-not (patch-value-valid? (.-component field) (.-value field))
+           (.addIssue ctx (clj->js {:code "custom"
+                                    :path ["value"]})))))
       (.transform
        (fn [field]
          (cj {(keyword (.-name field))
@@ -65,6 +79,7 @@
                                   (assoc :value (case (:component block)
                                                   "textarea" ""
                                                   "input" ""
+                                                  "checkbox" []
                                                   nil))))
         form (hook-form/useForm
               #js {:resolver (zodResolver edit-dialog-schema)
