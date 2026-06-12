@@ -153,11 +153,52 @@
     :else
     (keyword "items" (name field))))
 
+(def ^:private jsonb-contains-op (symbol "@>"))
+
+(defn- checkbox-field? [field-kw field-info]
+  (and field-info
+       (= "checkbox" (:type field-info))
+       (str/starts-with? (name field-kw) "properties_")))
+
+(defn- property-jsonb-key [field-kw]
+  (keyword (subs (name field-kw) (count "properties_"))))
+
+(defn- normalize-eq-value
+  "Checkbox filters use vector values (CheckboxGroup). HoneySQL turns bare vectors into
+   invalid SQL like `col = ()`. Normalize to a scalar, or keep a vector for JSONB @>."
+  [value field-kw field-info]
+  (cond
+    (nil? value) nil
+    (and (vector? value) (empty? value)) nil
+    (checkbox-field? field-kw field-info) (if (vector? value) value [value])
+    (vector? value) (first value)
+    :else value))
+
+(defn- eq-sql-clause
+  [field-kw value dtype sql-field field-info]
+  (when (some? value)
+    (if (checkbox-field? field-kw field-info)
+      [jsonb-contains-op
+       :items.properties
+       [:lift {(property-jsonb-key field-kw) value}]]
+      (let [parsed (parse-value-by-type value dtype)]
+        (if (= dtype :date)
+          (let [d (parse-date-value value)
+                end (.plusDays d 1)]
+            [:between sql-field (local-date-to-timestamp d) (local-date-to-timestamp end)])
+          [:= sql-field parsed])))))
+
+(defn- empty-combiner-clause? [clause]
+  (and (vector? clause)
+       (seq clause)
+       (#{:and :or} (first clause))
+       (empty? (filter some? (rest clause)))))
+
 (defn- mql-predicate->sql
   "Convert a single MQL-style predicate for one field into HoneySQL WHERE clause.
    pred can be: scalar value (implies $eq), or map like {:$eq v} {:$gte v} {:$lte v} {:$eq nil} etc.
    field-kw is already validated by caller (mql-edn->where-clause)."
-  [field-kw pred data-type table-aliases]
+  [field-kw pred data-type table-aliases field-info]
   (let [dtype (or data-type (infer-data-type field-kw))
         sql-field (field-sql-expr field-kw table-aliases)]
     (cond
@@ -183,12 +224,7 @@
 
       ;; Simple value => $eq
       (not (map? pred))
-      (let [parsed (parse-value-by-type pred dtype)]
-        (if (= dtype :date)
-          (let [d (parse-date-value pred)
-                end (.plusDays d 1)]
-            [:between sql-field (local-date-to-timestamp d) (local-date-to-timestamp end)])
-          [:= sql-field parsed]))
+      (eq-sql-clause field-kw (normalize-eq-value pred field-kw field-info) dtype sql-field field-info)
 
       ;; $eq nil => IS NULL (for null checks, use {:field {:$eq nil}} or {:field nil})
       (and (map? pred) (contains? pred :$eq) (nil? (get pred :$eq)))
@@ -216,19 +252,16 @@
       (and (map? pred) (some #(contains? pred %) [:$eq :$gte :$lte]))
       (let [op (some #(when (contains? pred %) %) [:$eq :$gte :$lte])
             v (get pred op)
-            parsed (parse-value-by-type v dtype)
             op->sql {:$eq := :$gte :>= :$lte :<=}]
-        (if (= dtype :date)
-          (let [d (parse-date-value v)]
-            (case op
-              ;; $eq on date: full-day match (same as scalar form)
-              :$eq (let [end (.plusDays d 1)]
-                     [:between sql-field (local-date-to-timestamp d) (local-date-to-timestamp end)])
-              ;; $gte: from start of day
-              :$gte [:>= sql-field (local-date-to-timestamp d)]
-              ;; $lte: up to end of day (start of next day)
-              :$lte [:<= sql-field (local-date-to-timestamp (.plusDays d 1))]))
-          [(get op->sql op) sql-field parsed]))
+        (if (= op :$eq)
+          (eq-sql-clause field-kw (normalize-eq-value v field-kw field-info) dtype sql-field field-info)
+          (let [parsed (parse-value-by-type v dtype)]
+            (if (= dtype :date)
+              (let [d (parse-date-value v)]
+                (case op
+                  :$gte [:>= sql-field (local-date-to-timestamp d)]
+                  :$lte [:<= sql-field (local-date-to-timestamp (.plusDays d 1))]))
+              [(get op->sql op) sql-field parsed]))))
 
       :else
       (throw (ex-info "Unsupported MQL predicate" {:field field-kw :pred pred :status 400})))))
@@ -253,7 +286,9 @@
     (and (map? edn) (contains? edn :$or))
     (let [raw-clauses (get edn :$or)
           clauses (if (sequential? raw-clauses) raw-clauses [raw-clauses])
-          sql-clauses (map #(mql-edn->where-clause % fields-response* table-aliases) clauses)]
+          sql-clauses (->> clauses
+                           (map #(mql-edn->where-clause % fields-response* table-aliases))
+                           (filter some?))]
       (when (seq sql-clauses)
         (if (= (count sql-clauses) 1)
           (first sql-clauses)
@@ -263,7 +298,9 @@
     (and (map? edn) (contains? edn :$and))
     (let [raw-clauses (get edn :$and)
           clauses (if (sequential? raw-clauses) raw-clauses [raw-clauses])
-          sql-clauses (map #(mql-edn->where-clause % fields-response* table-aliases) clauses)]
+          sql-clauses (->> clauses
+                           (map #(mql-edn->where-clause % fields-response* table-aliases))
+                           (filter some?))]
       (when (seq sql-clauses)
         (if (= (count sql-clauses) 1)
           (first sql-clauses)
@@ -275,7 +312,7 @@
           field-kw (validate-field field fields-response*)
           field-info (get-field-info field-kw fields-response*)
           dtype (or (:data_type field-info) (infer-data-type field-kw))]
-      (mql-predicate->sql field-kw pred dtype table-aliases))
+      (mql-predicate->sql field-kw pred dtype table-aliases field-info))
 
     ;; Multiple fields at top level => implicit $and
     (map? edn)
@@ -299,7 +336,9 @@
   [query request filter-str table-aliases]
   (let [edn (parse-filter-edn filter-str)
         fields-response* (get-fields-response request)
-        conditions (mql-edn->where-clause edn fields-response* table-aliases)]
+        conditions (mql-edn->where-clause edn fields-response* table-aliases)
+        conditions (when (and conditions (not (empty-combiner-clause? conditions)))
+                     conditions)]
     (if (seq conditions)
       (sql/where query conditions)
       query)))
