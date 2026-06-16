@@ -568,6 +568,11 @@
   environment_variables:
     FEATURE_NAME: "Search & Edit 04"
     FEATURE: './spec/features/search-edit/main_spec.rb[1:4]'
+'./spec/features/search-edit/main_spec.rb[1:6]':
+  name: "Search & Edit 05"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit 05"
+    FEATURE: './spec/features/search-edit/main_spec.rb[1:6]'
 './spec/features/search-edit/main_spec.rb[1:5:1]':
   name: "Search & Edit field visibility based on item ownership 01"
   environment_variables:

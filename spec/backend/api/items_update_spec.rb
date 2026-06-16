@@ -258,6 +258,40 @@ describe "Swagger Inventory Endpoints - Items Update" do
         expect(resp.body["reason"]).to eq("Coercion-Error")
       end
 
+      it "updates an item with a numeric price and returns status 200" do
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {price: 123.45}
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["price"]).to eq("123.45")
+        expect(@item.reload.price).to eq(123.45)
+      end
+
+      it "rejects a string price on update and returns status 422" do
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {price: "123.45"}
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(422)
+        expect(resp.body["reason"]).to eq("Coercion-Error")
+      end
+
+      it "leaves price unchanged when price is omitted from update" do
+        @item.update(price: 99.50)
+
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {note: "price unchanged"}
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["note"]).to eq("price unchanged")
+        expect(@item.reload.price).to eq(99.50)
+      end
+
       it "rejects duplicate inventory_code on item update and returns 409 with non-prefixed proposed_code" do
         # Create another item with a code we'll try to use
         FactoryBot.create(:item,

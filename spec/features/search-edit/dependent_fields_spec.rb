@@ -55,6 +55,7 @@ feature "Search & Edit - Dependent Fields", type: :feature do
     within find("tbody tr", text: item.inventory_code) do
       find('button[role="checkbox"]').click
     end
+    expect(page).to have_button("edit-button", disabled: false, wait: 10)
     click_on "edit-button"
     expect(page).to have_content("Add field")
   end
