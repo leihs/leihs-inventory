@@ -17,24 +17,29 @@
   org.threeten/threeten-extra {:mvn/version "1.8.0"}
   ring/ring-core {:mvn/version "1.15.2"}
   ring/ring-defaults {:mvn/version "0.5.0"}
-  ring/ring-jetty-adapter {:mvn/version "1.15.2"}
+  org.apache.logging.log4j/log4j-api #:mvn{:version "2.26.0"} ; several CVEs (transitive from dk.ative/docjure)
   org.clj-commons/byte-streams {:mvn/version "0.3.4"}
   org.clojure/data.csv {:mvn/version "1.1.0"}
-  org.jsoup/jsoup {:mvn/version "1.15.3"} ; CVE-2021-37714, CVE-2022-36033 (see hickory/hickory)
-  dk.ative/docjure {:mvn/version "1.22.0"}
+  org.jsoup/jsoup {:mvn/version "1.15.3"} ; CVE-2021-37714, CVE-2022-36033 (transitive from hickory/hickory)
+  dk.ative/docjure {:mvn/version "1.22.0" :exclusions [org.apache.logging.log4j/log4j-api]}
   hickory/hickory {:mvn/version "0.7.1" :exclusions [org.jsoup/jsoup]}
   drtom/clj-uuid {:mvn/version "0.1.7"}
   org.apache.commons/commons-lang3 {:mvn/version "3.20.0"}
   org.im4java/im4java {:mvn/version "1.4.0"}
   clj-yaml/clj-yaml {:mvn/version "0.4.0"}
-  cider-ci/open-session {:mvn/version "2.0.0-beta.1"} ; upgrade will break
+  cider-ci/open-session {:mvn/version "2.0.0-beta.1"
+                         :exclusions [org.bouncycastle/bcprov-jdk15on]}
   pghstore-clj/pghstore-clj {:mvn/version "0.1.0"}
   buddy/buddy-auth {:mvn/version "2.2.0"}
   metosin/spec-tools {:mvn/version "0.10.7"}
   metosin/ring-swagger-ui {:mvn/version "4.19.1"}
   metosin/reitit-swagger-ui {:mvn/version "0.7.1"}
   digest/digest {:mvn/version "1.4.10"}
-  cryptohash-clj/cryptohash-clj {:mvn/version "0.1.11"}
+  cryptohash-clj/cryptohash-clj {:mvn/version "0.1.11"
+                                 :exclusions [org.bouncycastle/bcpkix-jdk15on
+                                              org.bouncycastle/bcprov-jdk15on
+                                              org.bouncycastle/bcutil-jdk15on]}
+  org.bouncycastle/bcpkix-jdk18on {:mvn/version "1.80"} ; several CVEs (transitive from cryptohash-clj/cryptohash-clj and cider-ci/open-session)
   org.clojure/clojurescript {:mvn/version "1.11.60"}
   org.clojure/data.codec {:mvn/version "0.1.1"}}
 
@@ -71,5 +76,5 @@
 
   :clj-watson {:replace-deps
                {io.github.clj-holmes/clj-watson
-                {:git/tag "v6.0.1" :git/sha "b520351"}}
+                {:git/tag "v6.1.0" :git/sha "be98e4d"}}
                :main-opts ["-m" "clj-watson.cli"]}}}
