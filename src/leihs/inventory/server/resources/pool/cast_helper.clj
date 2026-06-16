@@ -14,7 +14,7 @@
            (empty? value))))
 
 (defn to-bigdecimal-or-nil [int-value]
-  (try (-> (BigDecimal/valueOf int-value) (.setScale 2 RoundingMode/HALF_UP))
+  (try (-> (BigDecimal/valueOf (double int-value)) (.setScale 2 RoundingMode/HALF_UP))
        (catch Exception e (log-by-severity "Error in int-to-numeric" e) nil)))
 
 (defn parse-to-bigdecimal-or-nil [int-value]

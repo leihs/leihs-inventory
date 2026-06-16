@@ -11,7 +11,6 @@
   fi.metosin/reitit-openapi {:mvn/version "0.7.1"}
   leihs-core/leihs-core {:local/root "./shared-clj"}
   metosin/reitit {:mvn/version "0.7.1"}
-  org.clojure/clojure {:mvn/version "1.11.4"}
   org.clojure/data.generators {:mvn/version "1.1.0"}
   org.clojure/spec.alpha {:mvn/version "0.5.238"}
   org.threeten/threeten-extra {:mvn/version "1.8.0"}
@@ -40,7 +39,6 @@
                                               org.bouncycastle/bcprov-jdk15on
                                               org.bouncycastle/bcutil-jdk15on]}
   org.bouncycastle/bcpkix-jdk18on {:mvn/version "1.80"} ; several CVEs (transitive from cryptohash-clj/cryptohash-clj and cider-ci/open-session)
-  org.clojure/clojurescript {:mvn/version "1.11.60"}
   org.clojure/data.codec {:mvn/version "0.1.1"}}
 
  :aliases
@@ -65,11 +63,12 @@
                     funcool/promesa {:mvn/version "11.0.678"}
                     noencore/noencore {:mvn/version "0.3.8"}
                     com.pitch/uix.core {:mvn/version "1.0.1"}
-                    com.pitch/uix.dom {:mvn/version "1.0.1"}}
+                    com.pitch/uix.dom {:mvn/version "1.0.1"}
+                    org.clojure/clojurescript {:mvn/version "1.12.145"}}
 
              :extra-paths ["dev"]
              :extra-deps {binaryage/devtools {:mvn/version "1.0.7"}
-                          thheller/shadow-cljs {:mvn/version "2.28.23"}}}
+                          thheller/shadow-cljs {:mvn/version "3.4.11"}}}
 
   :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "2.9.1221"}}
              :main-opts ["-m" "antq.core"]}
