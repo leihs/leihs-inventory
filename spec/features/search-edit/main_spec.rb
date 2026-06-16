@@ -273,4 +273,41 @@ feature "Search & Edit", type: :feature do
       end
     end
   end
+
+  scenario "shows checkbox option choices for dynamic checkbox fields" do
+    suffix = SecureRandom.hex(4)
+    field_name = "test_checkbox_#{suffix}"
+
+    FactoryBot.create(:field,
+      id: "properties_#{field_name}",
+      data: Sequel.pg_jsonb({
+        label: field_name,
+        type: "checkbox",
+        group: "General Information",
+        attribute: ["properties", field_name],
+        target_type: "item",
+        permissions: {
+          role: "inventory_manager",
+          owner: false
+        },
+        values: [
+          {label: "check-text1", value: "check-text1"},
+          {label: "check-text2", value: "check-text2"}
+        ]
+      }))
+
+    login(user)
+    visit "/inventory/#{pool.id}/search-edit"
+
+    click_on "Add filters to start your search."
+    expect(page).to have_button("or-0-field-select-0", wait: 10)
+    click_on "or-0-field-select-0"
+
+    within find('[data-test-id="field-options"]') do
+      find("span", text: field_name).click
+    end
+
+    expect(page).to have_content("check-text1")
+    expect(page).to have_content("check-text2")
+  end
 end
