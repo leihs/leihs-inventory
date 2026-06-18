@@ -72,13 +72,32 @@ feature "Inventory list read-only pool (group_manager)", type: :feature do
 
     expect_no_timeline_on_model_row(product_label: "#{option.product} #{option.version}")
 
-    within find('[data-row="model"]', text: model.name, wait: 10) do
+    within find('[data-row="model"]', text: model.name) do
       click_on "expand-button"
     end
 
     within find('[data-row="item"]') do
       expect(page).not_to have_link(href: %r{\.\./items/})
       expect(page).not_to have_css('[data-test-id="edit-dropdown"]')
+    end
+  end
+
+  def expect_no_timeline_on_model_row(product_label:)
+    expect(page).to have_css('[data-row="model"]', text: product_label, wait: 10)
+    within find('[data-row="model"]', text: product_label) do
+      expect(page).not_to have_css('[data-test-id="timeline-button"]')
+    end
+  end
+
+  def expect_group_manager_timeline_on_model_row(pool:, model:, product_label: nil)
+    label = product_label || model.name
+    within find('[data-row="model"]', text: label) do
+      timeline_link = find(:link, "Timeline")
+      expect(timeline_link[:href]).to end_with(
+        "/manage/#{pool.id}/models/#{model.id}/timeline"
+      )
+      expect(timeline_link[:target]).to eq("_blank")
+      expect(page).to have_link("Timeline")
     end
   end
 end
