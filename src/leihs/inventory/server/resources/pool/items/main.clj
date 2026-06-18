@@ -111,12 +111,21 @@
                                   [:= :u.id :r.user_id])
 
                    ;; Filters
-                   (sql/where [:or
-                               [:= :items.inventory_pool_id pool_id]
-                               [:= :items.owner_id pool_id]])
+                   (cond-> (not parent_id)
+                     (sql/where [:or
+                                 [:= :items.inventory_pool_id pool_id]
+                                 [:= :items.owner_id pool_id]]))
 
                    (cond-> model_id (sql/where [:= :items.model_id model_id]))
-                   (cond-> parent_id (sql/where [:= :items.parent_id parent_id]))
+                   (cond-> parent_id
+                     (-> (sql/where [:= :items.parent_id parent_id])
+                         (sql/where [:exists
+                                     (-> (sql/select 1)
+                                         (sql/from [:items :parent])
+                                         (sql/where [:= :parent.id parent_id])
+                                         (sql/where [:or
+                                                     [:= :parent.owner_id pool_id]
+                                                     [:= :parent.inventory_pool_id pool_id]]))])))
                    (cond-> (seq ids) (sql/where [:in :items.id ids]))
                    (cond-> only_items (sql/where [:and
                                                   [:not= :models.is_package true]
