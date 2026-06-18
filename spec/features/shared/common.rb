@@ -56,13 +56,6 @@ def create_timeline_list_items(pool:, room:, model:, package_model:, software_mo
     retired: nil)
 end
 
-def expect_no_timeline_on_model_row(product_label:)
-  expect(page).to have_css('[data-row="model"]', text: product_label, wait: 10)
-  within find('[data-row="model"]', text: product_label) do
-    expect(page).not_to have_css('[data-test-id="timeline-button"]')
-  end
-end
-
 def assert_field(label, value)
   expect(find_field(label, wait: 10).value).to eq value
 end
