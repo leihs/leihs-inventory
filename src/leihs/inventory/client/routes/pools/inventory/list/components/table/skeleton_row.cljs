@@ -6,13 +6,13 @@
    ["@@/table" :refer [TableCell TableRow]]
    ["lucide-react" :refer [Ellipsis Image ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
+
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [col-span]}]
+(defui main [{:keys [permission]}]
   (let [[t] (useTranslation)]
 
     ($ TableRow {:class-name "shadow-[0_-0.5px_0_hsl(var(--border))] "}
-
        ($ TableCell
           ($ Skeleton {:className "w-[76px] h-9 ml-2"}))
 
@@ -30,17 +30,22 @@
           ($ Skeleton {:className "w-auto h-6"}))
 
        ($ TableCell
-          ($ Skeleton {:className ""}
-             ($ ButtonGroup {:class-name "invisible"}
-                ($ Button {:variant "outline"
-                           :class-name ""}
-                   (t "pool.models.list.actions.edit"))
+          ($ Skeleton
+             (if (= permission "read")
+               ($ Button {:variant "outline"
+                          :class-name "invisible"}
+                  (t "pool.models.list.actions.timeline"))
 
-                ($ Button {:data-test-id "edit-dropdown"
-                           :class-name ""
-                           :variant "outline"
-                           :size "icon"}
-                   ($ ChevronDown {:className "w-4 h-4"}))))))))
+               ($ ButtonGroup {:class-name "invisible"}
+                  ($ Button {:variant "outline"
+                             :class-name ""}
+                     (t "pool.models.list.actions.edit"))
+
+                  ($ Button {:data-test-id "edit-dropdown"
+                             :class-name ""
+                             :variant "outline"
+                             :size "icon"}
+                     ($ ChevronDown {:className "w-4 h-4"})))))))))
 
 (def SkeletonRow
   (uix/as-react

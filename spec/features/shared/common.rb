@@ -75,32 +75,6 @@ def expect_no_timeline_on_model_row(product_label:)
   end
 end
 
-def expect_manager_option_row_without_timeline(product_label:)
-  dismiss_open_menus
-  expect(page).to have_css('[data-row="model"]', text: product_label, wait: 10)
-  within find('[data-row="model"]', text: product_label) do
-    find('[data-test-id="edit-dropdown"]').click
-  end
-  expect(page).not_to have_css('[data-test-id="timeline-menu-item"]')
-  dismiss_open_menus
-end
-
-def expect_manager_timeline_in_edit_dropdown(pool:, model:, product_label: nil)
-  dismiss_open_menus
-  label = product_label || model.name
-  expect(page).to have_css('[data-row="model"]', text: label, wait: 10)
-  within find('[data-row="model"]', text: label) do
-    expect(page).to have_css('[data-test-id="edit-dropdown"]')
-    find('[data-test-id="edit-dropdown"]').click
-  end
-  timeline_link = find('[data-test-id="timeline-menu-item"]', visible: true, wait: 10)
-  expect(timeline_link[:href]).to end_with(
-    "/manage/#{pool.id}/models/#{model.id}/timeline"
-  )
-  expect(timeline_link[:target]).to eq("_blank")
-  dismiss_open_menus
-end
-
 def assert_field(label, value)
   expect(find_field(label, wait: 10).value).to eq value
 end

@@ -13,6 +13,7 @@
    [clojure.string :as str]
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.expandable-row :refer [ExpandableRow]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-info :refer [ItemInfo]]
@@ -25,7 +26,7 @@
              "user_name" "model_name" "reservation_user_name" "url"
              "reservation_contract_id"])
 
-(defui PackageRow [{:keys [package type model-image]}]
+(defui PackageRow [{:keys [package type model-image permission]}]
   (let [location (router/useLocation)
         [t] (useTranslation)
         params (router/useParams)
@@ -58,8 +59,8 @@
                       :data-row "package"
                       :subrow-count (:package_items package)
                       :class-name (str
-                                   ;; checks if next sibling is a model or item 
-                                   ;; item -> inset shadow 
+                                   ;; checks if next sibling is a model or item
+                                   ;; item -> inset shadow
                                    ;; model -> dropshadow
                                    "[&>*]:px2 [&>*]:py-1 "
                                    "[&+tr[data-row=item]]:shadow-[0_-0.5px_0_hsl(var(--shadow)),inset_0_4px_4px_-2px_hsl(var(--shadow))] "
@@ -74,7 +75,8 @@
                                         ($ ItemRow {:key (:id item)
                                                     :type type
                                                     :is-package-item true
-                                                    :item item})))
+                                                    :item item
+                                                    :permission permission})))
                                     (:data result))))}
 
        ($ TableCell
@@ -95,24 +97,29 @@
           ($ ItemStatus {:item package}))
 
        ($ TableCell {:className "fit-content"}
-          ($ ButtonGroup
-             ($ Button {:variant "outline"
-                        :asChild true}
-                ($ Link {:state #js {:searchParams (.. location -search)}
-                         :to (str "../packages/" (:id package))
-                         :viewTransition true}
-                   (t "pool.models.list.actions.edit")))
+          (if (= permission "read")
+            ($ Button {:variant "outline"
+                       :class-name "invisible"}
+               (t "pool.models.list.actions.timeline"))
 
-             ($ DropdownMenu
-                ($ DropdownMenuTrigger {:asChild true}
-                   ($ Button {:data-test-id "edit-dropdown"
-                              :class-name ""
-                              :variant "outline"
-                              :size "icon"}
-                      ($ ChevronDown {:className "w-4 h-4"})))
-                ($ DropdownMenuContent {:align "start"}
-                   ($ DropdownMenuItem
-                      ($ Link {:to (str "../packages/create?fromItem=" (:id package))
-                               :state #js {:searchParams (.. location -search)}
-                               :viewTransition true}
-                         (t "pool.models.list.actions.copy_package"))))))))))
+            ($ ButtonGroup
+               ($ Button {:variant "outline"
+                          :asChild true}
+                  ($ Link {:state #js {:searchParams (.. location -search)}
+                           :to (str "../packages/" (:id package))
+                           :viewTransition true}
+                     (t "pool.models.list.actions.edit")))
+
+               ($ DropdownMenu
+                  ($ DropdownMenuTrigger {:asChild true}
+                     ($ Button {:data-test-id "edit-dropdown"
+                                :class-name ""
+                                :variant "outline"
+                                :size "icon"}
+                        ($ ChevronDown {:className "w-4 h-4"})))
+                  ($ DropdownMenuContent {:align "start"}
+                     ($ DropdownMenuItem
+                        ($ Link {:to (str "../packages/create?fromItem=" (:id package))
+                                 :state #js {:searchParams (.. location -search)}
+                                 :viewTransition true}
+                           (t "pool.models.list.actions.copy_package")))))))))))
