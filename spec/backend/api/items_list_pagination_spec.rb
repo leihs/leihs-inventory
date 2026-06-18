@@ -202,6 +202,86 @@ describe "Swagger Inventory Endpoints - Items List (pagination)" do
           expect(data.map { |i| i["id"] }).to include(entry[:id].to_s)
         end
 
+        describe "checkbox properties (contains-all via JSONB @>)" do
+          let(:checkbox_suffix) { SecureRandom.hex(4) }
+          let(:checkbox_attr) { "filter_checkbox_#{checkbox_suffix}" }
+          let(:checkbox_field_id) { "properties_#{checkbox_attr}" }
+
+          let!(:checkbox_field) do
+            FactoryBot.create(:field,
+              id: checkbox_field_id,
+              data: Sequel.pg_jsonb({
+                label: "Filter Checkbox",
+                type: "checkbox",
+                group: "General Information",
+                attribute: ["properties", checkbox_attr],
+                target_type: "item",
+                permissions: {
+                  role: "inventory_manager",
+                  owner: false
+                },
+                values: [
+                  {label: "Option A", value: "opt_a"},
+                  {label: "Option B", value: "opt_b"},
+                  {label: "Option C", value: "opt_c"}
+                ]
+              }))
+          end
+
+          let!(:item_checkbox_ab) do
+            model = FactoryBot.create(:leihs_model, id: SecureRandom.uuid, product: "Checkbox Model AB")
+            FactoryBot.create(:item,
+              inventory_code: "CHK-AB-#{checkbox_suffix}",
+              model_id: model.id,
+              room_id: @room.id,
+              inventory_pool_id: @inventory_pool.id,
+              owner_id: @inventory_pool.id,
+              properties: {checkbox_attr => %w[opt_a opt_b opt_c]}.to_json)
+          end
+
+          let!(:item_checkbox_a) do
+            model = FactoryBot.create(:leihs_model, id: SecureRandom.uuid, product: "Checkbox Model A")
+            FactoryBot.create(:item,
+              inventory_code: "CHK-A-#{checkbox_suffix}",
+              model_id: model.id,
+              room_id: @room.id,
+              inventory_pool_id: @inventory_pool.id,
+              owner_id: @inventory_pool.id,
+              properties: {checkbox_attr => %w[opt_a]}.to_json)
+          end
+
+          it "filters by properties checkbox (:$eq single value)" do
+            data = fetch_filtered("{:#{checkbox_field_id} {:$eq [\"opt_a\"]}}")
+            ids = data.map { |i| i["id"] }
+            expect(ids).to include(item_checkbox_ab[:id].to_s)
+            expect(ids).to include(item_checkbox_a[:id].to_s)
+            expect(ids).not_to include(entry[:id].to_s)
+          end
+
+          it "filters by properties checkbox (:$eq multiple values, contains-all)" do
+            data = fetch_filtered("{:#{checkbox_field_id} {:$eq [\"opt_a\" \"opt_b\"]}}")
+            ids = data.map { |i| i["id"] }
+            expect(ids).to include(item_checkbox_ab[:id].to_s)
+            expect(ids).not_to include(item_checkbox_a[:id].to_s)
+          end
+
+          it "filters by properties checkbox scalar (:$eq coerced to array)" do
+            data = fetch_filtered("{:#{checkbox_field_id} {:$eq \"opt_a\"}}")
+            ids = data.map { |i| i["id"] }
+            expect(ids).to include(item_checkbox_ab[:id].to_s)
+            expect(ids).to include(item_checkbox_a[:id].to_s)
+          end
+
+          it "excludes items without matching checkbox values" do
+            data = fetch_filtered("{:#{checkbox_field_id} {:$eq [\"opt_c\"]}}")
+            ids = data.map { |i| i["id"] }
+            expect(ids).to include(item_checkbox_ab[:id].to_s)
+            expect(ids).not_to include(item_checkbox_a[:id].to_s)
+            expect(ids).not_to include(entry_borrowable[:id].to_s)
+            expect(ids).not_to include(entry_low_price[:id].to_s)
+          end
+        end
+
         # Note: The following properties fields are in the test data but may not be
         # configured in /fields API. Uncomment when fields are added to /fields API:
         # - properties_ampere

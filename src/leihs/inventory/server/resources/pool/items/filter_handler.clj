@@ -1,5 +1,6 @@
 (ns leihs.inventory.server.resources.pool.items.filter-handler
   (:require
+   [cheshire.core :as json]
    [clojure.edn :as edn]
    [clojure.set :as set]
    [clojure.string :as str]
@@ -163,30 +164,33 @@
 (defn- property-jsonb-key [field-kw]
   (keyword (subs (name field-kw) (count "properties_"))))
 
-(defn- normalize-eq-value
-  "Checkbox filters use vector values (CheckboxGroup). HoneySQL turns bare vectors into
-   invalid SQL like `col = ()`. Normalize to a scalar, or keep a vector for JSONB @>."
-  [value field-kw field-info]
+(defn- property-checkbox-values [value]
   (cond
     (nil? value) nil
-    (and (vector? value) (empty? value)) nil
-    (checkbox-field? field-kw field-info) (if (vector? value) value [value])
-    (vector? value) (first value)
-    :else value))
+    (and (sequential? value) (empty? value)) nil
+    (sequential? value) (vec value)
+    :else [value]))
+
+(defn- property-jsonb-contains-clause [field-kw value]
+  (when-let [selected (property-checkbox-values value)]
+    (let [key (name (property-jsonb-key field-kw))]
+      [jsonb-contains-op
+       :items.properties
+       [:cast (json/generate-string {key selected}) :jsonb]])))
 
 (defn- eq-sql-clause
   [field-kw value dtype sql-field field-info]
-  (when (some? value)
-    (if (checkbox-field? field-kw field-info)
-      [jsonb-contains-op
-       :items.properties
-       [:lift {(property-jsonb-key field-kw) value}]]
-      (let [parsed (parse-value-by-type value dtype)]
-        (if (= dtype :date)
-          (let [d (parse-date-value value)
-                end (.plusDays d 1)]
-            [:between sql-field (local-date-to-timestamp d) (local-date-to-timestamp end)])
-          [:= sql-field parsed])))))
+  (cond
+    (checkbox-field? field-kw field-info)
+    (property-jsonb-contains-clause field-kw value)
+
+    (some? value)
+    (let [parsed (parse-value-by-type value dtype)]
+      (if (= dtype :date)
+        (let [d (parse-date-value value)
+              end (.plusDays d 1)]
+          [:between sql-field (local-date-to-timestamp d) (local-date-to-timestamp end)])
+        [:= sql-field parsed]))))
 
 (defn- empty-combiner-clause? [clause]
   (and (vector? clause)
@@ -224,7 +228,7 @@
 
       ;; Simple value => $eq
       (not (map? pred))
-      (eq-sql-clause field-kw (normalize-eq-value pred field-kw field-info) dtype sql-field field-info)
+      (eq-sql-clause field-kw pred dtype sql-field field-info)
 
       ;; $eq nil => IS NULL (for null checks, use {:field {:$eq nil}} or {:field nil})
       (and (map? pred) (contains? pred :$eq) (nil? (get pred :$eq)))
@@ -254,7 +258,7 @@
             v (get pred op)
             op->sql {:$eq := :$gte :>= :$lte :<=}]
         (if (= op :$eq)
-          (eq-sql-clause field-kw (normalize-eq-value v field-kw field-info) dtype sql-field field-info)
+          (eq-sql-clause field-kw v dtype sql-field field-info)
           (let [parsed (parse-value-by-type v dtype)]
             (if (= dtype :date)
               (let [d (parse-date-value v)]
