@@ -68,7 +68,7 @@ feature "Inventory list manager timeline actions", type: :feature do
       )
 
       within find('[data-row="model"]', text: model.name) do
-        expect(page).not_to have_text("Timeline")
+        expect(page).not_to have_link("Timeline")
       end
     end
   end
@@ -76,16 +76,15 @@ feature "Inventory list manager timeline actions", type: :feature do
   def expect_manager_option_row_without_timeline(product_label:)
     expect(page).to have_css('[data-row="model"]', text: product_label)
     within find('[data-row="model"]', text: product_label) do
-      click_on "edit-dropdown"
+      expect(page).not_to have_link("Timeline")
+      expect(page).to have_link("edit")
     end
-    expect(page).not_to have_text("Timeline")
   end
 
   def expect_manager_timeline_in_edit_dropdown(pool:, model:, product_label: nil)
     label = product_label || model.name
     expect(page).to have_css('[data-row="model"]', text: label)
     within find('[data-row="model"]', text: label) do
-      # expect(page).to have_css('[data-test-id="edit-dropdown"]')
       click_on "edit-dropdown"
     end
     expect(page).to have_text("Timeline")
