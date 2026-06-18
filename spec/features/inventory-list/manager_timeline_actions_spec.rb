@@ -87,7 +87,7 @@ feature "Inventory list manager timeline actions", type: :feature do
     within find('[data-row="model"]', text: label) do
       click_on "edit-dropdown"
     end
-    expect(page).to have_text("Timeline")
+    expect(page).to have_link("Timeline")
     timeline_link = find(:link, "Timeline")
     expect(timeline_link[:href]).to end_with(
       "/manage/#{pool.id}/models/#{model.id}/timeline"

@@ -56,18 +56,6 @@ def create_timeline_list_items(pool:, room:, model:, package_model:, software_mo
     retired: nil)
 end
 
-def expect_group_manager_timeline_on_model_row(pool:, model:, product_label: nil)
-  label = product_label || model.name
-  within find('[data-row="model"]', text: label, wait: 10) do
-    timeline_link = find('[data-test-id="timeline-button"]')
-    expect(timeline_link[:href]).to end_with(
-      "/manage/#{pool.id}/models/#{model.id}/timeline"
-    )
-    expect(timeline_link[:target]).to eq("_blank")
-    expect(page).not_to have_css('[data-test-id="edit-dropdown"]')
-  end
-end
-
 def expect_no_timeline_on_model_row(product_label:)
   expect(page).to have_css('[data-row="model"]', text: product_label, wait: 10)
   within find('[data-row="model"]', text: product_label) do
