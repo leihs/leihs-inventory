@@ -28,15 +28,13 @@ RSpec.describe "Inventory inactive pool direct access" do
     expect(pool_ids(resp.body)).not_to include(pool_id.to_s)
   end
 
-  it "still allows GET list via direct URL when pool is inactive" do
+  it "denies GET list via direct URL when pool is inactive" do
     resp = client.get list_path
-    expect(resp.status).to eq(200)
-    expect(resp.body).to be_an(Array)
+    expect(resp.status).to eq(403)
   end
 
-  it "still allows GET items via direct URL when pool is inactive" do
+  it "denies GET items via direct URL when pool is inactive" do
     resp = client.get items_path
-    expect(resp.status).to eq(200)
-    expect(resp.body).to be_an(Array)
+    expect(resp.status).to eq(403)
   end
 end

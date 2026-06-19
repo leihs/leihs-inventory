@@ -3,6 +3,7 @@
    [clojure.set :as set]
    [clojure.string :as str]
    [leihs.inventory.server.middlewares.authorize.main :refer [authorized-role-for-pool
+                                                              pool-active?
                                                               AUTHORIZED-ROLES]]
    [leihs.inventory.server.utils.response :as rh]
    [ring.util.response :as response]))
@@ -51,7 +52,7 @@
 
 (defn wrap-authorize-for-pool [handler]
   (fn [{{{pool-id :pool_id} :path} :parameters
-        :keys [request-method]
+        :keys [request-method tx]
         :as request}]
     (let [method request-method
           route-data (get-in request [:reitit.core/match :data method])
@@ -60,9 +61,10 @@
       (if public?
         (handler request)
         (let [role (authorized-role-for-pool request pool-id)
-              allowed-roles (if-let [extra (:authorized-roles route-data)]
+              allowed-roles (if-let [extra (:extra-roles route-data)]
                               (set/union AUTHORIZED-ROLES extra)
                               AUTHORIZED-ROLES)]
-          (if (contains? allowed-roles role)
+          (if (and (pool-active? tx pool-id)
+                   (contains? allowed-roles role))
             (handler (assoc-in request [:authenticated-entity :role] role))
             (unauthorized-response request)))))))

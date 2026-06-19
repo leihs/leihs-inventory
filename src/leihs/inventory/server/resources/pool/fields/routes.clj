@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.fields.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.middlewares.authorize.main :refer [GROUP-READ-ROLES]]
+   [leihs.inventory.server.middlewares.authorize.main :refer [READONLY-ROLES]]
    [leihs.inventory.server.resources.pool.fields.main :as fields]
    [leihs.inventory.server.resources.pool.fields.types :as types]
    [reitit.coercion.schema]
@@ -11,7 +11,7 @@
 
 (defn routes []
   ["/fields/"
-   {:get {:authorized-roles GROUP-READ-ROLES
+   {:get {:extra-roles READONLY-ROLES
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}

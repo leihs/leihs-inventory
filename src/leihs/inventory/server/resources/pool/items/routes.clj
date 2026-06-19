@@ -1,6 +1,6 @@
 (ns leihs.inventory.server.resources.pool.items.routes
   (:require
-   [leihs.inventory.server.middlewares.authorize.main :refer [GROUP-READ-ROLES]]
+   [leihs.inventory.server.middlewares.authorize.main :refer [READONLY-ROLES]]
    [leihs.inventory.server.resources.pool.items.main :as items]
    [leihs.inventory.server.resources.pool.items.types :as types]
    [reitit.coercion.schema]
@@ -10,7 +10,7 @@
 
 (defn routes []
   ["/items/"
-   {:get {:authorized-roles GROUP-READ-ROLES
+   {:get {:extra-roles READONLY-ROLES
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"

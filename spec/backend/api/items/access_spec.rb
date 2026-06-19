@@ -44,10 +44,9 @@ RSpec.describe "Inventory items API (access control)" do
         deactivate_inventory_pool!(@inventory_pool)
       end
 
-      it "still allows GET items when pool is inactive" do
+      it "denies GET items when pool is inactive" do
         resp = client.get items_path
-        expect(resp.status).to eq(200)
-        expect(resp.body).to be_an(Array)
+        expect(resp.status).to eq(403)
       end
 
       it "still denies POST items when pool is inactive" do
@@ -74,10 +73,9 @@ RSpec.describe "Inventory items API (access control)" do
         deactivate_inventory_pool!(@inventory_pool)
       end
 
-      it "still allows GET items when pool is inactive" do
+      it "denies GET items when pool is inactive" do
         resp = client.get items_path
-        expect(resp.status).to eq(200)
-        expect(resp.body).to be_an(Array)
+        expect(resp.status).to eq(403)
       end
     end
   end

@@ -1,10 +1,12 @@
 (ns leihs.inventory.server.resources.profile.main
   (:require
+   [clojure.set :as set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.core.remote-navbar.shared :refer [sub-apps]]
    [leihs.core.settings :refer [settings]]
+   [leihs.inventory.server.middlewares.authorize.main :refer [AUTHORIZED-ROLES READONLY-ROLES]]
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
@@ -28,12 +30,7 @@
      :manage-nav-items (map #(assoc % :url (:href %)) (:manage sub-apps))
      :documentation-url (:documentation_link settings)}))
 
-(def profile-pool-roles
-  #{"inventory_manager" "lending_manager" "group_manager"})
-
-(def permission-rank
-  {"read" 0
-   "edit" 1})
+(def profile-pool-roles (set/union AUTHORIZED-ROLES READONLY-ROLES))
 
 (defn role->permission [role]
   (case role
@@ -47,25 +44,9 @@
       (assoc :permission (role->permission (:role pool)))
       (dissoc :role)))
 
-(defn choose-stronger-pool [pool-a pool-b]
-  (if (> (get permission-rank (:permission pool-a) -1)
-         (get permission-rank (:permission pool-b) -1))
-    pool-a
-    pool-b))
-
-(defn dedupe-pools-by-id [pools]
-  (->> pools
-       (reduce (fn [acc pool]
-                 (let [pool-id (:id pool)]
-                   (if-let [existing-pool (get acc pool-id)]
-                     (assoc acc pool-id (choose-stronger-pool pool existing-pool))
-                     (assoc acc pool-id pool))))
-               {})
-       vals))
-
 (defn get-pools-access-rights-of-user-query [user-id]
   (-> (sql/select :i.id :i.name :u.role)
-      (sql/from [:unified_access_rights :u])
+      (sql/from [:access_rights :u])
       (sql/join [:inventory_pools :i] [:= :u.inventory_pool_id :i.id])
       (sql/where [:= :u.user_id user-id])
       (sql/where [:in :u.role (vec profile-pool-roles)])
@@ -74,8 +55,7 @@
 
 (defn get-pools-for-profile [tx user-id]
   (->> (jdbc/execute! tx (get-pools-access-rights-of-user-query user-id))
-       (map format-pool-for-profile)
-       dedupe-pools-by-id))
+       (map format-pool-for-profile)))
 
 (defn get-resource [request]
   (try
