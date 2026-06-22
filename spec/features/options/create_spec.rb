@@ -66,7 +66,7 @@ feature "Create option", type: :feature do
     fill_in "Product", with: product
     fill_in "Version", with: version
     fill_in "Inventory code", with: inventory_code
-    fill_in "price", with: price
+    fill_in "Price", with: price
 
     click_on "Save"
 
@@ -82,7 +82,7 @@ feature "Create option", type: :feature do
     fill_in "Product", with: product
     fill_in "Version", with: version
     fill_in "Inventory code", with: inventory_code
-    fill_in "price", with: price
+    fill_in "Price", with: price
 
     click_on "submit-dropdown"
     click_on "Cancel"

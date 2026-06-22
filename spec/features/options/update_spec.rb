@@ -1,5 +1,6 @@
 require "features_helper"
 require_relative "../shared/common"
+require_relative "../shared/price_field_examples"
 
 feature "Update option", type: :feature do
   let(:user) { FactoryBot.create(:user, language_locale: "en-GB") }
@@ -70,6 +71,22 @@ feature "Update option", type: :feature do
     assert_field("Product", product_new)
     assert_field("Version", version_new)
     assert_field("Inventory code", inventory_code_new)
-    assert_field("Price", price_new.to_s)
+    assert_field("Price", format_price_display(price_new))
+  end
+
+  context "price field formatting" do
+    before do
+      login(user)
+      visit "/inventory/#{pool.id}"
+      click_on "Inventory type"
+      click_on "Option"
+      fill_in "search", with: "#{product_old} #{version_old}"
+      await_debounce
+      within find("tr", text: "#{product_old} #{version_old}", visible: true) do
+        click_on "edit"
+      end
+    end
+
+    include_examples "price field", field_label: "Price"
   end
 end

@@ -63,7 +63,8 @@ end
 def format_price_display(price)
   integer_part, decimal_part = price.to_s.split(".")
   formatted_integer = integer_part.reverse.scan(/.{1,3}/).join(",").reverse
-  decimal_part ? "#{formatted_integer}.#{decimal_part}" : formatted_integer
+  frac = decimal_part ? decimal_part.ljust(2, "0")[0, 2] : "00"
+  "#{formatted_integer}.#{frac}"
 end
 
 def assert_button(name, value)

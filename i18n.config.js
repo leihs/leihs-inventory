@@ -26,15 +26,18 @@ i18n.use(initReactI18next).init({
   debug: true,
 })
 
-// Map locale tag "gsw" (swiss german, not supported by `Intl`) to "de-CH"
-const intlLocaleMap = {
-  gsw: "de-CH",
-  "gsw-CH": "de-CH",
+// gsw is not supported by Intl; fr uses de-CH number/date formatting per ZHdK convention
+const toIntlLocale = (lng) => {
+  if (lng.startsWith("gsw") || lng.startsWith("fr")) return "de-CH"
+  return lng
 }
 
 i18n.services.formatter.add("datetime", (value, lng, options) => {
-  const locale = intlLocaleMap[lng] || lng
-  return new Intl.DateTimeFormat(locale, options).format(value)
+  return new Intl.DateTimeFormat(toIntlLocale(lng), options).format(value)
+})
+
+i18n.services.formatter.add("price", (value, lng, options) => {
+  return new Intl.NumberFormat(toIntlLocale(lng), options).format(value)
 })
 
 // Set up language change handler

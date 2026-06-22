@@ -1,5 +1,6 @@
 require "features_helper"
 require_relative "../shared/common"
+require_relative "../shared/price_field_examples"
 
 feature "Update item", type: :feature do
   let(:user) { FactoryBot.create(:user, language_locale: "en-GB") }
@@ -312,6 +313,29 @@ feature "Update item", type: :feature do
     click_on "Save"
     expect(page).to have_text("Item was successfully saved")
     expect(page).to have_text("Inventory List")
+  end
+
+  context "price field formatting" do
+    before do
+      FactoryBot.create(:item,
+        inventory_code: inventory_code_old,
+        leihs_model: model_old,
+        inventory_pool: pool,
+        owner: pool,
+        properties: {price: price_old})
+      login(user)
+      visit "/inventory/#{pool.id}/list"
+      fill_in "search", with: model_old.product
+      await_debounce
+      within find('[data-row="model"]', text: model_old.product) do
+        click_on "expand-button"
+      end
+      within find('[data-row="item"]', text: inventory_code_old) do
+        click_on "edit"
+      end
+    end
+
+    include_examples "price field", field_label: "Initial Price"
   end
 
   scenario "shows alert when item is part of a package" do
