@@ -76,7 +76,6 @@
                                  (when (seq (:data result))
                                    (map
                                     (fn [element]
-                                      ;; (js/console.debug element)
                                       (if (not (:is_package element))
                                         ($ ItemRow {:key (:id element)
                                                     :type (:type model)

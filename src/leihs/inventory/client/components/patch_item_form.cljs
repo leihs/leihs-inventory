@@ -49,7 +49,7 @@
        (fn [data]
          (cj {:update (->> (jc (.-update data))
                            (remove #(contains? % :building_id))
-                           clj->js)})))))
+                           cj)})))))
 
 ;; Main EditDialog Component
 (defui PatchItemForm [{:keys [blocks on-submit on-invalid class-name]}]
@@ -66,6 +66,7 @@
                                                   "textarea" ""
                                                   "input" ""
                                                   "price" ""
+                                                  "checkbox" []
                                                   nil))))
         form (hook-form/useForm
               #js {:resolver (zodResolver edit-dialog-schema)

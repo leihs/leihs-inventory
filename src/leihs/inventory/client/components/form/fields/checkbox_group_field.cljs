@@ -5,21 +5,22 @@
    ["@@/form" :refer [FormControl FormField FormMessage]]
    [uix.core :refer [$ defui]]))
 
-(defui CheckboxGroupField [{:keys [form block]}]
-  ($ FormField {:control (.-control form)
-                :name (:name block)
-                :render #($ FieldSet {:class-name "mt-6"}
-                            ($ FieldLegend {:variant "label"}
-                               (:label block)
-                               (when (-> block :props :required) " *"))
+(defui CheckboxGroupField [{:keys [form block class-name]}]
+  (let [label (:label block)]
+    ($ FormField {:control (.-control form)
+                  :name (:name block)
+                  :render #($ FieldSet {:class-name (str "mt-6 gap-0 " class-name)}
+                              (when label
+                                ($ FieldLegend {:variant "label"}
+                                   (when (-> block :props :required) "*")))
 
-                            ($ FormControl
-                               ($ CheckboxGroup {:value (aget % "field" "value")
-                                                 :onValueChange (aget % "field" "onChange")
-                                                 :disabled (:disabled (:props block))}
-                                  (for [option (:options (:props block))]
-                                    ($ CheckboxGroupItem {:key (:value option)
-                                                          :value (:value option)
-                                                          :label (:label option)
-                                                          :data-test-id (str (:name block) "-" (:value option))}))))
-                            ($ FormMessage))}))
+                              ($ FormControl
+                                 ($ CheckboxGroup {:value (aget % "field" "value")
+                                                   :onValueChange (aget % "field" "onChange")
+                                                   :disabled (:disabled (:props block))}
+                                    (for [option (:options (:props block))]
+                                      ($ CheckboxGroupItem {:key (:value option)
+                                                            :value (:value option)
+                                                            :label (:label option)
+                                                            :data-test-id (str (:name block) "-" (:value option))}))))
+                              ($ FormMessage))})))

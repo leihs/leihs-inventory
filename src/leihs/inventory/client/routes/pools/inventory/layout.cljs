@@ -57,7 +57,6 @@
         {:keys [profile]} (router/useRouteLoaderData "root")
         pool (->> profile :available_inventory_pools (detect #(= (:id %) pool-id)))]
 
-    (js/console.debug permission)
     (uix/use-effect
      (fn []
        (let [on-key-down
