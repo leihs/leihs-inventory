@@ -11,12 +11,31 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useParams]]
    ["zod" :as z]
+   [clojure.string :as str]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.hooks :refer [use-dependent-fields]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.field-dispatcher
     :refer [FieldDispatcher]]
    [uix.core :as uix :refer [$ defui]]))
+
+(defn- coerce-patch-field-value [field-name val]
+  (let [formatted-val (if (instance? js/Date val)
+                        (format val "yyyy-MM-dd")
+                        val)
+        coerced-val (cond
+                      (= formatted-val "true") true
+                      (= formatted-val "false") false
+                      (= field-name "price")
+                      (let [s (str formatted-val)]
+                        (when-not (str/blank? s)
+                          (let [n (js/parseFloat s)]
+                            (when-not (js/isNaN n) n))))
+                      :else formatted-val)
+        final-val (if (and (object? coerced-val) (some? (.-value coerced-val)))
+                    (.-value coerced-val)
+                    coerced-val)]
+    final-val))
 
 ;; Schema for a single update field entry
 ;; Transforms {name: "inventory_code", value: "ABC"} → {:inventory_code "ABC"}
@@ -27,20 +46,9 @@
                        (.refine (fn [v] (some? v))))}))
       (.transform
        (fn [field]
-         (cj {(keyword (.-name field))
-              (let [val (.-value field)
-                    ;; Format dates to YYYY-MM-DD if the value is a Date object
-                    formatted-val (if (instance? js/Date val)
-                                    (format val "yyyy-MM-dd")
-                                    val)
-                    ;; Coerce "true"/"false" strings to booleans
-                    coerced-val (cond
-                                  (= formatted-val "true") true
-                                  (= formatted-val "false") false
-                                  :else formatted-val)]
-                (if (and (object? coerced-val) (some? (.-value coerced-val)))
-                  (.-value coerced-val)
-                  coerced-val))})))))
+         (let [final-val (coerce-patch-field-value (.-name field) (.-value field))]
+           (when (some? final-val)
+             (cj {(keyword (.-name field)) final-val})))))))
 
 (def edit-dialog-schema
   (-> (z/object
@@ -48,8 +56,9 @@
       (.transform
        (fn [data]
          (cj {:update (->> (jc (.-update data))
+                           (remove nil?)
                            (remove #(contains? % :building_id))
-                           clj->js)})))))
+                           cj)})))))
 
 ;; Main EditDialog Component
 (defui PatchItemForm [{:keys [blocks on-submit on-invalid class-name]}]
@@ -66,6 +75,7 @@
                                                   "textarea" ""
                                                   "input" ""
                                                   "price" ""
+                                                  "checkbox" []
                                                   nil))))
         form (hook-form/useForm
               #js {:resolver (zodResolver edit-dialog-schema)

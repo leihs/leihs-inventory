@@ -6,6 +6,19 @@
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [promesa.core :as p]))
 
+(defn- normalize-patch-payload [payload]
+  (if-not (contains? payload :price)
+    payload
+    (let [price (:price payload)
+          normalized (cond
+                       (number? price) price
+                       (or (nil? price) (clojure.string/blank? (str price))) nil
+                       :else (let [n (js/parseFloat (str price))]
+                               (when-not (js/isNaN n) n)))]
+      (if (some? normalized)
+        (assoc payload :price normalized)
+        (dissoc payload :price)))))
+
 (defn- handle-error [err]
   (let [status (some-> err .-response .-status)
         errors (some-> err .-response .-data .-errors)]
@@ -118,7 +131,8 @@
     (case method
       "PATCH"
       (let [items (:selected-items body)
-            payload (cj (apply merge (:update body)))]
+            payload (cj (-> (apply merge (:update body))
+                            normalize-patch-payload))]
         (-> (p/all
              (map (fn [item-id]
                     (-> http-client
@@ -140,7 +154,8 @@
     (case method
       "PATCH"
       (p/let [inventory_code (:inventory_code body)
-              payload (cj (apply merge (:update body)))
+              payload (cj (-> (apply merge (:update body))
+                              normalize-patch-payload))
 
               item (when inventory_code
                      (-> http-client
