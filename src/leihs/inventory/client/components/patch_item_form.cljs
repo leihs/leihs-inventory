@@ -46,8 +46,9 @@
                        (.refine (fn [v] (some? v))))}))
       (.transform
        (fn [field]
-         (when-let [final-val (coerce-patch-field-value (.-name field) (.-value field))]
-           (cj {(keyword (.-name field)) final-val}))))))
+         (let [final-val (coerce-patch-field-value (.-name field) (.-value field))]
+           (when (some? final-val)
+             (cj {(keyword (.-name field)) final-val})))))))
 
 (def edit-dialog-schema
   (-> (z/object
