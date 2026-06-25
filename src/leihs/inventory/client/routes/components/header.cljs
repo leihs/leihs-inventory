@@ -70,7 +70,7 @@
                                :else "Logo default")]
 
                ($ :img {:src logo-src
-                        :className "max-h-16 py-2"
+                        :className "h-16 py-2"
                         :alt logo-type
                         :data-test-id "app-logo"}))
              ($ :form {:action current-search-url :method "GET"}
