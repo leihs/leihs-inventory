@@ -4,7 +4,7 @@
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
    ["@@/toggle-group" :refer [ToggleGroup ToggleGroupItem]]
-   ["lucide-react" :refer [ChevronLeft ChevronRight CirclePlus Equal Trash]]
+   ["lucide-react" :refer [ChevronLeft ChevronRight CirclePlus Equal Trash EqualApproximately]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
@@ -187,7 +187,7 @@
                                                       true)
                                           :value op}
                          (case op
-                           "$ilike" ($ Equal)
+                           "$ilike" ($ EqualApproximately)
                            "$eq" ($ Equal)
                            "$gte" ($ ChevronRight)
                            "$lte" ($ ChevronLeft)
