@@ -13,7 +13,6 @@
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]))
 
-;; Main EditDialog Component
 (defui EditDialog [{:keys [open? on-open-change selected-items blocks some-fields-restricted?]}]
   (let [item-count (count selected-items)
         [t] (useTranslation)
@@ -66,14 +65,14 @@
                             :on-invalid on-invalid})
 
           ($ Alert {:class-name "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50"}
-             ($ AlertDescription ($ :span {:class-name "flex items-start"}
-                                    ($ Info {:class-name "w-5 h-5 mr-2 inline"})
+             ($ AlertDescription ($ :span {:class-name "flex items-center space-x-2"}
+                                    ($ Info {:class-name "w-5 h-5 flex-none"})
                                     ($ :span (t "pool.models.search_edit.dialog.warning_description" #js {:count item-count})))))
 
           (when some-fields-restricted?
             ($ Alert {:class-name "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50"}
-               ($ AlertDescription ($ :span {:class-name "flex items-start"}
-                                      ($ Info {:class-name "w-5 h-5 mr-2 inline"})
+               ($ AlertDescription ($ :span {:class-name "flex items-center space-x-2"}
+                                      ($ Info {:class-name "w-5 h-5 flex-none"})
                                       ($ :span (t "pool.models.search_edit.dialog.restricted_fields_warning"))))))
 
           ($ DialogFooter {:class-name "pt-4"}

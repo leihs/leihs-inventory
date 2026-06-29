@@ -2,6 +2,7 @@
   (:require
    ["react-router-dom" :as router]
    [clojure.edn :as edn]
+   [clojure.string :as str]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [jc cj]]
    [promesa.core :as p]))
@@ -133,14 +134,24 @@
 (defn scan-edit-page [route-data]
   (p/let [params (.. ^js route-data -params)
           pool-id (aget params "pool-id")
+          url (js/URL. (.. route-data -request -url))
+          search-params (.-searchParams url)
+          ids (vec (.getAll search-params "ids"))
 
           data (-> http-client
-                   (.get (str "/inventory/" pool-id "/fields/?target_type=item")
-                         #js {:cache false})
-                   (.then #(jc (.-data %))))]
+                   (.get (str "/inventory/" pool-id "/fields/?target_type=item"))
+                   (.then #(jc (.-data %))))
+
+          items (when (seq ids)
+                  (-> http-client
+                      (.get (str "/inventory/" pool-id "/items/?"
+                                 (str/join "&" (map #(str "ids=" %) ids)))
+                            #js {:cache false})
+                      (.then #(jc (.-data %)))))]
 
     (try
-      {:data data}
+      {:data data
+       :items items}
       (catch js/Error err
         (handle-error err)))))
 

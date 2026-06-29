@@ -1,12 +1,13 @@
 (ns leihs.inventory.client.components.patch-item-form
   (:require
+   ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
    ["@@/form" :refer [Form]]
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["date-fns" :refer [format]]
-   ["lucide-react" :refer [Equal Trash CirclePlus]]
+   ["lucide-react" :refer [Equal Trash CirclePlus UserLock]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useParams]]
@@ -61,7 +62,7 @@
                            cj)})))))
 
 ;; Main EditDialog Component
-(defui PatchItemForm [{:keys [blocks on-submit on-invalid class-name]}]
+(defui PatchItemForm [{:keys [blocks on-submit on-invalid on-fields-change class-name initial-fields]}]
   (let [[t] (useTranslation)
         params (useParams)
         pool-id (aget params "pool-id")
@@ -77,9 +78,18 @@
                                                   "price" ""
                                                   "checkbox" []
                                                   nil))))
+
+        initial-entries (if (seq initial-fields)
+                          (->> initial-fields
+                               (keep (fn [{:keys [name value]}]
+                                       (when-let [block (->> blocks (filter #(= (:name %) name)) first)]
+                                         (assoc (create-update-entry block) :value value))))
+                               vec)
+                          [{:id (str (random-uuid))}])
+
         form (hook-form/useForm
               #js {:resolver (zodResolver edit-dialog-schema)
-                   :defaultValues (cj {:update [{:id (str (random-uuid))}]})})
+                   :defaultValues (cj {:update initial-entries})})
 
         control (.-control form)
         field-array (hook-form/useFieldArray
@@ -110,6 +120,7 @@
                               (let [selected-block (->> blocks
                                                         (filter #(= (:name %) field-name))
                                                         first)]
+
                                 (when selected-block
                                   (update idx (cj (create-update-entry selected-block))))))
 
@@ -132,13 +143,25 @@
                             (remove dep-idx))
                           (remove idx)))
 
-        handle-submit (.. form -handleSubmit)]
+        handle-submit (.. form -handleSubmit)
+        watched-update (jc (hook-form/useWatch (cj {:control control
+                                                    :name "update"})))
+        prev-fields-ref (uix/use-ref nil)]
+
+    (uix/use-effect
+     (fn []
+       (let [current (mapv #(select-keys % [:name :value]) (or watched-update []))]
+         (when (not= current @prev-fields-ref)
+           (reset! prev-fields-ref current)
+           (when on-fields-change
+             (on-fields-change (or watched-update []))))))
+     [watched-update on-fields-change])
 
     ($ Form (merge form)
        ($ :form {:id "patch-item-form"
                  :no-validate true
                  :on-submit (handle-submit on-submit on-invalid)
-                 :class-name (str "space-y-2 px-2 border border-dashed rounded " class-name)}
+                 :class-name (str "space-y-2 px-2 border border-dashed rounded-lg " class-name)}
 
           ($ :div {:class-name "space-y-2 py-2"}
               ;; Render all update field rows
@@ -176,7 +199,12 @@
                                                :value (:name block)}
 
                                    ($ :button {:type "button"}
-                                      (:label block))))))))
+                                      ($ :div {:class-name "flex"}
+                                         (:label block)
+                                         (when (:owner_only block)
+                                           ($ Badge {:class-name "px-1 ml-2"
+                                                     :variant "secondary"}
+                                              ($ UserLock {:class-name "w-3 h-3"})))))))))))
 
                     ($ Equal {:class-name (str "col-span-1 justify-self-center"
                                                (when (nil? (:name field)) " invisible"))})

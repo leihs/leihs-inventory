@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.table.item-info
+(ns leihs.inventory.client.components.item-info
   (:require
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]

@@ -121,7 +121,7 @@
                           {:to (str (:segment tab) "/" (:search tab))
                            :state #js {:searchParams (.. location -search)}
                            :viewTransition true}
-                          ($ :span {:class-name "inline md:hidden"}
+                          ($ :span {:class-name "mr-0 md:mr-1"}
                              (case (:segment tab)
                                "list" ($ List {:className "h-4 w-4"})
                                "search-edit" ($ Search {:className "h-4 w-4"})

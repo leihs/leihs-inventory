@@ -1,26 +1,25 @@
-(ns leihs.inventory.client.routes.pools.inventory.search-edit.components.table.items-table
+(ns leihs.inventory.client.components.items-table
   (:require
    ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
    ["@@/button-group" :refer [ButtonGroup]]
    ["@@/checkbox" :refer [Checkbox]]
    ["@@/skeleton" :refer [Skeleton]]
-   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
-                       TableRow]]
+   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader TableRow]]
    ["lucide-react" :refer [ChevronDown Image]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link]]
+   ["react-router-dom" :refer [Link]]
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
+   [leihs.inventory.client.components.item-info :refer [ItemInfo]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
-   [leihs.inventory.client.routes.pools.inventory.search-edit.components.table.item-info :refer [ItemInfo]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui SkeletonItemRow []
+(defui SkeletonItemRow [{:keys [selectable? row-action]}]
   ($ TableRow {:class-name "bg-secondary/25"}
-
-     ($ TableCell
-        ($ Checkbox {:disabled true}))
+     (when selectable?
+       ($ TableCell
+          ($ Checkbox {:disabled true})))
 
      ($ TableCell {:className "text-right"}
         ($ Skeleton {:className "w-7 h-7"}))
@@ -35,72 +34,74 @@
      ($ TableCell {:className "text-right"}
         ($ Skeleton {:className "w-auto h-6"}))
 
-     ($ TableCell
-        ($ Skeleton {:className ""}
-           ($ ButtonGroup {:class-name "invisible"}
-              ($ Button {:variant "outline"}
-                 "Edit")
-              ($ Button {:variant "outline" :size "icon"}
-                 ($ ChevronDown {:className "w-4 h-4"})))))))
+     (when row-action
+       ($ TableCell
+          ($ ButtonGroup {:class-name "invisible"}
+             ($ Button {:variant "outline"}
+                "Edit")
+             ($ Button {:variant "outline" :size "icon"}
+                ($ ChevronDown {:className "w-4 h-4"})))))))
 
-(defui ItemsTable [{:keys [items loading? selected on-selection-change]}]
+(defui ItemsTable [{:keys [items loading? selected on-selection-change row-action]}]
   (let [[t] (useTranslation)
-        location (router/useLocation)
+        selectable? (some? on-selection-change)
+        col-count (cond-> 4
+                    selectable? inc
+                    row-action inc)
 
         all-selected? (and (seq items) (= (count selected) (count items)))
         some-selected? (and (seq selected) (not all-selected?))
 
         toggle-all (fn [checked]
-                     (let [new-selection (if checked (set (map :id items)) #{})]
-                       (when on-selection-change
-                         (on-selection-change new-selection))))
+                     (on-selection-change (if checked (set (map :id items)) #{})))
 
         toggle-item (fn [id]
-                      (let [new-selection (if (contains? selected id)
-                                            (disj selected id)
-                                            (conj selected id))]
-                        (when on-selection-change
-                          (on-selection-change new-selection))))]
+                      (on-selection-change (if (contains? selected id)
+                                             (disj selected id)
+                                             (conj selected id))))]
 
     ($ :div {:class-name "border rounded-md"}
        ($ :div {:class-name "overflow-x-auto"}
           ($ Table
              ($ TableHeader
                 ($ TableRow
-                   ($ TableHead {:class-name "w-12"}
-                      ($ Checkbox {:checked (cond
-                                              some-selected? "indeterminate"
-                                              all-selected? true
-                                              :else false)
-                                   :onCheckedChange toggle-all}))
+                   (when selectable?
+                     ($ TableHead {:class-name "w-12"}
+                        ($ Checkbox {:checked (cond
+                                                some-selected? "indeterminate"
+                                                all-selected? true
+                                                :else false)
+                                     :onCheckedChange toggle-all})))
                    ($ TableHead {:class-name "text-right"} "")
                    ($ TableHead (t "pool.models.search_edit.table.inventory_code"))
-                   ($ TableHead
-                      (t "pool.models.list.header.name"))
+                   ($ TableHead (t "pool.models.list.header.name"))
                    ($ TableHead (t "pool.models.search_edit.table.location"))
-
                    ($ TableHead {:className "min-w-40 text-right sticky"}
-                      (t "pool.models.list.header.availability"))))
+                      (t "pool.models.list.header.availability"))
+                   (when row-action
+                     ($ TableHead ""))))
 
              ($ TableBody
                 (cond
                   loading?
                   (doall (for [i (range 5)]
-                           ($ SkeletonItemRow {:key i})))
+                           ($ SkeletonItemRow {:key i
+                                               :selectable? selectable?
+                                               :row-action row-action})))
 
                   (empty? items)
                   ($ TableRow
-                     ($ TableCell {:colSpan 6
+                     ($ TableCell {:colSpan col-count
                                    :class-name "h-24 text-center"}
                         (t "pool.models.search_edit.no_items")))
 
                   :else
                   (doall (for [item items]
                            ($ TableRow {:key (:id item)}
-
-                              ($ TableCell
-                                 ($ Checkbox {:checked (contains? selected (:id item))
-                                              :onCheckedChange #(toggle-item (:id item))}))
+                              (when selectable?
+                                ($ TableCell
+                                   ($ Checkbox {:checked (contains? selected (:id item))
+                                                :onCheckedChange #(toggle-item (:id item))})))
 
                               ($ TableCell {:className "text-right"}
                                  (if (:url item)
@@ -126,4 +127,8 @@
                                  ($ ItemInfo {:item item}))
 
                               ($ TableCell {:className "text-right"}
-                                 ($ ItemStatus {:item item}))))))))))))
+                                 ($ ItemStatus {:item item}))
+
+                              (when row-action
+                                ($ TableCell {:className "text-right"}
+                                   (row-action item)))))))))))))

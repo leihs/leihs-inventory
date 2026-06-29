@@ -63,7 +63,7 @@ feature "Scan & Edit", type: :feature do
     page.execute_script("document.querySelector('button[form=\"patch-item-form\"]').click()")
 
     expect(find('[data-test-id="item"]')).to be_disabled
-    expect(find("[data-barcode-scanner-target]")).to be_disabled
+    expect(find('[data-test-id="barcode-input"]')).to be_disabled
 
     expect(page).to have_text("Item has been successfully updated")
   end
@@ -73,11 +73,11 @@ feature "Scan & Edit", type: :feature do
 
     set_status_note(Faker::Lorem.sentence)
 
-    find("[data-barcode-scanner-target]").set(item.inventory_code)
-    find("[data-barcode-scanner-target]").send_keys(:return)
+    find('[data-test-id="barcode-input"]').set(item.inventory_code)
+    find('[data-test-id="barcode-input"]').send_keys(:return)
 
     expect(find('[data-test-id="item"]')).to be_disabled
-    expect(find("[data-barcode-scanner-target]")).to be_disabled
+    expect(find('[data-test-id="barcode-input"]')).to be_disabled
 
     expect(page).to have_text("Item has been successfully updated")
   end
@@ -100,8 +100,8 @@ feature "Scan & Edit", type: :feature do
 
     set_status_note(Faker::Lorem.sentence)
 
-    find("[data-barcode-scanner-target]").set(foreign_item.inventory_code)
-    find("[data-barcode-scanner-target]").send_keys(:return)
+    find('[data-test-id="barcode-input"]').set(foreign_item.inventory_code)
+    find('[data-test-id="barcode-input"]').send_keys(:return)
 
     expect(page).to have_text("Item cannot be updated")
   end

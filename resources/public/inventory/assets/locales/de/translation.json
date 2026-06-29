@@ -118,12 +118,24 @@
   "intlDateTime": "{{- val, datetime}}",
   "pool": {
     "scan_edit": {
-      "title": "Scan & Edit",
+      "title": "Gegenstände bearbeiten per Scan oder Auswahl",
       "apply_button": "Anwenden",
       "success": "Gegenstand wurde erfolgreich geändert",
+      "history": {
+        "title": "Zuletzt bearbeitet"
+      },
+      "invalid_fields": {
+        "error": "Ungültige Felder",
+        "description": "Bitte zuerst ein Felder auswählen oder einen gültigen Wert setzen"
+      },
       "invalid_item": {
         "error": "Gegenstand kann nicht geändert werden",
-        "description": "Gegenstand existiert nicht oder Sie sind nicht Besitzer."
+        "description": "Gegenstand existiert nicht oder ist nicht Teil des momentanen Pools."
+      },
+      "owner_only": {
+        "error": "Gegenstand kann nicht bearbeitet werden",
+        "description_one": "Die Anfrage enthält ein Feld das nur bearbeitet werdenn kann, wenn Sie der Besitzer des Gegenstandes oder Pakets sind.",
+        "description_other": "Die Anfrage enthält mehrere Felder die nur bearbeitet werden können, wenn Sie der Besitzer des Gegenstandes oder Pakets sind."
       },
       "barcode_placeholder": "Barcode scannen",
       "description": "Scannen Sie die Barcodes der zu ändernden Gegenstände oder wählen den Gegenstand manuell aus",
@@ -131,7 +143,18 @@
         "select": "Auswahl treffen",
         "search": "Suchbegriff eingeben",
         "empty": "Keine Ergebnisse zu diesem Suchbegriff gefunden"
-      }
+      },
+      "field_change_warning": {
+        "title": "Feldkonfiguration geändert",
+        "description": "Die ausgewählten Felder haben sich seit der letzten Bearbeitung geändert. Fortfahren setzt den Bearbeitungsverlauf zurück.",
+        "action": "Fortfahren"
+      },
+      "max_history_warning": {
+        "title": "Bearbeitungsverlauf voll",
+        "description": "Der Bearbeitungsverlauf hat das Limit von {{count}} Einträgen erreicht. Fortfahren setzt den Bearbeitungsverlauf zurück.",
+        "action": "Fortfahren"
+      },
+      "owner_only_warning": "Die Feldauswahl beinhaltet Felder die nur editiert werden können, wenn Sie Besitzer des zu editierenden Items oder Pakets sind."
     },
     "inventory": {
       "breadcrumbs": {

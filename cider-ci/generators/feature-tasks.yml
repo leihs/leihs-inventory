@@ -503,6 +503,26 @@
   environment_variables:
     FEATURE_NAME: "Root page 02"
     FEATURE: './spec/features/root_page_spec.rb[1:2]'
+'./spec/features/scan_edit/field_change_warning_spec.rb[1:1]':
+  name: "Scan & Edit — field-change warning 01"
+  environment_variables:
+    FEATURE_NAME: "Scan & Edit — field-change warning 01"
+    FEATURE: './spec/features/scan_edit/field_change_warning_spec.rb[1:1]'
+'./spec/features/scan_edit/field_change_warning_spec.rb[1:2]':
+  name: "Scan & Edit — field-change warning 02"
+  environment_variables:
+    FEATURE_NAME: "Scan & Edit — field-change warning 02"
+    FEATURE: './spec/features/scan_edit/field_change_warning_spec.rb[1:2]'
+'./spec/features/scan_edit/history_full_warning_spec.rb[1:1]':
+  name: "Scan & Edit — max-history warning 01"
+  environment_variables:
+    FEATURE_NAME: "Scan & Edit — max-history warning 01"
+    FEATURE: './spec/features/scan_edit/history_full_warning_spec.rb[1:1]'
+'./spec/features/scan_edit/history_full_warning_spec.rb[1:2]':
+  name: "Scan & Edit — max-history warning 02"
+  environment_variables:
+    FEATURE_NAME: "Scan & Edit — max-history warning 02"
+    FEATURE: './spec/features/scan_edit/history_full_warning_spec.rb[1:2]'
 './spec/features/scan_edit/main_spec.rb[1:1]':
   name: "Scan & Edit 01"
   environment_variables:
@@ -523,6 +543,26 @@
   environment_variables:
     FEATURE_NAME: "Scan & Edit 04"
     FEATURE: './spec/features/scan_edit/main_spec.rb[1:4]'
+'./spec/features/scan_edit/owner_only_spec.rb[1:1]':
+  name: "Scan & Edit — owner-only field restriction 01"
+  environment_variables:
+    FEATURE_NAME: "Scan & Edit — owner-only field restriction 01"
+    FEATURE: './spec/features/scan_edit/owner_only_spec.rb[1:1]'
+'./spec/features/scan_edit/persistence_spec.rb[1:1]':
+  name: "Scan & Edit — URL persistence 01"
+  environment_variables:
+    FEATURE_NAME: "Scan & Edit — URL persistence 01"
+    FEATURE: './spec/features/scan_edit/persistence_spec.rb[1:1]'
+'./spec/features/scan_edit/persistence_spec.rb[1:2]':
+  name: "Scan & Edit — URL persistence 02"
+  environment_variables:
+    FEATURE_NAME: "Scan & Edit — URL persistence 02"
+    FEATURE: './spec/features/scan_edit/persistence_spec.rb[1:2]'
+'./spec/features/scan_edit/persistence_spec.rb[1:3]':
+  name: "Scan & Edit — URL persistence 03"
+  environment_variables:
+    FEATURE_NAME: "Scan & Edit — URL persistence 03"
+    FEATURE: './spec/features/scan_edit/persistence_spec.rb[1:3]'
 './spec/features/search-edit/add_remove_filter_spec.rb[1:1:1]':
   name: "Search & Edit - Filters search filter panel 01"
   environment_variables:

@@ -52,8 +52,11 @@
 
     (uix/use-effect
      (fn []
-       (set-display-val! (or (format-price field-value) "0.00")))
-     [language format-price field-value])
+       (let [formatted (or (format-price field-value) "0.00")]
+         (set-display-val! formatted)
+         (when (or (nil? field-value) (= field-value ""))
+           (set-value! field-name "0"))))
+     [language format-price field-value set-value! field-name])
 
     ($ FormField {:control (.-control form)
                   :name (:name block)

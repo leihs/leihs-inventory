@@ -119,12 +119,24 @@
   "intlDateTime": "{{- val, datetime}}",
   "pool": {
     "scan_edit": {
-      "title": "Scan & Edit",
+      "title": "Edit Items via scan or selection",
       "apply_button": "Apply",
       "success": "Item has been successfully updated",
+      "history": {
+        "title": "Previously edited"
+      },
+      "invalid_fields": {
+        "error": "Invalid fields",
+        "description": "Please select a field or enter a valid value"
+      },
       "invalid_item": {
         "error": "Item cannot be updated",
-        "description": "Item does not exist, or you are not the owner."
+        "description": "Item does not exist, or does not belong to the current pool."
+      },
+      "owner_only": {
+        "error": "Item cannot be updated",
+        "description_one": "The request contains a field that can only be edited if you are the owner of the item or package.",
+        "description_other": "The request contains multiple fields that can only be edited if you are the owner of the item or package."
       },
       "barcode_placeholder": "Scan barcode",
       "description": "Scan the barcodes of the items to update or choose a item manually",
@@ -132,7 +144,18 @@
         "select": "Make a selection",
         "search": "Enter search term",
         "empty": "No results found for this search term"
-      }
+      },
+      "field_change_warning": {
+        "title": "Field configuration changed",
+        "description": "The selected fields have changed since the last edit. Continuing will reset the edit history.",
+        "action": "Continue"
+      },
+      "max_history_warning": {
+        "title": "Edit history is full",
+        "description": "The edit history has reached its limit of {{count}} items. Continuing will reset the edit history.",
+        "action": "Continue"
+      },
+      "owner_only_warning": "The field selection includes fields that can only be edited if you are the owner of the item or package being edited."
     },
     "inventory": {
       "breadcrumbs": {
