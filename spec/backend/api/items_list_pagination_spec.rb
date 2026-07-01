@@ -280,6 +280,14 @@ describe "Swagger Inventory Endpoints - Items List (pagination)" do
             expect(ids).not_to include(entry_borrowable[:id].to_s)
             expect(ids).not_to include(entry_low_price[:id].to_s)
           end
+
+          it "rejects non-eq operators for properties checkbox" do
+            %w[:$ilike :$gte :$lte].each do |operator|
+              resp = client.get(filter_url("{:#{checkbox_field_id} {#{operator} \"opt_a\"}}"))
+              expect(resp.status).to eq(400)
+              expect(resp.body["message"]).to eq("Checkbox fields only support :$eq for contains-all matching")
+            end
+          end
         end
 
         # Note: The following properties fields are in the test data but may not be

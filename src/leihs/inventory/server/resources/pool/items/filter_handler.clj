@@ -192,12 +192,6 @@
           [:between sql-field (local-date-to-timestamp d) (local-date-to-timestamp end)])
         [:= sql-field parsed]))))
 
-(defn- empty-combiner-clause? [clause]
-  (and (vector? clause)
-       (seq clause)
-       (#{:and :or} (first clause))
-       (empty? (filter some? (rest clause)))))
-
 (defn- mql-predicate->sql
   "Convert a single MQL-style predicate for one field into HoneySQL WHERE clause.
    pred can be: scalar value (implies $eq), or map like {:$eq v} {:$gte v} {:$lte v} {:$eq nil} etc.
@@ -229,6 +223,14 @@
       ;; Simple value => $eq
       (not (map? pred))
       (eq-sql-clause field-kw pred dtype sql-field field-info)
+
+      ;; Checkbox fields use JSONB contains-all on :$eq only.
+      (and (map? pred)
+           (checkbox-field? field-kw field-info)
+           (not= #{:$eq} (set (keys pred))))
+      (throw (ex-info
+              "Checkbox fields only support :$eq for contains-all matching"
+              {:field field-kw :pred pred :status 400}))
 
       ;; $eq nil => IS NULL (for null checks, use {:field {:$eq nil}} or {:field nil})
       (and (map? pred) (contains? pred :$eq) (nil? (get pred :$eq)))
@@ -340,9 +342,7 @@
   [query request filter-str table-aliases]
   (let [edn (parse-filter-edn filter-str)
         fields-response* (get-fields-response request)
-        conditions (mql-edn->where-clause edn fields-response* table-aliases)
-        conditions (when (and conditions (not (empty-combiner-clause? conditions)))
-                     conditions)]
+        conditions (mql-edn->where-clause edn fields-response* table-aliases)]
     (if (seq conditions)
       (sql/where query conditions)
       query)))
