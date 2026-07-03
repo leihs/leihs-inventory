@@ -171,7 +171,7 @@ feature "Update package", type: :feature do
     click_on "Last Checked"
 
     today = Date.today
-    find("[data-day='#{today.strftime("%-m/%-d/%Y")}']").click
+    click_calendar_day(today)
 
     fill_in "Responsible person", with: user_name_new
     fill_in "User/Typical usage", with: typical_usage_new

@@ -82,9 +82,64 @@ def select_value(name, value)
   option.click
 end
 
-def click_calendar_day(date)
-  find('[class*="rdp-button_previous"]').click unless date.month == Date.today.month && date.year == Date.today.year
-  find("[data-day='#{date.strftime("%-m/%-d/%Y")}']").click
+def parse_calendar_data_day(value)
+  return nil if value.to_s.strip.empty?
+
+  Date.iso8601(value.to_s)
+rescue Date::Error
+  if (match = value.to_s.match(%r{\A(\d{1,2})/(\d{1,2})/(\d{4})\z}))
+    first, second, year = match.captures.map(&:to_i)
+    parse_calendar_date_parts(year, first, second) ||
+      parse_calendar_date_parts(year, second, first)
+  end
+rescue ArgumentError
+  nil
+end
+
+def parse_calendar_date_parts(year, month, day)
+  Date.new(year, month, day)
+rescue ArgumentError
+  nil
+end
+
+def visible_calendar_month
+  months = all("[data-day]", visible: true, wait: 5).filter_map do |button|
+    date = parse_calendar_data_day(button["data-day"])
+    Date.new(date.year, date.month, 1) if date
+  end
+  months.group_by(&:itself).max_by { |_month, dates| dates.size }&.first
+end
+
+def calendar_day_selector(date)
+  [
+    "[data-day='#{date.iso8601}']",
+    "[data-day='#{date.strftime("%-m/%-d/%Y")}']",
+    "[data-day='#{date.strftime("%m/%d/%Y")}']",
+    "[data-day='#{date.strftime("%-d/%-m/%Y")}']",
+    "[data-day='#{date.strftime("%d/%m/%Y")}']"
+  ].join(", ")
+end
+
+def navigate_calendar_to_month(date)
+  target_month = Date.new(date.year, date.month, 1)
+
+  12.times do
+    month = visible_calendar_month
+    break if month.nil? || month == target_month
+
+    direction = (target_month < month) ? "previous" : "next"
+    find("[class*='rdp-button_#{direction}']", wait: 5).click
+    sleep 0.1
+  end
+end
+
+def click_calendar_day(date, dismiss: true)
+  navigate_calendar_to_month(date)
+
+  buttons = all(calendar_day_selector(date), minimum: 1, wait: 10)
+  button = buttons.find { |el| el.text.strip == date.day.to_s } || buttons.first
+  button.click
+  dismiss_open_menus if dismiss
 end
 
 def attach_file_by_label(label_text, file_path)

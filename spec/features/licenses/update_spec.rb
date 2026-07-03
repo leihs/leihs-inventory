@@ -153,12 +153,12 @@ feature "Update license", type: :feature do
     # Update dates
     today = Date.today
     click_on "License expiration"
-    find("[data-day='#{today.strftime("%-m/%-d/%Y")}']").click
+    click_calendar_day(today)
 
     # Test maintenance visibility chain still works
     expect(page).to have_content "Maintenance expiration"
     click_on "Maintenance expiration"
-    find("[data-day='#{today.strftime("%-m/%-d/%Y")}']").click
+    click_calendar_day(today)
 
     expect(page).to have_content "Currency"
     click_on "Currency"

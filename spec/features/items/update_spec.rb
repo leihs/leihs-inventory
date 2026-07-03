@@ -179,7 +179,7 @@ feature "Update item", type: :feature do
 
     click_on "Last Checked"
 
-    find("[data-day='#{target_date.strftime("%-m/%-d/%Y")}']").click
+    click_calendar_day(target_date)
     selected_last_check_text = find('button[name="last_check"]').text.strip
 
     fill_in "Responsible person", with: user_name_new
@@ -190,7 +190,7 @@ feature "Update item", type: :feature do
     fill_in "Invoice Number", with: invoice_number_new
 
     click_on "Invoice Date"
-    find("[data-day='#{target_date.strftime("%-m/%-d/%Y")}']").click
+    click_calendar_day(target_date)
     selected_invoice_date_text = find('button[name="invoice_date"]').text.strip
 
     fill_in "Initial Price", with: price_new
@@ -202,11 +202,11 @@ feature "Update item", type: :feature do
     click_on supplier_new.name
 
     click_on "Warranty expiration"
-    find("[data-day='#{target_date.strftime("%-m/%-d/%Y")}']").click
+    click_calendar_day(target_date)
     selected_warranty_date_text = find('button[name="properties_warranty_expiration"]').text.strip
 
     click_on "Contract expiration"
-    find("[data-day='#{target_date.strftime("%-m/%-d/%Y")}']").click
+    click_calendar_day(target_date)
     selected_contract_date_text = find('button[name="properties_contract_expiration"]').text.strip
 
     click_on "building_id"
