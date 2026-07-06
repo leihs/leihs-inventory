@@ -922,7 +922,12 @@
     "open": "Open Translation Check"
   },
   "root": {
-    "welcome": "Welcome to Leihs Inventory!"
+    "welcome": "Leihs Inventory",
+    "api_browser": "API Browser",
+    "pools": {
+      "name": "Pool",
+      "access_rights": "Access rights"
+    }
   },
   "notfound": {
     "back-to-home": "Back to Home"

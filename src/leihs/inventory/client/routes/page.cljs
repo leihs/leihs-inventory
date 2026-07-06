@@ -1,7 +1,12 @@
 (ns leihs.inventory.client.routes.page
   (:require
+   ["@@/card" :refer [Card CardContent CardFooter CardHeader CardTitle]]
+   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
+                       TableRow]]
+   ["lucide-react" :refer [Pencil Eye]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
+   [leihs.inventory.client.components.typo :refer [Typo]]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
 
@@ -11,16 +16,36 @@
         pools (->> (get profile :available_inventory_pools [])
                    (sort-by :name))]
 
-    ($ :div
-       ($ :h1 {:class-name "text-2xl font-bold mt-12 mb-6"} "Welcome")
-       ($ :p (t "root.welcome", "Welcome to Leihs Inventory!"))
-       ($ :ul {:class-name "mt-6"}
-          ($ :li ($ Link {:class-name "underline" :to "debug"} "Debug"))
-          ($ :li ($ :a {:class-name "underline" :href "/inventory/swagger-ui/"} "API Browser")))
-       ($ :ul {:class-name "mt-6"}
-          (for [pool pools]
-            ($ :li {:key (:id pool)}
-               ($ Link {:class-name "underline"
-                        :to (str (:id pool))}
-                  (:name pool))))))))
+    ($ Card {:class-name "mt-12 mb-6 overflow-hidden"}
+       ($ CardHeader
+          ($ CardTitle (t "root.welcome")))
+       ($ CardContent
+
+          ($ :div {:class-name "border rounded-md"}
+             ($ Table
+                ($ TableHeader
+                   ($ TableRow
+                      ($ TableHead (t "root.pools.name"))
+                      ($ TableHead (t "root.pools.access_rights"))))
+
+                ($ TableBody
+                   (for [pool pools]
+                     ($ TableRow {:key (:id pool)
+                                  :class-name "even:bg-muted"}
+                        ($ TableCell
+                           ($ Typo {:variant "link"}
+                              ($ Link {:class-name "underline"
+                                       :to (str (:id pool))}
+                                 (:name pool))))
+
+                        ($ TableCell
+                           (case (:permission pool)
+                             "edit" ($ Pencil {:class-name "w-4 h-4"})
+                             "read" ($ Eye {:class-name "w-4 h-4"})))))))))
+
+       ($ CardFooter {:class-name "py-3 px-6 border-t-[1px] bg-muted/50 flex items-center justify-end"}
+          ($ Typo {:variant "link"}
+             ($ :a {:target "_blank"
+                    :href "/inventory/swagger-ui/"}
+                (t "root.api_browser")))))))
 

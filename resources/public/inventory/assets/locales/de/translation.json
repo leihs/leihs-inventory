@@ -918,7 +918,12 @@
     "open": "Open Translation Check"
   },
   "root": {
-    "welcome": "Welcome to Leihs Inventory!"
+    "welcome": "Leihs Inventar",
+    "api_browser": "API Browser",
+    "pools": {
+      "name": "Pool",
+      "access_rights": "Zugriffsrechte"
+    }
   },
   "notfound": {
     "back-to-home": "Zurück zur Startseite"
