@@ -7,11 +7,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
     include_context :setup_models_min_api
 
     before :each do
-      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
-      FactoryBot.create(:access_right,
-        inventory_pool_id: @inventory_pool.id,
-        user_id: @user.id,
-        role: "inventory_manager")
+      @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
 
       @model = FactoryBot.create(:leihs_model,
         product: "Test Product",
@@ -440,6 +436,36 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
       end
 
+      [
+        ["placeholder", "-"],
+        ["whitespace-wrapped placeholder", " - "]
+      ].each do |description, serial_number|
+        it "allows creating an item when serial_number is a #{description}" do
+          inventory_code = "SERIAL-#{SecureRandom.hex(4)}"
+          FactoryBot.create(:item,
+            inventory_code: "#{inventory_code}-1",
+            serial_number: "-",
+            model_id: @model.id,
+            room_id: @room.id,
+            inventory_pool_id: @inventory_pool.id,
+            owner_id: @inventory_pool.id)
+
+          item_data = {
+            inventory_code: "#{inventory_code}-2",
+            serial_number: serial_number,
+            model_id: @model.id,
+            room_id: @room.id,
+            inventory_pool_id: @inventory_pool.id,
+            owner_id: @inventory_pool.id
+          }
+
+          resp = post_with_headers(client, url, item_data)
+
+          expect(resp.status).to eq(200)
+          expect(resp.body["serial_number"]).to eq(serial_number)
+        end
+      end
+
       it "returns both errors when inventory_code and serial_number are both duplicates" do
         existing_code = "DUAL-DUP-CODE"
         existing_serial = "SN-DUAL-DUP"
@@ -648,6 +674,28 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
       end
 
+      it "allows batch create when serial_number is a placeholder" do
+        FactoryBot.create(:item,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          serial_number: "-")
+
+        resp = post_with_headers(client, url, {
+          count: 2,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          serial_number: "-"
+        })
+
+        expect(resp.status).to eq(200)
+        expect(resp.body.length).to eq(2)
+        expect(resp.body.map { |item| item["serial_number"] }).to eq(["-", "-"])
+      end
+
       it "allows batch create with duplicate serial_number when on_conflict overwrite and returns 200" do
         FactoryBot.create(:item,
           model_id: @model.id,
@@ -676,11 +724,12 @@ describe "Swagger Inventory Endpoints - Items Create" do
     include_context :setup_models_min_api
 
     before :each do
-      @lending_user, @lending_cookies, @lending_cookies_str, @lending_cookie_token = create_and_login(:user)
+      @lending_user = FactoryBot.create(:user, login: Faker::Lorem.word, password: "password")
       FactoryBot.create(:access_right,
         inventory_pool_id: @inventory_pool.id,
         user_id: @lending_user.id,
         role: "lending_manager")
+      @lending_cookies, @lending_cookies_str, @lending_cookie_token = create_and_login_by(@lending_user)
 
       @model = FactoryBot.create(:leihs_model,
         product: "Test Product",

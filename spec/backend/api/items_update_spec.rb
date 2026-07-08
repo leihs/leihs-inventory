@@ -7,11 +7,7 @@ describe "Swagger Inventory Endpoints - Items Update" do
     include_context :setup_models_min_api
 
     before :each do
-      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
-      FactoryBot.create(:access_right,
-        inventory_pool_id: @inventory_pool.id,
-        user_id: @user.id,
-        role: "inventory_manager")
+      @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
 
       @model = FactoryBot.create(:leihs_model,
         product: "Test Product",
@@ -364,6 +360,29 @@ describe "Swagger Inventory Endpoints - Items Update" do
 
         expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_SERIAL_NUMBER")
+      end
+
+      it "allows updating inventory_code when serial_number is a placeholder" do
+        @item.update(serial_number: "-")
+        FactoryBot.create(:item,
+          inventory_code: "SERIAL-PLACEHOLDER-OTHER",
+          serial_number: "-",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {
+          inventory_code: "TEST-PLACEHOLDER-UPDATED",
+          serial_number: "-"
+        }
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["inventory_code"]).to eq("TEST-PLACEHOLDER-UPDATED")
+        expect(resp.body["serial_number"]).to eq("-")
       end
 
       it "allows updating item with its own serial_number and returns 200" do

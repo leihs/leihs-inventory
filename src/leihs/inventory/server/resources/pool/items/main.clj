@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.resources.pool.items.main
   (:require
    [better-cond.core :refer [cond] :rename {cond bcond}]
+   [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [ACCEPT-CSV ACCEPT-EXCEL GENERAL_BUILDING_UUID]]
@@ -220,15 +221,17 @@
         some?)))
 
 (defn serial-number-exists? [tx serial-number exclude-id]
-  (when (seq serial-number)
-    (let [normalized (-> serial-number (clojure.string/replace " " "") clojure.string/lower-case)]
-      (-> (sql/select :id)
-          (sql/from :items)
-          (sql/where [:= [:raw "lower(replace(serial_number, ' ', ''))"] normalized])
-          (cond-> exclude-id (sql/where [:not= :id exclude-id]))
-          sql-format
-          (->> (jdbc/execute-one! tx))
-          some?))))
+  (let [trimmed-serial-number (some-> serial-number str/trim)]
+    (when (and (seq trimmed-serial-number)
+               (not= trimmed-serial-number "-"))
+      (let [normalized (-> serial-number (str/replace " " "") str/lower-case)]
+        (-> (sql/select :id)
+            (sql/from :items)
+            (sql/where [:= [:raw "lower(replace(serial_number, ' ', ''))"] normalized])
+            (cond-> exclude-id (sql/where [:not= :id exclude-id]))
+            sql-format
+            (->> (jdbc/execute-one! tx))
+            some?)))))
 
 (defn validate-item-ids-for-package
   ([tx item-ids] (validate-item-ids-for-package tx item-ids nil))
