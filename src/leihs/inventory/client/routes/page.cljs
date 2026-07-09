@@ -31,6 +31,7 @@
                 ($ TableBody
                    (for [pool pools]
                      ($ TableRow {:key (:id pool)
+                                  :data-test-id "pool-row"
                                   :class-name "even:bg-muted"}
                         ($ TableCell
                            ($ Typo {:variant "link"}
@@ -40,12 +41,13 @@
 
                         ($ TableCell
                            (case (:permission pool)
-                             "edit" ($ Pencil {:class-name "w-4 h-4"})
-                             "read" ($ Eye {:class-name "w-4 h-4"})))))))))
+                             "edit" ($ Pencil {:class-name "w-4 h-4"
+                                               :data-test-id "access-right-edit"})
+                             "read" ($ Eye {:class-name "w-4 h-4"
+                                            :data-test-id "access-right-read"})))))))))
 
        ($ CardFooter {:class-name "py-3 px-6 border-t-[1px] bg-muted/50 flex items-center justify-end"}
           ($ Typo {:variant "link"}
              ($ :a {:target "_blank"
                     :href "/inventory/swagger-ui/"}
                 (t "root.api_browser")))))))
-

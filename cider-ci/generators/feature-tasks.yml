@@ -493,11 +493,16 @@
   environment_variables:
     FEATURE_NAME: "Update package 04"
     FEATURE: './spec/features/packages/update_spec.rb[1:4]'
-'./spec/features/root_page_smoke_spec.rb[1:1:1]':
-  name: "Root page renders 01"
+'./spec/features/root_page_spec.rb[1:1]':
+  name: "Root page 01"
   environment_variables:
-    FEATURE_NAME: "Root page renders 01"
-    FEATURE: './spec/features/root_page_smoke_spec.rb[1:1:1]'
+    FEATURE_NAME: "Root page 01"
+    FEATURE: './spec/features/root_page_spec.rb[1:1]'
+'./spec/features/root_page_spec.rb[1:2]':
+  name: "Root page 02"
+  environment_variables:
+    FEATURE_NAME: "Root page 02"
+    FEATURE: './spec/features/root_page_spec.rb[1:2]'
 './spec/features/scan_edit/main_spec.rb[1:1]':
   name: "Scan & Edit 01"
   environment_variables:
