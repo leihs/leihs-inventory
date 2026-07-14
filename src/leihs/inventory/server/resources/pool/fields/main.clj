@@ -185,6 +185,9 @@
                      common-data-keys)]
     (-> base
 
+        ;; Static flag: field is editable only by the owning pool, regardless of resource context
+        (assoc :owner_only (true? (get-in base [:data :permissions :owner])))
+
         ;; Add protected attribute for owner-only fields
         (cond-> resource-id
           (#(if (and (-> %
