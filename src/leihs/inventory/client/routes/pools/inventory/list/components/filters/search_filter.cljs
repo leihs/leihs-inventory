@@ -13,24 +13,34 @@
         [search set-search!] (uix/use-state (or (.get search-params "search") ""))
         debounced-search (hooks/use-debounce search 300)]
 
+    ;; Sync local state when URL search param changes externally 
+    ;; (e.g. navigation or filter reset)
     (uix/use-effect
      (fn []
-       (cond
-         (and (= debounced-search "")
-              (.has search-params "search")
-              (not= "" (.. search-params (get "search"))))
-         (do
-           (.delete search-params "search")
-           (.set search-params "page" "1")
-           (set-search-params! search-params))
+       (set-search! (or (.get search-params "search") "")))
+     [search-params])
 
-         (and (not= debounced-search "")
-              (not= debounced-search (.. search-params (get "search"))))
-         (do
-           (.set search-params "page" "1")
-           (.set search-params "search" debounced-search)
-           (set-search-params! search-params))))
-     [debounced-search search-params set-search-params!])
+    ;; Guard ensures we only update the URL once the debounce has settled to the current input,
+    ;; preventing the old debounced value from re-adding the param after an external reset.
+    (uix/use-effect
+     (fn []
+       (when (= debounced-search search)
+         (cond
+           (and (= debounced-search "")
+                (.has search-params "search")
+                (not= "" (.. search-params (get "search"))))
+           (do
+             (.delete search-params "search")
+             (.set search-params "page" "1")
+             (set-search-params! search-params))
+
+           (and (not= debounced-search "")
+                (not= debounced-search (.. search-params (get "search"))))
+           (do
+             (.set search-params "page" "1")
+             (.set search-params "search" debounced-search)
+             (set-search-params! search-params)))))
+     [debounced-search search search-params set-search-params!])
 
     (uix/use-effect
      (fn []
@@ -61,4 +71,3 @@
   (uix/as-react
    (fn [props]
      (main props))))
-
