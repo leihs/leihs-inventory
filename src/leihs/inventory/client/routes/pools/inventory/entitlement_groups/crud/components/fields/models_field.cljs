@@ -62,7 +62,7 @@
           ($ Tooltip
              ($ TooltipTrigger {:asChild true}
                 ($ :span {:data-test-id "entitled_in_other_groups"} net-available))
-             ($ TooltipContent {:className "max-w-[20rem]"}
+             ($ TooltipContent {:class-name "max-w-[20rem]"}
                 (t "pool.entitlement_groups.entitlement_group.models.blocks.models.available_count_tooltip"))))
 
        ;; Separator
@@ -73,7 +73,7 @@
           ($ Tooltip
              ($ TooltipTrigger {:asChild true}
                 ($ :span {:data-test-id "available"} available))
-             ($ TooltipContent {:className "max-w-[20rem]"}
+             ($ TooltipContent {:class-name "max-w-[20rem]"}
                 (t "pool.entitlement_groups.entitlement_group.models.blocks.models.items_count_tooltip")))))))
 
 (defui ModelsField [{:keys [form block]}]

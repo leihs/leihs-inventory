@@ -1,13 +1,13 @@
 (ns leihs.inventory.client.routes.pools.inventory.list.components.table.item-info
   (:require
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.date-helper :refer [string-to-plain-date]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [item isPackageItem isSoftwareLicense]
-              :or {isPackageItem false}}]
+(defui ItemInfo [{:keys [item is-package-item is-software-license]
+                  :or {is-package-item false}}]
   (let [[t] (useTranslation)
         {:keys [fields]} (router/useLoaderData)
         params (router/useParams)
@@ -20,13 +20,13 @@
         get-label (fn [field-id value]
                     (get-in field-value-labels [(name field-id) value] value))]
 
-    (if isPackageItem
+    (if is-package-item
       ($ :div {:class-name "flex flex-row items-center"
                :data-test-id "item-info"}
          ($ :span {:class-name "w-32"}
             (:inventory_code item))
 
-         ($ :div {:className "flex flex-col text-sm text-muted-foreground"}
+         ($ :div {:class-name "flex flex-col text-sm text-muted-foreground"}
             ($ :span
                (:model_name item))
             ($ :span
@@ -36,7 +36,7 @@
          ($ :span {:class-name "w-32"}
             (:inventory_code item))
 
-         ($ :div {:className "flex flex-col text-sm text-muted-foreground"}
+         ($ :div {:class-name "flex flex-col text-sm text-muted-foreground"}
             (when (not= (:inventory_pool_id item)
                         (:owner_id item))
               ($ :span
@@ -52,7 +52,7 @@
                        (str (:reservation_user_name item) " " (t "pool.models.list.info.until") " "
                             (t "intlDateTime" #js {:val (string-to-plain-date (:reservation_end_date item))}))))
 
-                 (if isSoftwareLicense
+                 (if is-software-license
                    (let [os-values (seq (:properties_operating_system item))
                          entries (filterv some?
                                           (concat
@@ -89,7 +89,3 @@
                       (when (:room_name item)
                         ($ :span (:shelf item))))))))))))
 
-(def ItemInfo
-  (uix/as-react
-   (fn [props]
-     (main props))))

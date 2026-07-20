@@ -6,7 +6,7 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defui main [{:keys [className onReset]}]
+(defui Reset [{:keys [class-name on-reset]}]
   (let [ref (uix/use-ref nil)]
 
     (uix/use-effect
@@ -20,7 +20,7 @@
                           (not (.-metaKey e)))
                  (.preventDefault e)
                  (when ref
-                   (when-let [input-element (.-current ref)]
+                   (when-let [input-element @ref]
                      (.. input-element (click))))))]
 
          (js/window.addEventListener "keydown" on-key-down)
@@ -32,13 +32,9 @@
           ($ Button {:ref ref
                      :size "icon"
                      :variant "outline"
-                     :className (str " " className)
-                     :on-click onReset}
+                     :class-name (str " " class-name)
+                     :on-click on-reset}
              ($ ListRestart)))
        ($ TooltipContent
           "Reset filters (Alt+Shift+R)"))))
 
-(def Reset
-  (uix/as-react
-   (fn [props]
-     (main props))))

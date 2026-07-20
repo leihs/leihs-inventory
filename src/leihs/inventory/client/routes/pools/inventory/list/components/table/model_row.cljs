@@ -9,7 +9,7 @@
    ["@@/tooltip" :refer [Tooltip TooltipTrigger TooltipContent]]
    ["lucide-react" :refer [Ellipsis Columns3Cog ImageOff ChevronDown SquareMenu Package]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link]]
+   ["react-router" :as router :refer [Link]]
    ["sonner" :refer [toast]]
    [clojure.string :as str]
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
@@ -27,7 +27,7 @@
                  :fields :in_stock_quantity
                  :model_id :parent_id :inventory_pool_id :search])
 
-(defui ModelRow [{:keys [model className permission]}]
+(defui ModelRow [{:keys [model class-name permission]}]
   (let [location (router/useLocation)
         {:keys [settings]} (router/useRouteLoaderData "root")
         [t] (useTranslation)
@@ -70,7 +70,7 @@
                                    "[&+tr[data-row='item']]:shadow-[0_-0.5px_0_hsl(var(--shadow)),inset_0_4px_4px_-2px_hsl(var(--shadow))] "
                                    "[&+tr[data-row='package']]:shadow-[0_-0.5px_0_hsl(var(--shadow)),inset_0_4px_4px_-2px_hsl(var(--shadow))] "
                                    (if result "bg-secondary/75 " " ")
-                                   className)
+                                   class-name)
                       :on-expand handle-expand
                       :subrows (when (and result (= (:status result) 200))
                                  (when (seq (:data result))
@@ -102,13 +102,13 @@
                  ($ ImageOff {:class-name "w-6 h-6 text-border"})))))
 
        ($ TableCell
-          ($ :div {:className "flex gap-[2px] items-center"}
-             ($ Badge {:className (str "w-6 h-5 justify-center shadow-none "
-                                       (case (-> model :type)
-                                         "Package" "bg-slate-500"
-                                         "Model" "bg-slate-500"
-                                         "Option" "bg-emerald-500"
-                                         "Software" "bg-orange-500"))
+          ($ :div {:class-name "flex gap-[2px] items-center"}
+             ($ Badge {:class-name (str "w-6 h-5 justify-center shadow-none "
+                                        (case (-> model :type)
+                                          "Package" "bg-slate-500"
+                                          "Model" "bg-slate-500"
+                                          "Option" "bg-emerald-500"
+                                          "Software" "bg-orange-500"))
                        :data-test-id "type"}
                 (str (case (-> model :type)
                        "Package" "M"
@@ -117,7 +117,7 @@
                        "Software" "S")))
 
              (when (= (:type model) "Package")
-               ($ Package {:className "w-3 h-3"}))))
+               ($ Package {:class-name "w-3 h-3"}))))
 
        ($ TableCell
 
@@ -127,7 +127,7 @@
             ($ Typo {:variant :description}
                (str " " (:inventory_code model)))))
 
-       ($ TableCell {:className "text-right"}
+       ($ TableCell {:class-name "text-right"}
           (case (:type model)
             "Option"
             ($ :span {:data-test-id "price"}
@@ -144,7 +144,7 @@
                      ($ :div (str (t "pool.models.list.tooltip.rentable")
                                   ": " (-> model :borrowable_quantity str))))))))
 
-       ($ TableCell {:className "fit-content"}
+       ($ TableCell {:class-name "fit-content"}
           (if (= permission "read")
 
             ($ Button {:variant "outline"
@@ -174,7 +174,7 @@
                                   :class-name ""
                                   :variant "outline"
                                   :size "icon"}
-                          ($ ChevronDown {:className "w-4 h-4"})))
+                          ($ ChevronDown {:class-name "w-4 h-4"})))
                     ($ DropdownMenuContent {:align "start"}
                        ($ DropdownMenuItem
                           (case (-> model :type)

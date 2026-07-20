@@ -6,22 +6,24 @@ feature "Inventory list manager timeline actions", type: :feature do
   let(:building) { FactoryBot.create(:building, name: "Mgr Building", code: "MB1") }
   let(:room) { FactoryBot.create(:room, name: "Mgr Room", building: building) }
   let(:pool) { FactoryBot.create(:inventory_pool, shortname: "MT") }
-  let(:model) do
+  let!(:model) do
     FactoryBot.create(:leihs_model, product: "MgrModel #{search_token}", version: "v1")
   end
-  let(:package_model) do
+
+  let!(:package_model) do
     FactoryBot.create(:leihs_model,
       product: "MgrPackage #{search_token}",
       version: "v1",
       is_package: true)
   end
-  let(:software_model) do
+  let!(:software_model) do
     FactoryBot.create(:leihs_model,
       product: "MgrSoftware #{search_token}",
       version: "v1",
       type: "Software")
   end
-  let(:option) do
+
+  let!(:option) do
     FactoryBot.create(:option,
       product: "MgrOption #{search_token}",
       version: "v1",
@@ -38,6 +40,7 @@ feature "Inventory list manager timeline actions", type: :feature do
       package_model: package_model,
       software_model: software_model
     )
+    option
   end
 
   %i[inventory_manager lending_manager].each do |role|
@@ -51,17 +54,15 @@ feature "Inventory list manager timeline actions", type: :feature do
       login(user)
       visit "/inventory/#{pool.id}/list?page=1&size=50&with_items=true&retired=false"
 
-      expect(page).to have_content(pool.name, wait: 20)
-      find("input[name='search']").set(search_token)
-      await_debounce
+      expect(page).to have_content(pool.name)
+      search_in_list(search_token)
 
       expect_manager_timeline_in_edit_dropdown(pool: pool, model: model)
       expect_manager_timeline_in_edit_dropdown(pool: pool, model: package_model)
       expect_manager_timeline_in_edit_dropdown(pool: pool, model: software_model)
 
       visit "/inventory/#{pool.id}/list?page=1&size=50&retired=false"
-      find("input[name='search']").set(search_token)
-      await_debounce
+      search_in_list(search_token)
 
       expect_manager_option_row_without_timeline(
         product_label: "#{option.product} #{option.version}"

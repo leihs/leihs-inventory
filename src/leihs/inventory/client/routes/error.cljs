@@ -7,7 +7,7 @@
    ["@@/button" :refer [Button]]
    ["lucide-react" :refer [TriangleAlert SearchAlert CloudLightning Bomb Ban]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [useRouteError useNavigate Link]]
+   ["react-router" :as router :refer [useRouteError useNavigate Link]]
    [uix.core :as uix :refer [$ defui]]))
 
 ;; Determine error type

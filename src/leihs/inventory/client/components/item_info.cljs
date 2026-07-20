@@ -1,7 +1,7 @@
 (ns leihs.inventory.client.components.item-info
   (:require
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.date-helper :refer [string-to-plain-date]]
    [uix.core :as uix :refer [$ defui]]))
@@ -11,7 +11,7 @@
         params (router/useParams)
         pool-id (aget params "pool-id")]
 
-    ($ :div {:className "flex flex-col text-sm text-muted-foreground whitespace-nowrap"}
+    ($ :div {:class-name "flex flex-col text-sm text-muted-foreground whitespace-nowrap"}
        ($ :span
           (:inventory_pool_name item))
        ($ :span

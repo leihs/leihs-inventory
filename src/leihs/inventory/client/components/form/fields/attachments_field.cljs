@@ -6,7 +6,7 @@
    ["@@/form" :refer [FormControl FormField FormItem FormLabel]]
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
    ["lucide-react" :refer [Eye Trash]]
-   ["react-router-dom" :as router :refer [useLoaderData]]
+   ["react-router" :as router :refer [useLoaderData]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -19,7 +19,7 @@
   (when (seq items)
     (some #(when (= id (:id %)) (:url %)) items)))
 
-(defui main [{:keys [form name label props]}]
+(defui AttachmentsField [{:keys [form name label props]}]
   (let [set-value (aget form "setValue")
         get-values (aget form "getValues")
         {:keys [data]} (useLoaderData)
@@ -89,27 +89,23 @@
                                                 :generatePreview false}
 
                                           ($ TableCell
-                                             ($ :div {:className "flex justify-end space-x-4"}
+                                             ($ :div {:class-name "flex justify-end space-x-4"}
                                                 ($ Button {:asChild true
                                                            :variant "outline"
                                                            :size "icon"
                                                            :type "button"
-                                                           :className "select-none cursor-pointer"}
+                                                           :class-name "select-none cursor-pointer"}
                                                    ($ :a {:target "_blank"
                                                           :href (get-url-from-id
                                                                  (:id attachment)
                                                                  (:attachments data))}
-                                                      ($ Eye {:className "w-4 h-4"})))
+                                                      ($ Eye {:class-name "w-4 h-4"})))
 
                                                 ($ Button {:variant "outline"
                                                            :size "icon"
                                                            :type "button"
                                                            :onClick (fn [] (handle-delete index))
-                                                           :className "select-none cursor-pointer"}
+                                                           :class-name "select-none cursor-pointer"}
 
-                                                   ($ Trash {:className "w-4 h-4"})))))))))))))})))
+                                                   ($ Trash {:class-name "w-4 h-4"})))))))))))))})))
 
-(def AttachmentsField
-  (uix/as-react
-   (fn [props]
-     (main props))))

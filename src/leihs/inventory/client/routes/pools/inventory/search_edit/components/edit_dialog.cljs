@@ -7,7 +7,7 @@
    ["@@/spinner" :refer [Spinner]]
    ["lucide-react" :refer [Info]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :refer [useFetcher]]
+   ["react-router" :refer [useFetcher]]
    ["sonner" :refer [toast]]
    [leihs.inventory.client.components.patch-item-form :refer [PatchItemForm]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]

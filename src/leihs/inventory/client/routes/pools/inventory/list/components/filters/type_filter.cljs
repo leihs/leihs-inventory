@@ -8,11 +8,11 @@
    ["lucide-react" :refer [Tags ChevronDown Package]]
 
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [clojure.string :as str]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [className]}]
+(defui TypeFilter [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams) [t] (useTranslation)
         type (.. search-params (get "type"))
         handle-type (fn [selected-type]
@@ -25,10 +25,10 @@
 
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
-          ($ Button {:class-name (str "min-w-48 w-48 justify-start  " className)
+          ($ Button {:class-name (str "min-w-48 w-48 justify-start  " class-name)
                      :variant "outline"}
 
-             ($ Tags {:className "h-4 w-4"})
+             ($ Tags {:class-name "h-4 w-4"})
              (case type
                "model"
                (t "pool.models.filters.type.model")
@@ -57,9 +57,9 @@
                        "M"
                        (str/upper-case (subs type 0 1))))
                   (when (= type "package")
-                    ($ Package {:className "!w-3 !h-3 ml-[2px]"})))
+                    ($ Package {:class-name "!w-3 !h-3 ml-[2px]"})))
 
-               ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"}))))
+               ($ ChevronDown {:class-name "ml-auto h-4 w-4 opacity-50"}))))
 
        ($ DropdownMenuContent {:class-name "min-w-48 pr-2"
                                :data-test-id "type-filter-dropdown"
@@ -81,7 +81,7 @@
 
                    ($ Badge {:class-name "bg-slate-500 hover:bg-slate-500 mr-[2px] w-6 justify-center "}
                       "M")
-                   ($ Package {:className "w-3 h-3 mr-2"})
+                   ($ Package {:class-name "w-3 h-3 mr-2"})
                    (t "pool.models.filters.type.package")))
 
              ($ DropdownMenuRadioItem {:value "option"}
@@ -102,7 +102,3 @@
                          "S"))
                    (t "pool.models.filters.type.software"))))))))
 
-(def TypeFilter
-  (uix/as-react
-   (fn [props]
-     (main props))))

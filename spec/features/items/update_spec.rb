@@ -123,8 +123,7 @@ feature "Update item", type: :feature do
     login(user)
     visit "/inventory/#{pool.id}/list"
 
-    fill_in "search", with: model_old.product
-    await_debounce
+    search_in_list(model_old.product)
 
     within find('[data-row="model"]', text: model_old.product) do
       click_on "expand-button"
@@ -225,8 +224,7 @@ feature "Update item", type: :feature do
     expect(page).to have_text("Item was successfully saved")
     expect(page).to have_text("Inventory List")
 
-    fill_in "search", with: model_new.product
-    await_debounce
+    search_in_list(model_new.product)
 
     within find('[data-row="model"]', text: model_new.product) do
       click_on "expand-button"
@@ -293,8 +291,7 @@ feature "Update item", type: :feature do
     login(user)
     visit "/inventory/#{pool.id}/list"
 
-    fill_in "search", with: model_old.product
-    await_debounce
+    search_in_list(model_old.product)
 
     within find('[data-row="model"]', text: model_old.product) do
       click_on "expand-button"
@@ -325,8 +322,7 @@ feature "Update item", type: :feature do
         properties: {price: price_old})
       login(user)
       visit "/inventory/#{pool.id}/list"
-      fill_in "search", with: model_old.product
-      await_debounce
+      search_in_list(model_old.product)
       within find('[data-row="model"]', text: model_old.product) do
         click_on "expand-button"
       end
@@ -368,8 +364,7 @@ feature "Update item", type: :feature do
     visit "/inventory/#{pool.id}/list"
 
     # Test 1: Navigate to child item and verify alert appears
-    fill_in "search", with: child_item_model.product
-    await_debounce
+    search_in_list(child_item_model.product)
 
     within find('[data-row="model"]', text: child_item_model.product) do
       click_on "expand-button"
@@ -400,8 +395,7 @@ feature "Update item", type: :feature do
     visit "/inventory/#{pool.id}/list"
 
     # Test 2: Navigate to standalone item and verify NO alert appears
-    fill_in "search", with: child_item_model.product
-    await_debounce
+    search_in_list(child_item_model.product)
 
     within find('[data-row="model"]', text: child_item_model.product) do
       click_on "expand-button"

@@ -5,7 +5,7 @@
                        TableRow]]
    ["lucide-react" :refer [Pencil Eye]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link]]
+   ["react-router" :as router :refer [Link]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))

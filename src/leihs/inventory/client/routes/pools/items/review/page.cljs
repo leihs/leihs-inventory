@@ -10,7 +10,7 @@
                        TableRow]]
    ["lucide-react" :refer [ArrowLeft Download]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link]]
+   ["react-router" :as router :refer [Link]]
    [leihs.inventory.client.components.barcode :refer [Barcode]]
    [leihs.inventory.client.components.export :refer [Export]]
    [leihs.inventory.client.components.typo :refer [Typo]]

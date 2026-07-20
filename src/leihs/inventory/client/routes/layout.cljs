@@ -7,7 +7,7 @@
    ["@@/tooltip" :refer [TooltipProvider]]
    ["lucide-react" :refer [WifiOff]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Outlet ScrollRestoration]]
+   ["react-router" :as router :refer [Outlet ScrollRestoration]]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.routes.components.header :as header]
    [leihs.inventory.client.routes.components.theme-provider :refer [ThemeProvider]]
@@ -18,7 +18,7 @@
   (let [[t] (useTranslation)
         network (hooks/use-network-state)]
 
-    (when-not (.-online network)
+    (when-not (.-online ^js network)
       ($ AlertDialog {:open true}
          ($ AlertDialogContent
             ($ AlertDialogHeader
@@ -36,7 +36,7 @@
           ($ :<>
              ($ ScrollRestoration)
              ($ header/main profile)
-             ($ :main {:className "md:container"}
+             ($ :main {:class-name "md:container"}
                 ($ Outlet)
                 ($ Toaster {:position "top-center"
                             :closeButton true

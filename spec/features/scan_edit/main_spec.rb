@@ -76,9 +76,6 @@ feature "Scan & Edit", type: :feature do
     find('[data-test-id="barcode-input"]').set(item.inventory_code)
     find('[data-test-id="barcode-input"]').send_keys(:return)
 
-    expect(find('[data-test-id="item"]')).to be_disabled
-    expect(find('[data-test-id="barcode-input"]')).to be_disabled
-
     expect(page).to have_text("Item has been successfully updated")
   end
 

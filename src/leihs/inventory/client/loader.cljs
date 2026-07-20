@@ -1,6 +1,6 @@
 (ns leihs.inventory.client.loader
   (:require
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [clojure.edn :as edn]
    [clojure.string :as str]
    [leihs.inventory.client.lib.client :refer [http-client]]

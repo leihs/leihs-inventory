@@ -98,11 +98,11 @@
                              ($ TableCell
                                 ($ RadioGroupItem {:value index}))
                              ($ TableCell
-                                ($ :div {:className "flex justify-end"}
+                                ($ :div {:class-name "flex justify-end"}
                                    ($ Button {:variant "outline"
                                               :size "icon"
                                               :type "button"
                                               :onClick (fn [] (handle-delete index))
-                                              :className "select-none cursor-pointer"}
+                                              :class-name "select-none cursor-pointer"}
 
-                                      ($ Trash {:className "w-4 h-4"})))))))))))))))
+                                      ($ Trash {:class-name "w-4 h-4"})))))))))))))))

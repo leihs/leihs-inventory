@@ -64,8 +64,8 @@
   :frontend {:deps {cljs-http/cljs-http {:mvn/version "0.1.49"}
                     funcool/promesa {:mvn/version "11.0.678"}
                     noencore/noencore {:mvn/version "0.4.0"}
-                    com.pitch/uix.core {:mvn/version "1.0.1"}
-                    com.pitch/uix.dom {:mvn/version "1.0.1"}
+                    com.pitch/uix.core {:mvn/version "1.4.9"}
+                    com.pitch/uix.dom {:mvn/version "1.4.9"}
                     org.clojure/clojurescript {:mvn/version "1.12.145"}}
 
              :extra-paths ["dev"]

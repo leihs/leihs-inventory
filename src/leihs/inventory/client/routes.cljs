@@ -1,7 +1,8 @@
 (ns leihs.inventory.client.routes
   (:require
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [leihs.inventory.client.actions :as actions]
+   [leihs.inventory.client.components.loading :refer [loading-fallback]]
    [leihs.inventory.client.lib.utils :refer [cj]]
    [leihs.inventory.client.loader :as loader]
    [leihs.inventory.client.routes.debug.page :rename {page debug-page}]
@@ -46,6 +47,7 @@
       :id "root"
       :element ($ root-layout)
       :errorElement ($ error-page)
+      :hydrateFallbackElement ($ loading-fallback)
       :loader loader/root-layout
       :children
       (cj

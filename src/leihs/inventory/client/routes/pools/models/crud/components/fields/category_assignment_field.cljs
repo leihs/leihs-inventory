@@ -8,7 +8,7 @@
    ["lucide-react" :refer [Check ChevronsUpDown Trash]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :refer [useLoaderData]]
+   ["react-router" :refer [useLoaderData]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]

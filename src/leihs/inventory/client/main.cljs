@@ -1,6 +1,6 @@
 (ns leihs.inventory.client.main
   (:require
-   ["react-router-dom" :refer [RouterProvider]]
+   ["react-router/dom" :refer [RouterProvider]]
    [leihs.inventory.client.routes :refer [routes]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))

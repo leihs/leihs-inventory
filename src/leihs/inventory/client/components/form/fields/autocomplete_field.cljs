@@ -8,7 +8,7 @@
    ["@@/spinner" :refer [Spinner]]
    ["lucide-react" :refer [Check ChevronsUpDown FilePlusCorner]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client safe-concat]]
    [leihs.inventory.client.lib.hooks :as hooks]
@@ -155,9 +155,9 @@
                              ($ CommandInput {:placeholder (t (-> props :text :search))
                                               :data-test-id (str name "-input")})
 
-                             ($ CommandList
+                             ($ CommandList {:aria-busy (when loading? "true")}
                                 (if loading?
-                                  ($ Spinner {:className "absolute right-0 top-0 m-3"})
+                                  ($ Spinner {:class-name "absolute right-0 top-0 m-3"})
                                   ($ CommandEmpty (t (-> props :text :empty))))
 
                                 ;; extendable option to add new entry

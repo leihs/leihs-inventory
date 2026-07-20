@@ -9,7 +9,7 @@
    ["lucide-react" :refer [Barcode SquarePen Info]]
    ["react-hook-form" :refer [useForm]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :refer [Link useParams useFetcher useLoaderData useSearchParams]]
+   ["react-router" :refer [Link useParams useFetcher useLoaderData useSearchParams]]
    ["sonner" :refer [toast]]
    [cljs.reader :as reader]
    [clojure.string :as str]

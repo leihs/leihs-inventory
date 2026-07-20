@@ -146,8 +146,7 @@ feature "Create model", type: :feature do
     expect(page).to have_content "Inventory List"
     expect(page).to have_content "#{product} #{version}"
 
-    fill_in "search", with: "#{product} #{version}"
-    await_debounce
+    search_in_list("#{product} #{version}")
     find("a", text: "edit").click
 
     expect(

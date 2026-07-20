@@ -16,7 +16,20 @@ def assert_unchecked(el)
 end
 
 def await_debounce
-  sleep 0.3
+  page.has_css?('[aria-busy="true"]', wait: 0.5)
+  expect(page).not_to have_css('[aria-busy="true"]', wait: 10)
+end
+
+def search_in_list(product)
+  unless find("input[name='search']").value == product
+    fill_in "search", with: product
+    await_debounce
+  end
+end
+
+def await_list_loaded
+  expect(page).to have_css('[aria-busy="true"]')
+  expect(page).not_to have_css('[aria-busy="true"]')
 end
 
 def dismiss_open_menus

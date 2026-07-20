@@ -10,7 +10,7 @@
    ["lucide-react" :refer [Check ChevronsUpDown]]
    ["react-hook-form" :refer [useWatch]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :refer [useLoaderData]]
+   ["react-router" :refer [useLoaderData]]
    [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray
                                                                     FormFieldArrayItems
                                                                     use-array-item
@@ -136,7 +136,7 @@
               :render #($ FormItem
                           ($ FormControl
                              ($ Input (merge
-                                       {:className ""
+                                       {:class-name ""
                                         :type "number"
                                         :min "0"}
                                        (:field (jc %)))))

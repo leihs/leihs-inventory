@@ -6,7 +6,7 @@
    ["@@/table" :refer [Table TableBody TableHead TableHeader TableRow]]
    ["lucide-react" :refer [FunnelPlus]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [clojure.string :as str]
    [leihs.inventory.client.components.export :refer [Export]]
    [leihs.inventory.client.components.pagination :as pagination]
@@ -62,8 +62,8 @@
            (set-to-last-page! false))))
      [navigation pagination])
 
-    ($ Card {:className "my-4"}
-       ($ CardHeader {:className "flex bg-background rounded-xl z-10 sticky top-16"
+    ($ Card {:class-name "my-4"}
+       ($ CardHeader {:class-name "flex bg-background rounded-xl z-10 sticky top-16"
                       :style {:background "linear-gradient(to bottom, hsl(var(--background)) 90%, transparent 100%)"}}
 
           ;; Mobile filters
@@ -95,14 +95,14 @@
           (when is-desktop?
             ($ :div {:class-name "w-full flex"}
                ($ :div {:class-name "flex flex-col gap-2"}
-                  ($ :div {:className "flex gap-2"}
+                  ($ :div {:class-name "flex gap-2"}
                      ($ SearchFilter)
 
                      ($ RetiredFilter)
                      ($ WithItemsFilter)
                      ($ BorrowableFilter))
 
-                  ($ :div {:className "flex gap-2"}
+                  ($ :div {:class-name "flex gap-2"}
                      ($ TypeFilter)
                      ($ StatusFilter)
                      ($ InventoryPoolFilter)
@@ -113,7 +113,8 @@
                ($ Export {:url (str "/inventory/" pool-id "/list/?" search-params)}))))
 
        ($ CardContent {:class-name "pb-0"}
-          ($ :div {:class-name "border rounded-md"}
+          ($ :div {:class-name "border rounded-md"
+                   :aria-busy (when loading-list? "true")}
              (if (empty? models)
                ($ :div {:class-name "p-4 text-center text-sm text-muted-foreground"}
                   (t "pool.models.list.empty"))
@@ -124,10 +125,10 @@
                            ($ TableHead {:class-name "rounded-tl-md text-right"}
                               (t "pool.models.list.header.quantity"))
                            ($ TableHead "")
-                           ($ TableHead {:className "min-w-14 w-14"} "")
-                           ($ TableHead {:className "w-full min-w-[600px]"}
+                           ($ TableHead {:class-name "min-w-14 w-14"} "")
+                           ($ TableHead {:class-name "w-full min-w-[600px]"}
                               (t "pool.models.list.header.name"))
-                           ($ TableHead {:className "min-w-40 text-right "}
+                           ($ TableHead {:class-name "min-w-40 text-right "}
                               (t "pool.models.list.header.availability"))
                            ($ TableHead {:class-name "rounded-tr-md sticky"} "")))
 

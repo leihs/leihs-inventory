@@ -8,7 +8,7 @@
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader TableRow]]
    ["lucide-react" :refer [ChevronDown Image]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :refer [Link]]
+   ["react-router" :refer [Link]]
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
    [leihs.inventory.client.components.item-info :refer [ItemInfo]]
    [leihs.inventory.client.components.typo :refer [Typo]]
@@ -21,18 +21,18 @@
        ($ TableCell
           ($ Checkbox {:disabled true})))
 
-     ($ TableCell {:className "text-right"}
-        ($ Skeleton {:className "w-7 h-7"}))
+     ($ TableCell {:class-name "text-right"}
+        ($ Skeleton {:class-name "w-7 h-7"}))
 
      ($ TableCell
-        ($ :div {:className "flex gap-2"}
-           ($ Skeleton {:className "w-6 h-6"})))
+        ($ :div {:class-name "flex gap-2"}
+           ($ Skeleton {:class-name "w-6 h-6"})))
 
      ($ TableCell
-        ($ Skeleton {:className "w-auto h-6"}))
+        ($ Skeleton {:class-name "w-auto h-6"}))
 
-     ($ TableCell {:className "text-right"}
-        ($ Skeleton {:className "w-auto h-6"}))
+     ($ TableCell {:class-name "text-right"}
+        ($ Skeleton {:class-name "w-auto h-6"}))
 
      (when row-action
        ($ TableCell
@@ -103,7 +103,7 @@
                                    ($ Checkbox {:checked (contains? selected (:id item))
                                                 :onCheckedChange #(toggle-item (:id item))})))
 
-                              ($ TableCell {:className "text-right"}
+                              ($ TableCell {:class-name "text-right"}
                                  (if (:url item)
                                    ($ ImageModal {:class-name "min-w-12 w-12 h-12"
                                                   :url (:url item)
@@ -118,7 +118,7 @@
 
                               ($ TableCell
                                  ($ :div {:class-name "w-90 overflow-hidden whitespace-nowrap text-ellipsis"}
-                                    ($ Badge {:className "w-6 h-5 justify-center bg-blue-500 mr-2"}
+                                    ($ Badge {:class-name "w-6 h-5 justify-center bg-blue-500 mr-2"}
                                        (t "pool.models.list.item.badge"))
                                     ($ Typo {:variant "label"}
                                        (:model_name item))))

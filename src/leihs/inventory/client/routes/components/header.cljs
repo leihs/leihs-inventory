@@ -10,7 +10,7 @@
    ["@@/input-group" :refer [InputGroup InputGroupAddon InputGroupInput]]
    ["lucide-react" :refer [ChevronsUpDown CircleUser LayoutGrid Search]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    ["sonner" :refer [toast]]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
    [clojure.string :as str]
@@ -48,9 +48,9 @@
                                                         #js {:httpStatus (aget data "httpStatus")})})))))))
      [fetcher t])
 
-    ($ :header {:className "bg-background sticky z-50 top-0 flex items-center gap-4 border-b h-16"}
-       ($ :nav {:className "container w-full flex flex-row justify-between text-sm items-center"}
-          ($ :div {:className "flex items-center"}
+    ($ :header {:class-name "bg-background sticky z-50 top-0 flex items-center gap-4 border-b h-16"}
+       ($ :nav {:class-name "container w-full flex flex-row justify-between text-sm items-center"}
+          ($ :div {:class-name "flex items-center"}
              (let [logo-light (:logo_light settings)
                    logo-dark (:logo_dark settings)
                    resolved-theme (if (= theme "system")
@@ -70,32 +70,32 @@
                                :else "Logo default")]
 
                ($ :img {:src logo-src
-                        :className "h-16 py-2"
+                        :class-name "h-16 py-2"
                         :alt logo-type
                         :data-test-id "app-logo"}))
              ($ :form {:action current-search-url :method "GET"}
-                ($ InputGroup {:className "mx-12 w-fit"}
+                ($ InputGroup {:class-name "mx-12 w-fit"}
                    ($ InputGroupInput {:name "search_term"
                                        :placeholder (t "header.links.global-search" "Suche global")})
                    ($ InputGroupAddon
                       ($ Search))))
-             ($ :div {:className "flex gap-6"}
+             ($ :div {:class-name "flex gap-6"}
                 ($ :a {:href (or current-lending-url "/manage/")}
                    (t "header.links.lending" "Verleih"))
                 ($ :a {:href "/inventory/"
-                       :className "font-semibold"}
+                       :class-name "font-semibold"}
                    (t "header.links.inventory" "Inventar"))))
 
-          ($ :div {:className "flex"}
+          ($ :div {:class-name "flex"}
              ($ DropdownMenu
-                ($ DropdownMenuTrigger {:asChild "true" :className "ml-auto"}
+                ($ DropdownMenuTrigger {:asChild "true" :class-name "ml-auto"}
                    ($ Button {:variant "outline"}
                       ($ :<>
-                         ($ LayoutGrid {:className "h-4 w-4"})
-                         ($ :span {:className "hidden lg:block"}
+                         ($ LayoutGrid {:class-name "h-4 w-4"})
+                         ($ :span {:class-name "hidden lg:block"}
                             (if current-pool (:name current-pool) (t "header.app-menu.inventory" "Inventar")))
-                         ($ ChevronsUpDown {:className "h-4 w-4 hidden lg:block"}))))
-                ($ DropdownMenuContent {:className "ml-auto" :data-test-id "app-menu"}
+                         ($ ChevronsUpDown {:class-name "h-4 w-4 hidden lg:block"}))))
+                ($ DropdownMenuContent {:class-name "ml-auto" :data-test-id "app-menu"}
                    ($ DropdownMenuGroup
                       (when-let [url (:borrow_url navigation)]
                         ($ DropdownMenuItem {:asChild true}
@@ -107,24 +107,24 @@
                         ($ DropdownMenuItem {:asChild true}
                            ($ :a {:href url} (t "header.app-menu.procure" "Bedarfsermittlung")))))
                    ($ DropdownMenuSeparator)
-                   ($ DropdownMenuLabel {:className "text-xs font-normal"}
+                   ($ DropdownMenuLabel {:class-name "text-xs font-normal"}
                       (t "header.app-menu.inventory-pools", "Geräteparks") ":")
                    ($ DropdownMenuGroup
                       (for [pool (sort-by :name available_inventory_pools)]
                         (let [url (router/generatePath "/inventory/:pool-id" #js {:pool-id (:id pool)})]
                           ($ DropdownMenuItem {:key (:id pool)
                                                :asChild true
-                                               :className (when (= pool-id (:id pool)) "font-semibold")}
+                                               :class-name (when (= pool-id (:id pool)) "font-semibold")}
                              ($ :a {:href url} (:name pool))))))))
 
              ($ DropdownMenu
-                ($ DropdownMenuTrigger {:asChild "true" :className "ml-4"}
+                ($ DropdownMenuTrigger {:asChild "true" :class-name "ml-4"}
                    ($ Button {:variant "outline"}
                       ($ :<>
-                         ($ CircleUser {:className "h-4 w-4"})
-                         ($ :span {:className "hidden lg:block"} (:name user_details))
-                         ($ ChevronsUpDown {:className "h-4 w-4 hidden lg:block"}))))
-                ($ DropdownMenuContent {:className "ml-auto"}
+                         ($ CircleUser {:class-name "h-4 w-4"})
+                         ($ :span {:class-name "hidden lg:block"} (:name user_details))
+                         ($ ChevronsUpDown {:class-name "h-4 w-4 hidden lg:block"}))))
+                ($ DropdownMenuContent {:class-name "ml-auto"}
                    ($ DropdownMenuGroup
                       (when-let [url (some-> (:borrow_url navigation) (str "current-user"))]
                         ($ :<>
@@ -135,7 +135,7 @@
                       ($ DropdownMenuItem {:asChild true}
                          ($ :button {:type :submit
                                      :form "sign-out-form"
-                                     :className "w-full"}
+                                     :class-name "w-full"}
                             (t "header.user-menu.logout")
 
                             ($ :form {:action "/sign-out"

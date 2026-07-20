@@ -543,6 +543,11 @@
   environment_variables:
     FEATURE_NAME: "Scan & Edit 04"
     FEATURE: './spec/features/scan_edit/main_spec.rb[1:4]'
+'./spec/features/scan_edit/multi_field_spec.rb[1:1]':
+  name: "Scan & Edit - multiple fields 01"
+  environment_variables:
+    FEATURE_NAME: "Scan & Edit - multiple fields 01"
+    FEATURE: './spec/features/scan_edit/multi_field_spec.rb[1:1]'
 './spec/features/scan_edit/owner_only_spec.rb[1:1]':
   name: "Scan & Edit — owner-only field restriction 01"
   environment_variables:
@@ -603,6 +608,11 @@
   environment_variables:
     FEATURE_NAME: "Search & Edit - Filters edit dialog 03"
     FEATURE: './spec/features/search-edit/add_remove_filter_spec.rb[1:2:3]'
+'./spec/features/search-edit/bulk_edit_dynamic_fields_spec.rb[1:1]':
+  name: "Search & Edit - bulk edit dynamic fields 01"
+  environment_variables:
+    FEATURE_NAME: "Search & Edit - bulk edit dynamic fields 01"
+    FEATURE: './spec/features/search-edit/bulk_edit_dynamic_fields_spec.rb[1:1]'
 './spec/features/search-edit/dependent_fields_spec.rb[1:1:1]':
   name: "Search & Edit - Dependent Fields search filters 01"
   environment_variables:

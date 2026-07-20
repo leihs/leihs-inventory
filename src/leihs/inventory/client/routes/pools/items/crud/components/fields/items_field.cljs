@@ -12,7 +12,7 @@
    ["lucide-react" :refer [Check ChevronsUpDown]]
    ["react-i18next" :refer [useTranslation]]
 
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray
                                                                     FormFieldArrayItems
                                                                     use-array-items
@@ -158,9 +158,10 @@
                               :data-test-id "items-input"})
 
              ($ CommandList {:data-test-id "items-list"
+                             :aria-busy (when loading? "true")
                              :on-scroll (fn [] (set-selected! nil))}
                 (when loading?
-                  ($ Spinner {:className "absolute right-0 top-0 m-3"}))
+                  ($ Spinner {:class-name "absolute right-0 top-0 m-3"}))
                 ($ CommandEmpty (cond
                                   loading?
                                   (t (-> props :text :searching))

@@ -10,7 +10,7 @@
    ["@@/tabs" :refer [Tabs TabsContent TabsList TabsTrigger]]
    ["lucide-react" :refer [CirclePlus House List Search Users LayoutTemplate ChartArea Barcode]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [generatePath Link Outlet]]
+   ["react-router" :as router :refer [generatePath Link Outlet]]
    [clojure.string :as str]
    [leihs.core.core :refer [detect]]
    [leihs.inventory.client.lib.hooks :as hooks]
@@ -68,7 +68,7 @@
                           (not (.-metaKey e)))
                  (.preventDefault e)
                  (when ref
-                   (when-let [input-element (.-current ref)]
+                   (when-let [input-element @ref]
                      (.. input-element (click))))))]
 
          (js/window.addEventListener "keydown" on-key-down)
@@ -76,7 +76,7 @@
      [])
 
     ($ :section
-       ($ Breadcrumb {:className "my-8"}
+       ($ Breadcrumb {:class-name "my-8"}
           ($ BreadcrumbList
              ($ BreadcrumbItem
                 ($ BreadcrumbLink {:asChild true}
@@ -109,7 +109,7 @@
                      "templates" (t "pool.models.tabs.templates"))))))
 
        ($ Tabs {:value last-segment}
-          ($ :div {:className "flex w-full"}
+          ($ :div {:class-name "flex w-full"}
              ($ TabsList
                 (for [tab tabs]
                   (when (:show tab)
@@ -123,17 +123,17 @@
                            :viewTransition true}
                           ($ :span {:class-name "mr-0 md:mr-1"}
                              (case (:segment tab)
-                               "list" ($ List {:className "h-4 w-4"})
-                               "search-edit" ($ Search {:className "h-4 w-4"})
-                               "scan-edit" ($ Barcode {:className "h-4 w-4"})
-                               "statistics" ($ ChartArea {:className "h-4 w-4"})
-                               "entitlement-groups" ($ Users {:className "h-4 w-4"})
-                               "templates" ($ LayoutTemplate {:className "h-4 w-4"})))
+                               "list" ($ List {:class-name "h-4 w-4"})
+                               "search-edit" ($ Search {:class-name "h-4 w-4"})
+                               "scan-edit" ($ Barcode {:class-name "h-4 w-4"})
+                               "statistics" ($ ChartArea {:class-name "h-4 w-4"})
+                               "entitlement-groups" ($ Users {:class-name "h-4 w-4"})
+                               "templates" ($ LayoutTemplate {:class-name "h-4 w-4"})))
                           ($ :span {:class-name "hidden md:inline"}
                              (:label tab)))))))
 
              (when (= permission "edit")
-               ($ :div {:className "ml-auto"}
+               ($ :div {:class-name "ml-auto"}
                   (case last-segment
                     "list"
                     ($ DropdownMenu {:open open?
@@ -141,7 +141,7 @@
                        ($ DropdownMenuTrigger {:asChild "true"}
                           ($ Button {:ref ref
                                      :on-click #(set-open! (not open?))}
-                             ($ CirclePlus {:className "h-4 w-4"})
+                             ($ CirclePlus {:class-name "h-4 w-4"})
                              ($ :span {:class-name "hidden md:inline"}
                                 (t "pool.models.dropdown.title"))))
 
@@ -153,7 +153,7 @@
                                       :to (generatePath "/inventory/:pool-id/models/create"
                                                         (cj {:pool-id pool-id}))
                                       :viewTransition true}
-                                ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-slate-500"}
+                                ($ Badge {:class-name "w-6 h-5 justify-center shadow-none bg-slate-500"}
                                    "M")
                                 (t "pool.models.dropdown.add_model")))
 
@@ -162,7 +162,7 @@
                                       :to (generatePath "/inventory/:pool-id/software/create"
                                                         (cj {:pool-id pool-id}))
                                       :viewTransition true}
-                                ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-orange-500"}
+                                ($ Badge {:class-name "w-6 h-5 justify-center shadow-none bg-orange-500"}
                                    "S")
                                 (t "pool.models.dropdown.add_software")))
 
@@ -171,7 +171,7 @@
                                       :to (generatePath "/inventory/:pool-id/options/create"
                                                         (cj {:pool-id pool-id}))
                                       :viewTransition true}
-                                ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-emerald-500"}
+                                ($ Badge {:class-name "w-6 h-5 justify-center shadow-none bg-emerald-500"}
                                    "O")
                                 (t "pool.models.dropdown.add_option")))
 
@@ -182,7 +182,7 @@
                                       :to (generatePath "/inventory/:pool-id/packages/create"
                                                         (cj {:pool-id pool-id}))
                                       :viewTransition true}
-                                ($ Badge {:className "w-6 h-5 justify-center shadow-none bg-lime-500"}
+                                ($ Badge {:class-name "w-6 h-5 justify-center shadow-none bg-lime-500"}
                                    "P")
                                 (t "pool.models.dropdown.add_package")))
 
@@ -191,7 +191,7 @@
                                       :to (generatePath "/inventory/:pool-id/items/create"
                                                         (cj {:pool-id pool-id}))
                                       :viewTransition true}
-                                ($ Badge {:className "w-6 h-5 justify-center bg-blue-500"}
+                                ($ Badge {:class-name "w-6 h-5 justify-center bg-blue-500"}
                                    (t "pool.models.list.item.badge"))
                                 (t "pool.models.dropdown.add_item")))
 
@@ -200,7 +200,7 @@
                                       :to (generatePath "/inventory/:pool-id/licenses/create"
                                                         (cj {:pool-id pool-id}))
                                       :viewTransition true}
-                                ($ Badge {:className "w-6 h-5 justify-center bg-yellow-500"}
+                                ($ Badge {:class-name "w-6 h-5 justify-center bg-yellow-500"}
                                    "L")
                                 (t "pool.models.dropdown.add_license")))))
 
@@ -210,7 +210,7 @@
                                 :to (generatePath "/inventory/:pool-id/entitlement-groups/create"
                                                   (cj {:pool-id pool-id}))
                                 :viewTransition true}
-                          ($ CirclePlus {:className "h-4 w-4"})
+                          ($ CirclePlus {:class-name "h-4 w-4"})
                           (t "pool.models.add_entitlement_group")))
 
                     "templates"
@@ -219,7 +219,7 @@
                                 :to (generatePath "/inventory/:pool-id/templates/create"
                                                   (cj {:pool-id pool-id}))
                                 :viewTransition true}
-                          ($ CirclePlus {:className "h-4 w-4"})
+                          ($ CirclePlus {:class-name "h-4 w-4"})
                           (t "pool.models.add_template")))
 
                     ($ :<>)))))

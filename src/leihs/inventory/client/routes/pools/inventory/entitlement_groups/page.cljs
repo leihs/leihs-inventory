@@ -12,7 +12,7 @@
                        TableRow]]
    ["lucide-react" :refer [Trash]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link]]
+   ["react-router" :as router :refer [Link]]
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
@@ -59,10 +59,10 @@
           ($ CardTitle (t "pool.entitlement_groups.title"))
           ($ CardDescription (t "pool.entitlement_groups.description")))
        ($ CardContent
-          ($ :section {:className "rounded-md border overflow-x-hidden"}
+          ($ :section {:class-name "rounded-md border overflow-x-hidden"}
 
              (if (not (seq entitlement-groups))
-               ($ :div {:className "flex p-6 justify-center"}
+               ($ :div {:class-name "flex p-6 justify-center"}
                   (t "pool.entitlement_groups.list.empty"))
 
                ($ Table
@@ -88,10 +88,10 @@
                                                            " bg-green-500"
                                                            " bg-red-500"))})
 
-                          ($ TableCell {:className "font-bold"}
+                          ($ TableCell {:class-name "font-bold"}
                              (:name entitlement-group)
                              (when (:is_verification_required entitlement-group)
-                               ($ Badge {:variant "secondary" :className "float-right mr-4"}
+                               ($ Badge {:variant "secondary" :class-name "float-right mr-4"}
                                   (t "pool.entitlement_groups.list.misc.is_verification_required"))))
 
                           ($ TableCell {:data-test-id "number_of_users"}
@@ -103,19 +103,19 @@
                           ($ TableCell {:data-test-id "number_of_allocations"}
                              (:number_of_allocations entitlement-group))
 
-                          ($ TableCell {:className "text-right"}
+                          ($ TableCell {:class-name "text-right"}
                              ($ Button {:asChild true
                                         :variant "outline"}
                                 ($ Link {:state #js {:searchParams (.. location -search)}
                                          :to (:id entitlement-group)}
                                    (t "pool.entitlement_groups.list.actions.edit"))))
 
-                          ($ TableCell {:className "text-right"}
+                          ($ TableCell {:class-name "text-right"}
                              ($ Button {:variant "outline"
                                         :data-test-id "delete"
                                         :onClick #(set-delete-id! (:id entitlement-group))
                                         :size "icon"}
-                                ($ Trash {:className "h-4 w-4"}))))))))))
+                                ($ Trash {:class-name "h-4 w-4"}))))))))))
 
        ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-xl pt-6 overflow-auto"
                       :style {:background "linear-gradient(to top, hsl(var(--background)) 80%, transparent 100%)"}}

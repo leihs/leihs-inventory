@@ -7,12 +7,12 @@
    ["@@/spinner" :refer [Spinner]]
    ["lucide-react" :refer [Download ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    ["sonner" :refer [toast]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defui Export [{:keys [url count className]}]
+(defui Export [{:keys [url count class-name]}]
   (let [fetcher (router/useFetcher)
         last-data (uix/use-ref nil)
         [t] (useTranslation)]
@@ -36,18 +36,18 @@
           ($ Button {:data-test-id "export-button"
                      :variant "outline"
                      :disabled (= (.-state fetcher) "submitting")
-                     :className (str "ml-auto " className)}
+                     :class-name (str "ml-auto " class-name)}
 
              (if (= (.-state fetcher) "idle")
-               ($ Download {:className "h-4 w-4 xl:mr-2"})
-               ($ Spinner {:className "h-4 w-4 xl:mr-2"}))
+               ($ Download {:class-name "h-4 w-4 xl:mr-2"})
+               ($ Spinner {:class-name "h-4 w-4 xl:mr-2"}))
              ($ :div {:class-name "hidden xl:flex items-center"}
                 "Export"
                 (when count
                   ($ Badge {:variant "primary"
                             :class-name "ml-2 rounded-full"}
                      count))
-                ($ ChevronDown {:className "h-4 w-4 ml-2"}))))
+                ($ ChevronDown {:class-name "h-4 w-4 ml-2"}))))
 
        ($ DropdownMenuContent
           ($ fetcher.Form {:method "post"
@@ -60,7 +60,7 @@
                         :value "csv"})
              ($ DropdownMenuItem {:asChild true}
                 ($ :button {:type "submit"
-                            :className "w-full cursor-pointer"}
+                            :class-name "w-full cursor-pointer"}
                    "CSV")))
 
           ($ fetcher.Form {:method "post"
@@ -73,5 +73,5 @@
                         :value "excel"})
              ($ DropdownMenuItem {:asChild true}
                 ($ :button {:type "submit"
-                            :className "w-full cursor-pointer"}
+                            :class-name "w-full cursor-pointer"}
                    "Excel")))))))

@@ -142,8 +142,7 @@ feature "Update model", type: :feature do
     login(user)
     visit "/inventory/#{pool.id}"
     select_value("with_items", "without_items")
-    fill_in "search", with: "#{product_old} #{version_old}"
-    await_debounce
+    search_in_list("#{product_old} #{version_old}")
     find("a", text: "edit").click
 
     fill_in "Product", with: product_new
@@ -207,8 +206,7 @@ feature "Update model", type: :feature do
 
     expect(page).to have_content "Inventory List"
     select_value("with_items", "without_items")
-    fill_in "search", with: "#{product_new} #{version_new}"
-    await_debounce
+    search_in_list("#{product_new} #{version_new}")
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
@@ -301,8 +299,7 @@ feature "Update model", type: :feature do
     login(user)
     visit "/inventory/#{pool.id}"
     select_value("with_items", "all")
-    fill_in "search", with: "#{product_old} #{version_old}"
-    await_debounce
+    search_in_list("#{product_old} #{version_old}")
     find("a", text: "edit").click
 
     # Check that the rentable count is displayed correctly
@@ -328,8 +325,7 @@ feature "Update model", type: :feature do
     login(user)
     visit "/inventory/#{pool.id}"
     select_value("with_items", "all")
-    fill_in "search", with: "#{product_old} #{version_old}"
-    await_debounce
+    search_in_list("#{product_old} #{version_old}")
     find("a", text: "edit").click
 
     within id: "pool.model.entitlements.title" do

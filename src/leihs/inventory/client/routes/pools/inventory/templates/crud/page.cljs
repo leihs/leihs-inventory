@@ -16,7 +16,7 @@
    ["lucide-react" :refer [ChevronDown]]
    ["react-hook-form" :refer [useForm]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link useLoaderData]]
+   ["react-router" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
@@ -159,33 +159,33 @@
                           (.. toast (error :statusText template-res))))))]
 
     (if is-loading
-      ($ :div {:className "flex justify-center items-center h-screen"}
+      ($ :div {:class-name "flex justify-center items-center h-screen"}
          ($ Spinner))
 
-      ($ :article {:className "mt-6"}
-         ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
+      ($ :article {:class-name "mt-6"}
+         ($ :h1 {:class-name "text-2xl bold font-bold mt-12 mb-2"}
             (t "pool.templates.template.title")
 
             ($ title/main {:control control}))
 
-         ($ Card {:className "my-4"}
+         ($ Card {:class-name "my-4"}
             ($ CardContent
-               ($ :div {:className "flex gap-4"}
+               ($ :div {:class-name "flex gap-4"}
                   ($ Form (merge form)
                      ($ :form {:id "template-form"
-                               :className "space-y-12 w-full xl:w-3/5"
+                               :class-name "space-y-12 w-full xl:w-3/5"
                                :no-validate true
                                :on-submit (handle-submit on-submit on-invalid)}
 
                         (for [section (jc structure)]
-                          ($ :div {:className "scroll-mt-[10vh]"
+                          ($ :div {:class-name "scroll-mt-[10vh]"
                                    :key (:title section)
                                    :id (:title section)
                                    :name (t (:title section))}
 
-                             ($ :h2 {:className "text-lg"} (t (:title section)))
+                             ($ :h2 {:class-name "text-lg"} (t (:title section)))
                              (when (:title section)
-                               ($ :hr {:className "mb-4"}))
+                               ($ :hr {:class-name "mb-4"}))
 
                              (for [block (:blocks section)]
                                ($ FieldDispatcher {:key (:name block)
@@ -205,7 +205,7 @@
                         ($ DropdownMenuTrigger {:asChild true}
                            ($ Button {:data-test-id "submit-dropdown"
                                       :size "icon"}
-                              ($ ChevronDown {:className "w-4 h-4"})))
+                              ($ ChevronDown {:class-name "w-4 h-4"})))
                         ($ DropdownMenuContent {:align "end"}
                            ($ DropdownMenuItem {:asChild true}
                               ($ Link {:to (str (router/generatePath "/inventory/:pool-id/templates" params)

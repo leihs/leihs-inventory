@@ -8,14 +8,14 @@
    ["@@/table" :refer [TableCell TableRow]]
    ["lucide-react" :refer [ImageOff ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link]]
+   ["react-router" :as router :refer [Link]]
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-info :refer [ItemInfo]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [item type isPackageItem permission]
-              :or {isPackageItem false}}]
+(defui ItemRow [{:keys [item type is-package-item permission]
+                 :or {is-package-item false}}]
 
   (let [location (router/useLocation)
         [t] (useTranslation)
@@ -34,7 +34,7 @@
 
        ($ TableCell)
 
-       ($ TableCell {:className "text-right"}
+       ($ TableCell {:class-name "text-right"}
           (if (:url item)
             ($ ImageModal {:class-name "w-7 h-7 !p-0"
                            :url (:url item)
@@ -43,22 +43,22 @@
                ($ ImageOff {:class-name "w-5 h-5 text-border"}))))
 
        ($ TableCell
-          ($ :div {:className "flex gap-2 "}
+          ($ :div {:class-name "flex gap-2 "}
              (if (= type "Software")
-               ($ Badge {:className "w-6 h-5 justify-center bg-yellow-500"}
+               ($ Badge {:class-name "w-6 h-5 justify-center bg-yellow-500"}
                   "L")
-               ($ Badge {:className "w-6 h-5 justify-center bg-blue-500"}
+               ($ Badge {:class-name "w-6 h-5 justify-center bg-blue-500"}
                   (t "pool.models.list.item.badge")))))
 
        ($ TableCell
           ($ ItemInfo {:item item
-                       :is-package-item isPackageItem
+                       :is-package-item is-package-item
                        :is-software-license (= type "Software")}))
 
-       ($ TableCell {:className "text-right"}
+       ($ TableCell {:class-name "text-right"}
           ($ ItemStatus {:item item}))
 
-       ($ TableCell {:className "fit-content"}
+       ($ TableCell {:class-name "fit-content"}
           (if (= permission "read")
 
             ($ Button {:variant "outline"
@@ -75,7 +75,7 @@
                                  (str "../licenses/" (:id item))
 
                                  "Package"
-                                 (if isPackageItem
+                                 (if is-package-item
                                    (str "../items/" (:id item))
                                    (str "../packages/" (:id item)))
 
@@ -90,7 +90,7 @@
                                 :class-name ""
                                 :variant "outline"
                                 :size "icon"}
-                        ($ ChevronDown {:className "w-4 h-4"})))
+                        ($ ChevronDown {:class-name "w-4 h-4"})))
                   ($ DropdownMenuContent {:align "start"}
                      ($ DropdownMenuItem
                         (case type
@@ -110,7 +110,3 @@
                                    :viewTransition true}
                              (t "pool.models.list.actions.copy_item")))))))))))
 
-(def ItemRow
-  (uix/as-react
-   (fn [props]
-     (main props))))

@@ -9,25 +9,25 @@
 
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [permission]}]
+(defui SkeletonRow [{:keys [permission]}]
   (let [[t] (useTranslation)]
 
     ($ TableRow {:class-name "shadow-[0_-0.5px_0_hsl(var(--border))] "}
        ($ TableCell
-          ($ Skeleton {:className "w-[76px] h-9 ml-2"}))
+          ($ Skeleton {:class-name "w-[76px] h-9 ml-2"}))
 
        ($ TableCell
-          ($ Skeleton {:className "w-12 h-12"}))
+          ($ Skeleton {:class-name "w-12 h-12"}))
 
        ($ TableCell
-          ($ :div {:className "flex gap-2"}
-             ($ Skeleton {:className "w-6 h-6"})))
+          ($ :div {:class-name "flex gap-2"}
+             ($ Skeleton {:class-name "w-6 h-6"})))
 
        ($ TableCell
-          ($ Skeleton {:className "w-auto h-6"}))
+          ($ Skeleton {:class-name "w-auto h-6"}))
 
        ($ TableCell
-          ($ Skeleton {:className "w-auto h-6"}))
+          ($ Skeleton {:class-name "w-auto h-6"}))
 
        ($ TableCell
           ($ Skeleton
@@ -45,9 +45,5 @@
                              :class-name ""
                              :variant "outline"
                              :size "icon"}
-                     ($ ChevronDown {:className "w-4 h-4"})))))))))
+                     ($ ChevronDown {:class-name "w-4 h-4"})))))))))
 
-(def SkeletonRow
-  (uix/as-react
-   (fn [props]
-     (main props))))

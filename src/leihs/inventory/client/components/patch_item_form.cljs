@@ -10,7 +10,7 @@
    ["lucide-react" :refer [Equal Trash CirclePlus UserLock]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :refer [useParams]]
+   ["react-router" :refer [useParams]]
    ["zod" :as z]
    [clojure.string :as str]
    [leihs.inventory.client.components.typo :refer [Typo]]

@@ -7,7 +7,7 @@
    ["lucide-react" :refer [ChevronLeft ChevronRight CirclePlus Equal Trash EqualApproximately]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.hooks :refer [use-dependent-fields]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]

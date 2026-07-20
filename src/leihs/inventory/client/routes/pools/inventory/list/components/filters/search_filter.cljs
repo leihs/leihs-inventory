@@ -2,11 +2,11 @@
   (:require
    ["@@/input" :refer [Input]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [leihs.inventory.client.lib.hooks :as hooks]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [class-name]}]
+(defui SearchFilter [{:keys [class-name]}]
   (let [ref (uix/use-ref nil)
         [search-params set-search-params!] (router/useSearchParams)
         [t] (useTranslation)
@@ -53,7 +53,7 @@
                           (not (.-metaKey e)))
                  (.preventDefault e)
                  (when ref
-                   (when-let [input-element (.-current ref)]
+                   (when-let [input-element @ref]
                      (.focus input-element)))))]
 
          (js/window.addEventListener "keydown" on-key-down)
@@ -63,11 +63,8 @@
     ($ Input {:ref ref
               :placeholder (t "pool.models.filters.search.placeholder")
               :name "search"
-              :className (str "w-48 py-0" class-name)
+              :class-name (str "w-48 py-0" class-name)
               :value search
               :onChange #(set-search! (.. % -target -value))})))
 
-(def SearchFilter
-  (uix/as-react
-   (fn [props]
-     (main props))))
+

@@ -149,8 +149,7 @@ feature "Create license", type: :feature do
     expect(page).to have_content "Inventory List"
 
     # Search and find license
-    fill_in "search", with: software_model.product
-    await_debounce
+    search_in_list(software_model.product)
 
     within find('[data-row="model"]', text: software_model.product) do
       click_on "expand-button"
@@ -296,8 +295,7 @@ feature "Create license", type: :feature do
     expect(page).to have_text "License was successfully created"
 
     # Verify software model was saved correctly
-    fill_in "search", with: software_model.product
-    await_debounce
+    search_in_list(software_model.product)
 
     within find('[data-row="model"]', text: software_model.product) do
       click_on "expand-button"

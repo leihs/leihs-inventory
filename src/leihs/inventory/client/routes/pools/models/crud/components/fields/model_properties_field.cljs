@@ -38,7 +38,7 @@
     ($ Button {:type "button"
                :variant "outline"
                :on-click handle-add}
-       ($ CirclePlus {:className "w-4 h-4"})
+       ($ CirclePlus {:class-name "w-4 h-4"})
        (t "pool.model.model_properties.blocks.model_properties.add_button"))))
 
 (defui PropertyItem []
@@ -53,7 +53,7 @@
               :render #($ FormItem
                           ($ FormControl
                              ($ Input (merge
-                                       {:className "min-h-[2.5rem]"}
+                                       {:class-name "min-h-[2.5rem]"}
                                        (:field (jc %)))))
                           ($ FormMessage))}))
 
@@ -65,7 +65,7 @@
               :render #($ FormItem
                           ($ FormControl
                              ($ Textarea (merge
-                                          {:className "min-h-[2.5rem]"
+                                          {:class-name "min-h-[2.5rem]"
                                            :autoscale true
                                            :resize true}
                                           (:field (jc %)))))
@@ -79,7 +79,7 @@
               :render #($ FormItem
                           ($ FormControl
                              ($ Textarea (merge
-                                          {:className "min-h-[2.5rem]"
+                                          {:class-name "min-h-[2.5rem]"
                                            :autoscale true
                                            :resize true}
                                           (:field (jc %)))))

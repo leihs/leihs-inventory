@@ -1,6 +1,6 @@
 (ns leihs.inventory.client.lib.hooks
   (:require ["react-hook-form" :refer [useWatch]]
-            ["react-router-dom" :as router]
+            ["react-router" :as router]
             [leihs.core.core :refer [detect]]
             [leihs.inventory.client.lib.utils :refer [jc cj]]
             [uix.core :as uix]))
