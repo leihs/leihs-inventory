@@ -4,21 +4,23 @@
   cheshire/cheshire {:mvn/version "5.13.0"}
   clj-http/clj-http {:mvn/version "3.13.0"}
   cljsjs/react-dom {:mvn/version "18.2.0-1"}
-  clojure.java-time/clojure.java-time {:mvn/version "1.4.2"}
+  clojure.java-time/clojure.java-time {:mvn/version "1.4.3"}
   com.flocktory/wet {:mvn/version "0.2.1"}
   com.layerware/hugsql {:mvn/version "0.5.3"}
-  com.rpl/specter {:mvn/version "1.1.4"}
-  fi.metosin/reitit-openapi {:mvn/version "0.7.1"}
+  com.rpl/specter {:mvn/version "1.1.6"}
+  com.google.code.gson/gson {:mvn/version "2.8.9"} ; transitive from hickory, https://osv.dev/GHSA-4jrv-ppp4-jm57
+  com.google.protobuf/protobuf-java {:mvn/version "3.25.5"} ; transitive from hickory, several GHSA  fi.metosin/reitit-openapi {:mvn/version "0.7.1"}
   leihs-core/leihs-core {:local/root "./shared-clj"}
   metosin/reitit {:mvn/version "0.7.1"}
   org.clojure/data.generators {:mvn/version "1.1.0"}
   org.clojure/spec.alpha {:mvn/version "0.5.238"}
   org.threeten/threeten-extra {:mvn/version "1.8.0"}
-  ring/ring-core {:mvn/version "1.15.2"}
+  org.mozilla/rhino {:mvn/version "1.7.14.1"} ; transitive from hickory, https://osv.dev/GHSA-3w8q-xq97-5j7x
+  ring/ring-core {:mvn/version "1.15.5"}
   ring/ring-defaults {:mvn/version "0.5.0"}
-  org.apache.logging.log4j/log4j-api #:mvn{:version "2.26.0"} ; several CVEs (transitive from dk.ative/docjure)
+  org.apache.logging.log4j/log4j-api {:mvn/version "2.26.1"} ; several CVEs (transitive from dk.ative/docjure)
   org.clj-commons/byte-streams {:mvn/version "0.3.4"}
-  org.clojure/data.csv {:mvn/version "1.1.0"}
+  org.clojure/data.csv {:mvn/version "1.1.1"}
   org.jsoup/jsoup {:mvn/version "1.15.3"} ; CVE-2021-37714, CVE-2022-36033 (transitive from hickory/hickory)
   dk.ative/docjure {:mvn/version "1.22.0" :exclusions [org.apache.logging.log4j/log4j-api]}
   hickory/hickory {:mvn/version "0.7.1" :exclusions [org.jsoup/jsoup]}
@@ -38,7 +40,7 @@
                                  :exclusions [org.bouncycastle/bcpkix-jdk15on
                                               org.bouncycastle/bcprov-jdk15on
                                               org.bouncycastle/bcutil-jdk15on]}
-  org.bouncycastle/bcpkix-jdk18on {:mvn/version "1.80"} ; several CVEs (transitive from cryptohash-clj/cryptohash-clj and cider-ci/open-session)
+  org.bouncycastle/bcpkix-jdk18on {:mvn/version "1.85"} ; several CVEs (transitive from cryptohash-clj/cryptohash-clj and cider-ci/open-session)
   org.clojure/data.codec {:mvn/version "0.1.1"}}
 
  :aliases
@@ -59,9 +61,9 @@
          :main-opts ["-m" "cognitect.test-runner"]
          :exec-fn cognitect.test-runner.api/test}
 
-  :frontend {:deps {cljs-http/cljs-http {:mvn/version "0.1.48"}
+  :frontend {:deps {cljs-http/cljs-http {:mvn/version "0.1.49"}
                     funcool/promesa {:mvn/version "11.0.678"}
-                    noencore/noencore {:mvn/version "0.3.8"}
+                    noencore/noencore {:mvn/version "0.4.0"}
                     com.pitch/uix.core {:mvn/version "1.0.1"}
                     com.pitch/uix.dom {:mvn/version "1.0.1"}
                     org.clojure/clojurescript {:mvn/version "1.12.145"}}
@@ -71,9 +73,4 @@
                           thheller/shadow-cljs {:mvn/version "3.4.11"}}}
 
   :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "2.9.1221"}}
-             :main-opts ["-m" "antq.core"]}
-
-  :clj-watson {:replace-deps
-               {io.github.clj-holmes/clj-watson
-                {:git/tag "v6.1.0" :git/sha "be98e4d"}}
-               :main-opts ["-m" "clj-watson.cli"]}}}
+             :main-opts ["-m" "antq.core"]}}}
