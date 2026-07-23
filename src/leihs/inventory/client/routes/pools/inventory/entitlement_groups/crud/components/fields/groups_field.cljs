@@ -43,7 +43,7 @@
         [data set-data!] (uix/use-state [])
 
         [search set-search!] (uix/use-state "")
-        debounced-search (hooks/use-debounce search 200)
+        [debounced-search] (hooks/use-debounce search 200)
         size (hooks/use-window-size)
 
         {:keys [fields append remove]} (use-array-items)

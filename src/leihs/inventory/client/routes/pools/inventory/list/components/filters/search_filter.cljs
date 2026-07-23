@@ -11,36 +11,40 @@
         [search-params set-search-params!] (router/useSearchParams)
         [t] (useTranslation)
         [search set-search!] (uix/use-state (or (.get search-params "search") ""))
-        debounced-search (hooks/use-debounce search 300)]
+        [debounced-search reset-debounce!] (hooks/use-debounce search 300)
+        prev-url-search (uix/use-ref (.get search-params "search"))]
 
-    ;; Sync local state when URL search param changes externally 
-    ;; (e.g. navigation or filter reset)
     (uix/use-effect
      (fn []
-       (set-search! (or (.get search-params "search") "")))
-     [search-params])
+       (let [prev @prev-url-search
+             current (.get search-params "search")]
+         (reset! prev-url-search current)
 
-    ;; Guard ensures we only update the URL once the debounce has settled to the current input,
-    ;; preventing the old debounced value from re-adding the param after an external reset.
-    (uix/use-effect
-     (fn []
-       (when (= debounced-search search)
-         (cond
-           (and (= debounced-search "")
-                (.has search-params "search")
-                (not= "" (.. search-params (get "search"))))
-           (do
-             (.delete search-params "search")
-             (.set search-params "page" "1")
-             (set-search-params! search-params))
+         ;; when search query param was in URL before (?search -> nil)
+         ;; reset the debounced timer and search
+         (if (and (some? prev)
+                  (nil? current))
 
-           (and (not= debounced-search "")
-                (not= debounced-search (.. search-params (get "search"))))
-           (do
-             (.set search-params "page" "1")
-             (.set search-params "search" debounced-search)
-             (set-search-params! search-params)))))
-     [debounced-search search search-params set-search-params!])
+           ;; External removal of search query param: 
+           ;; cancel pending debounce and reset input.
+           (do (set-search! "")
+               (reset-debounce! ""))
+
+           ;; otherwise when search query param wasn't in URL and now is (nil -> ?search)
+           ;; Guard ensures we only update the URL once the debounce has settled.
+           (when (= debounced-search search)
+             (cond
+               (and (= debounced-search "") (.has search-params "search"))
+               (do (.delete search-params "search")
+                   (.set search-params "page" "1")
+                   (set-search-params! search-params))
+
+               (and (not= debounced-search "") (not= debounced-search current))
+               (do (.set search-params "page" "1")
+                   (.set search-params "search" debounced-search)
+                   (set-search-params! search-params)))))))
+     [debounced-search search search-params
+      set-search-params! reset-debounce!])
 
     (uix/use-effect
      (fn []
@@ -66,5 +70,3 @@
               :class-name (str "w-48 py-0" class-name)
               :value search
               :onChange #(set-search! (.. % -target -value))})))
-
-

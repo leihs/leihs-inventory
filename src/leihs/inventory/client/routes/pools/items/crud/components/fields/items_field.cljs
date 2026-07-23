@@ -83,7 +83,7 @@
         [selected set-selected!] (uix/use-state nil)
 
         [search set-search!] (uix/use-state "")
-        debounced-search (hooks/use-debounce search 300)
+        [debounced-search] (hooks/use-debounce search 300)
         size (hooks/use-window-size)
 
         {:keys [fields append remove]} (use-array-items)

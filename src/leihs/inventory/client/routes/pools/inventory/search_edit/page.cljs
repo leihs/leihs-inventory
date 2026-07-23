@@ -116,7 +116,7 @@
         watch (useWatch #js {:control control
                              :name "$or"})
 
-        debounced-watch (hooks/use-debounce watch 300)
+        [debounced-watch] (hooks/use-debounce watch 300)
 
         selected-item-objects (filter #(contains? selected-items (:id %)) item-list)
 

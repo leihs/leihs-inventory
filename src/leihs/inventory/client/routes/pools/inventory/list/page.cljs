@@ -48,7 +48,7 @@
         size (js/parseInt (or (.. search-params (get "size"))
                               "50"))
         handle-reset (fn []
-                       (navigate (str "?page=1&size=" size "&with_items=true")))
+                       (navigate #js {:search (str "?page=1&size=" size "&with_items=true")}))
 
         is-desktop? (hooks/use-media-query "(min-width: 1280px)")]
 

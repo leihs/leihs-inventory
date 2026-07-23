@@ -42,7 +42,7 @@
         disabled (:disabled props)
 
         [search set-search!] (uix/use-state "")
-        debounced-search (hooks/use-debounce search 300)
+        [debounced-search] (hooks/use-debounce search 300)
 
         set-value (aget form "setValue")
         get-values (aget form "getValues")
