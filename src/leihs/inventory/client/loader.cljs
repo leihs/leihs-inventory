@@ -379,9 +379,12 @@
           model-path (when model-id
                        (str "/inventory/" pool-id "/models/" model-id))
 
-          data (when model-path
+          data (if model-path
                  (-> http-client
                      (.get model-path #js {:id model-id})
+                     (.then #(jc (.-data %))))
+                 (-> http-client
+                     (.get (str "/inventory/" pool-id "/models/form-meta"))
                      (.then #(jc (.-data %)))))]
 
     (try

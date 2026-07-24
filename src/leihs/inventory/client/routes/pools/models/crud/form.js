@@ -2,6 +2,7 @@ import { z } from "zod"
 
 export const schema = z.object({
   is_package: z.boolean().optional(),
+  transportable: z.boolean().optional(),
   product: z.string().min(1),
   version: z.string().optional(),
   manufacturer: z
@@ -95,6 +96,7 @@ export const structure = [
         name: "is_package",
         label: "pool.model.product.blocks.package.label",
         component: "checkbox",
+        inline: true,
         props: {
           defaultChecked: false,
           "data-id": "is-package",

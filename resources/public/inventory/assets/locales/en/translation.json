@@ -795,6 +795,9 @@
           "package": {
             "label": "this is a package"
           },
+          "transportable": {
+            "label": "Model is transportable"
+          },
           "product": {
             "label": "Product"
           },

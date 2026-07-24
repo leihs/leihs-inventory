@@ -33,6 +33,7 @@
 
 (def default-values {:product ""
                      :is_package false
+                     :transportable true
                      :manufacturer ""
                      :description ""
                      :internal_description ""
@@ -43,6 +44,21 @@
                      :entitlements []
                      :properties []
                      :accessories []})
+
+(def transportable-block
+  {:name "transportable"
+   :label "pool.model.product.blocks.transportable.label"
+   :component "checkbox"
+   :inline true
+   :props {"data-id" "transportable"}})
+
+(defn- form-structure [enable-alternative-pickup-locations?]
+  (mapv (fn [section]
+          (if (and enable-alternative-pickup-locations?
+                   (= (:title section) "pool.model.product.title"))
+            (update section :blocks conj transportable-block)
+            section))
+        (jc structure)))
 
 (defui page []
   (let [[t] (useTranslation)
@@ -62,7 +78,11 @@
 
         is-edit (not (or is-create is-delete))
 
+        params (router/useParams)
         {:keys [data]} (jc (useLoaderData))
+        enable-alternative-pickup-locations
+        (boolean (:enable_alternative_pickup_locations data))
+        form-structure-blocks (form-structure enable-alternative-pickup-locations)
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
                                             (fn [] (form-helper/process-files data :attachments :images))
@@ -70,7 +90,6 @@
 
         is-loading (.. form -formState -isLoading)
 
-        params (router/useParams)
         on-invalid (fn [data]
                      (let [invalid-filds-count (count (jc data))]
                        (if (= invalid-filds-count 0)
@@ -293,7 +312,7 @@
                                :no-validate true
                                :on-submit (handle-submit on-submit on-invalid)}
 
-                        (for [section (jc structure)]
+                        (for [section form-structure-blocks]
                           ($ ScrollspyItem {:class-name "scroll-mt-[10vh]"
                                             :key (:title section)
                                             :id (:title section)

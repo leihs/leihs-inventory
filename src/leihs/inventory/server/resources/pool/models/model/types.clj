@@ -42,6 +42,8 @@
                                     :nil/hand_over_note
                                     :nil/internal_description
                                     ::sp/product
-                                    ::sp/is_deletable])
+                                    ::sp/is_deletable
+                                    ::sp/transportable
+                                    ::sp/enable_alternative_pickup_locations])
 
             :description "Complete inventory response"}))

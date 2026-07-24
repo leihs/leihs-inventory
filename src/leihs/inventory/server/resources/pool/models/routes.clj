@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.resources.pool.models.routes
   (:require
    [leihs.inventory.server.resources.pool.models.main :as models]
+   [leihs.inventory.server.resources.pool.models.model.main :as model]
    [leihs.inventory.server.resources.pool.models.types :refer [description-model-form
                                                                get-compatible-response
                                                                post-response]]
@@ -8,6 +9,19 @@
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
+
+(defn form-meta-routes []
+  ["/models/form-meta"
+   {:get {:accept "application/json"
+          :produces ["application/json"]
+          :coercion reitit.coercion.schema/coercion
+          :swagger {:produces ["application/json"]}
+          :summary "Model form meta for the current pool"
+          :parameters {:path {:pool_id s/Uuid}}
+          :handler model/get-form-meta-resource
+          :responses {200 {:description "OK"
+                           :body {:enable_alternative_pickup_locations s/Bool}}
+                      500 {:description "Internal Server Error"}}}}])
 
 (defn routes []
   ["/models/"

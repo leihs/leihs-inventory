@@ -212,6 +212,7 @@
   []
   (let [core-routes [["/:pool_id" {:middleware [wrap-authorize-for-pool]
                                    :parameters {:path {:pool_id s/Uuid}}}
+                      (models/form-meta-routes)
                       (models/routes)
                       (model/routes)
                       (list/routes)

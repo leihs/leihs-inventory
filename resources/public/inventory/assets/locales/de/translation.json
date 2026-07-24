@@ -791,6 +791,9 @@
           "package": {
             "label": "dies ist ein Paket"
           },
+          "transportable": {
+            "label": "Modell ist transportierbar"
+          },
           "product": {
             "label": "Produkt"
           },

@@ -26,7 +26,8 @@
 
 (defn prepare-software-data
   [data]
-  (let [normalize-data (normalize-model-data data)
+  (let [normalize-data (-> (normalize-model-data data)
+                           (dissoc :transportable))
         created-ts (LocalDateTime/now)]
     (assoc normalize-data
            :type "Software"

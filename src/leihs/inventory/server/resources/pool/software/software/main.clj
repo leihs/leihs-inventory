@@ -49,7 +49,8 @@
       (exception-handler request ERROR_FETCH_SOFTWARE e))))
 
 (defn prepare-software-data [data]
-  (let [normalize-data (normalize-model-data data)
+  (let [normalize-data (-> (normalize-model-data data)
+                           (dissoc :transportable))
         created-ts (LocalDateTime/now)]
     (assoc normalize-data :updated_at created-ts :is_package (str-to-bool (:is_package normalize-data)))))
 
