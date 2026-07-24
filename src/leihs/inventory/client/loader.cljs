@@ -376,6 +376,10 @@
                                   #js {:id "manufacturers"})
                             (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
+          pickup-locations (-> http-client
+                               (.get (str "/inventory/" pool-id "/pickup-locations/"))
+                               (.then #(jc (.-data %))))
+
           model-path (when model-id
                        (str "/inventory/" pool-id "/models/" model-id))
 
@@ -388,6 +392,7 @@
       {:categories categories
        :manufacturers manufacturers
        :entitlement-groups entitlement-groups
+       :has-pickup-locations (boolean (:has_pickup_locations pickup-locations))
        :data (if data data nil)}
       (catch js/Error err
         (handle-error err)))))

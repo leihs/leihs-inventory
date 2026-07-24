@@ -795,6 +795,9 @@
           "package": {
             "label": "this is a package"
           },
+          "transportable": {
+            "label": "Transportable (items can be shipped by courier)"
+          },
           "product": {
             "label": "Product"
           },

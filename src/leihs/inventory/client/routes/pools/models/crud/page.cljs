@@ -33,6 +33,7 @@
 
 (def default-values {:product ""
                      :is_package false
+                     :transportable true
                      :manufacturer ""
                      :description ""
                      :internal_description ""
@@ -43,6 +44,16 @@
                      :entitlements []
                      :properties []
                      :accessories []})
+
+(defn- form-structure [has-pickup-locations?]
+  (mapv (fn [section]
+          (update section :blocks
+                  (fn [blocks]
+                    (filterv (fn [block]
+                               (or (not= (:name block) "transportable")
+                                   has-pickup-locations?))
+                             blocks))))
+        (jc structure)))
 
 (defui page []
   (let [[t] (useTranslation)
@@ -62,7 +73,8 @@
 
         is-edit (not (or is-create is-delete))
 
-        {:keys [data]} (jc (useLoaderData))
+        {:keys [data has-pickup-locations]} (jc (useLoaderData))
+        form-structure-blocks (form-structure has-pickup-locations)
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
                                             (fn [] (form-helper/process-files data :attachments :images))
@@ -293,7 +305,7 @@
                                :no-validate true
                                :on-submit (handle-submit on-submit on-invalid)}
 
-                        (for [section (jc structure)]
+                        (for [section form-structure-blocks]
                           ($ ScrollspyItem {:class-name "scroll-mt-[10vh]"
                                             :key (:title section)
                                             :id (:title section)

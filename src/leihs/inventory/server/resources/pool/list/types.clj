@@ -52,6 +52,7 @@
    :opt-un [:nil/version
             ::sp/manufacturer
             ::sp/is_package
+            ::sp/transportable
             :nil/description
             :nil/technical_detail
             :nil/internal_description

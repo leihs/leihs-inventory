@@ -7,6 +7,7 @@
                  :product :product
                  :version :version
                  :is_package :is_package
+                 :transportable :transportable
                  :description :description
                  :technical_detail :technical_detail
                  :internal_description :internal_description

@@ -33,6 +33,7 @@
    [leihs.inventory.server.resources.pool.models.routes :as models]
    [leihs.inventory.server.resources.pool.options.option.routes :as option]
    [leihs.inventory.server.resources.pool.options.routes :as options]
+   [leihs.inventory.server.resources.pool.pickup-locations.routes :as pickup-locations]
    [leihs.inventory.server.resources.pool.rooms.room.routes :as room]
    [leihs.inventory.server.resources.pool.rooms.routes :as rooms]
    [leihs.inventory.server.resources.pool.software.routes :as software]
@@ -243,6 +244,7 @@
 
                       (manufacturers/routes)
                       (inventory-pools/routes)
+                      (pickup-locations/routes)
                       (suppliers/routes)
 
                       (when APPLY_API_ENDPOINTS_NOT_USED_IN_FE

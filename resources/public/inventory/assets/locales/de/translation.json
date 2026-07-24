@@ -791,6 +791,9 @@
           "package": {
             "label": "dies ist ein Paket"
           },
+          "transportable": {
+            "label": "Transportfähig (Gegenstände können per Kurier versendet werden)"
+          },
           "product": {
             "label": "Produkt"
           },
