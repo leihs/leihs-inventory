@@ -149,9 +149,7 @@ feature "Create model", type: :feature do
     search_in_list("#{product} #{version}")
     find("a", text: "edit").click
 
-    expect(
-      find("label", text: "this is a package").find(:xpath, "..").find("input", visible: false)[:value]
-    ).to eq("on")
+    assert_checked find("[data-id='is-package']")
 
     assert_field("Product", product)
     assert_field("Version", version)

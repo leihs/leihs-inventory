@@ -43,6 +43,7 @@
             :nil/version
             :nil/technical_detail
             :nil/internal_description
+            ::sp/transportable
             ::sp/accessories
             ::sp/entitlements
             ::sp/attachments

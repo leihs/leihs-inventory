@@ -7,7 +7,8 @@
 (sa/def ::put-query (sa/keys :req-un [::sp/product]
                              :opt-un [:nil/version
                                       :nil/manufacturer
-                                      :nil/technical_detail]))
+                                      :nil/technical_detail
+                                      ::sp/transportable]))
 
 (sa/def ::put-response
   (sa/keys :req-un [:models/type
@@ -17,7 +18,8 @@
                     :nil/version]
            :opt-un [:nil/technical_detail
                     ::sp/attachments
-                    ::sp/is_deletable]))
+                    ::sp/is_deletable
+                    ::sp/transportable]))
 
 (sa/def ::attachment
   (sa/keys :req-un [:any/id :any/model_id ::sp/filename ::sp/size]))

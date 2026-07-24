@@ -52,6 +52,14 @@ RSpec.describe "Inventory profile API (available_inventory_pools)" do
       pool = pool_by_id(resp.body, @inventory_pool.id)
       expect(pool).to be
       expect(pool["permission"]).to eq("edit")
+      expect(pool).to have_key("enable_alternative_pickup_locations")
+      expect(pool["enable_alternative_pickup_locations"]).to eq(false)
+
+      @inventory_pool.update(enable_alternative_pickup_locations: true)
+      resp = client.get "/inventory/profile/"
+      expect(resp.status).to eq(200)
+      pool = pool_by_id(resp.body, @inventory_pool.id)
+      expect(pool["enable_alternative_pickup_locations"]).to eq(true)
     end
   end
 

@@ -388,6 +388,26 @@
   environment_variables:
     FEATURE_NAME: "Delete model 02"
     FEATURE: './spec/features/models/delete_spec.rb[1:2]'
+'./spec/features/models/transportable_spec.rb[1:1:1]':
+  name: "Model transportable when alternative pickup locations are enabled 01"
+  environment_variables:
+    FEATURE_NAME: "Model transportable when alternative pickup locations are enabled 01"
+    FEATURE: './spec/features/models/transportable_spec.rb[1:1:1]'
+'./spec/features/models/transportable_spec.rb[1:1:2]':
+  name: "Model transportable when alternative pickup locations are enabled 02"
+  environment_variables:
+    FEATURE_NAME: "Model transportable when alternative pickup locations are enabled 02"
+    FEATURE: './spec/features/models/transportable_spec.rb[1:1:2]'
+'./spec/features/models/transportable_spec.rb[1:1:3]':
+  name: "Model transportable when alternative pickup locations are enabled 03"
+  environment_variables:
+    FEATURE_NAME: "Model transportable when alternative pickup locations are enabled 03"
+    FEATURE: './spec/features/models/transportable_spec.rb[1:1:3]'
+'./spec/features/models/transportable_spec.rb[1:2:1]':
+  name: "Model transportable when alternative pickup locations are disabled 01"
+  environment_variables:
+    FEATURE_NAME: "Model transportable when alternative pickup locations are disabled 01"
+    FEATURE: './spec/features/models/transportable_spec.rb[1:2:1]'
 './spec/features/models/update_spec.rb[1:1]':
   name: "Update model 01"
   environment_variables:

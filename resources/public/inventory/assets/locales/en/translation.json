@@ -705,6 +705,10 @@
           "product": {
             "label": "Product"
           },
+          "transportable": {
+            "label": "Software is transportable",
+            "info": "Ordering at alternative pickup locations possible"
+          },
           "version": {
             "label": "Version"
           },
@@ -794,6 +798,10 @@
         "blocks": {
           "package": {
             "label": "this is a package"
+          },
+          "transportable": {
+            "label": "Model is transportable",
+            "info": "Ordering at alternative pickup locations possible"
           },
           "product": {
             "label": "Product"

@@ -33,7 +33,7 @@
           pool-id (to-uuid (get-in request [:path-params :pool_id]))
           model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
                                       :m.hand_over_note :m.description :m.internal_description
-                                      :m.technical_detail :m.is_package)
+                                      :m.technical_detail :m.is_package :m.transportable)
                           (sql/from [:models :m])
                           (sql/where [:and [:= :m.id model-id] [:= :m.type "Software"]])
                           sql-format)
@@ -51,7 +51,11 @@
 (defn prepare-software-data [data]
   (let [normalize-data (normalize-model-data data)
         created-ts (LocalDateTime/now)]
-    (assoc normalize-data :updated_at created-ts :is_package (str-to-bool (:is_package normalize-data)))))
+    (-> normalize-data
+        (assoc :updated_at created-ts
+               :is_package (str-to-bool (:is_package normalize-data)))
+        (cond-> (contains? data :transportable)
+          (assoc :transportable (str-to-bool (:transportable data)))))))
 
 (defn put-resource [request]
   (try
