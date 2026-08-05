@@ -373,6 +373,11 @@
   environment_variables:
     FEATURE_NAME: "Create model 04"
     FEATURE: './spec/features/models/create_spec.rb[1:4]'
+'./spec/features/models/create_spec.rb[1:5]':
+  name: "Create model 05"
+  environment_variables:
+    FEATURE_NAME: "Create model 05"
+    FEATURE: './spec/features/models/create_spec.rb[1:5]'
 './spec/features/models/delete_spec.rb[1:1]':
   name: "Delete model 01"
   environment_variables:

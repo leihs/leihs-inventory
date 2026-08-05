@@ -201,6 +201,23 @@ feature "Create model", type: :feature do
     end
   end
 
+  scenario "shows existing manufacturer in dropdown list" do
+    existing_manufacturer = "Acme Corporation"
+    FactoryBot.create(:leihs_model, manufacturer: existing_manufacturer)
+
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+    click_on "Add inventory"
+    click_on "New model"
+
+    expect(page).to have_css("[data-test-id='manufacturer']")
+    click_on "Manufacturer"
+    fill_in "manufacturer-input", with: existing_manufacturer
+
+    expect(page).to have_no_text("Add new manufacturer")
+    expect(page).to have_text(existing_manufacturer)
+  end
+
   scenario "fails with invalid mandatory fields" do
     login(user)
     visit "/inventory/#{pool.id}/list"

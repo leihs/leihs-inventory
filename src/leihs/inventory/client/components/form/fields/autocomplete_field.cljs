@@ -86,7 +86,8 @@
                        (-> http-client
                            (.get (str (safe-concat values-url debounced-search) "&size=300"))
                            (.then (fn [response]
-                                    (let [data (jc (.. response -data -data))]
+                                    (let [raw (jc (.. response -data))
+                                          data (if (sequential? raw) raw (:data raw))]
                                       (if remap
                                         (set-options! (map remap data))
                                         (set-options! data))
