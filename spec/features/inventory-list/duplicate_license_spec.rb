@@ -44,8 +44,7 @@ feature "Duplicate License", type: :feature do
     login(user)
     visit "/inventory/#{pool.id}/list"
 
-    find("input[name='search']").set(software_model.product)
-    await_debounce
+    search_in_list(software_model.product)
 
     within find('[data-row="model"]', text: software_model.product) do
       click_on "expand-button"
@@ -76,8 +75,7 @@ feature "Duplicate License", type: :feature do
     expect(page).to have_content("Inventory List")
 
     # Verify two license rows now exist under the model
-    find("input[name='search']").set(software_model.product)
-    await_debounce
+    search_in_list(software_model.product)
 
     within find('[data-row="model"]', text: software_model.product) do
       click_on "expand-button"

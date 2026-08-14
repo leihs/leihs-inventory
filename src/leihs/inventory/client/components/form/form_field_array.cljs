@@ -59,7 +59,7 @@
      :remove (.-remove context)}))
 
 ;; Provider component - calls useFieldArray ONCE
-(defui form-field-array [{:keys [form name children]}]
+(defui FormFieldArray [{:keys [form name children]}]
   (let [control (cj (.-control form))
         {:keys [fields append move remove update]} (jc (hook-form/useFieldArray
                                                         (cj {:control control
@@ -76,9 +76,9 @@
           children))))
 
 ;; Table component - renders fields table
-(defui form-array-fields [{:keys [form name sortable header children]
-                           :or {sortable false
-                                header nil}}]
+(defui FormFieldArrayItems [{:keys [form name sortable header children]
+                             :or {sortable false
+                                  header nil}}]
   (let [{:keys [fields remove move update]} (use-array-items)
         key-field (keyword (str name "-id"))]
 
@@ -111,7 +111,7 @@
                                    ($ TableCell {:class-name "text-right"}
                                       (when sortable
                                         ($ DragHandle {:id (:id field)
-                                                       :className "cursor-move mr-2"}))
+                                                       :class-name "cursor-move mr-2"}))
                                       ($ Button {:variant "outline"
                                                  :type "button"
                                                  :on-click #(remove index)
@@ -145,13 +145,3 @@
                                    ($ Trash {:class-name "h-4 w-4"})))))))
                    fields)))))))))
 
-;; React-compatible exports
-(def FormFieldArray
-  (uix/as-react
-   (fn [props]
-     (form-field-array props))))
-
-(def FormFieldArrayItems
-  (uix/as-react
-   (fn [props]
-     (form-array-fields props))))

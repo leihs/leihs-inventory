@@ -23,4 +23,5 @@
    (s/optional-key :value_attr) s/Str
    (s/optional-key :search_path) s/Str
    (s/optional-key :protected) s/Bool
-   (s/optional-key :protected_reason) s/Str})
+   (s/optional-key :protected_reason) s/Str
+   :owner_only s/Bool})

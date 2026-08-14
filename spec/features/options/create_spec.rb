@@ -33,8 +33,7 @@ feature "Create option", type: :feature do
 
     expect(page).to have_content "Inventory List"
 
-    fill_in "search", with: "#{product} #{version}"
-    await_debounce
+    search_in_list("#{product} #{version}")
     expect(page).to have_content "#{product} #{version}"
 
     find("a", text: "edit").click

@@ -149,6 +149,7 @@
                                        (nil? (:label field)))
                                  (:label field)
                                  (str "fields." group-name "." (:id field)))
+                        :owner_only (:owner_only field)
                         :component component}
             ;; For autocomplete-search, construct proper resource URL with search param
             search-resource (when (= field-type "autocomplete-search")

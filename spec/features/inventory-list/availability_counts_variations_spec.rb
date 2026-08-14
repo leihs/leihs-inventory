@@ -42,8 +42,7 @@ feature "Inventory list availability counts (models, packages, options, software
 
     refresh_list = lambda do |pool_id, search_term, retired: "false"|
       visit "/inventory/#{pool_id}/list?retired=#{retired}&page=1&size=50"
-      find("input[name='search']").set(search_term)
-      await_debounce
+      search_in_list(search_term)
     end
 
     refresh_list.call(pool.id, token)
@@ -431,8 +430,7 @@ feature "Inventory list availability counts (models, packages, options, software
 
     refresh_st = lambda do |pool_id, retired: "false"|
       visit "/inventory/#{pool_id}/list?retired=#{retired}&page=1&size=50"
-      find("input[name='search']").set(st_token)
-      await_debounce
+      search_in_list(st_token)
     end
 
     refresh_st.call(pool.id)
@@ -763,8 +761,7 @@ feature "Inventory list availability counts (models, packages, options, software
 
     go_filt = lambda do
       visit "/inventory/#{pool.id}/list?retired=false&page=1&size=50"
-      find("input[name='search']").set(token)
-      await_debounce
+      search_in_list(token)
     end
 
     row_i1 = lambda do

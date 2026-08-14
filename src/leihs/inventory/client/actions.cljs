@@ -21,11 +21,14 @@
 
 (defn- handle-error [err]
   (let [status (some-> err .-response .-status)
-        errors (some-> err .-response .-data .-errors)]
+        errors (some-> err .-response .-data .-errors)
+        response (some-> err .-response .-data)]
+
     #js {:status "error"
          :httpStatus (or status 0)
          :errors errors
-         :message (.-message err)}))
+         :message (.-message err)
+         :response response}))
 
 (defn debug-action-error [action]
   (p/let [form-data (.. action -request (formData))
@@ -159,7 +162,7 @@
 
               item (when inventory_code
                      (-> http-client
-                         (.get (str "/inventory/" pool-id "/items/?owned=true&only_items=true&search_term=" inventory_code)
+                         (.get (str "/inventory/" pool-id "/items/?search_term=" inventory_code)
                                #js {:cache false})
                          (.then #(jc (.-data %)))))
 
@@ -174,5 +177,6 @@
               (.patch (str "/inventory/" pool-id "/items/" id)
                       (js/JSON.stringify payload)
                       (cj {:cache false}))
-              (.then (fn [_] #js {:status "ok"}))
+              (.then (fn [_] #js {:status "ok"
+                                  :id id}))
               (.catch handle-error)))))))

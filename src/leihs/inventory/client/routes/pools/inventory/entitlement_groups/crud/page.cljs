@@ -16,7 +16,7 @@
    ["lucide-react" :refer [ChevronDown]]
    ["react-hook-form" :refer [useWatch useForm]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link useLoaderData]]
+   ["react-router" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
@@ -155,38 +155,38 @@
                               ;; show error message
                               (.. toast (error (t "pool.entitlement_groups.entitlement_group.delete.error")))))))]
     (if is-loading
-      ($ :div {:className "flex justify-center items-center h-screen"}
+      ($ :div {:class-name "flex justify-center items-center h-screen"}
          ($ Spinner))
 
       ($ :article
-         ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
+         ($ :h1 {:class-name "text-2xl bold font-bold mt-12 mb-2"}
             (t "pool.entitlement_groups.entitlement_group.title")
 
             ($ title {:control form-control}))
 
-         ($ Card {:className "my-4"}
+         ($ Card {:class-name "my-4"}
             ($ CardContent
 
-               ($ :div {:className "flex flex-col xl:flex-row gap-4"}
+               ($ :div {:class-name "flex flex-col xl:flex-row gap-4"}
 
                   ($ Form (merge form)
                      ($ :form {:id "entitlement-group"
                                :no-validate true
-                               :className "w-full"
+                               :class-name "w-full"
                                :on-submit (handle-submit on-submit on-invalid)}
 
-                        ($ :div {:className "flex flex-col lg:flex-row gap-12"}
+                        ($ :div {:class-name "flex flex-col lg:flex-row gap-12"}
                            (for [[col-index col] (map-indexed vector (jc structure))]
-                             ($ :div {:className (str "space-y-12 " (if (= 0 col-index) "lg:basis-[55%]" "lg:basis-[45%] mt-6"))
+                             ($ :div {:class-name (str "space-y-12 " (if (= 0 col-index) "lg:basis-[55%]" "lg:basis-[45%] mt-6"))
                                       :key col-index}
                                 (for [section col]
-                                  ($ :div {:className "scroll-mt-[10vh] break-inside-avoid"
+                                  ($ :div {:class-name "scroll-mt-[10vh] break-inside-avoid"
                                            :key (:title section)
                                            :data-test-id (:title section)
                                            :name (t (:title section))}
-                                     ($ :h2 {:className "text-lg"} (t (:title section)))
+                                     ($ :h2 {:class-name "text-lg"} (t (:title section)))
                                      (when (:title section)
-                                       ($ :hr {:className "mb-4"}))
+                                       ($ :hr {:class-name "mb-4"}))
 
                                      (for [block (:blocks section)]
                                        ($ FieldDispatcher {:key (:name block)
@@ -207,7 +207,7 @@
                         ($ DropdownMenuTrigger {:asChild true}
                            ($ Button {:data-test-id "submit-dropdown"
                                       :size "icon"}
-                              ($ ChevronDown {:className "w-4 h-4"})))
+                              ($ ChevronDown {:class-name "w-4 h-4"})))
                         ($ DropdownMenuContent {:align "end"}
                            ($ DropdownMenuItem {:asChild true}
                               ($ Link {:to (str (router/generatePath "/inventory/:pool-id/entitlement-groups" params)

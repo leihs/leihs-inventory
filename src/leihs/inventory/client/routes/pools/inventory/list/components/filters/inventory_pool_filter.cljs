@@ -6,10 +6,10 @@
    ["@@/button" :refer [Button]]
    ["lucide-react" :refer [Check ChevronsUpDown Building]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [className]}]
+(defui InventoryPoolFilter [{:keys [class-name]}]
   (let [inventory-pools (:responsible-pools (router/useRouteLoaderData "models-page"))
         [search-params set-search-params!] (router/useSearchParams)
         buttonRef (uix/use-ref nil)
@@ -36,10 +36,10 @@
           ($ Button {:ref buttonRef
                      :disabled (= type "option")
                      :on-click #(set-open! (not open))
-                     :class-name (str "min-w-48 max-w-48 " className)
+                     :class-name (str "min-w-48 max-w-48 " class-name)
                      :variant "outline"
                      :role "combobox"}
-             ($ Building {:className "h-4 w-4"})
+             ($ Building {:class-name "h-4 w-4"})
 
              (if pool-name
                ($ :span {:class-name "truncate"
@@ -68,7 +68,3 @@
                                                "invisible"))})
                         (:name inventory-pool))))))))))
 
-(def InventoryPoolFilter
-  (uix/as-react
-   (fn [props]
-     (main props))))

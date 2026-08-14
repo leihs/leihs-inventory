@@ -15,7 +15,7 @@
    [leihs.inventory.client.lib.utils :refer [jc]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui AddButton [{:keys [className]}]
+(defui AddButton [{:keys [class-name]}]
   (let [{:keys [append]} (use-array-items)
         [t] (useTranslation)
         handle-click (fn [] (append #js {:quantity 0
@@ -24,7 +24,7 @@
        ($ Button {:type "button"
                   :variant "outline"
                   :on-click handle-click
-                  :class-name (str "flex " className)}
+                  :class-name (str "flex " class-name)}
           ($ CirclePlus {:class-name "h-4 w-4"})
           (t "pool.licenses.license.fields.entitlements.add")))))
 
@@ -88,4 +88,4 @@
                                                          :name (:name block)}
                                     ($ CompositeItem))
 
-                                 ($ AddButton {:className "w-fit"})))})))
+                                 ($ AddButton {:class-name "w-fit"})))})))

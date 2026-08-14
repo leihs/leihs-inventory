@@ -6,48 +6,44 @@
    ["react-i18next" :refer [useTranslation]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [item]}]
+(defui ItemStatus [{:keys [item]}]
   (let [[t] (useTranslation)]
     ($ :div {:class-name "flex flex-col text-xs"
              :data-test-id "item-status"}
 
        (if (:retired item)
-         ($ :span {:className "text-violet-500"}
+         ($ :span {:class-name "text-violet-500"}
             (t "pool.models.list.item.retired")
-            ($ SquareSquare {:className "inline ml-2 h-4 w-4 "}))
+            ($ SquareSquare {:class-name "inline ml-2 h-4 w-4 "}))
 
          ($ :<>
             (when (:reservation_user_name item)
-              ($ :span {:className "text-blue-500"}
+              ($ :span {:class-name "text-blue-500"}
                  (t "pool.models.list.item.rented")
-                 ($ SquareArrowRight {:className "inline ml-2 h-4 w-4 "})))
+                 ($ SquareArrowRight {:class-name "inline ml-2 h-4 w-4 "})))
 
             (when (:is_broken item)
-              ($ :span {:className "text-red-500"}
+              ($ :span {:class-name "text-red-500"}
                  (t "pool.models.list.item.broken")
-                 ($ SquareX {:className "inline ml-2 h-4 w-4"})))
+                 ($ SquareX {:class-name "inline ml-2 h-4 w-4"})))
 
             (when (:is_incomplete item)
-              ($ :span {:className "text-amber-500"}
+              ($ :span {:class-name "text-amber-500"}
                  (t "pool.models.list.item.incomplete")
-                 ($ SquareMinus {:className "inline ml-2 h-4 w-4 "})))
+                 ($ SquareMinus {:class-name "inline ml-2 h-4 w-4 "})))
 
             (when (and
                    (not (:reservation_user_name item))
                    (or (:retired item)
                        (not (:is_borrowable item))))
-              ($ :span {:className "text-gray-500"}
+              ($ :span {:class-name "text-gray-500"}
                  (t "pool.models.list.item.not_borrowable")
-                 ($ SquarePause {:className "inline ml-2 h-4 w-4 "})))
+                 ($ SquarePause {:class-name "inline ml-2 h-4 w-4 "})))
 
             (when (and (:is_borrowable item)
                        (not (:reservation_user_name item))
                        (not (:retired item)))
-              ($ :span {:className "text-green-500"}
+              ($ :span {:class-name "text-green-500"}
                  (t "pool.models.list.item.available")
-                 ($ SquareCheck {:className "inline ml-2 h-4 w-4"}))))))))
+                 ($ SquareCheck {:class-name "inline ml-2 h-4 w-4"}))))))))
 
-(def ItemStatus
-  (uix/as-react
-   (fn [props]
-     (main props))))

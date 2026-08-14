@@ -8,7 +8,7 @@
    ["@@/spinner" :refer [Spinner]]
    ["lucide-react" :refer [Check ChevronsUpDown FilePlusCorner]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client safe-concat]]
    [leihs.inventory.client.lib.hooks :as hooks]
@@ -42,7 +42,7 @@
         disabled (:disabled props)
 
         [search set-search!] (uix/use-state "")
-        debounced-search (hooks/use-debounce search 300)
+        [debounced-search] (hooks/use-debounce search 300)
 
         set-value (aget form "setValue")
         get-values (aget form "getValues")
@@ -86,7 +86,8 @@
                        (-> http-client
                            (.get (str (safe-concat values-url debounced-search) "&size=300"))
                            (.then (fn [response]
-                                    (let [data (jc (.. response -data -data))]
+                                    (let [raw (jc (.. response -data))
+                                          data (if (sequential? raw) raw (:data raw))]
                                       (if remap
                                         (set-options! (map remap data))
                                         (set-options! data))
@@ -155,9 +156,9 @@
                              ($ CommandInput {:placeholder (t (-> props :text :search))
                                               :data-test-id (str name "-input")})
 
-                             ($ CommandList
+                             ($ CommandList {:aria-busy (when loading? "true")}
                                 (if loading?
-                                  ($ Spinner {:className "absolute right-0 top-0 m-3"})
+                                  ($ Spinner {:class-name "absolute right-0 top-0 m-3"})
                                   ($ CommandEmpty (t (-> props :text :empty))))
 
                                 ;; extendable option to add new entry

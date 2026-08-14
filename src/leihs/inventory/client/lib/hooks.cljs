@@ -1,6 +1,6 @@
 (ns leihs.inventory.client.lib.hooks
   (:require ["react-hook-form" :refer [useWatch]]
-            ["react-router-dom" :as router]
+            ["react-router" :as router]
             [leihs.core.core :refer [detect]]
             [leihs.inventory.client.lib.utils :refer [jc cj]]
             [uix.core :as uix]))
@@ -25,17 +25,29 @@
     current-pool))
 
 ;; NOTE: docs https://usehooks.com/usedebounce
+;; Returns [debounced-value reset!] where reset! cancels any pending timer
+;; and immediately sets the debounced value to the given argument.
 (defn use-debounce [value delay]
-  (let [[debounced-value set-debounced-value!] (uix/use-state value)]
+  (let [[debounced-value set-debounced-value!] (uix/use-state value)
+        timer-ref (uix/use-ref nil)
+        clear! (uix/use-callback
+                (fn [v]
+                  (when-let [t @timer-ref]
+                    (js/clearTimeout t)
+                    (reset! timer-ref nil))
+                  (set-debounced-value! v))
+                [])]
+
     (uix/use-effect
      (fn []
        (let [handler (js/setTimeout
                       (fn [] (set-debounced-value! value))
                       delay)]
-
+         (reset! timer-ref handler)
          (fn [] (js/clearTimeout handler))))
-     [value delay])
-    debounced-value))
+     [value delay clear!])
+
+    [debounced-value clear!]))
 
 ;; NOTE: docs https://usehooks.com/useWindowScroll
 (defn use-window-scroll []
@@ -179,6 +191,70 @@
      subscribe
      get-snapshot
      get-server-snapshot)))
+
+;; ---------------------------------------------------------------------------
+;; use-barcode-scanner
+;; ---------------------------------------------------------------------------
+;; Detects barcode scanner input from global keydown events.
+;; Barcode scanners type characters very quickly (< 50ms between keystrokes)
+;; followed by an Enter key. Returns [scanned-code clear-scan!] where
+;; scanned-code is the last completed scan and clear-scan! resets it to nil
+;; so the same code can be scanned again.
+
+(defn use-barcode-scanner []
+  (let [[scanned-code set-scanned-code!] (uix/use-state nil)
+        clear! (fn []
+                 (set-scanned-code! nil))]
+    (uix/use-effect
+     (fn []
+       (let [buffer (atom "")
+             last-time (atom 0)
+             timer (atom nil)
+             threshold-ms 50
+
+             commit!
+             (fn []
+               (let [code @buffer]
+                 (reset! buffer "")
+                 (when (>= (count code) 3)
+                   (set-scanned-code! code))))
+
+             on-keydown
+             (fn [e]
+               (let [now (js/Date.now)
+                     elapsed (- now @last-time)
+                     key (.-key e)
+                     active (.-activeElement js/document)
+                     is-barcode? (.. active -dataset -barcode)
+                     is-field? (contains? #{"INPUT" "TEXTAREA" "SELECT"} (.-tagName active))
+                     has-modifier? (or (.-metaKey e) (.-ctrlKey e) (.-altKey e))]
+
+                 (when-not has-modifier?
+                   (reset! last-time now))
+
+                 (when (and (not has-modifier?)
+                            (or (not is-field?) (is-barcode?))
+                            (< elapsed threshold-ms))
+
+                   (cond
+                     (= key "Enter")
+                     (do
+                       (.preventDefault e)
+                       (commit!))
+
+                     (= (count key) 1)
+                     (do
+                       (.preventDefault e)
+                       (when @timer (js/clearTimeout @timer))
+                       (swap! buffer str key)
+                       (reset! timer (js/setTimeout commit! 200)))))))]
+
+         (.addEventListener js/document "keydown" on-keydown)
+         (fn []
+           (.removeEventListener js/document "keydown" on-keydown)
+           (when @timer (js/clearTimeout @timer)))))
+     [])
+    [scanned-code clear!]))
 
 ;; ---------------------------------------------------------------------------
 ;; use-dependent-fields

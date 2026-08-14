@@ -25,7 +25,7 @@
     ($ Button {:type "button"
                :variant "outline"
                :on-click handle-add}
-       ($ CirclePlus {:className "w-4 h-4"})
+       ($ CirclePlus {:class-name "w-4 h-4"})
        (t "pool.model.accessories.blocks.accessories.add_button"))))
 
 ;; AccessoryItem - Table cell for one accessory row

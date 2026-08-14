@@ -72,9 +72,11 @@ describe "Swagger Inventory Endpoints - Fields" do
 
         expect(owner_field).not_to be_nil
         expect(owner_field.key?("protected")).to be false
+        expect(owner_field["owner_only"]).to be true
 
         expect(regular_field).not_to be_nil
         expect(regular_field.key?("protected")).to be false
+        expect(regular_field["owner_only"]).to be false
       end
     end
 
@@ -93,10 +95,12 @@ describe "Swagger Inventory Endpoints - Fields" do
         expect(owner_field).not_to be_nil
         expect(owner_field["protected"]).to be true
         expect(owner_field["protected_reason"]).to eq("editable for owner only")
+        expect(owner_field["owner_only"]).to be true
 
         expect(regular_field).not_to be_nil
         expect(regular_field["protected"]).to be false
         expect(regular_field.key?("protected_reason")).to be false
+        expect(regular_field["owner_only"]).to be false
       end
 
       it "does not mark owner-only fields as protected when item is owned by same pool" do
@@ -110,6 +114,7 @@ describe "Swagger Inventory Endpoints - Fields" do
         expect(owner_field).not_to be_nil
         expect(owner_field["protected"]).to be false
         expect(owner_field.key?("protected_reason")).to be false
+        expect(owner_field["owner_only"]).to be true
       end
     end
   end

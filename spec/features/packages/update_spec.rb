@@ -115,8 +115,7 @@ feature "Update package", type: :feature do
     login(user)
     visit "/inventory/#{pool.id}/list"
 
-    fill_in "search", with: package_model_old.product
-    await_debounce
+    search_in_list(package_model_old.product)
 
     within find('[data-row="model"]', text: package_model_old.product) do
       click_on "expand-button"
@@ -198,8 +197,7 @@ feature "Update package", type: :feature do
     expect(page).to have_text("Package was successfully saved")
     expect(page).to have_text("Inventory List")
 
-    fill_in "search", with: package_model_new.product
-    await_debounce
+    search_in_list(package_model_new.product)
 
     within find('[data-row="model"]', text: package_model_new.product) do
       click_on "expand-button"
@@ -258,8 +256,7 @@ feature "Update package", type: :feature do
     login(user)
     visit "/inventory/#{pool.id}/list"
 
-    fill_in "search", with: package_model_old.product
-    await_debounce
+    search_in_list(package_model_old.product)
 
     within find('[data-row="model"]', text: package_model_old.product) do
       click_on "expand-button"
@@ -298,8 +295,7 @@ feature "Update package", type: :feature do
     expect(page).to have_text("Inventory List")
 
     # Verify persistence
-    fill_in "search", with: package_model_old.product
-    await_debounce
+    search_in_list(package_model_old.product)
 
     within find('[data-row="model"]', text: package_model_old.product) do
       click_on "expand-button"
@@ -330,8 +326,7 @@ feature "Update package", type: :feature do
     login(user)
     visit "/inventory/#{pool.id}/list"
 
-    fill_in "search", with: package_model_old.product
-    await_debounce
+    search_in_list(package_model_old.product)
 
     within find('[data-row="model"]', text: package_model_old.product) do
       click_on "expand-button"
@@ -372,8 +367,7 @@ feature "Update package", type: :feature do
     expect(page).to have_text("Inventory List")
 
     # Verify custom reason persisted
-    fill_in "search", with: package_model_old.product
-    await_debounce
+    search_in_list(package_model_old.product)
 
     within find('[data-row="model"]', text: package_model_old.product) do
       click_on "expand-button"
@@ -398,8 +392,7 @@ feature "Update package", type: :feature do
     login(user)
     visit "/inventory/#{pool.id}/list"
 
-    fill_in "search", with: package_model_old.product
-    await_debounce
+    search_in_list(package_model_old.product)
 
     within find('[data-row="model"]', text: package_model_old.product) do
       click_on "expand-button"

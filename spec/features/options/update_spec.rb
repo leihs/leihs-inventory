@@ -37,8 +37,7 @@ feature "Update option", type: :feature do
     visit "/inventory/#{pool.id}"
     click_on "Inventory type"
     click_on "Option"
-    fill_in "search", with: "#{product_old} #{version_old}"
-    await_debounce
+    search_in_list("#{product_old} #{version_old}")
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_old} #{version_old}", visible: true)
@@ -57,8 +56,7 @@ feature "Update option", type: :feature do
     expect(page.find("body", visible: :all).text).to include("Option successfully saved")
 
     expect(page).to have_content "Inventory List"
-    await_debounce
-    fill_in "search", with: "#{product_new} #{version_new}"
+    search_in_list("#{product_new} #{version_new}")
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
@@ -80,8 +78,7 @@ feature "Update option", type: :feature do
       visit "/inventory/#{pool.id}"
       click_on "Inventory type"
       click_on "Option"
-      fill_in "search", with: "#{product_old} #{version_old}"
-      await_debounce
+      search_in_list("#{product_old} #{version_old}")
       within find("tr", text: "#{product_old} #{version_old}", visible: true) do
         click_on "edit"
       end

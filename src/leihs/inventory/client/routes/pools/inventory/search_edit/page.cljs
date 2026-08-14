@@ -9,11 +9,12 @@
    ["lucide-react" :refer [SquarePen]]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :refer [useLoaderData useParams useSearchParams]]
+   ["react-router" :refer [useLoaderData useNavigation useParams useSearchParams]]
    ["sonner" :refer [toast]]
    [clojure.edn :as edn]
    [clojure.string :as str]
    [leihs.inventory.client.components.export :refer [Export]]
+   [leihs.inventory.client.components.items-table :refer [ItemsTable]]
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client]]
@@ -23,7 +24,6 @@
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.edit-dialog :refer [EditDialog]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.and-filters :refer [AndFilters]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.filters.or-filters :refer [OrFilters]]
-   [leihs.inventory.client.routes.pools.inventory.search-edit.components.table.items-table :refer [ItemsTable]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.defaults :as defaults]
    [leihs.inventory.client.routes.pools.inventory.search-edit.schema :refer [search-edit-schema]]
    [promesa.core :as p]
@@ -49,6 +49,8 @@
                          (str (edn/read-string (.get search-params "filter_q"))))
 
         {:keys [pool-id]} (jc (useParams))
+        navigation (useNavigation)
+        loading? (= (.-state navigation) "loading")
         [selected-items set-selected-items!] (uix/use-state #{})
         [edit-open? set-edit-open!] (uix/use-state false)
         [edit-loading? set-edit-loading!] (uix/use-state false)
@@ -114,7 +116,7 @@
         watch (useWatch #js {:control control
                              :name "$or"})
 
-        debounced-watch (hooks/use-debounce watch 300)
+        [debounced-watch] (hooks/use-debounce watch 300)
 
         selected-item-objects (filter #(contains? selected-items (:id %)) item-list)
 
@@ -203,7 +205,7 @@
              ($ Form (merge form)
                 ($ :form {:id "search-edit-form"
                           :ref form-ref
-                          :className " space-y-2 w-full mr-12"
+                          :class-name " space-y-2 w-full mr-12"
                           :no-validate true
                           :on-submit (handle-submit on-submit on-invalid)}
 
@@ -224,7 +226,8 @@
 
        ;; Search Results Section
        (when items
-         ($ Card {:class-name "mt-4"}
+         ($ Card {:class-name "mt-4"
+                  :aria-busy (when loading? "true")}
             ($ CardHeader {:class-name "flex flex-row items-center justify-between"}
                ($ CardTitle (t "pool.models.search_edit.page.search_results"))
 

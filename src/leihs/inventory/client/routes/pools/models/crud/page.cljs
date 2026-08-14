@@ -19,7 +19,7 @@
    ["lucide-react" :refer [ChevronDown]]
    ["react-hook-form" :refer [useForm]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link useLoaderData]]
+   ["react-router" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
@@ -267,7 +267,7 @@
      [is-edit is-loading])
 
     (if is-loading
-      ($ :div {:className "flex justify-center items-center h-screen"}
+      ($ :div {:class-name "flex justify-center items-center h-screen"}
          ($ Spinner))
 
       ($ :article
@@ -282,25 +282,25 @@
               (t "pool.model.create.description")
               (t "pool.model.description")))
 
-         ($ Card {:className "py-8 mb-12"}
+         ($ Card {:class-name "py-8 mb-12"}
             ($ CardContent
-               ($ Scrollspy {:className "flex gap-4"}
+               ($ Scrollspy {:class-name "flex gap-4"}
                   ($ ScrollspyMenu {:class-name "w-1/5"})
 
                   ($ Form (merge form)
                      ($ :form {:id "model-form"
-                               :className "space-y-12 w-full lg:w-3/5"
+                               :class-name "space-y-12 w-full lg:w-3/5"
                                :no-validate true
                                :on-submit (handle-submit on-submit on-invalid)}
 
                         (for [section (jc structure)]
-                          ($ ScrollspyItem {:className "scroll-mt-[10vh]"
+                          ($ ScrollspyItem {:class-name "scroll-mt-[10vh]"
                                             :key (:title section)
                                             :id (:title section)
                                             :name (t (:title section))}
 
-                             ($ :h2 {:className "text-lg"} (t (:title section)))
-                             ($ :hr {:className "mb-4"})
+                             ($ :h2 {:class-name "text-lg"} (t (:title section)))
+                             ($ :hr {:class-name "mb-4"})
 
                              (for [block (:blocks section)]
                                ($ FieldDispatcher {:key (:name block)
@@ -319,7 +319,7 @@
                         ($ DropdownMenuTrigger {:asChild true}
                            ($ Button {:data-test-id "submit-dropdown"
                                       :size "icon"}
-                              ($ ChevronDown {:className "w-4 h-4"})))
+                              ($ ChevronDown {:class-name "w-4 h-4"})))
                         ($ DropdownMenuContent {:align "end"}
                            ($ DropdownMenuItem {:asChild true}
                               ($ Button {:class-name "outline-none border-none"

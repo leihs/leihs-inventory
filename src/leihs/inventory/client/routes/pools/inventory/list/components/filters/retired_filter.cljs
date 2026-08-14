@@ -3,10 +3,10 @@
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [class-name]}]
+(defui RetiredFilter [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
         type (.. search-params (get "type"))
         [t] (useTranslation)
@@ -22,7 +22,7 @@
                :disabled (= type "option")
                :onValueChange handle-retired}
        ($ SelectTrigger {:name "retired"
-                         :className (str "w-[280px]" class-name)}
+                         :class-name (str "w-[280px]" class-name)}
           ($ SelectValue))
        ($ SelectContent
           ($ SelectItem {:data-test-id "all"
@@ -35,8 +35,4 @@
                          :value false}
              (t "pool.models.filters.retired.not_retired"))))))
 
-(def RetiredFilter
-  (uix/as-react
-   (fn [props]
-     (main props))))
 

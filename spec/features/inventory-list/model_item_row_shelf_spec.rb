@@ -29,8 +29,7 @@ feature "Model item row location on inventory list", type: :feature do
     login(user)
     visit "/inventory/#{pool.id}/list"
     select_value("with_items", "with_items")
-    find("input[name='search']").set(model.product)
-    await_debounce
+    search_in_list(model.product)
     within find('[data-row="model"]', text: model.product, wait: 10) do
       click_on "expand-button"
     end

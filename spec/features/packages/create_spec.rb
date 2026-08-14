@@ -133,8 +133,7 @@ feature "Create package", type: :feature do
     expect(page).to have_text "Package was successfully created"
     expect(page).to have_content "Inventory List"
 
-    fill_in "search", with: package_model.product
-    await_debounce
+    search_in_list(package_model.product)
 
     within find('[data-row="model"]', text: package_model.product) do
       click_on "expand-button"

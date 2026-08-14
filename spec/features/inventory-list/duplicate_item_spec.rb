@@ -51,8 +51,7 @@ feature "Duplicate Item from Inventory List", type: :feature do
     visit "/inventory/#{pool.id}/list"
 
     # Find and expand the model row
-    find("input[name='search']").set(model.product)
-    await_debounce
+    search_in_list(model.product)
 
     within find('[data-row="model"]', text: model.product) do
       click_on "expand-button"
@@ -95,8 +94,7 @@ feature "Duplicate Item from Inventory List", type: :feature do
     expect(page).to have_content("Inventory List")
 
     # Navigate back to verify both items exist
-    find("input[name='search']").set(model.product)
-    await_debounce
+    search_in_list(model.product)
 
     within find('[data-row="model"]', text: model.product) do
       click_on "expand-button"

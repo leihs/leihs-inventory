@@ -1,7 +1,7 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 import { Slot } from "@radix-ui/react-slot"
-import { Link } from "react-router-dom"
+import { Link } from "react-router"
 
 import { cn } from "@/components/ui/utils"
 import { buttonVariants } from "@/components/ui/button"

@@ -5,7 +5,7 @@
   "tsx": false,
   "tailwind": {
     "config": "tailwind.config.js",
-    "css": "global.css",
+    "css": "main.css",
     "baseColor": "slate",
     "cssVariables": true,
     "prefix": ""

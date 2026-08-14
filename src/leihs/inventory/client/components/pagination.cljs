@@ -9,7 +9,7 @@
                             PaginationPrevious]]
    ["lucide-react" :refer [ChevronDown ChevronLeft ChevronRight]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
 (defn page-range [current size total-rows]
@@ -68,7 +68,7 @@
                           (not (.-metaKey e)))
                  (.preventDefault e)
                  (when ref-next
-                   (when-let [input-element (.-current ref-next)]
+                   (when-let [input-element @ref-next]
                      (.. input-element (click)))))
 
                (when (and (= (.. e -code) "ArrowLeft")
@@ -78,7 +78,7 @@
                           (not (.-metaKey e)))
                  (.preventDefault e)
                  (when ref-prev
-                   (when-let [input-element (.-current ref-prev)]
+                   (when-let [input-element @ref-prev]
                      (.. input-element (click))))))]
 
          (js/window.addEventListener "keydown" on-key-down)

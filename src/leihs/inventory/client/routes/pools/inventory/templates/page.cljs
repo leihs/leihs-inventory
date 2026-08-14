@@ -11,7 +11,7 @@
                        TableRow]]
    ["lucide-react" :refer [Trash]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link]]
+   ["react-router" :as router :refer [Link]]
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
@@ -58,10 +58,10 @@
           ($ CardTitle (t "pool.templates.title"))
           ($ CardDescription (t "pool.templates.description")))
        ($ CardContent
-          ($ :section {:className "rounded-md border overflow-x-hidden"}
+          ($ :section {:class-name "rounded-md border overflow-x-hidden"}
 
              (if (not (seq templates))
-               ($ :div {:className "flex p-6 justify-center"}
+               ($ :div {:class-name "flex p-6 justify-center"}
                   (t "pool.templates.list.empty"))
 
                ($ Table
@@ -83,29 +83,29 @@
                                                            " bg-green-500"
                                                            " bg-red-500"))})
 
-                          ($ TableCell {:className "font-bold w-[50%]"}
+                          ($ TableCell {:class-name "font-bold w-[50%]"}
                              (:name template))
 
-                          ($ TableCell {:className "font-normal text-red-500 w-[30%] text-right"}
+                          ($ TableCell {:class-name "font-normal text-red-500 w-[30%] text-right"}
                              (when (not (:is_quantity_ok template))
                                (t "pool.templates.list.quantity_error")))
 
-                          ($ TableCell {:className "w-[20%]"}
+                          ($ TableCell {:class-name "w-[20%]"}
                              (:models_count template))
 
-                          ($ TableCell {:className "text-right"}
+                          ($ TableCell {:class-name "text-right"}
                              ($ Button {:asChild true
                                         :variant "outline"}
                                 ($ Link {:state #js {:searchParams (.. location -search)}
                                          :to (:id template)}
                                    (t "pool.templates.list.actions.edit"))))
 
-                          ($ TableCell {:className "text-right"}
+                          ($ TableCell {:class-name "text-right"}
                              ($ Button {:variant "outline"
                                         :data-test-id "delete"
                                         :onClick #(set-delete-id! (:id template))
                                         :size "icon"}
-                                ($ Trash {:className "h-4 w-4"}))))))))))
+                                ($ Trash {:class-name "h-4 w-4"}))))))))))
 
        ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-xl pt-6 overflow-auto"
                       :style {:background "linear-gradient(to top, hsl(var(--background)) 80%, transparent 100%)"}}

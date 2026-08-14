@@ -105,8 +105,7 @@ feature "Inventory Page", type: :feature do
     login(user)
 
     visit "/inventory/#{pool.id}/list?page=1&size=50&with_items=true&retired=false&in_stock=true"
-    find("input[name='search']").set("PkgIndModel")
-    await_debounce
+    search_in_list("PkgIndModel")
 
     row = find("tr", text: item_model.name)
     within(row) do
@@ -913,7 +912,7 @@ feature "Inventory Page", type: :feature do
     )
 
     visit "/inventory/#{pool_1.id}/list"
-    find("input[name='search']").set(search_term)
+    fill_in "search", with: search_term
 
     wait_until { all("table tbody tr").count == 4 }
 
@@ -1525,7 +1524,7 @@ feature "Inventory Page", type: :feature do
     within('[role="menu"]', match: :first) do
       click_on pool_6.name
     end
-    find("input[name='search']").set(item_model_11_1.inventory_code)
+    fill_in "search", with: item_model_11_1.inventory_code
     expect(page).to have_selector("table tbody tr", count: 1, wait: 10)
 
     # somehow the test started to break here after some BE changes

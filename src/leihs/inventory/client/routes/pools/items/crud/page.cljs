@@ -15,7 +15,7 @@
    ["lucide-react" :refer [ChevronDownIcon CircleAlert]]
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link useLoaderData]]
+   ["react-router" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
@@ -356,13 +356,13 @@
     ;; Clear room_id when building changes
     (uix/use-effect
      (fn []
-       (let [prev-building (.-current building-ref)]
+       (let [prev-building @building-ref]
          (when (and field-building
                     (not is-loading)
                     (not= field-building prev-building)
                     prev-building) ; Only clear if there was a previous value
            (set-value "room_id" nil))
-         (set! (.-current building-ref) field-building)))
+         (reset! building-ref field-building)))
      [field-building is-loading set-value])
 
     (uix/use-effect
@@ -387,26 +387,26 @@
      [watched-items is-loading is-edit set-value get-values t entity])
 
     (if is-loading
-      ($ :div {:className "flex justify-center items-center h-screen"}
+      ($ :div {:class-name "flex justify-center items-center h-screen"}
          ($ Spinner))
 
       ($ :article
-         ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
+         ($ :h1 {:class-name "text-2xl bold font-bold mt-12 mb-2"}
             (if is-create
               (t (str t-ns ".create.title"))
               (t (str t-ns ".edit.title"))))
 
-         ($ :h3 {:className "text-sm mb-6 text-gray-500"}
+         ($ :h3 {:class-name "text-sm mb-6 text-gray-500"}
             (if is-create
               (t (str t-ns ".create.description"))
               (t (str t-ns ".edit.description"))))
 
-         ($ Card {:className "py-8 mb-12"}
+         ($ Card {:class-name "py-8 mb-12"}
             ($ CardContent
-               ($ Scrollspy {:className "flex gap-4"}
+               ($ Scrollspy {:class-name "flex gap-4"}
                   ($ ScrollspyMenu {:class-name "w-full lg:w-1/5"})
 
-                  ($ :div {:className "w-full lg:w-4/5"}
+                  ($ :div {:class-name "w-full lg:w-4/5"}
 
                       ;; Items: show package membership alert
                      (when (and (= entity :item) package)
@@ -422,18 +422,18 @@
                         ($ VisibilityProvider {:form form}
                            ($ :form {:id "item-form"
                                      :ref item-form-ref
-                                     :className "space-y-12 "
+                                     :class-name "space-y-12 "
                                      :no-validate true
                                      :on-submit (handle-submit on-submit on-invalid)}
 
                               (for [section structure]
-                                ($ ScrollspyItem {:className "scroll-mt-[10vh]"
+                                ($ ScrollspyItem {:class-name "scroll-mt-[10vh]"
                                                   :key (:title section)
                                                   :id (:title section)
                                                   :name (t (:title section))}
 
-                                   ($ :h2 {:className "text-lg"} (t (:title section)))
-                                   ($ :hr {:className "mb-4"})
+                                   ($ :h2 {:class-name "text-lg"} (t (:title section)))
+                                   ($ :hr {:class-name "mb-4"})
 
                                    (for [block (:blocks section)]
                                      ($ FieldDispatcher {:key (:name block)
@@ -454,7 +454,7 @@
                      ($ DropdownMenu
                         ($ DropdownMenuTrigger {:asChild true}
                            ($ Button {:data-test-id "submit-dropdown"
-                                      :className "self-center !px-2"}
+                                      :class-name "self-center !px-2"}
                               ($ ChevronDownIcon)))
 
                         ($ DropdownMenuContent {:align "end"}

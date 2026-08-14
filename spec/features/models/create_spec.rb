@@ -146,8 +146,7 @@ feature "Create model", type: :feature do
     expect(page).to have_content "Inventory List"
     expect(page).to have_content "#{product} #{version}"
 
-    fill_in "search", with: "#{product} #{version}"
-    await_debounce
+    search_in_list("#{product} #{version}")
     find("a", text: "edit").click
 
     expect(
@@ -200,6 +199,23 @@ feature "Create model", type: :feature do
       assert_field("properties.1.key", second_property_key)
       assert_field("properties.1.value", second_property_value)
     end
+  end
+
+  scenario "shows existing manufacturer in dropdown list" do
+    existing_manufacturer = "Acme Corporation"
+    FactoryBot.create(:leihs_model, manufacturer: existing_manufacturer)
+
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+    click_on "Add inventory"
+    click_on "New model"
+
+    expect(page).to have_css("[data-test-id='manufacturer']")
+    click_on "Manufacturer"
+    fill_in "manufacturer-input", with: existing_manufacturer
+
+    expect(page).to have_no_text("Add new manufacturer")
+    expect(page).to have_text(existing_manufacturer)
   end
 
   scenario "fails with invalid mandatory fields" do

@@ -8,7 +8,7 @@
    ["@@/table" :refer [TableCell]]
    ["lucide-react" :refer [ImageOff ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link]]
+   ["react-router" :as router :refer [Link]]
    ["sonner" :refer [toast]]
    [clojure.string :as str]
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
@@ -87,16 +87,16 @@
                ($ ImageOff {:class-name "w-6 h-6"}))))
 
        ($ TableCell
-          ($ :div {:className "flex gap-2"}
-             ($ Badge {:className "w-6 h-5 justify-center bg-lime-500"} "P")))
+          ($ :div {:class-name "flex gap-2"}
+             ($ Badge {:class-name "w-6 h-5 justify-center bg-lime-500"} "P")))
 
-       ($ TableCell {:className ""}
+       ($ TableCell {:class-name ""}
           ($ ItemInfo {:item package}))
 
-       ($ TableCell {:className "text-right"}
+       ($ TableCell {:class-name "text-right"}
           ($ ItemStatus {:item package}))
 
-       ($ TableCell {:className "fit-content"}
+       ($ TableCell {:class-name "fit-content"}
           (if (= permission "read")
             ($ Button {:variant "outline"
                        :class-name "invisible"}
@@ -116,7 +116,7 @@
                                 :class-name ""
                                 :variant "outline"
                                 :size "icon"}
-                        ($ ChevronDown {:className "w-4 h-4"})))
+                        ($ ChevronDown {:class-name "w-4 h-4"})))
                   ($ DropdownMenuContent {:align "start"}
                      ($ DropdownMenuItem
                         ($ Link {:to (str "../packages/create?fromItem=" (:id package))

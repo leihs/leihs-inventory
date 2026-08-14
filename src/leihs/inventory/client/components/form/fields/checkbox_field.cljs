@@ -15,6 +15,6 @@
                                              :onCheckedChange (-> (jc %) :field :onChange)}
                                             (:props block))))
 
-                            ($ FormLabel {:className "pl-4"}
+                            ($ FormLabel {:class-name "pl-4"}
                                (:label block))
                             ($ FormMessage))}))

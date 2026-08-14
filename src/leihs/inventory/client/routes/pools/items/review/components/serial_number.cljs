@@ -7,14 +7,14 @@
    ["@@/table" :refer [TableCell]]
    ["lucide-react" :refer [Save CircleCheck]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
 
    ["sonner" :refer [toast]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [item poolId onSave]}]
+(defui SerialNumber [{:keys [item pool-id on-save]}]
   (let [fetcher (router/useFetcher)
         state (.-state fetcher)
         data (.-data fetcher)
@@ -44,8 +44,8 @@
              (do
                (.. toast (success (t "pool.items.review.serial_number.success")))
                ;; After successful save, focus next if flag is set
-               (when onSave
-                 (onSave)))
+               (when on-save
+                 (on-save)))
 
              409
              (let [errors (jc (.-errors data))
@@ -58,7 +58,7 @@
                                                 :onClick (fn []
                                                            (.submit fetcher
                                                                     #js {"item-id" (:id item)
-                                                                         "pool-id" poolId
+                                                                         "pool-id" pool-id
                                                                          "serial_number" input
                                                                          "on_conflict_serial_number" "overwrite"}
                                                                     #js {:method "patch"}))}})))
@@ -71,7 +71,7 @@
                               (cj {:description (t "error.action.error_detail"
                                                    #js {:httpStatus (aget result "httpStatus")})})))))))
 
-     [state data onSave t fetcher item poolId input])
+     [state data on-save t fetcher item pool-id input])
 
     ($ TableCell
        ($ fetcher.Form {:method "patch"}
@@ -80,7 +80,7 @@
                      :value (:id item)})
           ($ :input {:type "hidden"
                      :name "pool-id"
-                     :value poolId})
+                     :value pool-id})
 
           ($ ButtonGroup
              ($ InputGroup
@@ -110,7 +110,3 @@
                   ($ Spinner {:class-name "h-4 w-4"})
                   ($ Save {:class-name "h-4 w-4"}))))))))
 
-(def SerialNumber
-  (uix/as-react
-   (fn [props]
-     (main props))))

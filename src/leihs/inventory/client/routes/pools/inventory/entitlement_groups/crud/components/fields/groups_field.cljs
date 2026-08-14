@@ -9,7 +9,7 @@
    ["@@/table" :refer [TableCell]]
    ["lucide-react" :refer [Check ChevronsUpDown]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [leihs.inventory.client.components.form.form-field-array :refer [FormFieldArray FormFieldArrayItems use-array-item use-array-items]]
    [leihs.inventory.client.lib.client :refer [http-client safe-query]]
    [leihs.inventory.client.lib.hooks :as hooks]
@@ -43,7 +43,7 @@
         [data set-data!] (uix/use-state [])
 
         [search set-search!] (uix/use-state "")
-        debounced-search (hooks/use-debounce search 200)
+        [debounced-search] (hooks/use-debounce search 200)
         size (hooks/use-window-size)
 
         {:keys [fields append remove]} (use-array-items)
@@ -119,9 +119,10 @@
              ($ CommandInput {:placeholder (t (-> props :text :placeholder))
                               :data-test-id "groups-input"})
 
-             ($ CommandList {:data-test-id "groups-list"}
+             ($ CommandList {:data-test-id "groups-list"
+                             :aria-busy (when loading? "true")}
                 (when loading?
-                  ($ Spinner {:className "absolute right-0 top-0 m-3"}))
+                  ($ Spinner {:class-name "absolute right-0 top-0 m-3"}))
                 ($ CommandEmpty (cond
                                   loading?
                                   (t (-> props :text :searching))

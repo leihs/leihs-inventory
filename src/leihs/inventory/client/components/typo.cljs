@@ -33,26 +33,21 @@
    :description :p})
 
 ;; Main Typo component
-(defui main
-  [{:keys [className variant asChild ref]
+(defui Typo
+  [{:keys [class-name variant as-child ref]
     :or {variant :p
-         asChild false}
+         as-child false}
     :as props}]
 
-  (let [comp (if asChild
+  (let [comp (if as-child
                Slot
                (get variant-element-map (keyword variant) :p))
         variant-class (get variant-classes (keyword variant) "leading-7")
-        merged-class (cn variant-class className)
+        merged-class (cn variant-class class-name)
         ;; Remove our custom keys from props to pass through only valid HTML attributes
-        other-props (dissoc props :className :variant :asChild)]
+        other-props (dissoc props :class-name :variant :as-child)]
 
     ($ comp
        (merge other-props
               {:class-name merged-class
                :ref ref}))))
-
-(def Typo
-  (uix/as-react
-   (fn [props]
-     (main (cj props)))))

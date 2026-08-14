@@ -46,8 +46,7 @@ feature "Update software", type: :feature do
     select_value("with_items", "all")
     click_on "Inventory type"
     click_on "Software"
-    fill_in "search", with: "#{product_old} #{version_old}"
-    await_debounce
+    search_in_list("#{product_old} #{version_old}")
     find("a", text: "edit").click
 
     fill_in "Product", with: product_new
@@ -68,11 +67,8 @@ feature "Update software", type: :feature do
 
     expect(page).to have_text("Inventory List")
     select_value("with_items", "all")
-    await_debounce
-    fill_in "search", with: "#{product_new} #{version_new}"
+    search_in_list("#{product_new} #{version_new}")
 
-    # because there is a debounce on the search its necessary to wait a bit
-    sleep 0.3
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
     end

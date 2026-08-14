@@ -3,7 +3,7 @@
    ["@@/button" :refer [Button]]
    ["@@/item" :refer [Item ItemTitle ItemContent]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    ["sonner" :refer [toast]]
    [uix.core :as uix :refer [defui $ use-state]]))
 
@@ -53,7 +53,7 @@
 
 (defui main []
   ($ Item {:variant "outline"
-           :className "flex flex-col max-w-fit"}
+           :class-name "flex flex-col max-w-fit"}
 
      ($ ItemContent
         ($ ItemTitle

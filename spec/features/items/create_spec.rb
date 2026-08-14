@@ -126,8 +126,7 @@ feature "Create item", type: :feature do
     expect(page).to have_text "Item was successfully created"
     expect(page).to have_content "Inventory List"
 
-    fill_in "search", with: model.product
-    await_debounce
+    search_in_list(model.product)
 
     within find('[data-row="model"]', text: model.product) do
       click_on "expand-button"

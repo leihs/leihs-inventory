@@ -1,7 +1,7 @@
 (ns leihs.inventory.client.routes.notfound
   (:require
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [useRouteError]]
+   ["react-router" :as router :refer [useRouteError]]
    [uix.core :as uix :refer [$]]))
 
 (defn page []
@@ -11,7 +11,7 @@
     (js/console.error "error" error)
 
     ($ :div {:class-name "w-screen h-screen flex flex-col items-center justify-center"}
-       ($ :h1 {:className "text-2xl font-bold"} (.. error -status))
+       ($ :h1 {:class-name "text-2xl font-bold"} (.. error -status))
        ($ :p (.. error -statusText) ": " (.. error -data))
        ($ :a {:href "/inventory/"
               :class-name "mt-12"}

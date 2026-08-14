@@ -4,19 +4,17 @@ require_relative "../shared/common"
 feature "Access rights on inventory list", type: :feature do
   # Searches for a model row by product name and yields within it.
   def within_model_row(product, &block)
-    find("input[name='search']").set(product)
-    await_debounce
-    within find('[data-row="model"]', text: product, wait: 10), &block
+    search_in_list(product)
+    within find('[data-row="model"]', text: product), &block
   end
 
   # Expands a model row and returns the first revealed item sub-row.
   def expand_model_row(product, item)
-    find("input[name='search']").set(product)
-    await_debounce
-    within find('[data-row="model"]', text: product, wait: 10) do
+    search_in_list(product)
+    within find('[data-row="model"]', text: product) do
       click_on "expand-button"
     end
-    find('[data-row="item"]', text: item.inventory_code, wait: 10)
+    find('[data-row="item"]', text: item.inventory_code)
   end
 
   def assert_all_tabs_visible

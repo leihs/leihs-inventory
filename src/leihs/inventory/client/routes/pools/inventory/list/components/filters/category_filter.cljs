@@ -7,7 +7,7 @@
    ["@@/radio-group" :refer [RadioGroup RadioGroupItem]]
    ["lucide-react" :refer [ChevronDown ChevronRight List Search]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [clojure.string :as str]
    [uix.core :as uix :refer [$ defui]]))
 
@@ -75,7 +75,7 @@
     (->> (filter-helper categories)
          (distinct-by :category_id))))
 
-(defui main [{:keys [className]}]
+(defui CategoryFilter [{:keys [class-name]}]
   (let [categories (:children (:categories (router/useRouteLoaderData "models-page")))
         [search set-search!] (uix/use-state categories)
         [search-params set-search-params!] (router/useSearchParams)
@@ -118,15 +118,15 @@
              ($ Button {:variant "outline"
                         :data-test-id "category-filter-button"
                         :disabled disabled
-                        :class-name (str "min-w-48 max-w-48" className)}
-                ($ List {:className "h-4 w-4 "})
+                        :class-name (str "min-w-48 max-w-48" class-name)}
+                ($ List {:class-name "h-4 w-4 "})
 
                 (if category-name
                   ($ :span {:class-name "truncate"
                             :title category-name}
                      category-name)
                   (t "pool.models.filters.categories.title"))
-                ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))
+                ($ ChevronDown {:class-name "ml-auto h-4 w-4 opacity-50"})))
 
           ($ DropdownMenuContent {:class-name "max-h-[300px]"
                                   :data-test-id "category-filter-dropdown"}
@@ -149,7 +149,3 @@
                                                :searching is-searching?}
                                               category))))))))))
 
-(def CategoryFilter
-  (uix/as-react
-   (fn [props]
-     (main props))))

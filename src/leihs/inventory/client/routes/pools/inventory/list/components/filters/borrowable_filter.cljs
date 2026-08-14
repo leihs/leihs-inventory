@@ -3,10 +3,10 @@
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [className]}]
+(defui BorrowableFilter [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
         type (.. search-params (get "type"))
         [t] (useTranslation)
@@ -23,7 +23,7 @@
                :disabled (= type "option")
                :onValueChange handle-borrowable}
        ($ SelectTrigger {:name "borrowable"
-                         :className (str "w-[260px]" className)}
+                         :class-name (str "w-[260px]" class-name)}
           ($ SelectValue))
        ($ SelectContent
           ($ SelectItem {:data-test-id "all"
@@ -36,8 +36,4 @@
                          :value false}
              (t "pool.models.filters.borrowable.not_borrowable"))))))
 
-(def BorrowableFilter
-  (uix/as-react
-   (fn [props]
-     (main props))))
 

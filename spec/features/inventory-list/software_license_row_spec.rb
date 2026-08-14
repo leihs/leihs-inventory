@@ -3,8 +3,7 @@ require_relative "../shared/common"
 
 feature "Software license sub-row on inventory list", type: :feature do
   def expand_license_row(software_model, license)
-    find("input[name='search']").set(software_model.product)
-    await_debounce
+    search_in_list(software_model.product)
 
     within find('[data-row="model"]', text: software_model.product, wait: 10) do
       click_on "expand-button"

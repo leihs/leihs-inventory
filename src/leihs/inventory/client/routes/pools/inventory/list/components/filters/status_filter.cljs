@@ -7,13 +7,12 @@
                                DropdownMenuPortal DropdownMenuSub
                                DropdownMenuSubContent DropdownMenuSubTrigger
                                DropdownMenuTrigger]]
-   ["@@/tooltip" :refer [TooltipProvider Tooltip TooltipContent TooltipTrigger]]
    ["lucide-react" :refer [Check ChevronDown CirclePlus]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
+   ["react-router" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [className]}]
+(defui StatusFilter [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
         [t] (useTranslation)
         [open? set-open!] (uix/use-state false)
@@ -85,16 +84,16 @@
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:variant "outline"
                      :disabled disabled
-                     :class-name (str "min-w-48 max-w-48 " className)}
+                     :class-name (str "min-w-48 max-w-48 " class-name)}
 
-             ($ CirclePlus {:className "h-4 w-4"})
+             ($ CirclePlus {:class-name "h-4 w-4"})
              (t "pool.models.filters.status.title")
 
              (if (pos? status-count)
                ($ Badge {:class-name "ml-auto w-6 justify-center "
                          :variant "secondary"}
                   status-count)
-               ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"}))))
+               ($ ChevronDown {:class-name "ml-auto h-4 w-4 opacity-50"}))))
        ($ DropdownMenuContent {:align "start"}
           ($ DropdownMenuGroup
 
@@ -117,7 +116,7 @@
                                        :class-name "w-full justify-start font-normal"}
                                (t "pool.models.filters.status.yes")
                                (when (= owned "true")
-                                 ($ Check {:className "ml-auto h-4 w-4"}))))
+                                 ($ Check {:class-name "ml-auto h-4 w-4"}))))
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ DropdownMenuItem {:asChild true}
@@ -128,7 +127,7 @@
                                           :class-name "w-full justify-start font-normal"}
                                   (t "pool.models.filters.status.no")
                                   (when (= owned "false")
-                                    ($ Check {:className "ml-auto h-4 w-4"})))))))))
+                                    ($ Check {:class-name "ml-auto h-4 w-4"})))))))))
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
@@ -149,7 +148,7 @@
                                        :class-name "w-full justify-start font-normal"}
                                (t "pool.models.filters.status.yes")
                                (when (= in_stock "true")
-                                 ($ Check {:className "ml-auto h-4 w-4"}))))
+                                 ($ Check {:class-name "ml-auto h-4 w-4"}))))
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ DropdownMenuItem {:asChild true}
@@ -160,7 +159,7 @@
                                           :class-name "w-full justify-start font-normal"}
                                   (t "pool.models.filters.status.no")
                                   (when (= in_stock "false")
-                                    ($ Check {:className "ml-auto h-4 w-4"})))))))))
+                                    ($ Check {:class-name "ml-auto h-4 w-4"})))))))))
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
@@ -182,7 +181,7 @@
                                        :class-name "w-full justify-start font-normal"}
                                (t "pool.models.filters.status.yes")
                                (when (= broken "true")
-                                 ($ Check {:className "ml-auto h-4 w-4"}))))
+                                 ($ Check {:class-name "ml-auto h-4 w-4"}))))
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ DropdownMenuItem {:asChild true}
@@ -193,7 +192,7 @@
                                           :class-name "w-full justify-start font-normal"}
                                   (t "pool.models.filters.status.no")
                                   (when (= broken "false")
-                                    ($ Check {:className "ml-auto h-4 w-4"})))))))))
+                                    ($ Check {:class-name "ml-auto h-4 w-4"})))))))))
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger {:class-name (when incomplete "bg-accent")}
@@ -215,7 +214,7 @@
                                        :class-name "w-full justify-start font-normal"}
                                (t "pool.models.filters.status.yes")
                                (when (= incomplete "true")
-                                 ($ Check {:className "ml-auto h-4 w-4"}))))
+                                 ($ Check {:class-name "ml-auto h-4 w-4"}))))
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ DropdownMenuItem {:asChild true}
@@ -226,9 +225,5 @@
                                           :class-name "w-full justify-start font-normal"}
                                   (t "pool.models.filters.status.no")
                                   (when (= incomplete "false")
-                                    ($ Check {:className "ml-auto h-4 w-4"}))))))))))))))
+                                    ($ Check {:class-name "ml-auto h-4 w-4"}))))))))))))))
 
-(def StatusFilter
-  (uix/as-react
-   (fn [props]
-     (main props))))
