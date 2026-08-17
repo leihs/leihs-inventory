@@ -61,11 +61,12 @@ feature "Search & Edit - bulk edit dynamic fields", type: :feature do
     within find('[data-test-id="field-options"]') do
       find("span", text: "Inventory Code").click
     end
-    await_debounce
     find("input[name='$or.0.$and.0.value']").set(inv_prefix)
     await_debounce
 
-    expect(page).to have_css("tbody tr", minimum: 2)
+    expect(page).to have_content("#{inv_prefix}-A", wait: 15)
+    expect(page).to have_content("#{inv_prefix}-B", wait: 15)
+    expect(page).to have_css("tbody tr", count: 2, wait: 15)
     find("thead button[role='checkbox']").click
 
     expect(page).to have_button("edit-button", disabled: false, wait: 10)
