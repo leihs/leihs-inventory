@@ -51,6 +51,7 @@
       (sql/where [:= :u.user_id user-id])
       (sql/where [:in :u.role (vec profile-pool-roles)])
       (sql/where [:= :i.is_active true])
+      (sql/order-by :i.name)
       sql-format))
 
 (defn get-pools-for-profile [tx user-id]
