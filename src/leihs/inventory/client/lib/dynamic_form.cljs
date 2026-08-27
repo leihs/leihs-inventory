@@ -1,7 +1,7 @@
 (ns leihs.inventory.client.lib.dynamic-form
   (:require
    [clojure.string :as str]
-   [leihs.inventory.client.lib.date-helper :refer [string-to-plain-date]]))
+   [leihs.inventory.client.lib.date-utils :refer [date-from-iso]]))
 
 (def implemented-field-types
   #{"text"
@@ -293,7 +293,7 @@
                                       "date"
                                       (cond
                                         (= default-value "today") (js/Date.)
-                                        (string? default-value) (string-to-plain-date default-value)
+                                        (string? default-value) (date-from-iso default-value)
                                         :else default-value)
 
                                       "radio"
