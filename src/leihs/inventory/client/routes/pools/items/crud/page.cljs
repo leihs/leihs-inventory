@@ -442,7 +442,8 @@
 
                   ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem] "}
                      ($ Button {:type "submit"
-                                :form "item-form"}
+                                :form "item-form"
+                                :class-name "w-32"}
 
                         (if is-create
                           (str (when (and (= entity :item) batch?)
