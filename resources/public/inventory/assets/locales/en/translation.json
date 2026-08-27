@@ -1,7 +1,9 @@
 {
   "limit_result": "results are limited to {{count}} items",
   "OK": "OK",
+  "yes": "yes",
   "Yes": "Yes",
+  "no": "no",
   "No": "No",
   "Unborrowable": "Unborrowable",
   "Incomplete": "Incomplete",
