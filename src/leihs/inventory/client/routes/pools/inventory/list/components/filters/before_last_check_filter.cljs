@@ -4,11 +4,10 @@
    ["@@/calendar" :refer [Calendar]]
    ["@@/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["date-fns" :as date-fns]
-
    ["lucide-react" :refer [CalendarDays ChevronsUpDown]]
    ["react-i18next" :refer [useTranslation]]
-
    ["react-router" :as router]
+   [leihs.inventory.client.lib.date-helper :refer [string-to-plain-date]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui BeforeLastCheckFilter [{:keys [class-name]}]
@@ -41,7 +40,7 @@
              ($ CalendarDays {:class-name "h-4 w-4"})
              (if before-last-check
                ($ :span {:class-name "truncate w-full text-left"}
-                  (str before-last-check))
+                  (t "intlDateTime" #js {:val (string-to-plain-date before-last-check)}))
                (t "pool.models.filters.before_last_check.title"))
              ($ ChevronsUpDown {:class-name "ml-auto h-4 w-4 shrink-0 opacity-50"})))
 
@@ -49,7 +48,7 @@
           ($ Calendar {:mode "single"
                        :captionLayout "dropdown"
                        :data-test-id "before-last-check-calendar"
-                       :selected (js/Date. before-last-check)
+                       :selected (string-to-plain-date before-last-check)
                        :onSelect handle-before-last-check})))))
 
 

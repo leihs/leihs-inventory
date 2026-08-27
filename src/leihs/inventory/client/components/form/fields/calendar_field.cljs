@@ -4,13 +4,14 @@
    ["@@/button" :refer [Button]]
    ["@@/calendar" :refer [Calendar]]
    ["@@/form" :refer [FormControl FormField FormItem FormLabel FormMessage]]
-   ["date-fns" :refer [format]]
    ["lucide-react" :refer [CalendarIcon]]
+   ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [cj]]
    [uix.core :refer [$ defui]]))
 
 (defui CalendarField [{:keys [form block class-name]}]
-  (let [label (:label block)]
+  (let [label (:label block)
+        [t] (useTranslation)]
     ($ FormField {:control (cj (.-control form))
                   :name (:name block)
                   :render #($ FormItem {:class-name (str "flex flex-col mt-6 " class-name)}
@@ -26,7 +27,7 @@
                                                     :variant "outline"
                                                     :class-name "w-[240px] pl-3 text-left font-normal disabled:cursor-not-allowed"}
                                             (if field-value
-                                              (format field-value "yyyy-MM-dd")
+                                              (t "intlDateTime" #js {:val field-value})
                                               ($ :span {:class-name "text-muted-foreground"}
                                                  "Select date"))
                                             ($ CalendarIcon {:class-name "ml-auto h-4 w-4 opacity-50"}))))

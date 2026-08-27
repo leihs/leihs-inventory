@@ -174,7 +174,7 @@ feature "Create license", type: :feature do
     assert_field "Total quantity", total_quantity
 
     expect(page).to have_content "Maintenance expiration"
-    expect(find('button[name="properties_maintenance_expiration"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
+    expect(find('button[name="properties_maintenance_expiration"]')).to have_text(yesterday.strftime("%d/%m/%Y"))
     expect(page).to have_content "Currency"
 
     within find('#fields\.Maintenance\.title') do
@@ -189,7 +189,7 @@ feature "Create license", type: :feature do
     assert_checked(find('button[data-test-id="properties_installation-web"]'))
 
     # Verify dates
-    expect(find('button[name="properties_license_expiration"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
+    expect(find('button[name="properties_license_expiration"]')).to have_text(yesterday.strftime("%d/%m/%Y"))
 
     # Verify other fields
     assert_field "Procured by", procured_by

@@ -226,7 +226,7 @@ feature "Update package", type: :feature do
     expect(find('button[name="is_inventory_relevant"]')).to have_text("Yes")
 
     expect(find('button[data-test-id="owner_id"]')).to have_text(pool.name)
-    expect(find('button[name="last_check"]')).to have_text(today.strftime("%Y-%m-%d"))
+    expect(find('button[name="last_check"]')).to have_text(today.strftime("%d/%m/%Y"))
 
     assert_field "Responsible person", user_name_new
     assert_field "User/Typical usage", typical_usage_new

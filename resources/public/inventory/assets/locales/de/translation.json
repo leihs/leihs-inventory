@@ -117,7 +117,7 @@
       }
     }
   },
-  "intlDateTime": "{{- val, datetime}}",
+  "intlDateTime": "{{- val, datetime(day: 2-digit; month: 2-digit; year: numeric)}}",
   "pool": {
     "scan_edit": {
       "title": "Gegenstände bearbeiten per Scan oder Auswahl",

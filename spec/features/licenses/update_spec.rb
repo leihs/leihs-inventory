@@ -210,8 +210,8 @@ feature "Update license", type: :feature do
     assert_checked(find('button[data-test-id="properties_installation-web"]'))
 
     # Verify dates
-    expect(find('button[name="properties_license_expiration"]')).to have_text(today.strftime("%Y-%m-%d"))
-    expect(find('button[name="properties_maintenance_expiration"]')).to have_text(today.strftime("%Y-%m-%d"))
+    expect(find('button[name="properties_license_expiration"]')).to have_text(today.strftime("%d/%m/%Y"))
+    expect(find('button[name="properties_maintenance_expiration"]')).to have_text(today.strftime("%d/%m/%Y"))
 
     # Verify maintenance fields
     within find('#fields\.Maintenance\.title') do

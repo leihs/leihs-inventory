@@ -158,7 +158,7 @@ feature "Create item", type: :feature do
     expect(find('button[name="is_inventory_relevant"]')).to have_text("No")
 
     expect(find('button[data-test-id="owner_id"]')).to have_text(pool.name)
-    expect(find('button[name="last_check"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
+    expect(find('button[name="last_check"]')).to have_text(yesterday.strftime("%d/%m/%Y"))
 
     assert_field "Responsible person", user_name
     assert_field "User/Typical usage", typical_usage
@@ -168,14 +168,14 @@ feature "Create item", type: :feature do
     assert_field "Project Number*", project_number
     assert_field "Invoice Number", invoice_number
 
-    expect(find('button[name="invoice_date"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
+    expect(find('button[name="invoice_date"]')).to have_text(yesterday.strftime("%d/%m/%Y"))
 
     assert_field "Initial Price", format_price_display(price)
 
     expect(find('button[data-test-id="supplier_id"]')).to have_text(supplier.name)
 
-    expect(find('button[name="properties_warranty_expiration"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
-    expect(find('button[name="properties_contract_expiration"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
+    expect(find('button[name="properties_warranty_expiration"]')).to have_text(yesterday.strftime("%d/%m/%Y"))
+    expect(find('button[name="properties_contract_expiration"]')).to have_text(yesterday.strftime("%d/%m/%Y"))
 
     expect(find('button[data-test-id="building_id"]')).to have_text("general building")
     expect(find('button[data-test-id="room_id"]')).to have_text("general room")

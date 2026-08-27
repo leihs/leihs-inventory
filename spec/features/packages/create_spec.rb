@@ -162,7 +162,7 @@ feature "Create package", type: :feature do
     expect(find('button[name="is_inventory_relevant"]')).to have_text("No")
 
     expect(find('button[data-test-id="owner_id"]')).to have_text(pool.name)
-    expect(find('button[name="last_check"]')).to have_text(yesterday.strftime("%Y-%m-%d"))
+    expect(find('button[name="last_check"]')).to have_text(yesterday.strftime("%d/%m/%Y"))
 
     assert_field "Responsible person", user_name
     assert_field "User/Typical usage", typical_usage
