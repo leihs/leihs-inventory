@@ -1,7 +1,9 @@
 {
   "limit_result": "Resultat limitiert auf {{count}} Einträge",
   "OK": "OK",
+  "yes": "ja",
   "Yes": "Ja",
+  "no": "nein",
   "No": "Nein",
   "Unborrowable": "Nicht Ausleihbar",
   "Incomplete": "Unvollständig",
