@@ -23,10 +23,10 @@
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
-   [leihs.core.core :refer [detect]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.form-helper :as form-helper]
+   [leihs.inventory.client.lib.hooks :refer [use-current-pool]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.software.crud.components.field-dispatcher :refer [FieldDispatcher]]
    [uix.core :as uix :refer [$ defui]]
@@ -76,11 +76,8 @@
         is-edit (not (or is-create is-delete))
 
         params (router/useParams)
-        pool-id (aget params "pool-id")
         {:keys [data]} (jc (useLoaderData))
-        {:keys [profile]} (router/useRouteLoaderData "root")
-        current-pool (->> (:available_inventory_pools profile)
-                          (detect #(= (:id %) pool-id)))
+        current-pool (use-current-pool)
         enable-alternative-pickup-locations
         (boolean (:enable_alternative_pickup_locations current-pool))
         form-structure-blocks (form-structure enable-alternative-pickup-locations)
