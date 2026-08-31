@@ -52,10 +52,14 @@ feature "Model transportable", type: :feature do
       assert_transportable_visible_and_enabled_default
     end
 
-    scenario "does not show transportable on software" do
+    scenario "shows transportable visible and checked by default on software" do
       login(user)
       open_new_software
-      expect(page).to have_no_css("[data-id='transportable']")
+      assert_transportable_visible_and_enabled_default
+
+      software = FactoryBot.create(:leihs_model, type: "Software", transportable: true)
+      visit "/inventory/#{pool.id}/software/#{software.id}"
+      assert_transportable_visible_and_enabled_default
     end
   end
 
@@ -64,7 +68,7 @@ feature "Model transportable", type: :feature do
       expect(pool.enable_alternative_pickup_locations).to eq(false)
     end
 
-    scenario "does not show transportable on model or package model" do
+    scenario "does not show transportable on model, package model, or software" do
       login(user)
       open_new_model
       expect(page).to have_no_css("[data-id='transportable']")
@@ -78,6 +82,13 @@ feature "Model transportable", type: :feature do
 
       package_model = FactoryBot.create(:package_model)
       visit "/inventory/#{pool.id}/models/#{package_model.id}"
+      expect(page).to have_no_css("[data-id='transportable']")
+
+      open_new_software
+      expect(page).to have_no_css("[data-id='transportable']")
+
+      software = FactoryBot.create(:leihs_model, type: "Software")
+      visit "/inventory/#{pool.id}/software/#{software.id}"
       expect(page).to have_no_css("[data-id='transportable']")
     end
   end

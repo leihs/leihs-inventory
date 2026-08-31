@@ -40,12 +40,12 @@
 
 (defn format-pool-for-profile [pool]
   (-> pool
-      (select-keys [:id :name :role])
+      (select-keys [:id :name :role :enable_alternative_pickup_locations])
       (assoc :permission (role->permission (:role pool)))
       (dissoc :role)))
 
 (defn get-pools-access-rights-of-user-query [user-id]
-  (-> (sql/select :i.id :i.name :u.role)
+  (-> (sql/select :i.id :i.name :i.enable_alternative_pickup_locations :u.role)
       (sql/from [:access_rights :u])
       (sql/join [:inventory_pools :i] [:= :u.inventory_pool_id :i.id])
       (sql/where [:= :u.user_id user-id])

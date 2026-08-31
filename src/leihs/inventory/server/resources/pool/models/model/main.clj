@@ -29,26 +29,6 @@
 (def FETCH_MODEL_ERROR "Failed to fetch model")
 (def UPDATE_MODEL_ERROR "Failed to update model")
 
-(defn fetch-enable-alternative-pickup-locations [tx pool-id]
-  (boolean
-   (:enable_alternative_pickup_locations
-    (jdbc/execute-one!
-     tx
-     (-> (sql/select :enable_alternative_pickup_locations)
-         (sql/from :inventory_pools)
-         (sql/where [:= :id pool-id])
-         sql-format)))))
-
-(defn get-form-meta-resource [request]
-  (try
-    (let [tx (:tx request)
-          pool-id (to-uuid (get-in request [:path-params :pool_id]))]
-      (response {:enable_alternative_pickup_locations
-                 (fetch-enable-alternative-pickup-locations tx pool-id)}))
-    (catch Exception e
-      (log-by-severity FETCH_MODEL_ERROR e)
-      (exception-handler request FETCH_MODEL_ERROR e))))
-
 (defn is-model-deletable? [tx model-id]
   (is-deletable? tx :models model-id))
 
@@ -150,8 +130,6 @@
                           (sql/where [:= :m.id model-id])
                           sql-format)
           model-result (jdbc/execute-one! tx model-query)
-          enable-alternative-pickup-locations
-          (fetch-enable-alternative-pickup-locations tx pool-id)
           attachments (fetch-attachments tx model-id pool-id)
           image-attributes (fetch-image-attributes tx model-id pool-id)
           accessories (fetch-accessories tx model-id)
@@ -162,7 +140,6 @@
           rentable (fetch-rentable tx pool-id model-id)
           result (if model-result
                    (-> (assoc model-result
-                              :enable_alternative_pickup_locations enable-alternative-pickup-locations
                               :is_deletable (is-model-deletable? tx model-id)
                               :rentable rentable
                               :attachments attachments

@@ -26,6 +26,7 @@
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.form-helper :as form-helper]
+   [leihs.inventory.client.lib.hooks :refer [use-current-pool]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.models.crud.components.field-dispatcher :refer [FieldDispatcher]]
    [uix.core :as uix :refer [$ defui]]
@@ -33,7 +34,6 @@
 
 (def default-values {:product ""
                      :is_package false
-                     :transportable true
                      :manufacturer ""
                      :description ""
                      :internal_description ""
@@ -80,13 +80,22 @@
 
         params (router/useParams)
         {:keys [data]} (jc (useLoaderData))
+        current-pool (use-current-pool)
         enable-alternative-pickup-locations
-        (boolean (:enable_alternative_pickup_locations data))
+        (boolean (:enable_alternative_pickup_locations current-pool))
         form-structure-blocks (form-structure enable-alternative-pickup-locations)
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
-                                            (fn [] (form-helper/process-files data :attachments :images))
-                                            (cj default-values))})
+                                            (fn []
+                                              (-> (form-helper/process-files data :attachments :images)
+                                                  (.then (fn [js-data]
+                                                           (let [m (jc js-data)]
+                                                             (cj (if enable-alternative-pickup-locations
+                                                                   (assoc m :transportable (:transportable m true))
+                                                                   (dissoc m :transportable))))))))
+                                            (cj (cond-> default-values
+                                                  enable-alternative-pickup-locations
+                                                  (assoc :transportable true))))})
 
         is-loading (.. form -formState -isLoading)
 
@@ -151,7 +160,9 @@
                                                          (remove (set (map :id (:attachments (jc submit-data))))))
                                                     nil)
 
-                            model-data (into {} (dissoc (jc submit-data) :images :attachments))
+                            model-data (cond-> (into {} (dissoc (jc submit-data) :images :attachments))
+                                         (not enable-alternative-pickup-locations)
+                                         (dissoc :transportable))
 
                             pool-id (aget params "pool-id")
 

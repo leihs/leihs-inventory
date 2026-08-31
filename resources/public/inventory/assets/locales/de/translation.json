@@ -701,6 +701,9 @@
           "product": {
             "label": "Produkt"
           },
+          "transportable": {
+            "label": "Software ist transportierbar"
+          },
           "version": {
             "label": "Version"
           },

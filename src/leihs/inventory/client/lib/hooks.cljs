@@ -8,21 +8,10 @@
 ;; NOTE: would be nicer to user defhook macro, but somehow the linting is broken ( maybe beacause of uix version? ) 
 
 (defn use-current-pool []
-  (let [[current-pool set-current-pool!] (uix/use-state nil)
-        {:keys [pool-id]} (jc (router/useParams))
-        profile (router/useRouteLoaderData "root")
-        available_inventory_pools (-> profile
-                                      :profile
-                                      :available_inventory_pools)]
-
-    (uix/use-effect
-     (fn []
-       (let [pool-id (->> available_inventory_pools (detect #(= pool-id (:id %))))]
-         (when pool-id
-           (set-current-pool! pool-id))))
-     [pool-id available_inventory_pools])
-
-    current-pool))
+  (let [{:keys [pool-id]} (jc (router/useParams))
+        {:keys [profile]} (router/useRouteLoaderData "root")]
+    (->> (:available_inventory_pools profile)
+         (detect #(= (:id %) pool-id)))))
 
 ;; NOTE: docs https://usehooks.com/usedebounce
 ;; Returns [debounced-value reset!] where reset! cancels any pending timer
