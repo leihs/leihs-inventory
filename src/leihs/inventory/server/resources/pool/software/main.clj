@@ -26,13 +26,14 @@
 
 (defn prepare-software-data
   [data]
-  (let [normalize-data (-> (normalize-model-data data)
-                           (dissoc :transportable))
+  (let [normalize-data (normalize-model-data data)
         created-ts (LocalDateTime/now)]
-    (assoc normalize-data
-           :type "Software"
-           :created_at created-ts
-           :updated_at created-ts)))
+    (-> normalize-data
+        (assoc :type "Software"
+               :created_at created-ts
+               :updated_at created-ts)
+        (cond-> (contains? data :transportable)
+          (assoc :transportable (str-to-bool (:transportable data)))))))
 
 (def base-query
   (-> (sql/select :models.id

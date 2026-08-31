@@ -3,6 +3,7 @@
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.fields.attachments-field :refer [AttachmentsField]]
    [leihs.inventory.client.components.form.fields.autocomplete-field :refer [AutocompleteField]]
+   [leihs.inventory.client.components.form.fields.checkbox-field :refer [CheckboxField]]
    [leihs.inventory.client.components.form.fields.common-field :refer [CommonField]]
    [uix.core :refer [$ defui]]))
 
@@ -23,6 +24,10 @@
                                     {:remap (fn [item] {:value item
                                                         :label item})}
                                     (:props translated-block))})
+
+      (-> block :component (= "checkbox"))
+      ($ CheckboxField {:form form
+                        :block translated-block})
 
       ;; default case - renders a component from the component map
       :else

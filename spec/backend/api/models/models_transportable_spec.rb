@@ -14,35 +14,7 @@ describe "Inventory model transportable" do
   }
   let(:inventory_pool_id) { @inventory_pool.id }
   let(:models_url) { "/inventory/#{inventory_pool_id}/models/" }
-
-  describe "model form includes enable_alternative_pickup_locations" do
-    it "returns the pool flag on model GET" do
-      model = FactoryBot.create(:leihs_model)
-      expect(@inventory_pool.enable_alternative_pickup_locations).to eq(false)
-
-      resp = client.get("#{models_url}#{model.id}")
-      expect(resp.status).to eq(200)
-      expect(resp.body["enable_alternative_pickup_locations"]).to eq(false)
-
-      @inventory_pool.update(enable_alternative_pickup_locations: true)
-      resp = client.get("#{models_url}#{model.id}")
-      expect(resp.status).to eq(200)
-      expect(resp.body["enable_alternative_pickup_locations"]).to eq(true)
-    end
-
-    it "returns the pool flag on form-meta GET" do
-      expect(@inventory_pool.enable_alternative_pickup_locations).to eq(false)
-
-      resp = client.get("#{models_url}form-meta")
-      expect(resp.status).to eq(200)
-      expect(resp.body["enable_alternative_pickup_locations"]).to eq(false)
-
-      @inventory_pool.update(enable_alternative_pickup_locations: true)
-      resp = client.get("#{models_url}form-meta")
-      expect(resp.status).to eq(200)
-      expect(resp.body["enable_alternative_pickup_locations"]).to eq(true)
-    end
-  end
+  let(:software_url) { "/inventory/#{inventory_pool_id}/software/" }
 
   describe "model transportable persistence" do
     it "defaults transportable to true when omitted on create" do
@@ -108,21 +80,30 @@ describe "Inventory model transportable" do
     end
   end
 
-  describe "software endpoints do not expose transportable" do
-    let(:software_url) { "/inventory/#{inventory_pool_id}/software/" }
+  describe "software transportable persistence" do
+    it "defaults transportable to true when omitted on create" do
+      resp = client.post(software_url) do |req|
+        req.body = {
+          product: "Default Transportable Software",
+          version: "1"
+        }.to_json
+        req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        req.headers["Cookie"] = @user_cookies.map(&:to_s).join("; ")
+      end
 
-    it "does not return transportable on software GET" do
-      software = FactoryBot.create(:leihs_model, type: "Software", product: "SW-No-Transportable")
-      resp = client.get("#{software_url}#{software.id}")
       expect(resp.status).to eq(200)
-      expect(resp.body).not_to have_key("transportable")
-      expect(resp.body).not_to have_key("enable_alternative_pickup_locations")
+      software_id = resp.body["id"]
+      get_resp = client.get("#{software_url}#{software_id}")
+      expect(get_resp.status).to eq(200)
+      expect(get_resp.body["transportable"]).to eq(true)
     end
 
-    it "ignores transportable on software create and update" do
+    it "persists transportable false on create and update" do
       create_resp = client.post(software_url) do |req|
         req.body = {
-          product: "SW-Ignore-Transportable",
+          product: "Not Transportable Software",
           version: "1",
           transportable: false
         }.to_json
@@ -134,16 +115,17 @@ describe "Inventory model transportable" do
 
       expect(create_resp.status).to eq(200)
       software_id = create_resp.body["id"]
-      expect(create_resp.body).not_to have_key("transportable")
+      expect(create_resp.body["transportable"]).to eq(false)
 
-      software = LeihsModel[software_id]
-      expect(software.transportable).to eq(true)
+      get_resp = client.get("#{software_url}#{software_id}")
+      expect(get_resp.status).to eq(200)
+      expect(get_resp.body["transportable"]).to eq(false)
 
       update_resp = client.put("#{software_url}#{software_id}") do |req|
         req.body = {
-          product: "SW-Ignore-Transportable",
+          product: "Not Transportable Software",
           version: "1",
-          transportable: false
+          transportable: true
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
@@ -152,8 +134,9 @@ describe "Inventory model transportable" do
       end
 
       expect(update_resp.status).to eq(200)
-      expect(update_resp.body).not_to have_key("transportable")
-      expect(LeihsModel[software_id].transportable).to eq(true)
+      expect(update_resp.body["transportable"]).to eq(true)
+      get_again = client.get("#{software_url}#{software_id}")
+      expect(get_again.body["transportable"]).to eq(true)
     end
   end
 end

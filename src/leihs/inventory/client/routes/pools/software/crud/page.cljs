@@ -23,6 +23,7 @@
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
+   [leihs.core.core :refer [detect]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.form-helper :as form-helper]
@@ -35,6 +36,26 @@
                      :version ""
                      :manufacturer ""
                      :technical_detail ""})
+
+(def transportable-block
+  {:name "transportable"
+   :label "pool.software.software.blocks.transportable.label"
+   :component "checkbox"
+   :inline true
+   :props {"data-id" "transportable"}})
+
+(defn- form-structure [enable-alternative-pickup-locations?]
+  (mapv (fn [section]
+          (if (and enable-alternative-pickup-locations?
+                   (= (:title section) "pool.software.software.title"))
+            (update section :blocks conj transportable-block)
+            section))
+        (jc structure)))
+
+(defn- with-transportable-default [base enable?]
+  (if enable?
+    (assoc base :transportable (:transportable base true))
+    (dissoc base :transportable)))
 
 (defui page []
   (let [[t] (useTranslation)
@@ -54,16 +75,28 @@
 
         is-edit (not (or is-create is-delete))
 
-        {:keys [data]} (useLoaderData)
+        params (router/useParams)
+        pool-id (aget params "pool-id")
+        {:keys [data]} (jc (useLoaderData))
+        {:keys [profile]} (router/useRouteLoaderData "root")
+        current-pool (->> (:available_inventory_pools profile)
+                          (detect #(= (:id %) pool-id)))
+        enable-alternative-pickup-locations
+        (boolean (:enable_alternative_pickup_locations current-pool))
+        form-structure-blocks (form-structure enable-alternative-pickup-locations)
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
-                                            (fn [] (form-helper/process-files data :attachments))
-                                            (cj default-values))})
+                                            (fn []
+                                              (-> (form-helper/process-files data :attachments)
+                                                  (.then (fn [js-vals]
+                                                           (cj (with-transportable-default
+                                                                 (jc js-vals)
+                                                                 enable-alternative-pickup-locations))))))
+                                            (cj (with-transportable-default
+                                                  default-values
+                                                  enable-alternative-pickup-locations)))})
 
         is-loading (.. form -formState -isLoading)
-
-        control (.. form -control)
-        params (router/useParams)
 
         on-invalid (fn [data]
                      (let [invalid-filds-count (count (jc data))]
@@ -115,7 +148,9 @@
 
                             ;; remove empty attachments from the data, 
                             ;; because they have their own endpoint
-                            software-data (into {} (dissoc (jc submitted-data) :attachments))
+                            software-data (cond-> (into {} (dissoc (jc submitted-data) :attachments))
+                                            (not enable-alternative-pickup-locations)
+                                            (dissoc :transportable))
 
                             pool-id (aget params "pool-id")
 
@@ -221,7 +256,7 @@
                                :no-validate true
                                :on-submit (handle-submit on-submit on-invalid)}
 
-                        (for [section (jc structure)]
+                        (for [section form-structure-blocks]
                           ($ ScrollspyItem {:class-name "scroll-mt-[10vh]"
                                             :key (:title section)
                                             :id (:title section)

@@ -108,7 +108,7 @@ describe "Inventory Model Management" do
       )
       expect(resp.status).to eq(200)
       expect(resp.body["attachments"].first.keys).to eq(["content_type", "filename", "id", "url"])
-      expect(resp.body.keys).to eq(["attachments", "type", "product", "id", "manufacturer", "is_deletable", "version",
+      expect(resp.body.keys).to eq(["transportable", "attachments", "type", "product", "id", "manufacturer", "is_deletable", "version",
         "technical_detail"])
     end
 

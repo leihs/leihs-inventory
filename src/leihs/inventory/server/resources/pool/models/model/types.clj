@@ -43,7 +43,6 @@
                                     :nil/internal_description
                                     ::sp/product
                                     ::sp/is_deletable
-                                    ::sp/transportable
-                                    ::sp/enable_alternative_pickup_locations])
+                                    ::sp/transportable])
 
             :description "Complete inventory response"}))
