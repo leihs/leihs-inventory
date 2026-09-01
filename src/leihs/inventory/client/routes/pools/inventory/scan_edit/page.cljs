@@ -51,10 +51,18 @@
                    (cj {:description (t "pool.scan_edit.invalid_item.description")
                         :duration "10000"}))))
 
-(defn- toast-action-error [t http-status]
+(defn- extract-server-message [data]
+  (or (aget data "response" "message")
+      (aget data "errors" 0 "message")))
+
+(defn- toast-action-error [t http-status message]
   (.. toast (error (t "error.action.error")
-                   (cj {:description (t "error.action.error_detail"
-                                        #js {:httpStatus http-status})}))))
+                   (cj {:description (if (seq message)
+                                       ($ :span
+                                          ($ :p (t "error.action.error_detail" #js {:httpStatus http-status}))
+                                          ($ :p message))
+                                       (t "error.action.error_detail"
+                                          #js {:httpStatus http-status}))}))))
 
 (defn- toast-success [t]
   (.. toast (success (t "pool.scan_edit.success"))))
@@ -205,7 +213,7 @@
              (toast-owner-only t restricted-labels)
 
              (= (aget data "status") "error")
-             (toast-action-error t (aget data "httpStatus"))
+             (toast-action-error t (aget data "httpStatus") (extract-server-message data))
 
              :else
              (do

@@ -13,6 +13,7 @@
                                                                       flatten-properties
                                                                       split-item-data
                                                                       validate-field-permissions
+                                                                      validate-inventory-code-not-blank!
                                                                       validate-retired-reason-requires-retired!]]
    [leihs.inventory.server.resources.pool.items.main :refer [assign-items-to-package serial-number-exists?]]
    [next.jdbc :as jdbc]
@@ -128,6 +129,7 @@
                 serial-number (:serial_number item-data)
                 merged-item-data (merge (select-keys item [:retired :retired_reason]) item-data)]
             (validate-retired-reason-requires-retired! merged-item-data)
+            (validate-inventory-code-not-blank! item-data)
             (cond
               (contains? on-conflict :inventory_code)
               (status {:body {:errors [{:code "UNSUPPORTED_CONFLICT_STRATEGY"

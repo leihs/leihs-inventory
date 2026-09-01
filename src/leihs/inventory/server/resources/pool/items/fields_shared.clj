@@ -15,6 +15,7 @@
    [ring.middleware.accept]))
 
 (def RETIRED_REASON_REQUIRES_RETIRED "If retired_reason is set then retired must be set as well.")
+(def INVENTORY_CODE_NOT_BLANK "inventory_code must not be blank.")
 
 (defn validate-retired-reason-requires-retired!
   "Throws if item-data has retired_reason set (non-blank) but retired is nil."
@@ -22,6 +23,13 @@
   (when (and (not (string/blank? (str (get item-data :retired_reason))))
              (nil? (get item-data :retired)))
     (throw (ex-info RETIRED_REASON_REQUIRES_RETIRED {:status 400}))))
+
+(defn validate-inventory-code-not-blank!
+  "Throws if item-data explicitly sets inventory_code to a blank string."
+  [item-data]
+  (when (and (contains? item-data :inventory_code)
+             (string/blank? (get item-data :inventory_code)))
+    (throw (ex-info INVENTORY_CODE_NOT_BLANK {:status 400}))))
 
 (defn split-item-data [body-params]
   (let [field-keys (keys body-params)
