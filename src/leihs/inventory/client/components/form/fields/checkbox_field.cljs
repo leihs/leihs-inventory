@@ -20,11 +20,9 @@
      ($ TooltipContent {:class-name "max-w-[20rem]"}
         info)))
 
-(defn- label-row [block & [{:keys [label-class-name]}]]
-  ($ :div {:class-name "inline-flex items-center gap-1"}
-     ($ FormLabel (cond-> {}
-                    label-class-name (assoc :class-name label-class-name))
-        (:label block))
+(defn- label-row [block]
+  ($ :div {:class-name "inline-flex items-center gap-1 pl-4"}
+     ($ FormLabel (:label block))
      (when (:info block)
        (info-icon (:info block)))))
 
@@ -32,19 +30,12 @@
   ($ FormField {:control (.-control form)
                 :name (:name block)
                 :render (fn [field-props]
-                          (let [field (-> (jc field-props) :field)
-                                checkbox ($ FormControl
-                                            ($ Checkbox (merge
-                                                         {:checked (:value field)
-                                                          :onCheckedChange (:onChange field)}
-                                                         (:props block))))]
-                            (if (:inline block)
-                              ($ FormItem {:class-name "mt-6 flex flex-row items-center gap-2 space-y-0"}
-                                 checkbox
-                                 ($ :div
-                                    (label-row block)
-                                    ($ FormMessage)))
-                              ($ FormItem {:class-name "mt-6"}
-                                 checkbox
-                                 (label-row block {:label-class-name "pl-4"})
-                                 ($ FormMessage)))))}))
+                          (let [field (-> (jc field-props) :field)]
+                            ($ FormItem {:class-name "mt-6"}
+                               ($ FormControl
+                                  ($ Checkbox (merge
+                                               {:checked (:value field)
+                                                :onCheckedChange (:onChange field)}
+                                               (:props block))))
+                               (label-row block)
+                               ($ FormMessage))))}))

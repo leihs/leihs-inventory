@@ -8,6 +8,9 @@
 ;; NOTE: would be nicer to user defhook macro, but somehow the linting is broken ( maybe beacause of uix version? ) 
 
 (defn use-current-pool []
+  ;; Sync lookup: create forms need pool flags (e.g. enable_alternative_pickup_locations)
+  ;; on first render for useForm defaultValues. An effect+state version returns nil first,
+  ;; so checkboxes appear later unchecked.
   (let [{:keys [pool-id]} (jc (router/useParams))
         {:keys [profile]} (router/useRouteLoaderData "root")]
     (->> (:available_inventory_pools profile)

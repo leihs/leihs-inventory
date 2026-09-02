@@ -42,7 +42,6 @@
    :label "pool.software.software.blocks.transportable.label"
    :info "pool.software.software.blocks.transportable.info"
    :component "checkbox"
-   :inline true
    :props {"data-id" "transportable"}})
 
 (defn- form-structure [enable-alternative-pickup-locations?]
