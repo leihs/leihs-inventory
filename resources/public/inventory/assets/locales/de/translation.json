@@ -702,7 +702,8 @@
             "label": "Produkt"
           },
           "transportable": {
-            "label": "Software ist transportierbar"
+            "label": "Software ist transportierbar",
+            "info": "Bestellung an alternative Abholorte möglich"
           },
           "version": {
             "label": "Version"
@@ -795,7 +796,8 @@
             "label": "dies ist ein Paket"
           },
           "transportable": {
-            "label": "Modell ist transportierbar"
+            "label": "Modell ist transportierbar",
+            "info": "Bestellung an alternative Abholorte möglich"
           },
           "product": {
             "label": "Produkt"

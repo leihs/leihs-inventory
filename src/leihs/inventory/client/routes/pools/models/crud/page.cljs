@@ -48,6 +48,7 @@
 (def transportable-block
   {:name "transportable"
    :label "pool.model.product.blocks.transportable.label"
+   :info "pool.model.product.blocks.transportable.info"
    :component "checkbox"
    :inline true
    :props {"data-id" "transportable"}})

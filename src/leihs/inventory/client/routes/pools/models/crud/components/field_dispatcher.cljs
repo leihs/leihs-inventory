@@ -15,7 +15,9 @@
 
 (defui FieldDispatcher [{:keys [form block]}]
   (let [[t] (useTranslation)
-        translated-block (if (:label block) (update block :label t) block)]
+        translated-block (cond-> block
+                           (:label block) (update :label t)
+                           (:info block) (update :info t))]
     (cond
       (-> block :component (= "accessory-list"))
       ($ AccessoryListField {:form form

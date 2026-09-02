@@ -2,8 +2,31 @@
   (:require
    ["@@/checkbox" :refer [Checkbox]]
    ["@@/form" :refer [FormControl FormField FormItem FormLabel FormMessage]]
+   ["@@/tooltip" :refer [Tooltip TooltipContent TooltipTrigger]]
+   ["lucide-react" :refer [Info]]
    [leihs.inventory.client.lib.utils :refer [jc]]
    [uix.core :as uix :refer [$ defui]]))
+
+(defn- info-icon [info]
+  ($ Tooltip
+     ($ TooltipTrigger {:asChild true}
+        ($ :button {:type "button"
+                    :class-name "inline-flex items-center text-muted-foreground hover:text-foreground"
+                    :aria-label info
+                    :on-click (fn [e]
+                                (.preventDefault e)
+                                (.stopPropagation e))}
+           ($ Info {:class-name "h-4 w-4"})))
+     ($ TooltipContent {:class-name "max-w-[20rem]"}
+        info)))
+
+(defn- label-row [block & [{:keys [label-class-name]}]]
+  ($ :div {:class-name "inline-flex items-center gap-1"}
+     ($ FormLabel (cond-> {}
+                    label-class-name (assoc :class-name label-class-name))
+        (:label block))
+     (when (:info block)
+       (info-icon (:info block)))))
 
 (defui CheckboxField [{:keys [form block]}]
   ($ FormField {:control (.-control form)
@@ -19,11 +42,9 @@
                               ($ FormItem {:class-name "mt-6 flex flex-row items-center gap-2 space-y-0"}
                                  checkbox
                                  ($ :div
-                                    ($ FormLabel
-                                       (:label block))
+                                    (label-row block)
                                     ($ FormMessage)))
                               ($ FormItem {:class-name "mt-6"}
                                  checkbox
-                                 ($ FormLabel {:class-name "pl-4"}
-                                    (:label block))
+                                 (label-row block {:label-class-name "pl-4"})
                                  ($ FormMessage)))))}))
