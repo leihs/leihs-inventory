@@ -137,6 +137,35 @@ describe "Swagger Inventory Endpoints - Licenses" do
         expect(resp.status).to eq(200)
         expect(resp.body["properties_operating_system"]).to eq(["windows", "linux"])
       end
+
+      it "persists quantity_allocations using room key and returns 200" do
+        inventory_code = "LIC-#{SecureRandom.hex(4)}"
+        data = {
+          type: "license",
+          inventory_code: inventory_code,
+          model_id: @software_model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id,
+          properties_total_quantity: "10",
+          properties_quantity_allocations: [
+            {"quantity" => 10, "room" => "Server room A"}
+          ]
+        }
+
+        resp = post_with_headers(client, items_url, data)
+
+        expect(resp.status).to eq(200)
+        expect(resp.body["properties_quantity_allocations"]).to eq([
+          {"quantity" => 10, "room" => "Server room A"}
+        ])
+
+        item = Item.first!(inventory_code: inventory_code)
+        allocation = (item.properties || {}).transform_keys(&:to_s)
+          .fetch("quantity_allocations").first
+          .transform_keys(&:to_s)
+        expect(allocation["room"]).to eq("Server room A")
+        expect(allocation).not_to have_key("location")
+      end
     end
 
     context "GET /inventory/:pool-id/items/:id" do

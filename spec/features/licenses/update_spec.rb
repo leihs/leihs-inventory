@@ -74,6 +74,9 @@ feature "Update license", type: :feature do
         operating_system: %w[windows linux],
         installation: ["local"],
         total_quantity: total_quantity_old,
+        quantity_allocations: [
+          {"quantity" => total_quantity_old, "room" => "Old Room"}
+        ],
         license_expiration: yesterday,
         maintenance_contract: "true",
         maintenance_expiration: yesterday,
@@ -98,8 +101,11 @@ feature "Update license", type: :feature do
       click_on "edit"
     end
 
-    # Verify old values are displayed
+    # Verify old values are displayed (including quantity allocation location from room key)
     expect(page).to have_content(attachment_name_old)
+    assert_field "Total quantity", total_quantity_old
+    assert_field "Quantity", total_quantity_old
+    assert_field "Location", "Old Room"
 
     # Remove old attachment
     within find("tr", text: attachment_name_old) do

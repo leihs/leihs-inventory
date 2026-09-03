@@ -312,7 +312,16 @@
                                       "composite"
                                       (if (nil? default-value)
                                         []
-                                        default-value)
+                                        (->> default-value
+                                             (map (fn [allocation]
+                                                    (let [alloc (if (map? allocation)
+                                                                  allocation
+                                                                  (js->clj allocation :keywordize-keys true))
+                                                          quantity (:quantity alloc)
+                                                          location (or (:room alloc) "")]
+                                                      {:quantity quantity
+                                                       :location location})))
+                                             vec))
 
                                       "autocomplete-search"
                                       (if (nil? default-value)
