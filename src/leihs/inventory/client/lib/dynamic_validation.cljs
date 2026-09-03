@@ -72,11 +72,14 @@
                              (z/array (z/string)))
 
                            "composite"
-                           (let [item-schema (z/object (clj->js {:quantity (-> (.. z -coerce (number))
-                                                                               (.pipe (-> (z/number)
-                                                                                          (.int)
-                                                                                          (.min 0))))
-                                                                 :location (z/string)}))]
+                           (let [item-schema (-> (z/object (clj->js {:quantity (-> (.. z -coerce (number))
+                                                                                   (.pipe (-> (z/number)
+                                                                                              (.int)
+                                                                                              (.min 0))))
+                                                                     :location (z/string)}))
+                                                 (.transform (fn [^js obj]
+                                                               #js {:quantity (.-quantity obj)
+                                                                    :room (or (.-location obj) (.-room obj) "")})))]
                              (if (and is-required (not treat-as-optional))
                                (-> (z/array item-schema)
                                    (.min 1))

@@ -172,6 +172,16 @@ feature "Create license", type: :feature do
 
     expect(page).to have_content "Quantity allocations"
     assert_field "Total quantity", total_quantity
+    assert_field "Quantity", total_quantity
+    assert_field "Location", "Location"
+
+    license = Item.first!(inventory_code: inventory_code)
+    allocation = (license.properties || {}).transform_keys(&:to_s)
+      .fetch("quantity_allocations").first
+      .transform_keys(&:to_s)
+    expect(allocation["room"]).to eq("Location")
+    expect(allocation).not_to have_key("location")
+    expect(allocation["quantity"].to_i).to eq(total_quantity.to_i)
 
     expect(page).to have_content "Maintenance expiration"
     expect(find('button[name="properties_maintenance_expiration"]')).to have_text(yesterday.strftime("%d/%m/%Y"))
