@@ -21,7 +21,7 @@
         info)))
 
 (defn- label-row [block]
-  ($ :div {:class-name "inline-flex items-center gap-1 pl-4"}
+  ($ :div {:class-name "inline-flex items-center gap-1 pl-2"}
      ($ FormLabel (:label block))
      (when (:info block)
        (info-icon (:info block)))))
