@@ -57,6 +57,9 @@ describe "Inventory Model Management" do
 
       expect(resp.status).to eq(200)
       expect(resp.body).to be
+      expect(resp.body["version"]).to eq("")
+      expect(resp.body["manufacturer"]).to eq("")
+      expect(resp.body["technical_detail"]).to eq("")
     end
 
     it "creates a model with one attachment and the product attribute" do
@@ -80,7 +83,7 @@ describe "Inventory Model Management" do
       expect(Attachment.where(model_id: model_id).count).to eq(1)
     end
 
-    it "creates a model with one attachment and the product attribute" do
+    it "fetches software with attachments and empty optional fields" do
       form_data = {
         "product" => "New-Product"
       }
@@ -110,6 +113,68 @@ describe "Inventory Model Management" do
       expect(resp.body["attachments"].first.keys).to eq(["content_type", "filename", "id", "url"])
       expect(resp.body.keys).to eq(["attachments", "type", "product", "id", "manufacturer", "is_deletable", "version",
         "technical_detail"])
+      expect(resp.body["version"]).to eq("")
+      expect(resp.body["manufacturer"]).to eq("")
+      expect(resp.body["technical_detail"]).to eq("")
+    end
+
+    it "GET returns empty strings for software with NULL optional columns in DB" do
+      software = FactoryBot.create(:leihs_model,
+        type: "Software",
+        product: "Legacy-Software",
+        version: nil,
+        manufacturer: nil,
+        technical_detail: nil)
+
+      resp = json_client_get(
+        "/inventory/#{pool_id}/software/#{software.id}",
+        headers: cookie_header
+      )
+
+      expect(resp.status).to eq(200)
+      expect(resp.body["version"]).to eq("")
+      expect(resp.body["manufacturer"]).to eq("")
+      expect(resp.body["technical_detail"]).to eq("")
+    end
+
+    it "PUT with values from GET preserves existing manufacturer" do
+      create_resp = json_client_post(
+        "/inventory/#{pool_id}/software/",
+        body: {
+          "product" => "Software-With-Manufacturer",
+          "manufacturer" => "Example Corp",
+          "version" => "1.0"
+        },
+        headers: cookie_header
+      )
+      expect(create_resp.status).to eq(200)
+      model_id = create_resp.body["id"]
+
+      get_resp = json_client_get(
+        "/inventory/#{pool_id}/software/#{model_id}",
+        headers: cookie_header
+      )
+      expect(get_resp.status).to eq(200)
+      expect(get_resp.body["manufacturer"]).to eq("Example Corp")
+
+      put_resp = json_client_put(
+        "/inventory/#{pool_id}/software/#{model_id}",
+        body: {
+          "product" => get_resp.body["product"],
+          "manufacturer" => get_resp.body["manufacturer"],
+          "version" => get_resp.body["version"],
+          "technical_detail" => get_resp.body["technical_detail"]
+        },
+        headers: cookie_header
+      )
+      expect(put_resp.status).to eq(200)
+
+      get_after_put = json_client_get(
+        "/inventory/#{pool_id}/software/#{model_id}",
+        headers: cookie_header
+      )
+      expect(get_after_put.status).to eq(200)
+      expect(get_after_put.body["manufacturer"]).to eq("Example Corp")
     end
 
     it "creates a model with all available attributes" do

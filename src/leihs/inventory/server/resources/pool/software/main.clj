@@ -11,6 +11,7 @@
                                                                 filter-map-by-spec
                                                                 model->enrich-with-image-attr]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [replace-nil-with-empty-string]]
    [leihs.inventory.server.resources.pool.software.types :as types]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request :refer [path-params query-params]]
@@ -73,7 +74,8 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :body])
         prepared-model-data (-> (prepare-software-data multipart)
-                                (assoc :is_package (str-to-bool (:is_package multipart))))]
+                                (assoc :is_package (str-to-bool (:is_package multipart)))
+                                replace-nil-with-empty-string)]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
@@ -85,7 +87,9 @@
                                 result (assoc res :attachments attachments)] result))]
 
         (if res
-          (response (filter-map-by-spec res ::types/post-response))
+          (response (-> res
+                        replace-nil-with-empty-string
+                        (filter-map-by-spec ::types/post-response)))
           (bad-request {:message "Failed to create software"})))
       (catch Exception e
         (log-by-severity ERROR_CREATE_SOFTWARE e)
