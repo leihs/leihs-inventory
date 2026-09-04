@@ -8,9 +8,9 @@
    [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
                                                          str-to-bool]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
-                                                                filter-map-by-spec
                                                                 model->enrich-with-image-attr]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
+   [leihs.inventory.server.resources.pool.software.common :as sw-common]
    [leihs.inventory.server.resources.pool.software.types :as types]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request :refer [path-params query-params]]
@@ -26,7 +26,7 @@
 
 (defn prepare-software-data
   [data]
-  (let [normalize-data (normalize-model-data data)
+  (let [normalize-data (normalize-model-data data true)
         created-ts (LocalDateTime/now)]
     (assoc normalize-data
            :type "Software"
@@ -60,7 +60,8 @@
           post-fnc (fn [models]
                      (->> models
                           (fetch-thumbnails-for-ids tx)
-                          (map (model->enrich-with-image-attr pool-id))))]
+                          (map (model->enrich-with-image-attr pool-id))
+                          sw-common/sanitize-many))]
 
       (response (create-pagination-response request base-query nil post-fnc)))
 
@@ -76,16 +77,17 @@
                                 (assoc :is_package (str-to-bool (:is_package multipart))))]
 
     (try
-      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                          (sql/values [prepared-model-data])
-                                          (sql/returning :*)
-                                          sql-format))
-            model-id (:id res)
-            res (when res (let [attachments (fetch-attachments tx model-id pool-id)
-                                result (assoc res :attachments attachments)] result))]
+      (let [created-model (jdbc/execute-one! tx (-> (sql/insert-into :models)
+                                                    (sql/values [prepared-model-data])
+                                                    (sql/returning :*)
+                                                    sql-format))
+            model-id (:id created-model)
+            result-model (when created-model
+                           (assoc created-model :attachments
+                                  (fetch-attachments tx model-id pool-id)))]
 
-        (if res
-          (response (filter-map-by-spec res ::types/post-response))
+        (if result-model
+          (response (sw-common/sanitize-single result-model ::types/post-response))
           (bad-request {:message "Failed to create software"})))
       (catch Exception e
         (log-by-severity ERROR_CREATE_SOFTWARE e)

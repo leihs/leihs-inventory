@@ -148,6 +148,152 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
         end
       end
+
+      context "update model nil handling" do
+        it "PUT with explicit nil in optional text fields does not wipe existing values" do
+          create_resp = json_client_post(
+            "/inventory/#{pool_id}/models/",
+            body: {
+              "product" => "Model-Nil-Guard",
+              "manufacturer" => "Example Corp",
+              "version" => "1.0",
+              "description" => "Desc",
+              "hand_over_note" => "Note",
+              "internal_description" => "Internal",
+              "is_package" => false,
+              "categories" => [],
+              "compatibles" => [],
+              "entitlements" => [],
+              "properties" => [],
+              "accessories" => []
+            },
+            headers: cookie_header
+          )
+          expect(create_resp.status).to eq(200)
+          model_id = create_resp.body["id"]
+
+          put_resp = json_client_put(
+            "/inventory/#{pool_id}/models/#{model_id}",
+            body: {
+              "product" => "Model-Nil-Guard-Renamed",
+              "manufacturer" => nil,
+              "version" => nil,
+              "description" => nil,
+              "hand_over_note" => nil,
+              "internal_description" => nil,
+              "is_package" => false,
+              "categories" => [],
+              "compatibles" => [],
+              "entitlements" => [],
+              "properties" => [],
+              "accessories" => []
+            },
+            headers: cookie_header
+          )
+          expect(put_resp.status).to eq(200)
+
+          row = LeihsModel.where(type: "Model", id: model_id).first
+          expect(row.product).to eq("Model-Nil-Guard-Renamed")
+          expect(row.manufacturer).to eq("Example Corp")
+          expect(row.version).to eq("1.0")
+          expect(row.description).to eq("Desc")
+          expect(row.hand_over_note).to eq("Note")
+          expect(row.internal_description).to eq("Internal")
+        end
+
+        it "PUT omitting optional text fields keeps existing values unchanged" do
+          create_resp = json_client_post(
+            "/inventory/#{pool_id}/models/",
+            body: {
+              "product" => "Model-Omitted-Guard",
+              "manufacturer" => "Example Corp",
+              "version" => "2.0",
+              "description" => "Desc",
+              "hand_over_note" => "Note",
+              "internal_description" => "Internal",
+              "is_package" => false,
+              "categories" => [],
+              "compatibles" => [],
+              "entitlements" => [],
+              "properties" => [],
+              "accessories" => []
+            },
+            headers: cookie_header
+          )
+          expect(create_resp.status).to eq(200)
+          model_id = create_resp.body["id"]
+
+          put_resp = json_client_put(
+            "/inventory/#{pool_id}/models/#{model_id}",
+            body: {
+              "product" => "Model-Omitted-Guard-Renamed",
+              "is_package" => false,
+              "categories" => [],
+              "compatibles" => [],
+              "entitlements" => [],
+              "properties" => [],
+              "accessories" => []
+            },
+            headers: cookie_header
+          )
+          expect(put_resp.status).to eq(200)
+
+          row = LeihsModel.where(type: "Model", id: model_id).first
+          expect(row.product).to eq("Model-Omitted-Guard-Renamed")
+          expect(row.manufacturer).to eq("Example Corp")
+          expect(row.version).to eq("2.0")
+          expect(row.description).to eq("Desc")
+          expect(row.hand_over_note).to eq("Note")
+          expect(row.internal_description).to eq("Internal")
+        end
+
+        it "PUT with a single explicit nil field does not wipe stored text values" do
+          create_resp = json_client_post(
+            "/inventory/#{pool_id}/models/",
+            body: {
+              "product" => "Model-Single-Nil-Guard",
+              "manufacturer" => "Example Corp",
+              "version" => "3.0",
+              "description" => "Desc",
+              "hand_over_note" => "Note",
+              "internal_description" => "Internal",
+              "is_package" => false,
+              "categories" => [],
+              "compatibles" => [],
+              "entitlements" => [],
+              "properties" => [],
+              "accessories" => []
+            },
+            headers: cookie_header
+          )
+          expect(create_resp.status).to eq(200)
+          model_id = create_resp.body["id"]
+
+          put_resp = json_client_put(
+            "/inventory/#{pool_id}/models/#{model_id}",
+            body: {
+              "product" => "Model-Single-Nil-Guard-Renamed",
+              "hand_over_note" => nil,
+              "is_package" => false,
+              "categories" => [],
+              "compatibles" => [],
+              "entitlements" => [],
+              "properties" => [],
+              "accessories" => []
+            },
+            headers: cookie_header
+          )
+          expect(put_resp.status).to eq(200)
+
+          row = LeihsModel.where(type: "Model", id: model_id).first
+          expect(row.product).to eq("Model-Single-Nil-Guard-Renamed")
+          expect(row.manufacturer).to eq("Example Corp")
+          expect(row.version).to eq("3.0")
+          expect(row.description).to eq("Desc")
+          expect(row.hand_over_note).to eq("Note")
+          expect(row.internal_description).to eq("Internal")
+        end
+      end
     end
   end
 end
