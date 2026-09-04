@@ -10,6 +10,7 @@
                                                          str-to-bool]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [replace-nil-with-empty-string]]
    [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation
                                                                     filter-keys]]
    [leihs.inventory.server.resources.pool.software.software.types :as types]
@@ -38,11 +39,14 @@
                           (sql/where [:and [:= :m.id model-id] [:= :m.type "Software"]])
                           sql-format)
           model-result (jdbc/execute-one! tx model-query)
-          result (when model-result (let [model-result (assoc model-result :is_deletable (is-model-deletable? tx model-id))
-                                          attachments (fetch-attachments tx model-id pool-id)
-                                          result (assoc model-result :attachments attachments)] result))]
-      (if result
-        (response (filter-map-by-spec result ::types/put-response))
+          res (when model-result
+                (-> model-result
+                    (assoc :is_deletable (is-model-deletable? tx model-id))
+                    (assoc :attachments (fetch-attachments tx model-id pool-id))))]
+      (if res
+        (response (-> res
+                      replace-nil-with-empty-string
+                      (filter-map-by-spec ::types/put-response)))
         (not-found {:message ERROR_FETCH_SOFTWARE})))
     (catch Exception e
       (log-by-severity ERROR_FETCH_SOFTWARE e)
@@ -51,7 +55,10 @@
 (defn prepare-software-data [data]
   (let [normalize-data (normalize-model-data data)
         created-ts (LocalDateTime/now)]
-    (assoc normalize-data :updated_at created-ts :is_package (str-to-bool (:is_package normalize-data)))))
+    (-> normalize-data
+        (assoc :updated_at created-ts
+               :is_package (str-to-bool (:is_package normalize-data)))
+        replace-nil-with-empty-string)))
 
 (defn put-resource [request]
   (try
@@ -67,7 +74,9 @@
           updated-model (jdbc/execute-one! tx update-model-query)]
 
       (if updated-model
-        (response (filter-map-by-spec updated-model ::types/put-response))
+        (response (-> updated-model
+                      replace-nil-with-empty-string
+                      (filter-map-by-spec ::types/put-response)))
         (not-found {:message ERROR_UPDATE_SOFTWARE})))
     (catch Exception e
       (log-by-severity ERROR_UPDATE_SOFTWARE e)
