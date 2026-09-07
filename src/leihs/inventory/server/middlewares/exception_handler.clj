@@ -33,6 +33,22 @@
           (content-type "application/json")
           (resp/status status)))))
 
+(def ^:private field-error-codes
+  "Maps a schema constraint's predicate name to a stable, translatable code.
+   The frontend looks these up under an i18n key (e.g. error.validation.<code>) -
+   keep this a machine-readable slug, not a human-readable message."
+  {"non-blank-string" "non_blank"
+   "price-in-range" "price_range"
+   "missing-required-key" "required"})
+
+(defn- field-error->code
+  [explain]
+  (let [explain-str (pr-str explain)]
+    (or (some (fn [[needle code]]
+                (when (str/includes? explain-str needle) code))
+              field-error-codes)
+        "invalid")))
+
 (defn- build-coercion-response [request e response-status]
   (let [data (.getData e)
         message (.getMessage e)
@@ -44,11 +60,15 @@
         scope (some->> (:in data) (map name) (str/join "/"))
         uri (:uri request)
         method (-> request :request-method name str/upper-case)
-        resp-map {:reason "Coercion-Error"
-                  :detail message
-                  :coercion-type ctype
-                  :scope scope
-                  :uri (str method " " uri)}
+        field-errors (when (and (= :body-params (last (:in data)))
+                                (map? (:errors data)))
+                       (into {} (map (fn [[k v]] [k (field-error->code v)]) (:errors data))))
+        resp-map (cond-> {:reason "Coercion-Error"
+                          :detail message
+                          :coercion-type ctype
+                          :scope scope
+                          :uri (str method " " uri)}
+                   (seq field-errors) (assoc :fields field-errors))
         accept (get-in request [:headers "accept"])
         is-attachment? (str/includes? uri "/attachments/")]
     (debug e)
@@ -70,8 +90,11 @@
     (cond
       (instance? PSQLException e)
       (let [sql-state (.getSQLState e)
-            ;; 23505 = unique violation, 23503 = foreign key violation
-            status (if (#{"23505" "23503"} sql-state) 409 500)]
+            ;; 23505 = unique violation, 23503 = foreign key violation, 23514 = check violation
+            status (cond
+                     (#{"23505" "23503"} sql-state) 409
+                     (= "23514" sql-state) 400
+                     :else 500)]
         (create-response-by-accept request accept status {:status "failure"
                                                           :message message
                                                           :type (str (class e))

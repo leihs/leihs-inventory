@@ -958,6 +958,12 @@
       "error": "Beim Ändern ist ein Fehler aufgetreten",
       "error_detail": "Fehlercode: {{httpStatus}}"
     },
+    "validation": {
+      "non_blank": "darf nicht leer sein",
+      "price_range": "muss ein gültiger Preis sein",
+      "required": "ist erforderlich",
+      "invalid": "ist ungültig"
+    },
     "alerts": {
       "offline": {
         "title": "Keine Internetverbindung",

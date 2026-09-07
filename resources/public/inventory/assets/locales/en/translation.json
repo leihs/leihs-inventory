@@ -962,6 +962,12 @@
       "error": "Something went wrong while updating",
       "error_detail": "Error code: {{httpStatus}}"
     },
+    "validation": {
+      "non_blank": "must not be blank",
+      "price_range": "must be a valid price",
+      "required": "is required",
+      "invalid": "is invalid"
+    },
     "alerts": {
       "offline": {
         "title": "No Internet Connection",

@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.items.item.types
   (:require
    [leihs.inventory.server.resources.pool.items.types :refer [post-response-item properties]]
-   [leihs.inventory.server.utils.schema :refer [Date Price]]
+   [leihs.inventory.server.utils.schema :refer [Date NonBlankStr Price]]
    [schema.core :as s]))
 
 (def get-response
@@ -13,7 +13,7 @@
          {(s/optional-key :fields) [s/Any]}))
 
 (def patch-request
-  (merge {(s/optional-key :inventory_code) s/Str
+  (merge {(s/optional-key :inventory_code) NonBlankStr
           (s/optional-key :model_id) s/Uuid
           (s/optional-key :owner_id) s/Uuid
           (s/optional-key :room_id) s/Uuid

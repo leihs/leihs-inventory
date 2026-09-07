@@ -3,7 +3,7 @@
    [clojure.string :as clj-str]
    [leihs.inventory.server.constants :refer [PROPERTIES_PREFIX]]
    [leihs.inventory.server.resources.types :refer [pagination]]
-   [leihs.inventory.server.utils.schema :refer [Date Price]]
+   [leihs.inventory.server.utils.schema :refer [Date NonBlankStr Price]]
    [schema.core :as s]))
 
 (s/defschema path-params {:pool_id s/Uuid})
@@ -86,7 +86,7 @@
   (merge {:model_id s/Uuid
           :owner_id s/Uuid}
          {(s/optional-key :room_id) s/Uuid
-          (s/optional-key :inventory_code) s/Str
+          (s/optional-key :inventory_code) NonBlankStr
           (s/optional-key :count) (s/constrained s/Int pos-int?)
           (s/optional-key :insurance_number) (s/maybe s/Str)
           (s/optional-key :inventory_pool_id) (s/maybe s/Uuid)

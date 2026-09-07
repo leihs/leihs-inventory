@@ -138,6 +138,7 @@ Each route module has:
 15. **Utils location** - Always place utilities/helpers in `src/leihs/inventory/server/utils`
 16. **Format before commit** - Always run `./bin/cljfmt fix` after modifying any Clojure backend code (`.clj` and `.cljc` files) and before committing
 17. **No variable shadowing in let** - Never shadow same variable in let binding (e.g., `(let [x 1 x (inc x)])` not allowed), use unique names or threading macros
+18. **Prefer schema validation over custom validators** - For request-field validation (format, non-blank, range, etc.), tighten the route's schema (`s/constrained` in `types.clj`, e.g. `NonBlankStr`/`Price` in `utils/schema.clj`) rather than writing a custom `ex-info`-throwing validator function. Schema violations already flow through the existing coercion-error pipeline (`exception-handler.clj` → structured 422). Only write a custom validator when the rule can't be expressed as a per-field predicate - e.g. it spans multiple fields, depends on another field's value, or needs a DB lookup.
 
 ## Database Schema Notes
 
