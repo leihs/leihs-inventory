@@ -12,8 +12,8 @@
                  :internal_description :internal_description
                  :hand_over_note :hand_over_note}
         normalized-data (reduce (fn [acc [db-key original-key]]
-                                  (if-let [val (get data original-key)]
-                                    (assoc acc db-key val)
+                                  (if (contains? data original-key)
+                                    (assoc acc db-key (get data original-key))
                                     acc))
                                 {}
                                 key-map)]

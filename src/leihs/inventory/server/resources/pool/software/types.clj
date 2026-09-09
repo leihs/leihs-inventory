@@ -9,7 +9,7 @@
 (sa/def :software-post/multipart (sa/keys :req-un [::sp/product]
                                           :opt-un [:nil/version
                                                    :nil/manufacturer
-                                                   ::sp/technical_detail]))
+                                                   :nil/technical_detail]))
 
 (sa/def ::post-response
   (sa/keys :req-un [:models/type

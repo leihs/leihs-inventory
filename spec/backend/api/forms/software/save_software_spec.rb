@@ -200,5 +200,123 @@ describe "Inventory Model Management" do
       end
       expect(Attachment.where(model_id: model_id).count).to eq(1)
     end
+
+    # TEMPORARY — remove after PR #107 verified
+    context "TEMPORARY DB assertions for null/empty write path" do
+      it "POST with values persists manufacturer/version/technical_detail in DB" do
+        resp = json_client_post(
+          "/inventory/#{pool_id}/software/",
+          body: {
+            "product" => "Software-With-Values",
+            "manufacturer" => "Example Corp",
+            "version" => "1.0",
+            "technical_detail" => "Specs go here"
+          },
+          headers: cookie_header
+        )
+        expect(resp.status).to eq(200)
+
+        row = LeihsModel.where(type: "Software", id: resp.body["id"]).first
+        expect(row.manufacturer).to eq("Example Corp")
+        expect(row.version).to eq("1.0")
+        expect(row.technical_detail).to eq("Specs go here")
+      end
+
+      it "POST with only product leaves optional columns NULL in DB (response still '')" do
+        resp = json_client_post(
+          "/inventory/#{pool_id}/software/",
+          body: {"product" => "Software-Product-Only"},
+          headers: cookie_header
+        )
+        expect(resp.status).to eq(200)
+        expect(resp.body["manufacturer"]).to eq("")
+        expect(resp.body["version"]).to eq("")
+        expect(resp.body["technical_detail"]).to eq("")
+
+        row = LeihsModel.where(type: "Software", id: resp.body["id"]).first
+        expect(row.manufacturer).to be_nil
+        expect(row.version).to be_nil
+        expect(row.technical_detail).to be_nil
+      end
+
+      it "POST with explicit null persists empty strings in DB" do
+        resp = json_client_post(
+          "/inventory/#{pool_id}/software/",
+          body: {
+            "product" => "Software-Explicit-Null",
+            "manufacturer" => nil,
+            "version" => nil,
+            "technical_detail" => nil
+          },
+          headers: cookie_header
+        )
+        expect(resp.status).to eq(200)
+
+        row = LeihsModel.where(type: "Software", id: resp.body["id"]).first
+        expect(row.manufacturer).to eq("")
+        expect(row.version).to eq("")
+        expect(row.technical_detail).to eq("")
+      end
+
+      it "PUT with explicit null clears optional columns to empty strings in DB" do
+        create_resp = json_client_post(
+          "/inventory/#{pool_id}/software/",
+          body: {
+            "product" => "Software-To-Clear",
+            "manufacturer" => "Example Corp",
+            "version" => "1.0",
+            "technical_detail" => "Specs go here"
+          },
+          headers: cookie_header
+        )
+        expect(create_resp.status).to eq(200)
+        model_id = create_resp.body["id"]
+
+        put_resp = json_client_put(
+          "/inventory/#{pool_id}/software/#{model_id}",
+          body: {
+            "product" => "Software-To-Clear",
+            "manufacturer" => nil,
+            "version" => nil,
+            "technical_detail" => nil
+          },
+          headers: cookie_header
+        )
+        expect(put_resp.status).to eq(200)
+
+        row = LeihsModel.where(type: "Software", id: model_id).first
+        expect(row.manufacturer).to eq("")
+        expect(row.version).to eq("")
+        expect(row.technical_detail).to eq("")
+      end
+
+      it "PUT omitting optional keys leaves DB manufacturer unchanged" do
+        create_resp = json_client_post(
+          "/inventory/#{pool_id}/software/",
+          body: {
+            "product" => "Software-Partial-Put",
+            "manufacturer" => "Example Corp",
+            "version" => "1.0",
+            "technical_detail" => "Specs go here"
+          },
+          headers: cookie_header
+        )
+        expect(create_resp.status).to eq(200)
+        model_id = create_resp.body["id"]
+
+        put_resp = json_client_put(
+          "/inventory/#{pool_id}/software/#{model_id}",
+          body: {"product" => "Software-Partial-Put-Renamed"},
+          headers: cookie_header
+        )
+        expect(put_resp.status).to eq(200)
+
+        row = LeihsModel.where(type: "Software", id: model_id).first
+        expect(row.product).to eq("Software-Partial-Put-Renamed")
+        expect(row.manufacturer).to eq("Example Corp")
+        expect(row.version).to eq("1.0")
+        expect(row.technical_detail).to eq("Specs go here")
+      end
+    end
   end
 end
