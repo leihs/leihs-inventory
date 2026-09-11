@@ -2,6 +2,7 @@ import i18n from "i18next"
 import { initReactI18next } from "react-i18next"
 import de from "./resources/public/inventory/assets/locales/de/translation.json"
 import en from "./resources/public/inventory/assets/locales/en/translation.json"
+import fr from "./resources/public/inventory/assets/locales/fr-CH/translation.json"
 
 import * as z from "zod"
 
@@ -9,18 +10,30 @@ console.debug("i18n config loading...")
 const resources = {
   de: { translation: de },
   en: { translation: en },
+  fr: { translation: fr },
 }
 
 // Initialize i18n synchronously with default language
 i18n.use(initReactI18next).init({
   resources,
   lng: "en",
-  supportedLngs: ["de", "de-CH", "gsw", "gsw-CH", "en", "en-GB", "es", "fr"],
+  supportedLngs: [
+    "de",
+    "de-CH",
+    "gsw",
+    "gsw-CH",
+    "en",
+    "en-GB",
+    "es",
+    "fr",
+    "fr-CH",
+  ],
   load: "languageOnly",
   fallbackLng: {
     gsw: ["de"],
     "gsw-CH": ["de"],
     "de-CH": ["de"],
+    "fr-CH": ["fr"],
     default: ["en"],
   },
   debug: true,
@@ -47,6 +60,11 @@ i18n.on("languageChanged", async (lng) => {
       "./resources/public/inventory/assets/locales/de/zod-localization.js"
     )
     z.config(de())
+  } else if (lng.startsWith("fr")) {
+    const { default: fr } = await import(
+      "./resources/public/inventory/assets/locales/fr-CH/zod-localization.js"
+    )
+    z.config(fr())
   } else {
     const { default: en } = await import(
       "./resources/public/inventory/assets/locales/en/zod-localization.js"

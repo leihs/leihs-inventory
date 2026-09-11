@@ -1,0 +1,1024 @@
+{
+  "limit_result": "Résultat limité à {{count}} éléments",
+  "OK": "OK",
+  "yes": "oui",
+  "Yes": "Oui",
+  "no": "non",
+  "No": "Non",
+  "Unborrowable": "Non empruntable",
+  "Incomplete": "Incomplet",
+  "Broken": "Défectueux",
+  "Running Account": "Compte courant",
+  "Investment": "Investissement",
+  "fields": {
+    "Mandatory data": {
+      "title": "Données obligatoires",
+      "count": "Nombre d'objets à créer",
+      "inventory_code": "Code d'inventaire",
+      "model_id": "Modèle",
+      "software_model_id": "Logiciel",
+      "license_version": "Version de la licence"
+    },
+    "Content": {
+      "title": "Contenu"
+    },
+    "Package": {
+      "title": "Paquet"
+    },
+    "Inventory": {
+      "title": "Inventaire",
+      "last_check": "Dernier inventaire",
+      "inventory_pool_id": "Département responsable",
+      "responsible": "Personne responsable",
+      "is_inventory_relevant": "Pertinent pour l'inventaire",
+      "owner_id": "Propriétaire",
+      "user_name": "Utilisateur/Usage typique"
+    },
+    "Invoice Information": {
+      "title": "Informations de facturation",
+      "invoice_number": "Numéro de facture",
+      "invoice_date": "Date de facture",
+      "price": "Valeur d'acquisition",
+      "properties_project_number": "Numéro de projet",
+      "supplier_id": "Fournisseur"
+    },
+    "General Information": {
+      "title": "Informations générales",
+      "serial_number": "Numéro de série",
+      "properties_imei_number": "Numéro IMEI",
+      "properties_mac_address": "Adresse MAC",
+      "name": "Nom",
+      "attachments": "Pièces jointes",
+      "note": "Note"
+    },
+    "Status": {
+      "title": "État",
+      "retired": "Mise hors service",
+      "retired_reason": "Motif de mise hors service",
+      "is_broken": "État",
+      "is_borrowable": "Empruntable",
+      "is_incomplete": "Complétude",
+      "status_note": "Remarque sur l'état"
+    },
+    "Eigenschaften": {
+      "title": "Propriétés",
+      "properties_electrical_power": "Consommation électrique en kw/h"
+    },
+    "Location": {
+      "title": "Emplacement",
+      "room_id": "Salle",
+      "building_id": "Bâtiment",
+      "shelf": "Étagère"
+    },
+    "License Info": {
+      "title": "Informations sur la licence"
+    },
+    "Activation": {
+      "title": "Activation"
+    },
+    "Quantity": {
+      "title": "Quantité"
+    },
+    "System Requirements": {
+      "title": "Configuration requise"
+    },
+    "Maintenance": {
+      "title": "Maintenance"
+    }
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "range": "{{range}} sur {{total}} lignes",
+    "per-page": "Lignes par page"
+  },
+  "header": {
+    "links": {
+      "global-search": "Recherche globale",
+      "inventory": "Inventaire",
+      "lending": "Prêt"
+    },
+    "app-menu": {
+      "borrow": "Emprunter",
+      "admin": "Admin",
+      "procure": "Approvisionnement",
+      "inventory-pools": "Parcs d'inventaire",
+      "inventory": "Inventaire"
+    },
+    "user-menu": {
+      "user-data": "Données utilisateur",
+      "my-documents": "Mes documents",
+      "logout": "Déconnexion",
+      "language": "Langue",
+      "theme": {
+        "title": "Apparence",
+        "light": "Clair",
+        "dark": "Sombre",
+        "system": "Système"
+      }
+    }
+  },
+  "intlDateTime": "{{- val, datetime(day: 2-digit; month: 2-digit; year: numeric)}}",
+  "pool": {
+    "scan_edit": {
+      "title": "Modifier des objets par scan ou sélection",
+      "apply_button": "Appliquer",
+      "success": "L'objet a été modifié avec succès",
+      "history": {
+        "title": "Modifications précédentes"
+      },
+      "invalid_fields": {
+        "error": "Champs invalides",
+        "description": "Veuillez sélectionner un champ ou saisir une valeur valide"
+      },
+      "invalid_item": {
+        "error": "L'objet ne peut pas être modifié",
+        "description": "L'objet n'existe pas ou n'appartient pas au parc actuel."
+      },
+      "owner_only": {
+        "error": "L'objet ne peut pas être modifié",
+        "description_one": "La demande contient un champ qui ne peut être modifié que si vous êtes le propriétaire de l'objet ou du paquet.",
+        "description_other": "La demande contient plusieurs champs qui ne peuvent être modifiés que si vous êtes le propriétaire de l'objet ou du paquet."
+      },
+      "barcode_placeholder": "Scanner le code-barres",
+      "description": "Scannez les codes-barres des objets à modifier ou choisissez un objet manuellement",
+      "autocomplete": {
+        "select": "Faire une sélection",
+        "search": "Saisir un terme de recherche",
+        "empty": "Aucun résultat trouvé pour ce terme de recherche"
+      },
+      "field_change_warning": {
+        "title": "Configuration des champs modifiée",
+        "description": "Les champs sélectionnés ont changé depuis la dernière modification. Continuer réinitialisera l'historique des modifications.",
+        "action": "Continuer"
+      },
+      "max_history_warning": {
+        "title": "Historique des modifications plein",
+        "description": "L'historique des modifications a atteint sa limite de {{count}} entrées. Continuer réinitialisera l'historique des modifications.",
+        "action": "Continuer"
+      },
+      "owner_only_warning": "La sélection de champs inclut des champs qui ne peuvent être modifiés que si vous êtes le propriétaire de l'objet ou du paquet en cours de modification."
+    },
+    "inventory": {
+      "breadcrumbs": {
+        "inventory": "Inventaire"
+      }
+    },
+    "items": {
+      "item": {
+        "create": {
+          "title": "Créer un nouvel objet",
+          "description": "Indiquez toutes les informations requises",
+          "submit": "Créer",
+          "cancel": "Annuler",
+          "success": "L'objet a été créé avec succès",
+          "invalid_one": "L'objet n'a pas pu être créé car un champ est invalide",
+          "invalid_other": "L'objet n'a pas pu être créé car {{count}} champs sont invalides",
+          "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
+          "duplicate_serialnumber": "Ce numéro de série existe déjà",
+          "error": "Une erreur est survenue lors de la création"
+        },
+        "edit": {
+          "title": "Modifier l'objet",
+          "description": "Effectuez les modifications puis enregistrez",
+          "submit": "Enregistrer",
+          "delete": "Supprimer",
+          "cancel": "Annuler",
+          "success": "L'objet a été enregistré avec succès",
+          "invalid_one": "L'objet n'a pas pu être enregistré car un champ est invalide",
+          "invalid_other": "L'objet n'a pas pu être enregistré car {{count}} champs sont invalides",
+          "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
+          "duplicate_serialnumber": "Ce numéro de série existe déjà",
+          "error": "Une erreur est survenue lors de l'enregistrement",
+          "package_item": "L'objet fait partie d'un paquet"
+        },
+        "delete": {
+          "title": "Supprimer l'objet",
+          "description": "Êtes-vous sûr de vouloir supprimer cet objet ?",
+          "confirm": "Supprimer",
+          "cancel": "Annuler",
+          "success": "L'objet a été supprimé avec succès",
+          "error": "L'objet n'a pas pu être supprimé"
+        },
+        "fields": {
+          "disabled": {
+            "protected": "Seul le propriétaire peut modifier ce champ",
+            "model-selected": "Ce champ est verrouillé car un modèle a été sélectionné",
+            "multiple-items": "Ce champ est verrouillé lors de la création de plusieurs objets",
+            "owner-locked": "Le propriétaire est attribué automatiquement",
+            "generic": "Ce champ est actuellement désactivé"
+          },
+          "inactive": "Inactif",
+          "autocomplete": {
+            "select": "Faire une sélection",
+            "search": "Saisir un terme de recherche",
+            "empty": "Aucun résultat trouvé pour ce terme de recherche"
+          }
+        },
+        "actions": {
+          "update": "Enregistrer",
+          "duplicate_inventory_code_description": "En cliquant sur Enregistrer, un code d'inventaire valide sera automatiquement utilisé",
+          "duplicate_serialnumber_description": "En cliquant sur Enregistrer, l'enregistrement se fera malgré le numéro de série en double",
+          "duplicate_both_description": "En cliquant sur Enregistrer, le code d'inventaire suggéré sera utilisé et l'enregistrement se fera malgré le numéro de série en double"
+        }
+      },
+      "review": {
+        "title": "Objets créés avec succès",
+        "summary": {
+          "title": "Résumé",
+          "count": "Nombre",
+          "name": "Nom",
+          "date": "Date"
+        },
+        "export": "Exporter",
+        "list_title": "Liste des objets créés",
+        "toggles": {
+          "show_barcodes": "Afficher les codes-barres",
+          "show_urls": "Afficher les URL"
+        },
+        "table": {
+          "headers": {
+            "number": "#",
+            "barcode": "Code-barres",
+            "inventory_code": "Code d'inventaire",
+            "serial_number": "Numéro de série",
+            "url": "URL",
+            "uuid": "UUID"
+          }
+        },
+        "serial_number": {
+          "placeholder": "Saisir le numéro de série",
+          "success": "Numéro de série mis à jour",
+          "error": "Échec de la mise à jour du numéro de série",
+          "duplicate_error": "Ce numéro de série existe déjà",
+          "overwrite": "Enregistrer",
+          "description": "Cliquez sur Enregistrer pour enregistrer le numéro de série malgré tout"
+        },
+        "back_to_inventory": "Retour à l'inventaire"
+      }
+    },
+    "packages": {
+      "package": {
+        "create": {
+          "title": "Créer un nouveau paquet",
+          "description": "Indiquez toutes les informations requises",
+          "submit": "Créer",
+          "cancel": "Annuler",
+          "success": "Le paquet a été créé avec succès",
+          "invalid_one": "Le paquet n'a pas pu être créé car un champ est invalide",
+          "invalid_other": "Le paquet n'a pas pu être créé car {{count}} champs sont invalides",
+          "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
+          "error": "Une erreur est survenue lors de la création"
+        },
+        "edit": {
+          "title": "Modifier le paquet",
+          "description": "Effectuez les modifications puis enregistrez",
+          "submit": "Enregistrer",
+          "retire": "Mettre hors service",
+          "delete": "Supprimer",
+          "cancel": "Annuler",
+          "success": "Le paquet a été enregistré avec succès",
+          "invalid_one": "Le paquet n'a pas pu être enregistré car un champ est invalide",
+          "invalid_other": "Le paquet n'a pas pu être enregistré car {{count}} champs sont invalides",
+          "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
+          "error": "Une erreur est survenue lors de l'enregistrement",
+          "empty_package": "Tous les objets ont été retirés de ce paquet. La mise hors service et son motif ont été définis automatiquement.",
+          "auto_retire_reason": "Le paquet a été automatiquement mis hors service car il ne contient aucun objet"
+        },
+        "delete": {
+          "title": "Supprimer le paquet",
+          "description": "Êtes-vous sûr de vouloir supprimer ce paquet ?",
+          "confirm": "Supprimer",
+          "cancel": "Annuler",
+          "success": "Le paquet a été supprimé avec succès",
+          "error": "Le paquet n'a pas pu être supprimé"
+        },
+        "fields": {
+          "disabled": {
+            "protected": "Seul le propriétaire peut modifier ce champ",
+            "generic": "Ce champ est actuellement désactivé"
+          },
+          "autocomplete": {
+            "select": "Faire une sélection",
+            "search": "Saisir un terme de recherche",
+            "empty": "Aucun résultat trouvé pour ce terme de recherche"
+          },
+          "items": {
+            "select": "Sélectionner des objets",
+            "search": "Rechercher des objets",
+            "searching": "Recherche en cours...",
+            "search_empty": "Saisissez au moins 2 caractères pour effectuer une recherche",
+            "not_found": "Aucun objet trouvé"
+          }
+        },
+        "actions": {
+          "update": "Enregistrer",
+          "duplicate_inventory_code_description": "En cliquant sur Enregistrer, un code d'inventaire valide sera utilisé"
+        }
+      }
+    },
+    "licenses": {
+      "license": {
+        "create": {
+          "title": "Créer une nouvelle licence",
+          "description": "Indiquez toutes les informations requises",
+          "submit": "Créer",
+          "cancel": "Annuler",
+          "success": "La licence a été créée avec succès",
+          "invalid_one": "La licence n'a pas pu être créée car un champ est invalide",
+          "invalid_other": "La licence n'a pas pu être créée car {{count}} champs sont invalides",
+          "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
+          "error": "Une erreur est survenue lors de la création"
+        },
+        "edit": {
+          "title": "Modifier la licence",
+          "description": "Effectuez les modifications puis enregistrez",
+          "submit": "Enregistrer",
+          "cancel": "Annuler",
+          "success": "La licence a été enregistrée avec succès",
+          "invalid_one": "La licence n'a pas pu être enregistrée car un champ est invalide",
+          "invalid_other": "La licence n'a pas pu être enregistrée car {{count}} champs sont invalides",
+          "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
+          "error": "Une erreur est survenue lors de l'enregistrement"
+        },
+        "fields": {
+          "entitlements": {
+            "add": "Ajouter une allocation",
+            "quantity": "Quantité",
+            "location": "Emplacement",
+            "remaining": "Restant"
+          }
+        },
+        "actions": {
+          "update": "Enregistrer",
+          "duplicate_inventory_code_description": "En cliquant sur Enregistrer, le code d'inventaire suggéré sera utilisé"
+        }
+      }
+    },
+    "models": {
+      "title": "Liste d'inventaire",
+      "filters": {
+        "search": {
+          "placeholder": "Filtrer par terme"
+        },
+        "type": {
+          "title": "Type d'inventaire",
+          "model": "Modèle",
+          "package": "Paquet",
+          "option": "Option",
+          "software": "Logiciel"
+        },
+        "status": {
+          "title": "Statut",
+          "owned": "En possession",
+          "in_stock": "En stock",
+          "incomplete": "Incomplet",
+          "broken": "Défectueux",
+          "yes": "Oui",
+          "no": "Non"
+        },
+        "categories": {
+          "title": "Catégories"
+        },
+        "inventory_pool": {
+          "title": "Parc d'inventaire",
+          "placeholder": "Sélectionner un parc d'inventaire",
+          "not_found": "Parc d'inventaire non trouvé"
+        },
+        "retired": {
+          "all": "mis hors service et non mis hors service",
+          "retired": "mis hors service",
+          "not_retired": "non mis hors service"
+        },
+        "before_last_check": {
+          "title": "Inventaire avant"
+        },
+        "with_items": {
+          "all": "inventaire complet",
+          "with_items": "uniquement les modèles avec objets",
+          "without_items": "uniquement les modèles sans objet"
+        },
+        "borrowable": {
+          "all": "empruntable et non empruntable",
+          "borrowable": "empruntable",
+          "not_borrowable": "non empruntable"
+        }
+      },
+      "dropdown": {
+        "title": "Ajouter un inventaire",
+        "add_model": "Nouveau modèle",
+        "add_package": "Nouveau paquet",
+        "add_item": "Nouvel objet",
+        "add_option": "Nouvelle option",
+        "add_software": "Nouveau logiciel",
+        "add_license": "Nouvelle licence"
+      },
+      "add_entitlement_group": "Ajouter un groupe d'ayants droit",
+      "add_template": "Ajouter un modèle de référence",
+      "tabs": {
+        "inventory_list": "Liste d'inventaire",
+        "search_edit": "Rechercher et modifier",
+        "scan_edit": "Scanner et modifier",
+        "statistics": "Statistiques",
+        "entitlement_groups": "Groupes d'ayants droit",
+        "templates": "Modèles de référence"
+      },
+      "list": {
+        "empty": "Aucune entrée trouvée",
+        "package_item": "fait partie d'un paquet",
+        "info": {
+          "until": "jusqu'au"
+        },
+        "shelf": "Stockage",
+        "tooltip": {
+          "in_stock": "en stock",
+          "rentable": "louable"
+        },
+        "item": {
+          "badge": "O",
+          "available": "Disponible",
+          "broken": "Défectueux",
+          "rented": "Loué",
+          "not_borrowable": "Non empruntable",
+          "incomplete": "Incomplet",
+          "retired": "Mis hors service"
+        },
+        "header": {
+          "quantity": "Quantité",
+          "name": "Nom",
+          "availability": "Disponibilité"
+        },
+        "actions": {
+          "edit": "modifier",
+          "add_item": "Ajouter un objet",
+          "copy_item": "Dupliquer l'objet",
+          "add_license": "Ajouter une licence",
+          "copy_license": "Dupliquer la licence",
+          "add_package": "Ajouter un paquet",
+          "copy_package": "Dupliquer le paquet",
+          "timeline": "Chronologie"
+        }
+      },
+      "search_edit": {
+        "no_items": "Aucun objet trouvé",
+        "add_filter_prompt": "Ajoutez des filtres pour démarrer votre recherche.",
+        "or_separator": "OU",
+        "add_or": "Ajouter OU",
+        "add_and": "Ajouter un paramètre de recherche",
+        "select_field_placeholder": "Sélectionner un champ...",
+        "table": {
+          "inventory_code": "Code d'inventaire",
+          "location": "Emplacement",
+          "view_details": "Voir les détails",
+          "delete": "Supprimer"
+        },
+        "dialog": {
+          "title_one": "Modifier {{count}} objet",
+          "title_other": "Modifier {{count}} objets",
+          "description": "Sélectionnez les champs que vous souhaitez mettre à jour pour tous les objets sélectionnés.",
+          "cancel": "Annuler",
+          "submitting": "Enregistrement en cours",
+          "submit": "Enregistrer",
+          "add_field": "Ajouter un champ",
+          "success_one": "{{count}} objet a été mis à jour avec succès",
+          "success_other": "{{count}} objets ont été mis à jour avec succès",
+          "warning_description_one": "{{count}} objet sera mis à jour",
+          "warning_description_other": "{{count}} objets seront mis à jour",
+          "fields_fetch_error": "Impossible de charger les champs modifiables. Veuillez réessayer.",
+          "restricted_fields_warning": "Tous les objets sélectionnés n'appartiennent pas à ce parc ; seuls les champs modifiables pour tous les objets sélectionnés sont affichés dans la sélection de champs."
+        },
+        "info": {
+          "until": "jusqu'au"
+        },
+        "page": {
+          "title": "Recherche avancée avec export et modification multiple",
+          "description": "Recherchez des objets selon les paramètres souhaités. Les objets trouvés peuvent ensuite être exportés ou modifiés.",
+          "selection_info": "Le nombre maximal d'objets pouvant être modifiés en une fois correspond au nombre sélectionné dans le tableau.",
+          "search_results": "Résultats de la recherche",
+          "edit_items": "Modifier",
+          "export_items": "Exporter"
+        }
+      }
+    },
+    "entitlement_groups": {
+      "title": "Groupes d'ayants droit",
+      "description": "Modifiez les groupes d'ayants droit et attribuez les modèles et leurs allocations",
+      "add": "Ajouter un groupe d'ayants droit",
+      "list": {
+        "quantity_error": "La quantité dépasse la disponibilité",
+        "empty": "Aucun groupe d'ayants droit trouvé",
+        "header": {
+          "name": "Nom",
+          "number_of_users": "Nombre d'utilisateurs",
+          "number_of_models": "Nombre de modèles",
+          "number_of_allocations": "Nombre d'allocations"
+        },
+        "actions": {
+          "edit": "modifier"
+        },
+        "misc": {
+          "is_verification_required": "Visa requis"
+        }
+      },
+      "entitlement_group": {
+        "quantity_error": "La quantité dépasse la disponibilité",
+        "title": "Groupe d'ayants droit",
+        "create": {
+          "description": "Indiquez toutes les informations requises",
+          "submit": "Créer",
+          "cancel": "Annuler",
+          "success": "Le groupe d'ayants droit a été créé avec succès",
+          "invalid_one": "Le groupe d'ayants droit n'a pas pu être créé car un champ est invalide",
+          "invalid_other": "Le groupe d'ayants droit n'a pas pu être créé car {{count}} champs sont invalides",
+          "conflict": "Le groupe d'ayants droit n'a pas pu être créé car un groupe d'ayants droit portant le même nom existe déjà",
+          "error": "Une erreur est survenue lors de la création"
+        },
+        "edit": {
+          "description": "Effectuez les modifications puis enregistrez",
+          "submit": "Enregistrer",
+          "delete": "Supprimer",
+          "cancel": "Annuler",
+          "success": "Le groupe d'ayants droit a été enregistré avec succès",
+          "invalid_one": "Le groupe d'ayants droit n'a pas pu être enregistré car un champ est invalide",
+          "invalid_other": "Le groupe d'ayants droit n'a pas pu être enregistré car {{count}} champs sont invalides"
+        },
+        "delete": {
+          "title": "Supprimer",
+          "description": "Êtes-vous sûr de vouloir supprimer ce groupe d'ayants droit ?",
+          "confirm": "Supprimer",
+          "cancel": "Annuler",
+          "success": "Le groupe d'ayants droit a été supprimé avec succès",
+          "error": "Le groupe d'ayants droit n'a pas pu être supprimé"
+        },
+        "top_section": {
+          "blocks": {
+            "name": {
+              "label": "Nom du groupe d'ayants droit"
+            },
+            "is_verification_required": {
+              "label": "Visa requis",
+              "yes": "Oui",
+              "no": "Non"
+            }
+          }
+        },
+        "models": {
+          "title": "Attributions",
+          "blocks": {
+            "models": {
+              "label": "Sélectionner un modèle et attribuer une quantité",
+              "not_found": "Modèle non trouvé",
+              "select": "Sélectionner un modèle",
+              "placeholder": "Rechercher un modèle",
+              "search_empty": "Saisissez au moins 2 caractères",
+              "searching": "Recherche en cours...",
+              "available_count_tooltip": "Allocations dans d'autres groupes d'ayants droit prises en compte - quantité encore disponible d'objets empruntables et non mis hors service",
+              "items_count_tooltip": "Quantité totale d'objets empruntables et non mis hors service"
+            }
+          }
+        },
+        "users": {
+          "title": "Utilisateurs autorisés",
+          "blocks": {
+            "users": {
+              "not_found": "Utilisateur non trouvé",
+              "select": "Sélectionner un utilisateur",
+              "placeholder": "Rechercher un utilisateur",
+              "search_empty": "Saisissez au moins 2 caractères",
+              "searching": "Recherche en cours...",
+              "account_disabled": "inactif"
+            }
+          }
+        },
+        "groups": {
+          "title": "Groupes autorisés",
+          "blocks": {
+            "groups": {
+              "not_found": "Groupe non trouvé",
+              "select": "Sélectionner un groupe",
+              "placeholder": "Rechercher un groupe",
+              "search_empty": "Saisissez au moins 2 caractères",
+              "searching": "Recherche en cours..."
+            }
+          }
+        }
+      }
+    },
+    "templates": {
+      "title": "Modèles de référence",
+      "description": "Modifiez les modèles de référence et attribuez les modèles",
+      "add": "Ajouter un modèle de référence",
+      "list": {
+        "quantity_error": "La quantité dépasse la disponibilité",
+        "empty": "Aucun modèle de référence trouvé",
+        "header": {
+          "name": "Nom",
+          "models_count": "Nombre de modèles"
+        },
+        "actions": {
+          "edit": "modifier"
+        }
+      },
+      "template": {
+        "quantity_error": "La quantité dépasse la disponibilité",
+        "title": "Modèle de référence",
+        "create": {
+          "description": "Indiquez toutes les informations requises",
+          "submit": "Créer",
+          "cancel": "Annuler",
+          "success": "Le modèle de référence a été créé avec succès",
+          "invalid_one": "Le modèle de référence n'a pas pu être créé car un champ est invalide",
+          "invalid_other": "Le modèle de référence n'a pas pu être créé car {{count}} champs sont invalides",
+          "conflict": "Le modèle de référence n'a pas pu être créé car un modèle de référence portant le même nom existe déjà",
+          "error": "Une erreur est survenue lors de la création"
+        },
+        "edit": {
+          "description": "Effectuez les modifications puis enregistrez",
+          "submit": "Enregistrer",
+          "delete": "Supprimer",
+          "cancel": "Annuler",
+          "success": "Le modèle de référence a été enregistré avec succès",
+          "invalid_one": "Le modèle de référence n'a pas pu être enregistré car un champ est invalide",
+          "invalid_other": "Le modèle de référence n'a pas pu être enregistré car {{count}} champs sont invalides"
+        },
+        "delete": {
+          "title": "Supprimer le modèle de référence",
+          "description": "Êtes-vous sûr de vouloir supprimer ce modèle de référence ?",
+          "confirm": "Supprimer",
+          "cancel": "Annuler",
+          "success": "Le modèle de référence a été supprimé avec succès",
+          "error": "Le modèle de référence n'a pas pu être supprimé"
+        },
+        "name": {
+          "blocks": {
+            "name": {
+              "label": "Nom du modèle de référence"
+            }
+          }
+        },
+        "models": {
+          "title": "Attributions",
+          "blocks": {
+            "models": {
+              "label": "Sélectionner un modèle et attribuer une quantité",
+              "not_found": "Modèle non trouvé",
+              "select": "Sélectionner un modèle",
+              "placeholder": "Rechercher un modèle",
+              "search_empty": "Saisissez au moins 2 caractères",
+              "searching": "Recherche en cours..."
+            }
+          }
+        }
+      }
+    },
+    "software": {
+      "title": "Modifier le logiciel",
+      "submit": "Enregistrer",
+      "cancel": "Annuler",
+      "description": "Effectuez les modifications puis enregistrez",
+      "create": {
+        "title": "Créer un nouveau logiciel",
+        "description": "Indiquez toutes les informations requises",
+        "submit": "Enregistrer le logiciel",
+        "cancel": "Annuler",
+        "success": "Le logiciel a été créé avec succès",
+        "invalid_one": "Le logiciel n'a pas pu être créé car un champ est invalide",
+        "invalid_other": "Le logiciel n'a pas pu être créé car {{count}} champs sont invalides",
+        "409": "Un logiciel portant ce nom existe déjà",
+        "500": "Une erreur est survenue lors de la création du logiciel"
+      },
+      "edit": {
+        "delete": "Supprimer",
+        "success": "Le logiciel a été enregistré avec succès",
+        "invalid_one": "Le logiciel n'a pas pu être enregistré car un champ est invalide",
+        "invalid_other": "Le logiciel n'a pas pu être enregistré car {{count}} champs sont invalides"
+      },
+      "delete": {
+        "title": "Supprimer le logiciel",
+        "description": "Êtes-vous sûr de vouloir supprimer ce logiciel ?",
+        "confirm": "Supprimer",
+        "cancel": "Annuler",
+        "success": "Le logiciel a été supprimé avec succès",
+        "500": "Le logiciel n'a pas pu être supprimé"
+      },
+      "software": {
+        "title": "Logiciel",
+        "blocks": {
+          "product": {
+            "label": "Produit"
+          },
+          "version": {
+            "label": "Version"
+          },
+          "manufacturer": {
+            "label": "Fabricant",
+            "search": "Rechercher un fabricant",
+            "select": "Sélectionner un fabricant",
+            "add_new": "Ajouter un nouveau fabricant",
+            "empty": "Saisissez au moins 2 caractères pour effectuer une recherche"
+          },
+          "software_information": {
+            "label": "Informations sur le logiciel"
+          }
+        }
+      },
+      "attachments": {
+        "title": "Pièces jointes",
+        "blocks": {
+          "attachments": {
+            "table": {
+              "description": "Description"
+            },
+            "label": "Fichier",
+            "select": "Sélectionner un fichier",
+            "not_found": "Fichier non trouvé"
+          }
+        }
+      }
+    },
+    "option": {
+      "create": {
+        "title": "Créer une nouvelle option",
+        "description": "Indiquez toutes les informations requises",
+        "submit": "Enregistrer l'option",
+        "cancel": "Annuler",
+        "success": "L'option a été créée avec succès",
+        "invalid_one": "L'option n'a pas pu être créée car un champ est invalide",
+        "invalid_other": "L'option n'a pas pu être créée car {{count}} champs sont invalides",
+        "409": "Une option portant ce code d'inventaire existe déjà",
+        "500": "Une erreur est survenue lors de la création de l'option"
+      },
+      "edit": {
+        "title": "Modifier l'option",
+        "description": "Effectuez les modifications puis enregistrez",
+        "cancel": "Annuler",
+        "submit": "Enregistrer",
+        "success": "L'option a été enregistrée avec succès",
+        "invalid_one": "L'option n'a pas pu être créée car un champ est invalide",
+        "invalid_other": "L'option n'a pas pu être créée car {{count}} champs sont invalides",
+        "409": "Une option portant ce code d'inventaire existe déjà",
+        "500": "Une erreur est survenue lors de la création de l'option"
+      },
+      "delete": {
+        "title": "Supprimer l'option",
+        "description": "Êtes-vous sûr de vouloir supprimer cette option ?",
+        "confirm": "Supprimer",
+        "cancel": "Annuler",
+        "success": "L'option a été supprimée avec succès",
+        "error": "L'option n'a pas pu être supprimée"
+      },
+      "option": {
+        "title": "Option",
+        "blocks": {
+          "product": {
+            "label": "Produit"
+          },
+          "inventory_code": {
+            "label": "Code d'inventaire",
+            "description": "Code alphanumérique identifiant l'option de manière unique. Aucun caractère spécial autorisé à l'exception de \"-\"."
+          },
+          "version": {
+            "label": "Version"
+          },
+          "price": {
+            "label": "Prix"
+          }
+        }
+      }
+    },
+    "model": {
+      "title": "Modifier le modèle",
+      "submit": "Enregistrer",
+      "cancel": "Annuler",
+      "description": "Effectuez les modifications puis enregistrez",
+      "product": {
+        "title": "Produit",
+        "blocks": {
+          "package": {
+            "label": "ceci est un paquet"
+          },
+          "product": {
+            "label": "Produit"
+          },
+          "version": {
+            "label": "Version"
+          },
+          "manufacturer": {
+            "label": "Fabricant",
+            "search": "Rechercher un fabricant",
+            "select": "Sélectionner un fabricant",
+            "add_new": "Ajouter un nouveau fabricant",
+            "empty": "Saisissez au moins 2 caractères pour effectuer une recherche"
+          },
+          "description": {
+            "label": "Description"
+          },
+          "technical_detail": {
+            "label": "Détails techniques"
+          },
+          "internal_description": {
+            "label": "Description interne"
+          },
+          "hand_over_note": {
+            "label": "Remarques importantes pour la remise"
+          }
+        }
+      },
+      "entitlements": {
+        "title": "Allocations",
+        "blocks": {
+          "entitlements": {
+            "label": "Allocations (max {{amount}})",
+            "select": "Sélectionner un groupe d'ayants droit",
+            "not_found": "Groupe d'ayants droit non trouvé"
+          }
+        }
+      },
+      "categories": {
+        "title": "Catégories",
+        "blocks": {
+          "categories": {
+            "label": "Catégorie",
+            "placeholder": "Sélectionner une catégorie",
+            "select": "Sélectionner une catégorie",
+            "not_found": "Catégorie non trouvée"
+          }
+        }
+      },
+      "images": {
+        "title": "Images",
+        "blocks": {
+          "image_upload": {
+            "table": {
+              "description": "Description",
+              "cover_image": "Image de couverture"
+            },
+            "label": "Catégorie",
+            "select": "Sélectionner une catégorie",
+            "not_found": "Catégorie non trouvée"
+          }
+        }
+      },
+      "attachments": {
+        "title": "Pièces jointes",
+        "blocks": {
+          "attachments": {
+            "table": {
+              "description": "Description"
+            },
+            "label": "Fichier",
+            "select": "Sélectionner un fichier",
+            "not_found": "Fichier non trouvé"
+          }
+        }
+      },
+      "accessories": {
+        "title": "Accessoires",
+        "blocks": {
+          "accessories": {
+            "add_button": "Ajouter un accessoire"
+          }
+        }
+      },
+      "compatible_models": {
+        "title": "Modèles compatibles",
+        "blocks": {
+          "compatible_models": {
+            "label": "Sélectionner un modèle",
+            "not_found": "Modèle non trouvé",
+            "select": "Sélectionner un modèle",
+            "search": "Rechercher un modèle",
+            "search_empty": "Saisissez au moins 2 caractères",
+            "searching": "Recherche en cours..."
+          }
+        }
+      },
+      "model_properties": {
+        "title": "Propriétés",
+        "blocks": {
+          "model_properties": {
+            "table": {
+              "property": "Propriété",
+              "value": "Valeur"
+            },
+            "add_button": "Ajouter une propriété"
+          }
+        }
+      },
+      "create": {
+        "title": "Créer un nouveau modèle",
+        "description": "Effectuez les modifications puis enregistrez",
+        "submit": "Créer",
+        "add_item": "Créer et ajouter un objet",
+        "cancel": "Annuler",
+        "success": "Le modèle a été créé avec succès",
+        "invalid_one": "Le modèle n'a pas pu être créé car un champ est invalide",
+        "invalid_other": "Le modèle n'a pas pu être créé car {{count}} champs sont invalides",
+        "409": "Un modèle portant ce nom existe déjà",
+        "500": "Une erreur est survenue lors de la création du modèle"
+      },
+      "edit": {
+        "success": "Le modèle a été enregistré avec succès",
+        "add_item": "Enregistrer et ajouter un objet",
+        "invalid_one": "Le modèle n'a pas pu être enregistré car un champ est invalide",
+        "invalid_other": "Le modèle n'a pas pu être enregistré car {{count}} champs sont invalides"
+      },
+      "delete": {
+        "title": "Supprimer le modèle",
+        "description": "Êtes-vous sûr de vouloir supprimer ce modèle ?",
+        "confirm": "Supprimer",
+        "cancel": "Annuler",
+        "success": "Le modèle a été supprimé avec succès",
+        "500": "Le modèle n'a pas pu être supprimé"
+      }
+    }
+  },
+  "models": {
+    "title": "Liste d'inventaire - Prêt Toni Areal Localized",
+    "tabs": {
+      "entitlement-groups": "Groupes d'ayants droit"
+    }
+  },
+  "debug": {
+    "welcome": "Bienvenue",
+    "welcome-text": "Bienvenue sur la page de débogage. Voici quelques fonctionnalités utiles"
+  },
+  "translate-check": {
+    "open": "Open Translation Check"
+  },
+  "root": {
+    "welcome": "Leihs Inventaire",
+    "api_browser": "Navigateur API",
+    "pools": {
+      "name": "Parc",
+      "access_rights": "Droits d'accès"
+    }
+  },
+  "notfound": {
+    "back-to-home": "Retour à l'accueil"
+  },
+  "error": {
+    "action": {
+      "error": "Une erreur est survenue lors de la mise à jour",
+      "error_detail": "Code d'erreur : {{httpStatus}}"
+    },
+    "validation": {
+      "non_blank": "ne doit pas être vide",
+      "price_range": "doit être un prix valide",
+      "required": "est requis",
+      "invalid": "est invalide"
+    },
+    "alerts": {
+      "offline": {
+        "title": "Pas de connexion Internet",
+        "description": "Il semble que vous soyez hors ligne. Veuillez vérifier votre connexion Internet."
+      }
+    },
+    "boundary": {
+      "not_found": {
+        "title": "Page non trouvée",
+        "description": "La page que vous recherchez n'existe pas."
+      },
+      "unauthorized": {
+        "title": "Non autorisé",
+        "description": "Vous devez vous connecter pour accéder à cette page."
+      },
+      "forbidden": {
+        "title": "Accès refusé",
+        "description": "Vous n'avez pas la permission d'accéder à cette page."
+      },
+      "bad_request": {
+        "title": "Requête invalide",
+        "description": "Le serveur n'a pas pu traiter votre demande."
+      },
+      "server_error": {
+        "title": "Erreur serveur",
+        "description": "Une erreur est survenue sur le serveur. Veuillez réessayer plus tard."
+      },
+      "client_error": {
+        "title": "Erreur client",
+        "description": "Le client n'a pas pu communiquer avec le serveur. Veuillez réessayer."
+      },
+      "loader_error": {
+        "title": "Erreur de chargement",
+        "description": "Le client n'a pas pu charger les données de cette page. Veuillez réessayer ou revenir à la page d'accueil."
+      },
+      "application_error": {
+        "title": "Erreur d'application",
+        "description": "Une erreur est survenue lors de l'affichage de l'application."
+      },
+      "unknown": {
+        "title": "Une erreur est survenue",
+        "description": "Une erreur inattendue s'est produite. Veuillez réessayer ou contacter le support si le problème persiste."
+      },
+      "open": "Afficher le message d'erreur",
+      "actions": {
+        "close": "Fermer",
+        "go_back": "Retour",
+        "go_home": "Retour à l'accueil",
+        "go_signin": "Aller à la connexion",
+        "retry": "Réessayer"
+      }
+    }
+  }
+}
