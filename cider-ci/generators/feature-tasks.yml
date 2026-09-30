@@ -293,31 +293,36 @@
   environment_variables:
     FEATURE_NAME: "Update item 02"
     FEATURE: './spec/features/items/update_spec.rb[1:2]'
-'./spec/features/items/update_spec.rb[1:4]':
+'./spec/features/items/update_spec.rb[1:3]':
   name: "Update item 03"
   environment_variables:
     FEATURE_NAME: "Update item 03"
-    FEATURE: './spec/features/items/update_spec.rb[1:4]'
-'./spec/features/items/update_spec.rb[1:3:1]':
+    FEATURE: './spec/features/items/update_spec.rb[1:3]'
+'./spec/features/items/update_spec.rb[1:5]':
+  name: "Update item 04"
+  environment_variables:
+    FEATURE_NAME: "Update item 04"
+    FEATURE: './spec/features/items/update_spec.rb[1:5]'
+'./spec/features/items/update_spec.rb[1:4:1]':
   name: "Update item price field formatting 01"
   environment_variables:
     FEATURE_NAME: "Update item price field formatting 01"
-    FEATURE: './spec/features/items/update_spec.rb[1:3:1]'
-'./spec/features/items/update_spec.rb[1:3:2]':
+    FEATURE: './spec/features/items/update_spec.rb[1:4:1]'
+'./spec/features/items/update_spec.rb[1:4:2]':
   name: "Update item price field formatting 02"
   environment_variables:
     FEATURE_NAME: "Update item price field formatting 02"
-    FEATURE: './spec/features/items/update_spec.rb[1:3:2]'
-'./spec/features/items/update_spec.rb[1:3:3]':
+    FEATURE: './spec/features/items/update_spec.rb[1:4:2]'
+'./spec/features/items/update_spec.rb[1:4:3]':
   name: "Update item price field formatting 03"
   environment_variables:
     FEATURE_NAME: "Update item price field formatting 03"
-    FEATURE: './spec/features/items/update_spec.rb[1:3:3]'
-'./spec/features/items/update_spec.rb[1:3:4]':
+    FEATURE: './spec/features/items/update_spec.rb[1:4:3]'
+'./spec/features/items/update_spec.rb[1:4:4]':
   name: "Update item price field formatting 04"
   environment_variables:
     FEATURE_NAME: "Update item price field formatting 04"
-    FEATURE: './spec/features/items/update_spec.rb[1:3:4]'
+    FEATURE: './spec/features/items/update_spec.rb[1:4:4]'
 './spec/features/licenses/create_spec.rb[1:1]':
   name: "Create license 01"
   environment_variables:
@@ -748,11 +753,16 @@
   environment_variables:
     FEATURE_NAME: "Delete software 02"
     FEATURE: './spec/features/software/delete_spec.rb[1:2]'
-'./spec/features/software/update_spec.rb[1:1]':
-  name: "Update software 01"
+'./spec/features/software/update_spec.rb[1:1:1]':
+  name: "Update software with full software data 01"
   environment_variables:
-    FEATURE_NAME: "Update software 01"
-    FEATURE: './spec/features/software/update_spec.rb[1:1]'
+    FEATURE_NAME: "Update software with full software data 01"
+    FEATURE: './spec/features/software/update_spec.rb[1:1:1]'
+'./spec/features/software/update_spec.rb[1:2:1]':
+  name: "Update software when only product is set 01"
+  environment_variables:
+    FEATURE_NAME: "Update software when only product is set 01"
+    FEATURE: './spec/features/software/update_spec.rb[1:2:1]'
 './spec/features/swagger/smoke_spec.rb[1:1:1]':
   name: "Swagger renders 01"
   environment_variables:

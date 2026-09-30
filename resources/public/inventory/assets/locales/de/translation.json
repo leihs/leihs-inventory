@@ -1,7 +1,9 @@
 {
   "limit_result": "Resultat limitiert auf {{count}} Einträge",
   "OK": "OK",
+  "yes": "ja",
   "Yes": "Ja",
+  "no": "nein",
   "No": "Nein",
   "Unborrowable": "Nicht Ausleihbar",
   "Incomplete": "Unvollständig",
@@ -115,7 +117,7 @@
       }
     }
   },
-  "intlDateTime": "{{- val, datetime}}",
+  "intlDateTime": "{{- val, datetime(day: 2-digit; month: 2-digit; year: numeric)}}",
   "pool": {
     "scan_edit": {
       "title": "Gegenstände bearbeiten per Scan oder Auswahl",
@@ -963,6 +965,12 @@
     "action": {
       "error": "Beim Ändern ist ein Fehler aufgetreten",
       "error_detail": "Fehlercode: {{httpStatus}}"
+    },
+    "validation": {
+      "non_blank": "darf nicht leer sein",
+      "price_range": "muss ein gültiger Preis sein",
+      "required": "ist erforderlich",
+      "invalid": "ist ungültig"
     },
     "alerts": {
       "offline": {

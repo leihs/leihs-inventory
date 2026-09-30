@@ -21,71 +21,110 @@ feature "Update software", type: :feature do
   let(:attachment_name_2) { "shenpaper.pdf" }
   let(:attachment_name_3) { "turing.pdf" }
 
-  before(:each) do
-    FactoryBot.create(:access_right,
-      inventory_pool: pool,
-      user: user,
-      role: :inventory_manager)
+  context "with full software data" do
+    before(:each) do
+      FactoryBot.create(:access_right,
+        inventory_pool: pool,
+        user: user,
+        role: :inventory_manager)
 
-    @software = FactoryBot.create(:leihs_model,
-      type: "Software",
-      product: product_old,
-      version: version_old,
-      manufacturer: manufacturer_old,
-      technical_detail: software_information_old)
+      @software = FactoryBot.create(:leihs_model,
+        type: "Software",
+        product: product_old,
+        version: version_old,
+        manufacturer: manufacturer_old,
+        technical_detail: software_information_old)
 
-    FactoryBot.create(:attachment, leihs_model: @software,
-      real_filename: attachment_name_1)
-    FactoryBot.create(:attachment, leihs_model: @software,
-      real_filename: attachment_name_2)
+      FactoryBot.create(:attachment, leihs_model: @software,
+        real_filename: attachment_name_1)
+      FactoryBot.create(:attachment, leihs_model: @software,
+        real_filename: attachment_name_2)
+    end
+
+    scenario "works" do
+      login(user)
+      visit "/inventory/#{pool.id}"
+      select_value("with_items", "all")
+      click_on "Inventory type"
+      click_on "Software"
+      search_in_list("#{product_old} #{version_old}")
+      find("a", text: "edit").click
+
+      fill_in "Product", with: product_new
+      fill_in "Version", with: version_new
+
+      click_on "Manufacturer"
+      fill_in "manufacturer-input", with: manufacturer_new
+      click_on manufacturer_new
+
+      fill_in "Software information", with: software_information_new
+
+      within id: "pool.software.attachments.title" do
+        find("tr", text: attachment_name_1).all("button").last.click
+        find("input[type='file']", visible: false).attach_file "./spec/files/#{attachment_name_3}"
+      end
+
+      click_on "Save"
+
+      expect(page).to have_text("Inventory List")
+      select_value("with_items", "all")
+      search_in_list("#{product_new} #{version_new}")
+
+      within "table" do
+        expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
+      end
+
+      within find("tr", text: "#{product_new} #{version_new}", visible: true) do
+        click_on("edit")
+      end
+
+      assert_field("Product", product_new)
+      assert_field("Version", version_new)
+      assert_button("manufacturer", manufacturer_new)
+      assert_field("Software information", software_information_new)
+
+      within id: "pool.software.attachments.title" do
+        expect(page).not_to have_selector("tr", text: attachment_name_1)
+        find("tr", text: attachment_name_2)
+        find("tr", text: attachment_name_3)
+      end
+    end
   end
 
-  scenario "works" do
-    login(user)
-    visit "/inventory/#{pool.id}"
-    select_value("with_items", "all")
-    click_on "Inventory type"
-    click_on "Software"
-    search_in_list("#{product_old} #{version_old}")
-    find("a", text: "edit").click
+  context "when only product is set" do
+    let(:product_only) { Faker::Commerce.product_name }
 
-    fill_in "Product", with: product_new
-    fill_in "Version", with: version_new
+    before(:each) do
+      FactoryBot.create(:access_right,
+        inventory_pool: pool,
+        user: user,
+        role: :inventory_manager)
 
-    click_on "Manufacturer"
-    fill_in "manufacturer-input", with: manufacturer_new
-    click_on manufacturer_new
-
-    fill_in "Software information", with: software_information_new
-
-    within id: "pool.software.attachments.title" do
-      find("tr", text: attachment_name_1).all("button").last.click
-      find("input[type='file']", visible: false).attach_file "./spec/files/#{attachment_name_3}"
+      @software = FactoryBot.create(:leihs_model,
+        type: "Software",
+        product: product_only,
+        version: nil,
+        manufacturer: nil,
+        technical_detail: nil)
     end
 
-    click_on "Save"
+    scenario "saves without changes when only product is set" do
+      login(user)
+      visit "/inventory/#{pool.id}"
+      select_value("with_items", "all")
+      click_on "Inventory type"
+      click_on "Software"
+      search_in_list(product_only)
+      find("a", text: "edit").click
 
-    expect(page).to have_text("Inventory List")
-    select_value("with_items", "all")
-    search_in_list("#{product_new} #{version_new}")
+      click_on "Save"
 
-    within "table" do
-      expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
-    end
+      expect(page).to have_text("Inventory List")
+      search_in_list(product_only)
 
-    within find("tr", text: "#{product_new} #{version_new}", visible: true) do
-      click_on("edit")
-    end
-
-    assert_field("Product", product_new)
-    assert_field("Version", version_new)
-    assert_button("manufacturer", manufacturer_new)
-    assert_field("Software information", software_information_new)
-
-    within id: "pool.software.attachments.title" do
-      expect(page).not_to have_selector("tr", text: attachment_name_1)
-      find("tr", text: attachment_name_2)
-      find("tr", text: attachment_name_3)
+      within "table" do
+        expect(page).to have_selector("tr", text: product_only, visible: true)
+      end
     end
   end
 end

@@ -33,9 +33,9 @@ get_response = {
   "internal_description" => [NilClass, String],
   "product" => String,
   "id" => String,
-  "manufacturer" => [NilClass, String],
-  "version" => [NilClass, String],
-  "technical_detail" => [NilClass, String],
+  "manufacturer" => String,
+  "version" => String,
+  "technical_detail" => String,
   "is_deletable" => [TrueClass, FalseClass]
 }
 

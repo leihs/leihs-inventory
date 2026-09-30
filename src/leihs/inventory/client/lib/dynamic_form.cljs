@@ -1,6 +1,7 @@
 (ns leihs.inventory.client.lib.dynamic-form
   (:require
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [leihs.inventory.client.lib.date-utils :refer [date-from-iso]]))
 
 (def implemented-field-types
   #{"text"
@@ -290,9 +291,10 @@
                                         default-value)
 
                                       "date"
-                                      (if (= default-value "today")
-                                        (js/Date.)
-                                        default-value)
+                                      (cond
+                                        (= default-value "today") (js/Date.)
+                                        (string? default-value) (date-from-iso default-value)
+                                        :else default-value)
 
                                       "radio"
                                       (if (nil? default-value)
@@ -310,7 +312,16 @@
                                       "composite"
                                       (if (nil? default-value)
                                         []
-                                        default-value)
+                                        (->> default-value
+                                             (map (fn [allocation]
+                                                    (let [alloc (if (map? allocation)
+                                                                  allocation
+                                                                  (js->clj allocation :keywordize-keys true))
+                                                          quantity (:quantity alloc)
+                                                          location (or (:room alloc) "")]
+                                                      {:quantity quantity
+                                                       :location location})))
+                                             vec))
 
                                       "autocomplete-search"
                                       (if (nil? default-value)

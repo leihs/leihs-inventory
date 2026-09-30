@@ -216,6 +216,22 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.body["errors"].first["proposed_code"]).to be_a(String)
       end
 
+      it "rejects a blank inventory_code and returns status 422" do
+        item_data = {
+          inventory_code: "   ",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        }
+
+        resp = post_with_headers(client, url, item_data)
+
+        expect(resp.status).to eq(422)
+        expect(resp.body["reason"]).to eq("Coercion-Error")
+        expect(resp.body["fields"]["inventory_code"]).to eq("non_blank")
+      end
+
       it "proposes item codes considering both items and packages (shared sequence)" do
         pool_shortname = @inventory_pool.shortname
 

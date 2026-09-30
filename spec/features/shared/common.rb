@@ -16,8 +16,17 @@ def assert_unchecked(el)
 end
 
 def await_debounce
-  page.has_css?('[aria-busy="true"]', wait: 0.5)
+  page.has_css?('[aria-busy="true"]', wait: 1)
   expect(page).not_to have_css('[aria-busy="true"]', wait: 10)
+end
+
+def expect_table_row_count(n, wait: 20)
+  if n.zero?
+    expect(page).to have_content("No entries found", wait: wait)
+    expect(page).to have_no_css("table tbody tr")
+  else
+    expect(page).to have_css("table tbody tr", count: n, wait: wait)
+  end
 end
 
 def search_in_list(product)

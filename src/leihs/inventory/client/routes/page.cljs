@@ -13,8 +13,7 @@
 (defui page []
   (let [[t] (useTranslation)
         {:keys [profile]} (router/useRouteLoaderData "root")
-        pools (->> (get profile :available_inventory_pools [])
-                   (sort-by :name))]
+        pools (get profile :available_inventory_pools [])]
 
     ($ Card {:class-name "mt-12 mb-6 overflow-hidden"}
        ($ CardHeader

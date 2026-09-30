@@ -1,7 +1,9 @@
 {
   "limit_result": "results are limited to {{count}} items",
   "OK": "OK",
+  "yes": "yes",
   "Yes": "Yes",
+  "no": "no",
   "No": "No",
   "Unborrowable": "Unborrowable",
   "Incomplete": "Incomplete",
@@ -116,7 +118,7 @@
       }
     }
   },
-  "intlDateTime": "{{- val, datetime}}",
+  "intlDateTime": "{{- val, datetime(day: 2-digit; month: 2-digit; year: numeric)}}",
   "pool": {
     "scan_edit": {
       "title": "Edit Items via scan or selection",
@@ -967,6 +969,12 @@
     "action": {
       "error": "Something went wrong while updating",
       "error_detail": "Error code: {{httpStatus}}"
+    },
+    "validation": {
+      "non_blank": "must not be blank",
+      "price_range": "must be a valid price",
+      "required": "is required",
+      "invalid": "is invalid"
     },
     "alerts": {
       "offline": {

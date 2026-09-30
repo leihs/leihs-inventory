@@ -90,7 +90,9 @@
             item-data (flatten-properties item)
             response-data (coerce-field-values item-data out-coercions)
             pool (pools/get-by-id tx pool_id)
-            item-fields (fields/get-fields tx pool user-id role target-type item-data)]
+            date-coercions (select-keys out-coercions [:last_check :invoice_date :reservation_end_date])
+            item-fields (fields/get-fields tx pool user-id role target-type
+                                           (coerce-field-values item-data date-coercions))]
         (response (-> response-data
                       (assoc :fields item-fields)
                       (cond-> is-package?

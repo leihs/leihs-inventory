@@ -110,7 +110,7 @@
                    ($ DropdownMenuLabel {:class-name "text-xs font-normal"}
                       (t "header.app-menu.inventory-pools", "Geräteparks") ":")
                    ($ DropdownMenuGroup
-                      (for [pool (sort-by :name available_inventory_pools)]
+                      (for [pool available_inventory_pools]
                         (let [url (router/generatePath "/inventory/:pool-id" #js {:pool-id (:id pool)})]
                           ($ DropdownMenuItem {:key (:id pool)
                                                :asChild true

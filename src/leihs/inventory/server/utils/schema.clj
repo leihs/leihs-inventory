@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.utils.schema
   "Schema type definitions for API coercion."
   (:require
+   [clojure.string :as string]
    [schema.core :as s])
   (:import [java.time LocalDate]
            [java.time.format DateTimeFormatter]))
@@ -15,6 +16,8 @@
 (def Date java.time.LocalDate)
 
 (def Price (s/constrained s/Num #(< -1000000 % 1000000) 'price-in-range))
+
+(def NonBlankStr (s/constrained s/Str (comp not string/blank?) 'non-blank-string))
 
 (defn instant-to-date-string [date]
   (when date

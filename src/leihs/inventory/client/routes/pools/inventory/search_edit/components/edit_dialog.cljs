@@ -34,7 +34,7 @@
 
     (uix/use-effect
      (fn []
-       (when (and (= @prev-state "loading")
+       (when (and (contains? #{"loading" "submitting"} @prev-state)
                   (= (.-state fetcher) "idle"))
          (.. toast (success (t "pool.models.search_edit.dialog.success" #js {:count item-count})))
          (on-open-change false))

@@ -297,6 +297,19 @@
                                             :description description
                                             :action action}))))
 
+                          422
+                          (let [field-errors (get-in item-res [:data :fields])
+                                description (when (seq field-errors)
+                                              ($ :span {:class-name "whitespace-pre-line"}
+                                                 (->> field-errors
+                                                      (map (fn [[field code]]
+                                                             (str (name field) " " (t (str "error.validation." code)))))
+                                                      (str/join "\n"))))]
+                            (.. toast (error (if is-create
+                                               (t (str t-ns ".create.error"))
+                                               (t (str t-ns ".edit.error")))
+                                             (cj {:description description}))))
+
                           500 (.. toast (error (if is-create
                                                  (t (str t-ns ".create.error"))
                                                  (t (str t-ns ".edit.error")))))
@@ -442,7 +455,8 @@
 
                   ($ ButtonGroup {:class-name "ml-auto sticky self-end bottom-[1.5rem] "}
                      ($ Button {:type "submit"
-                                :form "item-form"}
+                                :form "item-form"
+                                :class-name "w-32"}
 
                         (if is-create
                           (str (when (and (= entity :item) batch?)

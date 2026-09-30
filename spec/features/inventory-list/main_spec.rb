@@ -329,7 +329,8 @@ feature "Inventory Page", type: :feature do
       leihs_model: model_11,
       owner_id: pool_6.id,
       inventory_pool_id: pool_6.id,
-      room: room)
+      room: room,
+      shelf: "S111")
 
     FactoryBot.create(:item,
       inventory_code: "#{pool_6.shortname}112",
@@ -383,7 +384,7 @@ feature "Inventory Page", type: :feature do
     uri = URI.parse(current_url)
     query_params = CGI.parse(uri.query)
     expect(query_params).to eq({"with_items" => ["true"], "retired" => ["false"], "page" => ["1"], "size" => ["50"]})
-    expect(all("table tbody tr").count).to eq 5
+    expect_table_row_count(5)
 
     verify_row_details(
       model_10,
@@ -476,7 +477,7 @@ feature "Inventory Page", type: :feature do
     select_value("with_items", "with_items")
     select_value("retired", "retired")
 
-    expect(all("table tbody tr").count).to eq 4
+    expect_table_row_count(4)
 
     verify_row_details(
       model_2,
@@ -544,7 +545,7 @@ feature "Inventory Page", type: :feature do
     select_value("retired", "retired")
     select_value("borrowable", "not_borrowable")
 
-    expect(all("table tbody tr").count).to eq 2
+    expect_table_row_count(2)
 
     verify_row_details(
       model_2,
@@ -579,7 +580,7 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
 
-    expect(all("table tbody tr").count).to eq 8
+    expect_table_row_count(8)
 
     verify_row_details(
       model_10,
@@ -739,7 +740,7 @@ feature "Inventory Page", type: :feature do
 
     expect(page).to have_button("Status", disabled: true)
 
-    expect(all("table tbody tr").count).to eq 3
+    expect_table_row_count(3)
 
     verify_row_details(
       model_1,
@@ -758,7 +759,7 @@ feature "Inventory Page", type: :feature do
     first(:link_or_button, "50").click
     click_on "20"
 
-    expect(all("table tbody tr").count).to eq 12
+    expect_table_row_count(12)
 
     verify_row_details(
       model_1,
@@ -912,9 +913,9 @@ feature "Inventory Page", type: :feature do
     )
 
     visit "/inventory/#{pool_1.id}/list"
-    fill_in "search", with: search_term
+    search_in_list(search_term)
 
-    wait_until { all("table tbody tr").count == 4 }
+    expect_table_row_count(4)
 
     verify_row_details(
       model_2,
@@ -1008,7 +1009,7 @@ feature "Inventory Page", type: :feature do
     click_on "Inventory pool"
     find("[data-value='#{pool_2.id}']").click
 
-    expect(all("table tbody tr").count).to eq 2
+    expect_table_row_count(2)
 
     verify_row_details(
       model_2,
@@ -1058,7 +1059,7 @@ feature "Inventory Page", type: :feature do
 
     expect(page).to have_button("Status", text: "1")
 
-    expect(all("table tbody tr").count).to eq 6
+    expect_table_row_count(6)
 
     verify_row_details(
       model_10,
@@ -1154,7 +1155,7 @@ feature "Inventory Page", type: :feature do
     click_on "No"
     expect(page).to have_button("Status", text: "1")
 
-    expect(all("table tbody tr").count).to eq 1
+    expect_table_row_count(1)
 
     verify_row_details(
       model_8,
@@ -1192,7 +1193,7 @@ feature "Inventory Page", type: :feature do
     click_on "Yes"
     expect(page).to have_button("Status", text: "1")
 
-    expect(all("table tbody tr").count).to eq 2
+    expect_table_row_count(2)
 
     verify_row_details(
       model_2,
@@ -1232,7 +1233,7 @@ feature "Inventory Page", type: :feature do
     expect(page).to have_button("Status", text: "1")
 
     expect(page).to have_current_path(/broken=true/, wait: 20)
-    expect(page).to have_selector("table tbody tr", count: 2, wait: 20)
+    expect_table_row_count(2)
 
     verify_row_details(
       model_2,
@@ -1268,11 +1269,10 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
     click_on "before-last-check-filter-button"
-    within("[data-test-id='before-last-check-calendar']") do
-      all(:button, Date.today.day.to_s).last.click
-    end
+    expect(page).to have_css("[data-test-id='before-last-check-calendar']", wait: 10)
+    click_calendar_day(Date.today, dismiss: false)
 
-    expect(all("table tbody tr").count).to eq 1
+    expect_table_row_count(1)
 
     verify_row_details(
       model_2,
@@ -1317,7 +1317,7 @@ feature "Inventory Page", type: :feature do
     click_on cat_1.id
     expect(page).to have_content(cat_1.name.to_s)
 
-    expect(all("table tbody tr").count).to eq 2
+    expect_table_row_count(2)
 
     verify_row_details(
       model_2,
@@ -1365,7 +1365,7 @@ feature "Inventory Page", type: :feature do
       expect(page).to have_css(".lucide-package")
     end
 
-    expect(all("table tbody tr").count).to eq 1
+    expect_table_row_count(1)
     verify_row_details(
       model_8,
       "0 | 1",
@@ -1399,7 +1399,7 @@ feature "Inventory Page", type: :feature do
       click_on "Model"
     end
 
-    expect(all("table tbody tr").count).to eq 10
+    expect_table_row_count(10)
 
     verify_row_details(
       model_1,
@@ -1524,20 +1524,17 @@ feature "Inventory Page", type: :feature do
     within('[role="menu"]', match: :first) do
       click_on pool_6.name
     end
-    fill_in "search", with: item_model_11_1.inventory_code
-    expect(page).to have_selector("table tbody tr", count: 1, wait: 10)
-
-    # somehow the test started to break here after some BE changes
-    # sleep seems to fix it for now
-    sleep 1
+    search_in_list(item_model_11_1.inventory_code)
+    expect_table_row_count(1)
     verify_row_details(
       model_11,
       "2 | 2",
-      [
-        {
-          inventory_code: item_model_11_1.inventory_code
-        }
-      ]
+      [{
+        inventory_code: item_model_11_1.inventory_code,
+        building_name: building.name,
+        building_code: building.code,
+        shelf: item_model_11_1.shelf
+      }]
     )
 
     # type=option
@@ -1555,9 +1552,8 @@ feature "Inventory Page", type: :feature do
     click_on "No"
 
     click_on "before-last-check-filter-button"
-    within("[data-test-id='before-last-check-calendar']") do
-      all(:button, Date.today.day.to_s).last.click
-    end
+    expect(page).to have_css("[data-test-id='before-last-check-calendar']", wait: 10)
+    click_calendar_day(Date.today, dismiss: false)
 
     select_value("with_items", "with_items")
     select_value("borrowable", "borrowable")
@@ -1588,7 +1584,7 @@ feature "Inventory Page", type: :feature do
     expect(page).to have_button("only models with items", disabled: true)
     expect(page).to have_button("borrowable", disabled: true)
 
-    expect(all("table tbody tr").count).to eq 1
+    expect_table_row_count(1)
 
     verify_row_details(
       option_1,
@@ -1602,7 +1598,7 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_5.id}/list"
     select_value("with_items", "with_items")
 
-    expect(all("table tbody tr").count).to eq 0
+    expect_table_row_count(0)
   end
 end
 
@@ -1629,17 +1625,15 @@ def verify_row_details(model, availabilty, items = [], is_package: false, is_opt
 
     expect(page).to have_content(model.name)
     expect(page).to have_content(model.version)
-    expect(find('[data-test-id="items"]').text).to eq(items.size.to_s)
-    expect(find('[data-test-id="availability"]').text).to eq(availabilty)
+    expect(page).to have_selector('[data-test-id="items"]', exact_text: items.size.to_s, wait: 20)
+    expect(page).to have_selector('[data-test-id="availability"]', exact_text: availabilty, wait: 20)
     click_on "expand-button"
 
     following_rows = if is_package
-      row.all(:xpath, "following-sibling::tr[@data-row='package']", wait: 30)
+      row.all(:xpath, "following-sibling::tr[@data-row='package']", count: items.size, wait: 30)
     else
-      row.all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
+      row.all(:xpath, "following-sibling::tr[@data-row='item']", count: items.size, wait: 30)
     end
-
-    wait_until { following_rows.size == items.size }
 
     items.each_with_index do |details, index|
       expect(following_rows[index]).to have_content(details[:inventory_code])
@@ -1666,17 +1660,17 @@ def verify_row_details(model, availabilty, items = [], is_package: false, is_opt
         package_expand = following_rows[index].find('[data-test-id="expand-button"]')
         package_expand.click
 
-        package_rows = []
-        current_row = following_rows[index]
-        while (next_row = current_row.first(:xpath, "following-sibling::tr[1]", minimum: 0, wait: 0))
-          break unless next_row["data-row"] == "item"
+        package_rows = wait_until(30) do
+          rows = []
+          current_row = following_rows[index]
+          while (next_row = current_row.first(:xpath, "following-sibling::tr[1]", minimum: 0, wait: 0))
+            break unless next_row["data-row"] == "item"
 
-          package_rows << next_row
-          current_row = next_row
+            rows << next_row
+            current_row = next_row
+          end
+          rows if rows.size == details[:package_items].size
         end
-
-        wait_until { package_rows.size == details[:package_items].size }
-        expect(package_rows.size).to eq(details[:package_items].size)
 
         details[:package_items].each do |pkg_item|
           matched_row = package_rows.find { |row_item| row_item.has_content?(pkg_item[:inventory_code]) }

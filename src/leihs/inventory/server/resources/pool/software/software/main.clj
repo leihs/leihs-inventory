@@ -8,10 +8,10 @@
    [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
                                                          is-deletable?
                                                          str-to-bool]]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
    [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation
                                                                     filter-keys]]
+   [leihs.inventory.server.resources.pool.software.common :as sw-common]
    [leihs.inventory.server.resources.pool.software.software.types :as types]
    [leihs.inventory.server.utils.transform :refer [to-uuid]]
    [next.jdbc :as jdbc]
@@ -38,18 +38,19 @@
                           (sql/where [:and [:= :m.id model-id] [:= :m.type "Software"]])
                           sql-format)
           model-result (jdbc/execute-one! tx model-query)
-          result (when model-result (let [model-result (assoc model-result :is_deletable (is-model-deletable? tx model-id))
-                                          attachments (fetch-attachments tx model-id pool-id)
-                                          result (assoc model-result :attachments attachments)] result))]
-      (if result
-        (response (filter-map-by-spec result ::types/put-response))
+          res (when model-result
+                (-> model-result
+                    (assoc :is_deletable (is-model-deletable? tx model-id))
+                    (assoc :attachments (fetch-attachments tx model-id pool-id))))]
+      (if res
+        (response (sw-common/sanitize-single res ::types/put-response))
         (not-found {:message ERROR_FETCH_SOFTWARE})))
     (catch Exception e
       (log-by-severity ERROR_FETCH_SOFTWARE e)
       (exception-handler request ERROR_FETCH_SOFTWARE e))))
 
 (defn prepare-software-data [data]
-  (let [normalize-data (normalize-model-data data)
+  (let [normalize-data (normalize-model-data data true)
         created-ts (LocalDateTime/now)]
     (-> normalize-data
         (assoc :updated_at created-ts
@@ -71,7 +72,7 @@
           updated-model (jdbc/execute-one! tx update-model-query)]
 
       (if updated-model
-        (response (filter-map-by-spec updated-model ::types/put-response))
+        (response (sw-common/sanitize-single updated-model ::types/put-response))
         (not-found {:message ERROR_UPDATE_SOFTWARE})))
     (catch Exception e
       (log-by-severity ERROR_UPDATE_SOFTWARE e)

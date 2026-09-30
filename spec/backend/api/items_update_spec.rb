@@ -258,6 +258,17 @@ describe "Swagger Inventory Endpoints - Items Update" do
         expect(resp.body["reason"]).to eq("Coercion-Error")
       end
 
+      it "rejects a blank inventory_code and returns status 422" do
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {inventory_code: "   "}
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(422)
+        expect(resp.body["reason"]).to eq("Coercion-Error")
+        expect(resp.body["fields"]["inventory_code"]).to eq("non_blank")
+      end
+
       it "updates an item with a numeric price and returns status 200" do
         url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
         update_data = {price: 123.45}

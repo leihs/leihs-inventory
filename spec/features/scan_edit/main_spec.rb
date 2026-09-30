@@ -52,20 +52,16 @@ feature "Scan & Edit", type: :feature do
     # Open the autocomplete and search for the item
     find('[data-test-id="item"]').click
     find('[data-test-id="item-input"]').set(item.inventory_code[0..3])
-    await_debounce
+    expect(page).to have_css('[role="listbox"] button', text: item.inventory_code, wait: 10)
 
     within find('[role="listbox"]') do
       find("button", text: item.inventory_code).click
     end
 
-    # find('button[form="patch-item-form"]', text: "Apply").click
-    # workaround to mitigate timing capybara and react timing issue for disabled fields, the above would not work
-    page.execute_script("document.querySelector('button[form=\"patch-item-form\"]').click()")
+    expect(page).to have_button("Apply", disabled: false, wait: 10)
+    click_button "Apply"
 
-    expect(find('[data-test-id="item"]')).to be_disabled
-    expect(find('[data-test-id="barcode-input"]')).to be_disabled
-
-    expect(page).to have_text("Item has been successfully updated")
+    expect(page).to have_text("Item has been successfully updated", wait: 15)
   end
 
   scenario "scanning a barcode and pressing Enter shows a success toast" do

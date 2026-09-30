@@ -281,6 +281,66 @@ feature "Update item", type: :feature do
     expect(page).to have_content(attachment_name_new)
   end
 
+  scenario "dynamic checkbox field renders label, shows option labels and persists selection" do
+    field_suffix = SecureRandom.hex(4)
+    field_name = "test_cb_#{field_suffix}"
+
+    FactoryBot.create(:field,
+      id: "properties_#{field_name}",
+      data: Sequel.pg_jsonb({
+        label: "My Checkbox",
+        type: "checkbox",
+        group: "General Information",
+        attribute: ["properties", field_name],
+        target_type: "item",
+        permissions: {role: "inventory_manager", owner: false},
+        values: [{label: "Yes", value: "1"}]
+      }))
+
+    @item = FactoryBot.create(:item,
+      inventory_code: inventory_code_old,
+      leihs_model: model_old,
+      inventory_pool: pool,
+      owner: pool)
+
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+    search_in_list(model_old.product)
+
+    within find('[data-row="model"]', text: model_old.product) do
+      click_on "expand-button"
+    end
+
+    within find('[data-row="item"]', text: inventory_code_old) do
+      click_on "edit"
+    end
+
+    # field label is rendered (regression: was missing before fix)
+    expect(page).to have_content("My Checkbox")
+
+    # option label is rendered via i18n (regression: was bypassed before fix)
+    expect(page).to have_content("Yes")
+
+    checkbox = find("button[data-test-id='properties_#{field_name}-1']")
+    assert_unchecked(checkbox)
+    checkbox.click
+
+    click_on "Save"
+    expect(page).to have_text("Item was successfully saved")
+
+    search_in_list(model_old.product)
+
+    within find('[data-row="model"]', text: model_old.product) do
+      click_on "expand-button"
+    end
+
+    within find('[data-row="item"]', text: inventory_code_old) do
+      click_on "edit"
+    end
+
+    assert_checked(find("button[data-test-id='properties_#{field_name}-1']"))
+  end
+
   scenario "protected fields are disabled when not owner" do
     @item = FactoryBot.create(:item,
       inventory_code: inventory_code_old,

@@ -3,7 +3,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router" :as router]
    [leihs.inventory.client.components.typo :refer [Typo]]
-   [leihs.inventory.client.lib.date-helper :refer [string-to-plain-date]]
+   [leihs.inventory.client.lib.date-utils :refer [date-from-iso]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui ItemInfo [{:keys [item]}]
@@ -22,7 +22,7 @@
                       :target "_blank"
                       :rel "noreferrer"}
                   (str (:reservation_user_name item) " " (t "pool.models.search_edit.info.until") " "
-                       (t "intlDateTime" #js {:val (string-to-plain-date (:reservation_end_date item))}))))
+                       (t "intlDateTime" #js {:val (date-from-iso (:reservation_end_date item))}))))
 
             (str (:building_name item)
                  " ( " (:building_code item) " ) "
