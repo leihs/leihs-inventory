@@ -44,8 +44,8 @@ For integrated development with proxy:
 
 ### Locales Management
 ```bash
-npm run locales:sync         # Sync translation files
-# Then manually discard changes in zod.json files
+bin/sync-locales             # Sync keys of en and fr-CH with de (npm run locales:sync)
+# New fr-CH *_many plural keys get German text; copy the *_other text instead
 ```
 
 ## Architecture

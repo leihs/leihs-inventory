@@ -11,7 +11,7 @@
     "format": "prettier --write ./src/leihs/inventory/client",
     "format:check": "prettier --check ./src/leihs/inventory/client",
     "test": "DB_NAME=leihs_test LEIHS_INVENTORY_HTTP_PORT=5173 bin/rspec ./spec/features/",
-    "locales:sync": "i18next-locales-sync -c ./localesSync.config.js"
+    "locales:sync": "i18next-locales-sync -p de -s en fr-CH -l ./resources/public/inventory/assets/locales --spaces 2"
   },
   "devDependencies": {
     "@eslint/js": "^9.3.0",

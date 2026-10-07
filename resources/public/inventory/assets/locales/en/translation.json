@@ -304,6 +304,7 @@
             "empty": "No results found for this search term"
           },
           "items": {
+            "label": "Items",
             "select": "Select items",
             "search": "Search items",
             "searching": "Searching...",
@@ -677,15 +678,15 @@
       "cancel": "Cancel",
       "description": "Make changes and then save",
       "create": {
+        "409": "A software with this name already exists",
+        "500": "An error occurred while creating the software",
         "title": "Create new software",
         "description": "Insert all required information",
         "submit": "Save software",
         "cancel": "Cancel",
         "success": "Software successfully created",
         "invalid_one": "Software could not be created because one field is invalid",
-        "invalid_other": "Software could not be created because {{count}} fields are invalid",
-        "409": "A software with this name already exists",
-        "500": "An error occurred while creating the software"
+        "invalid_other": "Software could not be created because {{count}} fields are invalid"
       },
       "edit": {
         "delete": "Delete",
@@ -694,12 +695,13 @@
         "invalid_other": "Software could not be saved because {{count}} fields are invalid"
       },
       "delete": {
+        "500": "Software could not be deleted",
         "title": "Delete software",
         "description": "Are you sure you want to delete this software?",
         "confirm": "Delete",
         "cancel": "Cancel",
         "success": "Software successfully deleted",
-        "500": "Software could not be deleted"
+        "error": "Software could not be deleted"
       },
       "software": {
         "title": "Software",
@@ -738,26 +740,26 @@
     },
     "option": {
       "create": {
+        "409": "A option with this inventory code already exists",
+        "500": "An error occurred while creating the option",
         "title": "Create new option",
         "description": "Insert all required information",
         "submit": "Save Option",
         "cancel": "Cancel",
         "success": "Option successfully created",
         "invalid_one": "Option could not be created because one field is invalid",
-        "invalid_other": "Option could not be created because {{count}} fields are invalid",
-        "409": "A option with this inventory code already exists",
-        "500": "An error occurred while creating the option"
+        "invalid_other": "Option could not be created because {{count}} fields are invalid"
       },
       "edit": {
+        "409": "A option with this inventory code already exists",
+        "500": "An error occurred while creating the option",
         "title": "Edit Option",
         "description": "Make changes and then save",
-        "cancel": "Cancel",
         "submit": "Save",
+        "cancel": "Cancel",
         "success": "Option successfully saved",
         "invalid_one": "Option could not be created because one field is invalid",
-        "invalid_other": "Option could not be created because {{count}} fields are invalid",
-        "409": "A option with this inventory code already exists",
-        "500": "An error occurred while creating the option"
+        "invalid_other": "Option could not be created because {{count}} fields are invalid"
       },
       "delete": {
         "title": "Delete option",
@@ -906,6 +908,8 @@
         }
       },
       "create": {
+        "409": "A model with this name already exists",
+        "500": "An error occurred while creating the model",
         "title": "Create new model",
         "description": "Make changes and then save",
         "submit": "Create",
@@ -913,9 +917,7 @@
         "cancel": "Cancel",
         "success": "Model successfully created",
         "invalid_one": "Model could not be created because one field is invalid",
-        "invalid_other": "Model could not be created because {{count}} fields are invalid",
-        "409": "A model with this name already exists",
-        "500": "An error occurred while creating the model"
+        "invalid_other": "Model could not be created because {{count}} fields are invalid"
       },
       "edit": {
         "success": "Model successfully saved",
@@ -924,12 +926,12 @@
         "invalid_other": "Model could not be saved because {{count}} fields are invalid"
       },
       "delete": {
+        "500": "Model could not be deleted",
         "title": "Delete model",
         "description": "Are you sure you want to delete this model?",
         "confirm": "Delete",
         "cancel": "Cancel",
-        "success": "Model successfully deleted",
-        "500": "Model could not be deleted"
+        "success": "Model successfully deleted"
       }
     }
   },

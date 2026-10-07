@@ -138,6 +138,7 @@
       "owner_only": {
         "error": "L'élément ne peut pas être modifié",
         "description_one": "La demande contient un champ qui ne peut être modifié que si vous êtes le propriétaire de l'élément ou du paquet.",
+        "description_many": "La demande contient plusieurs champs qui ne peuvent être modifiés que si vous êtes le propriétaire de l'élément ou du paquet.",
         "description_other": "La demande contient plusieurs champs qui ne peuvent être modifiés que si vous êtes le propriétaire de l'élément ou du paquet."
       },
       "barcode_placeholder": "Scanner le code-barres",
@@ -173,6 +174,7 @@
           "cancel": "Annuler",
           "success": "L'élément a été créé avec succès",
           "invalid_one": "L'élément n'a pas pu être créé car un champ est invalide",
+          "invalid_many": "L'élément n'a pas pu être créé car {{count}} champs sont invalides",
           "invalid_other": "L'élément n'a pas pu être créé car {{count}} champs sont invalides",
           "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
           "duplicate_serialnumber": "Ce numéro de série existe déjà",
@@ -186,6 +188,7 @@
           "cancel": "Annuler",
           "success": "L'élément a été enregistré avec succès",
           "invalid_one": "L'élément n'a pas pu être enregistré car un champ est invalide",
+          "invalid_many": "L'élément n'a pas pu être enregistré car {{count}} champs sont invalides",
           "invalid_other": "L'élément n'a pas pu être enregistré car {{count}} champs sont invalides",
           "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
           "duplicate_serialnumber": "Ce numéro de série existe déjà",
@@ -266,6 +269,7 @@
           "cancel": "Annuler",
           "success": "Le paquet a été créé avec succès",
           "invalid_one": "Le paquet n'a pas pu être créé car un champ est invalide",
+          "invalid_many": "Le paquet n'a pas pu être créé car {{count}} champs sont invalides",
           "invalid_other": "Le paquet n'a pas pu être créé car {{count}} champs sont invalides",
           "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
           "error": "Une erreur est survenue lors de la création"
@@ -279,6 +283,7 @@
           "cancel": "Annuler",
           "success": "Le paquet a été enregistré avec succès",
           "invalid_one": "Le paquet n'a pas pu être enregistré car un champ est invalide",
+          "invalid_many": "Le paquet n'a pas pu être enregistré car {{count}} champs sont invalides",
           "invalid_other": "Le paquet n'a pas pu être enregistré car {{count}} champs sont invalides",
           "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
           "error": "Une erreur est survenue lors de l'enregistrement",
@@ -304,6 +309,7 @@
             "empty": "Aucun résultat trouvé pour ce terme de recherche"
           },
           "items": {
+            "label": "Éléments",
             "select": "Sélectionner des éléments",
             "search": "Rechercher des éléments",
             "searching": "Recherche en cours...",
@@ -326,6 +332,7 @@
           "cancel": "Annuler",
           "success": "La licence a été créée avec succès",
           "invalid_one": "La licence n'a pas pu être créée car un champ est invalide",
+          "invalid_many": "La licence n'a pas pu être créée car {{count}} champs sont invalides",
           "invalid_other": "La licence n'a pas pu être créée car {{count}} champs sont invalides",
           "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
           "error": "Une erreur est survenue lors de la création"
@@ -337,6 +344,7 @@
           "cancel": "Annuler",
           "success": "La licence a été enregistrée avec succès",
           "invalid_one": "La licence n'a pas pu être enregistrée car un champ est invalide",
+          "invalid_many": "La licence n'a pas pu être enregistrée car {{count}} champs sont invalides",
           "invalid_other": "La licence n'a pas pu être enregistrée car {{count}} champs sont invalides",
           "duplicate_inventory_code": "Ce code d'inventaire existe déjà",
           "error": "Une erreur est survenue lors de l'enregistrement"
@@ -474,6 +482,7 @@
         },
         "dialog": {
           "title_one": "Éditer {{count}} élément",
+          "title_many": "Éditer {{count}} éléments",
           "title_other": "Éditer {{count}} éléments",
           "description": "Sélectionnez les champs que vous souhaitez mettre à jour pour tous les éléments sélectionnés.",
           "cancel": "Annuler",
@@ -481,8 +490,10 @@
           "submit": "Enregistrer",
           "add_field": "Ajouter un champ",
           "success_one": "{{count}} élément a été mis à jour avec succès",
+          "success_many": "{{count}} éléments ont été mis à jour avec succès",
           "success_other": "{{count}} éléments ont été mis à jour avec succès",
           "warning_description_one": "{{count}} élément sera mis à jour",
+          "warning_description_many": "{{count}} éléments seront mis à jour",
           "warning_description_other": "{{count}} éléments seront mis à jour",
           "fields_fetch_error": "Impossible de charger les champs modifiables. Veuillez réessayer.",
           "restricted_fields_warning": "Tous les éléments sélectionnés n'appartiennent pas à ce groupe ; seuls les champs modifiables pour tous les éléments sélectionnés sont affichés dans la sélection de champs."
@@ -529,6 +540,7 @@
           "cancel": "Annuler",
           "success": "Le groupe d'ayants droit a été créé avec succès",
           "invalid_one": "Le groupe d'ayants droit n'a pas pu être créé car un champ est invalide",
+          "invalid_many": "Le groupe d'ayants droit n'a pas pu être créé car {{count}} champs sont invalides",
           "invalid_other": "Le groupe d'ayants droit n'a pas pu être créé car {{count}} champs sont invalides",
           "conflict": "Le groupe d'ayants droit n'a pas pu être créé car un groupe d'ayants droit portant le même nom existe déjà",
           "error": "Une erreur est survenue lors de la création"
@@ -540,6 +552,7 @@
           "cancel": "Annuler",
           "success": "Le groupe d'ayants droit a été enregistré avec succès",
           "invalid_one": "Le groupe d'ayants droit n'a pas pu être enregistré car un champ est invalide",
+          "invalid_many": "Le groupe d'ayants droit n'a pas pu être enregistré car {{count}} champs sont invalides",
           "invalid_other": "Le groupe d'ayants droit n'a pas pu être enregistré car {{count}} champs sont invalides"
         },
         "delete": {
@@ -628,6 +641,7 @@
           "cancel": "Annuler",
           "success": "Le gabarit a été créé avec succès",
           "invalid_one": "Le gabarit n'a pas pu être créé car un champ est invalide",
+          "invalid_many": "Le gabarit n'a pas pu être créé car {{count}} champs sont invalides",
           "invalid_other": "Le gabarit n'a pas pu être créé car {{count}} champs sont invalides",
           "conflict": "Le gabarit n'a pas pu être créé car un gabarit portant le même nom existe déjà",
           "error": "Une erreur est survenue lors de la création"
@@ -639,6 +653,7 @@
           "cancel": "Annuler",
           "success": "Le gabarit a été enregistré avec succès",
           "invalid_one": "Le gabarit n'a pas pu être enregistré car un champ est invalide",
+          "invalid_many": "Le gabarit n'a pas pu être enregistré car {{count}} champs sont invalides",
           "invalid_other": "Le gabarit n'a pas pu être enregistré car {{count}} champs sont invalides"
         },
         "delete": {
@@ -677,29 +692,32 @@
       "cancel": "Annuler",
       "description": "Effectuez les modifications puis enregistrez",
       "create": {
+        "409": "Un logiciel portant ce nom existe déjà",
+        "500": "Une erreur est survenue lors de la création du logiciel",
         "title": "Créer un nouveau logiciel",
         "description": "Indiquez toutes les informations requises",
         "submit": "Enregistrer le logiciel",
         "cancel": "Annuler",
         "success": "Le logiciel a été créé avec succès",
         "invalid_one": "Le logiciel n'a pas pu être créé car un champ est invalide",
-        "invalid_other": "Le logiciel n'a pas pu être créé car {{count}} champs sont invalides",
-        "409": "Un logiciel portant ce nom existe déjà",
-        "500": "Une erreur est survenue lors de la création du logiciel"
+        "invalid_many": "Le logiciel n'a pas pu être créé car {{count}} champs sont invalides",
+        "invalid_other": "Le logiciel n'a pas pu être créé car {{count}} champs sont invalides"
       },
       "edit": {
         "delete": "Supprimer",
         "success": "Le logiciel a été enregistré avec succès",
         "invalid_one": "Le logiciel n'a pas pu être enregistré car un champ est invalide",
+        "invalid_many": "Le logiciel n'a pas pu être enregistré car {{count}} champs sont invalides",
         "invalid_other": "Le logiciel n'a pas pu être enregistré car {{count}} champs sont invalides"
       },
       "delete": {
+        "500": "Le logiciel n'a pas pu être supprimé",
         "title": "Supprimer le logiciel",
         "description": "Êtes-vous sûr de vouloir supprimer ce logiciel ?",
         "confirm": "Supprimer",
         "cancel": "Annuler",
         "success": "Le logiciel a été supprimé avec succès",
-        "500": "Le logiciel n'a pas pu être supprimé"
+        "error": "Le logiciel n'a pas pu être supprimé"
       },
       "software": {
         "title": "Logiciel",
@@ -738,26 +756,28 @@
     },
     "option": {
       "create": {
+        "409": "Une option portant ce code d'inventaire existe déjà",
+        "500": "Une erreur est survenue lors de la création de l'option",
         "title": "Créer une nouvelle option",
         "description": "Indiquez toutes les informations requises",
         "submit": "Enregistrer l'option",
         "cancel": "Annuler",
         "success": "L'option a été créée avec succès",
         "invalid_one": "L'option n'a pas pu être créée car un champ est invalide",
-        "invalid_other": "L'option n'a pas pu être créée car {{count}} champs sont invalides",
-        "409": "Une option portant ce code d'inventaire existe déjà",
-        "500": "Une erreur est survenue lors de la création de l'option"
+        "invalid_many": "L'option n'a pas pu être créée car {{count}} champs sont invalides",
+        "invalid_other": "L'option n'a pas pu être créée car {{count}} champs sont invalides"
       },
       "edit": {
+        "409": "Une option portant ce code d'inventaire existe déjà",
+        "500": "Une erreur est survenue lors de la création de l'option",
         "title": "Éditer l'option",
         "description": "Effectuez les modifications puis enregistrez",
-        "cancel": "Annuler",
         "submit": "Enregistrer",
+        "cancel": "Annuler",
         "success": "L'option a été enregistrée avec succès",
         "invalid_one": "L'option n'a pas pu être créée car un champ est invalide",
-        "invalid_other": "L'option n'a pas pu être créée car {{count}} champs sont invalides",
-        "409": "Une option portant ce code d'inventaire existe déjà",
-        "500": "Une erreur est survenue lors de la création de l'option"
+        "invalid_many": "L'option n'a pas pu être créée car {{count}} champs sont invalides",
+        "invalid_other": "L'option n'a pas pu être créée car {{count}} champs sont invalides"
       },
       "delete": {
         "title": "Supprimer l'option",
@@ -906,6 +926,8 @@
         }
       },
       "create": {
+        "409": "Un modèle portant ce nom existe déjà",
+        "500": "Une erreur est survenue lors de la création du modèle",
         "title": "Créer un nouveau modèle",
         "description": "Effectuez les modifications puis enregistrez",
         "submit": "Créer",
@@ -913,23 +935,23 @@
         "cancel": "Annuler",
         "success": "Le modèle a été créé avec succès",
         "invalid_one": "Le modèle n'a pas pu être créé car un champ est invalide",
-        "invalid_other": "Le modèle n'a pas pu être créé car {{count}} champs sont invalides",
-        "409": "Un modèle portant ce nom existe déjà",
-        "500": "Une erreur est survenue lors de la création du modèle"
+        "invalid_many": "Le modèle n'a pas pu être créé car {{count}} champs sont invalides",
+        "invalid_other": "Le modèle n'a pas pu être créé car {{count}} champs sont invalides"
       },
       "edit": {
         "success": "Le modèle a été enregistré avec succès",
         "add_item": "Enregistrer et ajouter un élément",
         "invalid_one": "Le modèle n'a pas pu être enregistré car un champ est invalide",
+        "invalid_many": "Le modèle n'a pas pu être enregistré car {{count}} champs sont invalides",
         "invalid_other": "Le modèle n'a pas pu être enregistré car {{count}} champs sont invalides"
       },
       "delete": {
+        "500": "Le modèle n'a pas pu être supprimé",
         "title": "Supprimer le modèle",
         "description": "Êtes-vous sûr de vouloir supprimer ce modèle ?",
         "confirm": "Supprimer",
         "cancel": "Annuler",
-        "success": "Le modèle a été supprimé avec succès",
-        "500": "Le modèle n'a pas pu être supprimé"
+        "success": "Le modèle a été supprimé avec succès"
       }
     }
   },

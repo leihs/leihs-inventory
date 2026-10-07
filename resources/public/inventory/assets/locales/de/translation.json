@@ -61,7 +61,8 @@
       "status_note": "Statusnotiz"
     },
     "Eigenschaften": {
-      "title": "Eigenschaften"
+      "title": "Eigenschaften",
+      "properties_electrical_power": "Stromverbrauch in kw/h"
     },
     "Location": {
       "title": "Ort",
@@ -310,6 +311,10 @@
             "search_empty": "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
             "not_found": "Keine Gegenstände gefunden"
           }
+        },
+        "actions": {
+          "update": "Speichern",
+          "duplicate_inventory_code_description": "Durch das Drücken von Speichern wird automatisch ein gültiger Inventarcode verwendet"
         }
       }
     },
@@ -346,7 +351,8 @@
           }
         },
         "actions": {
-          "update": "Speichern"
+          "update": "Speichern",
+          "duplicate_inventory_code_description": "Durch das Drücken von Speichern wird der vorgeschlagene Inventarcode verwendet"
         }
       }
     },
