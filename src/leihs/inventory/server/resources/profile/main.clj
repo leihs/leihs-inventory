@@ -4,6 +4,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
+   [leihs.core.languages :as languages]
    [leihs.core.remote-navbar.shared :refer [sub-apps]]
    [leihs.core.settings :refer [settings]]
    [leihs.inventory.server.middlewares.authorize.main :refer [AUTHORIZED-ROLES READONLY-ROLES]]
@@ -69,7 +70,8 @@
       (response {:navigation (snake-case-keys (get-navigation tx auth))
                  :available_inventory_pools pools
                  :user_details (snake-case-keys user-details)
-                 :languages (snake-case-keys (l/get-multiple tx))}))
+                 :languages (snake-case-keys (l/get-multiple tx))
+                 :language_to_use (snake-case-keys (languages/get-the-one-to-use tx user-id))}))
     (catch Exception e
       (log-by-severity ERROR_GET_USER e)
       (exception-handler request ERROR_GET_USER e))))

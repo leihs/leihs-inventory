@@ -32,7 +32,8 @@
   {:navigation navigation-schema
    :available_inventory_pools [inventory-pool-schema]
    :user_details s/Any
-   :languages [language-schema]})
+   :languages [language-schema]
+   :language_to_use language-schema})
 
 (def profile-patch-schema
   {:language s/Str})

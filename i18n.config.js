@@ -82,7 +82,7 @@ fetch("/inventory/profile/", {
 })
   .then((response) => response.json())
   .then((profile) => {
-    const locale = profile?.user_details.language_locale || "de-CH"
+    const locale = profile?.language_to_use?.locale || "en-GB"
     if (i18n.language !== locale) {
       return i18n.changeLanguage(locale)
     }
