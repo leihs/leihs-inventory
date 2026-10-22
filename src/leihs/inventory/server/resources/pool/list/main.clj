@@ -95,7 +95,7 @@
                   (cond-> (presence search)
                     (with-search-inventory search))
                   (cond-> (and category_id (not (some #{type} [:option :software])))
-                    (#(from-category tx % category_id))))
+                    (from-category category_id)))
 
         accept-header (get-accept-header request)
         export-opts {:with_items with_items

@@ -3,8 +3,7 @@
    [clojure.set]
    [clojure.string :refer [capitalize]]
    [honey.sql.helpers :as sql]
-   [hugsql.core :as hugsql]
-   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
+   [leihs.core.resources.categories.descendents :as descendents]))
 
 (defn base-inventory-query [pool-id]
   (-> (sql/select :inventory.*)
@@ -119,22 +118,12 @@
            (matches-model-columns-expr search :child_models)
            (matches-item-columns-expr search :child_items)]))]]))
 
-(hugsql/def-sqlvec-fns "sql/descendent_ids.sql")
-
-(declare descendent-ids-sqlvec)
-
-(defn descendent-ids [tx category-id]
-  (-> {:category-id category-id}
-      descendent-ids-sqlvec
-      (->> (jdbc-query tx))
-      (->> (map :id))))
-
-(defn from-category [tx query category-id]
-  (let [ids (-> (descendent-ids tx category-id)
-                (conj category-id))]
-    (-> query
-        (sql/where
-         [:exists (-> (sql/select 1)
-                      (sql/from :model_links)
-                      (sql/where [:= :model_links.model_id :inventory.id])
-                      (sql/where [:in :model_links.model_group_id ids]))]))))
+(defn from-category [query category-id]
+  (sql/where query
+             [:exists (-> (sql/select 1)
+                          (sql/from :model_links)
+                          (sql/where [:= :model_links.model_id :inventory.id])
+                          (sql/where [:or
+                                      [:= :model_links.model_group_id category-id]
+                                      [:in :model_links.model_group_id
+                                       (descendents/descendent-ids-sqlmap category-id)]]))]))
