@@ -48,7 +48,7 @@
 
 (sa/def :model/multipart
   (sa/keys
-   :req-un [::sp/product]
+   :req-un [:non-blank/product]
    :opt-un [:nil/version
             ::sp/manufacturer
             ::sp/is_package

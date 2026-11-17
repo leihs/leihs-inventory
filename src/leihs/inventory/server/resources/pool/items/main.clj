@@ -306,7 +306,7 @@
     (let [tx (:tx request)
           {:keys [pool_id]} (path-params request)
           body-params (body-params request)
-          {:keys [inventory_code count type item_ids serial_number on_conflict]} body-params
+          {:keys [inventory_code count type item_ids on_conflict]} body-params
           validation-error (validate-field-permissions request)]
       (bcond
        validation-error
@@ -343,7 +343,7 @@
        (and count (> count 1)
             (not= type "package")
             (not= (get on_conflict :serial_number) "overwrite")
-            (serial-number-exists? tx serial_number nil))
+            (serial-number-exists? tx (:serial_number item-data) nil))
        (status {:body {:errors [{:code "DUPLICATE_SERIAL_NUMBER"
                                  :message "Same or similar serial number already exists."}]}}
                409)
@@ -362,7 +362,7 @@
                              :proposed_code (inv-code/propose tx pool_id (= type "package"))})
              serial-err (when (and (not= type "package")
                                    (not= (get on_conflict :serial_number) "overwrite")
-                                   (serial-number-exists? tx serial_number nil))
+                                   (serial-number-exists? tx (:serial_number item-data) nil))
                           {:code "DUPLICATE_SERIAL_NUMBER"
                            :message "Same or similar serial number already exists."})
              conflict-errors (keep identity [inv-code-err serial-err])]

@@ -6,7 +6,7 @@
    [reitit.coercion.schema]
    [schema.core :as s]))
 
-(sa/def :software-post/multipart (sa/keys :req-un [::sp/product]
+(sa/def :software-post/multipart (sa/keys :req-un [:non-blank/product]
                                           :opt-un [:nil/version
                                                    :nil/manufacturer
                                                    :nil/technical_detail]))

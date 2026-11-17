@@ -1,7 +1,13 @@
 (ns leihs.inventory.server.resources.pool.software.common
   (:require
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
-   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [replace-nil-with-empty-string]]))
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]))
+
+(defn- replace-nil-with-empty-string
+  "Replace all nil values in a map with empty strings."
+  [m]
+  (into {}
+        (for [[k v] m]
+          [k (if (nil? v) "" v)])))
 
 (defn sanitize-single
   [res spec]

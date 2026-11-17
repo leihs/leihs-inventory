@@ -18,19 +18,6 @@
     :else
     data))
 
-;; Takes a map or vector and replaces nil values with empty strings, only at the top level.
-(defn emtpy-string-to-nil [data]
-  (cond
-    (map? data)
-    (into {}
-          (for [[k v] data]
-            (if (= v "")
-              [k nil]
-              [k v])))
-
-    :else
-    data))
-
 (defn create-file-from-url [url name type]
   (js/Promise.
    (fn [resolve reject]

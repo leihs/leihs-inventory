@@ -269,6 +269,24 @@ describe "Swagger Inventory Endpoints - Items Update" do
         expect(resp.body["fields"]["inventory_code"]).to eq("non_blank")
       end
 
+      ["", "  "].each do |blank|
+        it "clears blank #{blank.inspect} text fields to NULL" do
+          text_fields = [:invoice_number, :name, :note, :responsible, :serial_number,
+            :shelf, :status_note, :user_name]
+          url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+
+          resp = patch_with_headers(client, url, text_fields.to_h { |f| [f, "Value #{f}"] })
+          expect(resp.status).to eq(200)
+          row = database[:items].where(id: @item.id).first
+          text_fields.each { |f| expect(row[f]).to eq("Value #{f}") }
+
+          resp = patch_with_headers(client, url, text_fields.to_h { |f| [f, blank] })
+          expect(resp.status).to eq(200)
+          row = database[:items].where(id: @item.id).first
+          text_fields.each { |f| expect(row[f]).to be_nil, "expected #{f} to be NULL" }
+        end
+      end
+
       it "updates an item with a numeric price and returns status 200" do
         url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
         update_data = {price: 123.45}

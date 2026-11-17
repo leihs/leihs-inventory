@@ -232,6 +232,26 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.body["fields"]["inventory_code"]).to eq("non_blank")
       end
 
+      ["", "  "].each do |blank|
+        it "stores blank #{blank.inspect} text fields as NULL" do
+          text_fields = [:invoice_number, :name, :note, :responsible, :serial_number,
+            :shelf, :status_note, :user_name]
+          item_data = {
+            inventory_code: "TEST-#{SecureRandom.hex(4)}",
+            model_id: @model.id,
+            room_id: @room.id,
+            inventory_pool_id: @inventory_pool.id,
+            owner_id: @inventory_pool.id
+          }.merge(text_fields.to_h { |f| [f, blank] })
+
+          resp = post_with_headers(client, url, item_data)
+
+          expect(resp.status).to eq(200)
+          row = database[:items].where(id: resp.body["id"]).first
+          text_fields.each { |f| expect(row[f]).to be_nil, "expected #{f} to be NULL" }
+        end
+      end
+
       it "proposes item codes considering both items and packages (shared sequence)" do
         pool_shortname = @inventory_pool.shortname
 

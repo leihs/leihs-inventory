@@ -392,6 +392,89 @@ describe "Inventory Model Management" do
         expect(row.version).to eq("1.0")
         expect(row.technical_detail).to eq("Specs go here")
       end
+
+      ["", "  "].each do |blank|
+        it "rejects POST and PUT with blank #{blank.inspect} product with 422" do
+          count_before = LeihsModel.count
+
+          resp = json_client_post(
+            "/inventory/#{pool_id}/software/",
+            body: {"product" => blank},
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(422)
+          expect(LeihsModel.count).to eq(count_before)
+
+          create_resp = json_client_post(
+            "/inventory/#{pool_id}/software/",
+            body: {"product" => "Software-Blank-Product"},
+            headers: cookie_header
+          )
+          expect(create_resp.status).to eq(200)
+          model_id = create_resp.body["id"]
+
+          resp = json_client_put(
+            "/inventory/#{pool_id}/software/#{model_id}",
+            body: {"product" => blank},
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(422)
+          expect(LeihsModel.where(id: model_id).first.product).to eq("Software-Blank-Product")
+        end
+
+        it "POST with blank #{blank.inspect} optional fields persists NULL in DB" do
+          resp = json_client_post(
+            "/inventory/#{pool_id}/software/",
+            body: {
+              "product" => "Software-Blank-Post",
+              "manufacturer" => blank,
+              "version" => blank,
+              "technical_detail" => blank
+            },
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+
+          row = LeihsModel.where(type: "Software", id: resp.body["id"]).first
+          expect(row.manufacturer).to be_nil
+          expect(row.version).to be_nil
+          expect(row.technical_detail).to be_nil
+          expect(row.name).to eq("Software-Blank-Post")
+        end
+
+        it "PUT with blank #{blank.inspect} optional fields clears them to NULL in DB" do
+          create_resp = json_client_post(
+            "/inventory/#{pool_id}/software/",
+            body: {
+              "product" => "Software-Blank-Put",
+              "manufacturer" => "Example Corp",
+              "version" => "1.0",
+              "technical_detail" => "Specs go here"
+            },
+            headers: cookie_header
+          )
+          expect(create_resp.status).to eq(200)
+          model_id = create_resp.body["id"]
+
+          put_resp = json_client_put(
+            "/inventory/#{pool_id}/software/#{model_id}",
+            body: {
+              "product" => "Software-Blank-Put",
+              "manufacturer" => blank,
+              "version" => blank,
+              "technical_detail" => blank
+            },
+            headers: cookie_header
+          )
+          expect(put_resp.status).to eq(200)
+
+          row = LeihsModel.where(type: "Software", id: model_id).first
+          expect(row.manufacturer).to be_nil
+          expect(row.version).to be_nil
+          expect(row.technical_detail).to be_nil
+          expect(row.name).to eq("Software-Blank-Put")
+        end
+      end
     end
   end
 end

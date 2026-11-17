@@ -47,3 +47,8 @@
   [v1 v2]
   (let [m2 (into {} (map (juxt :id identity) v2))]
     (mapv #(merge % (get m2 (:id %))) v1)))
+
+(defn blank-strings-to-nil
+  "Replace blank string values in a map with nil."
+  [m]
+  (update-vals m #(if (and (string? %) (str/blank? %)) nil %)))

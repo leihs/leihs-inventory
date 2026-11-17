@@ -15,6 +15,8 @@
 
 (sa/def ::is_deletable boolean?)
 (sa/def :non-blank/name non-blank-string?)
+(sa/def :non-blank/product non-blank-string?)
+(sa/def :non-blank/inventory_code non-blank-string?)
 (sa/def ::product string?)
 (sa/def :nil/version (sa/nilable string?))
 (sa/def :nil/manufacturer (sa/nilable string?))

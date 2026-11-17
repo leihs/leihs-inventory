@@ -1,13 +1,7 @@
 require "spec_helper"
 require "pry"
-require_relative "../../../_shared"
-require_relative "../../_common"
+require_relative "../../_shared"
 require "faker"
-
-def add_delete_flag(map)
-  map["delete"] = true
-  map
-end
 
 describe "Inventory Model" do
   ["inventory_manager", "lending_manager"].each do |role|
@@ -17,60 +11,8 @@ describe "Inventory Model" do
 
       let(:pool_id) { @inventory_pool.id }
       let(:cookie_header) { @cookie_header }
-      let(:client) { plain_faraday_json_client(cookie_header) }
 
-      before do
-        # Fetch shared data and set global instance variables
-        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model"
-        @form_manufacturers = resp.body
-        raise "Failed to fetch manufacturers" unless resp.status == 200
-
-        resp = client.get "/inventory/#{pool_id}/entitlement-groups/"
-        @form_entitlement_groups = resp.body
-        raise "Failed to fetch entitlement groups" unless resp.status == 200
-
-        resp = client.get "/inventory/#{pool_id}/models/"
-        @form_models_compatibles = resp.body.map do |h|
-          h.select { |k, _v| k == "id" || k == "product" }
-        end
-        raise "Failed to fetch compatible models" unless resp.status == 200
-
-        resp = client.get "/inventory/#{pool_id}/category-tree/"
-        @form_model_groups = extract_first_level_of_tree(resp.body)
-        raise "Failed to fetch model groups" unless resp.status == 200
-      end
-
-      context "fetch form data" do
-        it "ensures form manufacturer data is fetched" do
-          expect(@form_manufacturers).not_to be_nil
-          expect(@form_manufacturers.count).to eq(2)
-        end
-
-        it "ensures entitlement groups data is fetched" do
-          expect(@form_entitlement_groups).not_to be_nil
-          expect(@form_entitlement_groups.count).to eq(2)
-        end
-
-        it "ensures models compatible data is fetched" do
-          expect(@form_models_compatibles).not_to be_nil
-          expect(@form_models_compatibles.count).to eq(LeihsModel.count)
-        end
-
-        it "ensures model groups data is fetched" do
-          expect(@form_model_groups).not_to be_nil
-          expect(@form_model_groups.count).to eq(2)
-        end
-      end
-
-      def convert_to_id_correction(compatibles)
-        compatibles.each do |compatible|
-          # puts "before: #{compatible}"
-          compatible["id"] = compatible.delete("model_id")
-          # puts "after: #{compatible}\n\n"
-        end
-      end
-
-      context "create model (min)" do
+      context "create model duplicates" do
         it "blocks creation of model when already exists (product_name)" do
           # create model request
           product = Faker::Commerce.product_name
@@ -107,9 +49,7 @@ describe "Inventory Model" do
           )
           expect(resp.status).to eq(200)
         end
-      end
 
-      context "create model (min)" do
         it "blocks creation of model when already exists (product_name & version)" do
           # create model request
           product = Faker::Commerce.product_name
@@ -292,6 +232,136 @@ describe "Inventory Model" do
           expect(row.description).to eq("Desc")
           expect(row.hand_over_note).to eq("Note")
           expect(row.internal_description).to eq("Internal")
+        end
+      end
+
+      context "blank text fields" do
+        let(:relations) do
+          {
+            "is_package" => false,
+            "categories" => [],
+            "compatibles" => [],
+            "entitlements" => [],
+            "properties" => [],
+            "accessories" => []
+          }
+        end
+
+        ["", "  "].each do |blank|
+          it "blocks creation of model with blank version #{blank.inspect} when same product without version exists" do
+            product = Faker::Commerce.product_name
+
+            resp = json_client_post(
+              "/inventory/#{pool_id}/models/",
+              body: {"product" => product},
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(200)
+
+            resp = json_client_post(
+              "/inventory/#{pool_id}/models/",
+              body: {"product" => product, "version" => blank},
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(409)
+            expect(LeihsModel.where(product: product).count).to eq(1)
+          end
+
+          it "POST with blank #{blank.inspect} optional text fields stores NULL" do
+            resp = json_client_post(
+              "/inventory/#{pool_id}/models/",
+              body: {
+                "product" => "Model-Blank-Post",
+                "manufacturer" => blank,
+                "version" => blank,
+                "description" => blank,
+                "technical_detail" => blank,
+                "hand_over_note" => blank,
+                "internal_description" => blank
+              }.merge(relations),
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(200)
+
+            row = LeihsModel.where(type: "Model", id: resp.body["id"]).first
+            expect(row.manufacturer).to be_nil
+            expect(row.version).to be_nil
+            expect(row.description).to be_nil
+            expect(row.technical_detail).to be_nil
+            expect(row.hand_over_note).to be_nil
+            expect(row.internal_description).to be_nil
+            expect(row.name).to eq("Model-Blank-Post")
+          end
+
+          it "PUT with blank #{blank.inspect} optional text fields clears them to NULL" do
+            create_resp = json_client_post(
+              "/inventory/#{pool_id}/models/",
+              body: {
+                "product" => "Model-Blank-Put",
+                "manufacturer" => "Example Corp",
+                "version" => "1.0",
+                "description" => "Desc",
+                "technical_detail" => "Specs",
+                "hand_over_note" => "Note",
+                "internal_description" => "Internal"
+              }.merge(relations),
+              headers: cookie_header
+            )
+            expect(create_resp.status).to eq(200)
+            model_id = create_resp.body["id"]
+
+            put_resp = json_client_put(
+              "/inventory/#{pool_id}/models/#{model_id}",
+              body: {
+                "product" => "Model-Blank-Put",
+                "manufacturer" => blank,
+                "version" => blank,
+                "description" => blank,
+                "technical_detail" => blank,
+                "hand_over_note" => blank,
+                "internal_description" => blank
+              }.merge(relations),
+              headers: cookie_header
+            )
+            expect(put_resp.status).to eq(200)
+
+            row = LeihsModel.where(type: "Model", id: model_id).first
+            expect(row.manufacturer).to be_nil
+            expect(row.version).to be_nil
+            expect(row.description).to be_nil
+            expect(row.technical_detail).to be_nil
+            expect(row.hand_over_note).to be_nil
+            expect(row.internal_description).to be_nil
+            expect(row.name).to eq("Model-Blank-Put")
+          end
+
+          it "rejects POST and PUT with blank #{blank.inspect} product with 422" do
+            count_before = LeihsModel.count
+
+            resp = json_client_post(
+              "/inventory/#{pool_id}/models/",
+              body: {"product" => blank},
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(422)
+            expect(LeihsModel.count).to eq(count_before)
+
+            create_resp = json_client_post(
+              "/inventory/#{pool_id}/models/",
+              body: {"product" => "Model-Blank-Product"}.merge(relations),
+              headers: cookie_header
+            )
+            expect(create_resp.status).to eq(200)
+            model_id = create_resp.body["id"]
+
+            resp = json_client_put(
+              "/inventory/#{pool_id}/models/#{model_id}",
+              body: {"product" => blank}.merge(relations),
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(422)
+            expect(LeihsModel.where(id: model_id).first.product).to eq("Model-Blank-Product")
+          end
         end
       end
     end

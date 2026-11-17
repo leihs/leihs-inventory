@@ -12,20 +12,12 @@
 
 (defn prepare-model-data
   [data]
-  (let [normalize-data (normalize-model-data data)
-        created-ts (LocalDateTime/now)
-        normalize-data (dissoc normalize-data :id)]
-    (assoc normalize-data
-           :type "Model"
-           :created_at created-ts
-           :updated_at created-ts)))
-
-(defn replace-nil-with-empty-string
-  "Replace all nil values in a map with empty strings."
-  [m]
-  (into {}
-        (for [[k v] m]
-          [k (if (nil? v) "" v)])))
+  (let [created-ts (LocalDateTime/now)]
+    (-> (normalize-model-data data)
+        (dissoc :id)
+        (assoc :type "Model"
+               :created_at created-ts
+               :updated_at created-ts))))
 
 (defn rename-keys-in-vec
   [data key-map]
@@ -36,7 +28,6 @@
                       (get-in request [:parameters :body]))
         prepared-model-data (-> (prepare-model-data multipart)
                                 (assoc :is_package (str-to-bool (:is_package multipart))))
-        prepared-model-data (replace-nil-with-empty-string prepared-model-data)
         categories (-> multipart :categories)
         compatibles (-> multipart :compatibles)
         properties (-> multipart :properties)

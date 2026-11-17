@@ -4,7 +4,7 @@
    [leihs.inventory.server.resources.pool.models.basic-coercion :as sp]
    [reitit.coercion.schema]))
 
-(sa/def ::put-query (sa/keys :req-un [::sp/product]
+(sa/def ::put-query (sa/keys :req-un [:non-blank/product]
                              :opt-un [:nil/version
                                       :nil/manufacturer
                                       :nil/technical_detail]))

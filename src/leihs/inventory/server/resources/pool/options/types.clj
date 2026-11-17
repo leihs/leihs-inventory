@@ -29,8 +29,8 @@
                     ::sp/product]
            :opt-un [:nil/version :nil-pos-number/price]))
 
-(sa/def :option/body (sa/keys :req-un [::sp/product
-                                       ::sp/inventory_code]
+(sa/def :option/body (sa/keys :req-un [:non-blank/product
+                                       :non-blank/inventory_code]
                               :opt-un [:nil/version
                                        :nil-pos-number/price]))
 

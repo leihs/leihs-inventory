@@ -10,7 +10,7 @@
                                                                 filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.types :as ty]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [leihs.inventory.server.utils.transform :refer [to-uuid]]
+   [leihs.inventory.server.utils.transform :refer [blank-strings-to-nil to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]))
 
@@ -22,11 +22,13 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :body])
         price (parse-to-bigdecimal-or-nil (:price multipart))
-        multipart (assoc multipart :price price :inventory_pool_id pool-id)]
+        option-data (-> multipart
+                        blank-strings-to-nil
+                        (assoc :price price :inventory_pool_id pool-id))]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :options)
-                                          (sql/values [multipart])
+                                          (sql/values [option-data])
                                           (sql/returning :*)
                                           sql-format))]
         (if res

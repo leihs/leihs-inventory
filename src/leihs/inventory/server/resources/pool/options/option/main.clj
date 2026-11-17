@@ -9,7 +9,7 @@
    [leihs.inventory.server.resources.pool.common :refer [is-option-deletable?]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.option.types :as type]
-   [leihs.inventory.server.utils.transform :refer [to-uuid]]
+   [leihs.inventory.server.utils.transform :refer [blank-strings-to-nil to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [not-found response]]))
 
@@ -44,9 +44,11 @@
           multipart (get-in request [:parameters :body])
           tx (:tx request)
           price (parse-to-bigdecimal-or-nil (:price multipart))
-          multipart (assoc multipart :price price)
+          option-data (-> multipart
+                          blank-strings-to-nil
+                          (assoc :price price))
           query (-> (sql/update :options)
-                    (sql/set multipart)
+                    (sql/set option-data)
                     (sql/where [:= :id option-id])
                     (sql/returning :*)
                     sql-format)

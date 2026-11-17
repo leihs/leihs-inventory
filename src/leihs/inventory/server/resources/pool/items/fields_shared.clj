@@ -10,6 +10,7 @@
    [leihs.inventory.server.resources.pool.fields.main :as fields]
    [leihs.inventory.server.utils.request :refer [body-params path-params]]
    [leihs.inventory.server.utils.schema :refer [instant-to-date-string]]
+   [leihs.inventory.server.utils.transform :refer [blank-strings-to-nil]]
    [next.jdbc :as jdbc]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [ring.middleware.accept]))
@@ -38,7 +39,9 @@
                                     keyword)
                                 (get body-params k)]))
                         (into {}))
-        item-data (select-keys body-params item-keys)]
+        item-data (-> body-params
+                      (select-keys item-keys)
+                      blank-strings-to-nil)]
     {:item-data item-data
      :properties properties}))
 

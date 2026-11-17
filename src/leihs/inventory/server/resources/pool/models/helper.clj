@@ -1,4 +1,6 @@
-(ns leihs.inventory.server.resources.pool.models.helper)
+(ns leihs.inventory.server.resources.pool.models.helper
+  (:require
+   [leihs.inventory.server.utils.transform :refer [blank-strings-to-nil]]))
 
 (defn normalize-model-data
   ([data]
@@ -21,4 +23,4 @@
                                        acc)))
                                  {}
                                  key-map)]
-     normalized-data)))
+     (blank-strings-to-nil normalized-data))))
