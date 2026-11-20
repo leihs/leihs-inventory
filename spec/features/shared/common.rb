@@ -16,8 +16,31 @@ def assert_unchecked(el)
 end
 
 def await_debounce
+  # Debounce is ~200–300ms; busy can appear/disappear between Capybara polls
+  # under Firefox 153. Always allow the timer to fire, then wait until settled.
+  sleep 0.35
   page.has_css?('[aria-busy="true"]', wait: 1)
   expect(page).not_to have_css('[aria-busy="true"]', wait: 10)
+end
+
+# Search & Edit: choosing a filter field remounts the value input. Wait for the
+# options portal to close and the first debounce settle before typing, or the
+# value is wiped under Firefox 153.
+def select_search_filter_field(trigger_test_id, label)
+  dismiss_open_menus
+  click_on trigger_test_id
+  within find('[data-test-id="field-options"]', wait: 10) do
+    find("span", text: label, match: :first).click
+  end
+  expect(page).not_to have_css('[data-test-id="field-options"]', wait: 5)
+  await_debounce
+end
+
+def fill_search_filter_text(name, value)
+  field = find("input[name='#{name}'], textarea[name='#{name}']", wait: 10)
+  field.set("")
+  field.set(value)
+  await_debounce
 end
 
 def expect_table_row_count(n, wait: 20)
@@ -41,10 +64,47 @@ def await_list_loaded
   expect(page).not_to have_css('[aria-busy="true"]')
 end
 
+# Sonner toasts start at opacity 0; use visible: :all and wait (not a one-shot
+# body.text snapshot) so Firefox 153 async submit + toast mount is covered.
+def expect_toast(text, wait: 10)
+  expect(page).to have_css("[data-sonner-toast]", text: text, visible: :all, wait: wait)
+end
+
 def dismiss_open_menus
-  page.send_keys(:escape)
-  page.send_keys(:escape)
-  sleep 0.1
+  # Only Escape when a menu/listbox is actually open. Blind Escape closes Radix
+  # Dialogs (bulk-edit / CRUD) under Firefox 153 and drops the form mid-flow.
+  return unless page.has_css?("[role='menu'], [role='listbox']", visible: :visible, wait: 0.2)
+
+  2.times { page.send_keys(:escape) }
+  # Wait for menus/listboxes only — tooltips also use radix popper wrappers.
+  page.has_no_css?("[role='menu']", wait: 5)
+  page.has_no_css?("[role='listbox']", wait: 5)
+end
+
+def open_add_inventory_menu
+  dismiss_open_menus
+  click_on "Add inventory"
+  expect(page).to have_css('[data-test-id="add-inventory-dropdown"]', wait: 10)
+end
+
+def choose_from_submit_dropdown(label)
+  dismiss_open_menus
+  click_on "submit-dropdown"
+  expect(page).to have_css('[role="menu"]', wait: 10)
+  within('[role="menu"]', match: :first) do
+    click_on label
+  end
+end
+
+def confirm_delete_dialog
+  within('[role="alertdialog"]', wait: 10) do
+    click_on "Delete"
+  end
+end
+
+def delete_from_submit_dropdown
+  choose_from_submit_dropdown("Delete")
+  confirm_delete_dialog
 end
 
 def create_timeline_list_items(pool:, room:, model:, package_model:, software_model:)
@@ -99,9 +159,13 @@ def fill_in_command_field(placeholder, value)
 end
 
 def select_value(name, value)
-  find("button[name='#{name}']").click
+  dismiss_open_menus
+  find("button[name='#{name}']", wait: 10).click
   option = find("[role='listbox'] [data-test-id='#{value}']", visible: true, wait: 10)
   option.click
+  expect(page).not_to have_css("[role='listbox']", wait: 5)
+  # Filter selects update the URL and refetch the list (Firefox 153 race).
+  await_debounce
 end
 
 def parse_calendar_data_day(value)
@@ -197,11 +261,22 @@ def cleanup_download(filename)
   FileUtils.rm_f(path)
 end
 
-def select_status_filter_submenu(submenu_label, yes_or_no)
+def open_status_menu
+  # Leftover Radix portals make the next Status click toggle closed (Firefox 153).
+  dismiss_open_menus
   click_on "Status"
   # Radix mounts several [role=menu] portals; pick the Status menu (only it has an "Owned" row).
-  menu = find(:xpath, "//*[@role='menu'][.//button[normalize-space()='Owned']]", wait: 10)
-  menu.find(:button, submenu_label, match: :first).click
+  find(:xpath, "//*[@role='menu'][.//button[normalize-space()='Owned']]", wait: 10)
+end
+
+def select_status_filter_submenu(submenu_label, yes_or_no)
+  menu = open_status_menu
+  trigger = menu.find(:button, submenu_label, match: :first)
+  # Radix DropdownMenuSub opens on pointer-enter; click-only is flaky on FF153.
+  trigger.hover
+  trigger.click
   param = STATUS_SUBMENU_BUTTON_NAME.fetch(submenu_label)
-  find("button[name='#{param}']", text: yes_or_no, wait: 10).click
+  find("button[name='#{param}']", text: yes_or_no, visible: true, wait: 10).click
+  dismiss_open_menus
+  await_debounce
 end
