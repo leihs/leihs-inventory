@@ -345,6 +345,40 @@ describe "Swagger Inventory Endpoints - Items Update" do
         expect(resp.body["errors"].first["proposed_code"]).not_to start_with("P-")
       end
 
+      it "rejects case-insensitive duplicate inventory_code on item update and returns 409" do
+        FactoryBot.create(:item,
+          inventory_code: "CASE-CODE",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {
+          inventory_code: "case-code",
+          model_id: @model.id,
+          room_id: @room.id
+        }
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["errors"].first["code"]).to eq("DUPLICATE_INVENTORY_CODE")
+      end
+
+      it "allows changing only the case of the item's own inventory_code" do
+        url = "/inventory/#{inventory_pool_id}/items/#{@item.id}"
+        update_data = {
+          inventory_code: @item.inventory_code.swapcase,
+          model_id: @model.id,
+          room_id: @room.id
+        }
+
+        resp = patch_with_headers(client, url, update_data)
+
+        expect(resp.status).to eq(200)
+      end
+
       it "rejects duplicate inventory_code on package update and returns 409 with P-prefixed proposed_code" do
         # Create a package
         package = FactoryBot.create(:item,

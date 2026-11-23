@@ -21,6 +21,7 @@
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.errors :as errors]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.entitlement-groups.crud.components.field-dispatcher :refer [FieldDispatcher]]
@@ -84,9 +85,7 @@
                                                 {:status (.. res -status)
                                                  :statusText (.. res -statusText)
                                                  :id (.. res -data -id)}))
-                                       (.catch (fn [err]
-                                                 {:status (.. err -response -status)
-                                                  :statusText (.. err -response -statusText)}))))
+                                       (.catch errors/error-result)))
 
                               (<p! (let [entitlement-group-id (aget params "entitlement-group-id")]
                                      (-> http-client
@@ -98,15 +97,11 @@
                                                   {:status (.. res -status)
                                                    :statusText (.. res -statusText)
                                                    :id (.. res -data -id)}))
-                                         (.catch (fn [err]
-                                                   {:status (.. err -response -status)
-                                                    :statusText (.. err -response -statusText)}))))))]
+                                         (.catch errors/error-result)))))]
 
                         (.. event (preventDefault))
 
                         (case (:status entitlement-group-res)
-                          500 (.. toast (error (t "pool.entitlement_groups.entitlement_group.create.error")))
-
                           200 (do
                                 (if is-create
                                   (.. toast (success (t "pool.entitlement_groups.entitlement_group.create.success")))
@@ -127,7 +122,7 @@
                                                  :viewTransition true})))
 
                           ;; default
-                          (.. toast (error (str "Status " (:status entitlement-group-res) " " (:statusText entitlement-group-res))))))))
+                          (errors/toast-error! t entitlement-group-res [(str "pool.entitlement_groups.entitlement_group." (if is-create "create" "edit") ".error")])))))
 
         handle-delete (fn []
                         (go
@@ -139,9 +134,7 @@
                                                       {:status (.. data -status)
                                                        :statusText (.. data -statusText)
                                                        :data (.. data -data)}))
-                                             (.catch (fn [err]
-                                                       {:status (.. err -response -status)
-                                                        :statusText (.. err -response -statusText)}))))
+                                             (.catch errors/error-result)))
                                 status (:status res)]
 
                             (if (= status 200)
@@ -153,7 +146,7 @@
                                           #js {:state state}))
 
                               ;; show error message
-                              (.. toast (error (t "pool.entitlement_groups.entitlement_group.delete.error")))))))]
+                              (errors/toast-error! t res ["pool.entitlement_groups.entitlement_group.delete.error"])))))]
     (if is-loading
       ($ :div {:class-name "flex justify-center items-center h-screen"}
          ($ Spinner))

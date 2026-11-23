@@ -8,7 +8,7 @@
    ["lucide-react" :refer [Download ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router" :as router]
-   ["sonner" :refer [toast]]
+   [leihs.inventory.client.lib.errors :as errors]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -26,9 +26,7 @@
                     (not= data @last-data))
            (reset! last-data data)
            (when (= (aget data "status") "error")
-             (.. toast (error (t "error.action.error")
-                              (clj->js {:description (t "error.action.error_detail"
-                                                        #js {:httpStatus (aget data "httpStatus")})})))))))
+             (errors/toast-error! t (errors/action-result data) ["error.action.error"])))))
      [fetcher t])
 
     ($ DropdownMenu

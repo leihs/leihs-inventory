@@ -11,6 +11,7 @@
 
    ["sonner" :refer [toast]]
    [clojure.string :as str]
+   [leihs.inventory.client.lib.errors :as errors]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]))
 
@@ -63,13 +64,9 @@
                                                                          "on_conflict_serial_number" "overwrite"}
                                                                     #js {:method "patch"}))}})))
 
-                 (.. toast (error (t "pool.items.review.serial_number.error")
-                                  (cj {:description (t "error.action.error_detail"
-                                                       #js {:httpStatus (aget result "httpStatus")})})))))
+                 (errors/toast-error! t (errors/action-result result) ["pool.items.review.serial_number.error"])))
 
-             (.. toast (error (t "pool.items.review.serial_number.error")
-                              (cj {:description (t "error.action.error_detail"
-                                                   #js {:httpStatus (aget result "httpStatus")})})))))))
+             (errors/toast-error! t (errors/action-result result) ["pool.items.review.serial_number.error"])))))
 
      [state data on-save t fetcher item pool-id input])
 

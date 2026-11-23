@@ -11,11 +11,11 @@
    ["lucide-react" :refer [ChevronsUpDown CircleUser LayoutGrid Search]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router" :as router]
-   ["sonner" :refer [toast]]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
    [clojure.string :as str]
    [leihs.core.core :refer [detect]]
    [leihs.inventory.client.lib.csrf :as csrf]
+   [leihs.inventory.client.lib.errors :as errors]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [jc cj]]
    [leihs.inventory.client.routes.components.theme-provider :refer [use-theme]]
@@ -43,9 +43,7 @@
                     (not= data @last-fetcher-data))
            (reset! last-fetcher-data data)
            (when (= (aget data "status") "error")
-             (.. toast (error (t "error.action.error")
-                              (clj->js {:description (t "error.action.error_detail"
-                                                        #js {:httpStatus (aget data "httpStatus")})})))))))
+             (errors/toast-error! t (errors/action-result data) ["error.action.error"])))))
      [fetcher t])
 
     ($ :header {:class-name "bg-background sticky z-50 top-0 flex items-center gap-4 border-b h-16"}

@@ -554,7 +554,8 @@
           "success": "Le groupe d'ayants droit a été enregistré avec succès",
           "invalid_one": "Le groupe d'ayants droit n'a pas pu être enregistré car un champ est invalide",
           "invalid_many": "Le groupe d'ayants droit n'a pas pu être enregistré car {{count}} champs sont invalides",
-          "invalid_other": "Le groupe d'ayants droit n'a pas pu être enregistré car {{count}} champs sont invalides"
+          "invalid_other": "Le groupe d'ayants droit n'a pas pu être enregistré car {{count}} champs sont invalides",
+          "error": "Une erreur est survenue lors de l'enregistrement"
         },
         "delete": {
           "title": "Supprimer",
@@ -655,7 +656,9 @@
           "success": "Le gabarit a été enregistré avec succès",
           "invalid_one": "Le gabarit n'a pas pu être enregistré car un champ est invalide",
           "invalid_many": "Le gabarit n'a pas pu être enregistré car {{count}} champs sont invalides",
-          "invalid_other": "Le gabarit n'a pas pu être enregistré car {{count}} champs sont invalides"
+          "invalid_other": "Le gabarit n'a pas pu être enregistré car {{count}} champs sont invalides",
+          "conflict": "Le gabarit n'a pas pu être enregistré car un gabarit portant le même nom existe déjà",
+          "error": "Une erreur est survenue lors de l'enregistrement"
         },
         "delete": {
           "title": "Supprimer le gabarit",
@@ -709,7 +712,8 @@
         "success": "Le logiciel a été enregistré avec succès",
         "invalid_one": "Le logiciel n'a pas pu être enregistré car un champ est invalide",
         "invalid_many": "Le logiciel n'a pas pu être enregistré car {{count}} champs sont invalides",
-        "invalid_other": "Le logiciel n'a pas pu être enregistré car {{count}} champs sont invalides"
+        "invalid_other": "Le logiciel n'a pas pu être enregistré car {{count}} champs sont invalides",
+        "409": "Un logiciel portant ce nom existe déjà"
       },
       "delete": {
         "500": "Le logiciel n'a pas pu être supprimé",
@@ -944,7 +948,8 @@
         "add_item": "Enregistrer et ajouter un élément",
         "invalid_one": "Le modèle n'a pas pu être enregistré car un champ est invalide",
         "invalid_many": "Le modèle n'a pas pu être enregistré car {{count}} champs sont invalides",
-        "invalid_other": "Le modèle n'a pas pu être enregistré car {{count}} champs sont invalides"
+        "invalid_other": "Le modèle n'a pas pu être enregistré car {{count}} champs sont invalides",
+        "409": "Un modèle portant ce nom existe déjà"
       },
       "delete": {
         "500": "Le modèle n'a pas pu être supprimé",
@@ -952,7 +957,8 @@
         "description": "Êtes-vous sûr de vouloir supprimer ce modèle ?",
         "confirm": "Supprimer",
         "cancel": "Annuler",
-        "success": "Le modèle a été supprimé avec succès"
+        "success": "Le modèle a été supprimé avec succès",
+        "error": "Le modèle n'a pas pu être supprimé"
       }
     }
   },
@@ -1042,6 +1048,15 @@
         "go_signin": "Aller à la connexion",
         "retry": "Réessayer"
       }
+    },
+    "status": {
+      "400": "La requête n'a pas pu être traitée",
+      "403": "Cette action ne vous est pas autorisée",
+      "404": "Introuvable",
+      "409": "Conflit avec des données existantes",
+      "422": "Certaines valeurs sont invalides",
+      "500": "Une erreur est survenue sur le serveur",
+      "default": "Une erreur est survenue"
     }
   }
 }

@@ -23,6 +23,7 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
    [leihs.inventory.client.lib.dynamic-validation :as dynamic-validation]
+   [leihs.inventory.client.lib.errors :as errors]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.provider.visibility-provider :refer [VisibilityProvider]]
@@ -223,10 +224,7 @@
                                                             :statusText (.. res -statusText)
                                                             :data (jc (.. res -data))
                                                             :id (.. res -data -id)}))
-                                                  (.catch (fn [err]
-                                                            {:status (.. err -response -status)
-                                                             :data (jc (.. err -response -data))
-                                                             :statusText (.. err -response -statusText)})))))
+                                                  (.catch errors/error-result))))
 
                                        (<p! (-> http-client
                                                 (.patch (str "/inventory/" pool-id "/items/" item-id)
@@ -238,10 +236,7 @@
                                                          {:status (.. res -status)
                                                           :statusText (.. res -statusText)
                                                           :id (.. res -data -id)}))
-                                                (.catch (fn [err]
-                                                          {:status (.. err -response -status)
-                                                           :data (jc (.. err -response -data))
-                                                           :statusText (.. err -response -statusText)})))))
+                                                (.catch errors/error-result))))
 
                             item-id (when (not= (:status item-res) "200") (:id item-res))]
 
@@ -253,8 +248,8 @@
                                      (.delete (str "/inventory/" pool-id "/items/" item-id "/attachments/" attachment-id))
                                      (.then #(.-data %))))))
 
-                        (case (:status item-res)
-                          409
+                        (cond
+                          (and (= 409 (:status item-res)) (seq (get-in item-res [:data :errors])))
                           (let [errors (get-in item-res [:data :errors])
                                 inv-code-err (first (filter #(= (:code %) "DUPLICATE_INVENTORY_CODE") errors))
                                 serial-err (first (filter #(= (:code %) "DUPLICATE_SERIAL_NUMBER") errors))
@@ -297,63 +292,47 @@
                                             :description description
                                             :action action}))))
 
-                          422
-                          (let [field-errors (get-in item-res [:data :fields])
-                                description (when (seq field-errors)
-                                              ($ :span {:class-name "whitespace-pre-line"}
-                                                 (->> field-errors
-                                                      (map (fn [[field code]]
-                                                             (str (name field) " " (t (str "error.validation." code)))))
-                                                      (str/join "\n"))))]
-                            (.. toast (error (if is-create
-                                               (t (str t-ns ".create.error"))
-                                               (t (str t-ns ".edit.error")))
-                                             (cj {:description description}))))
+                          (= 200 (:status item-res))
+                          (do
+                            ;; upload attachments sequentially
+                            (doseq [attachment attachments]
+                              (let [file (:file attachment)
+                                    binary-data (<p! (.. file (arrayBuffer)))
+                                    type (.. file -type)
+                                    name (.. file -name)]
 
-                          500 (.. toast (error (if is-create
-                                                 (t (str t-ns ".create.error"))
-                                                 (t (str t-ns ".edit.error")))))
+                                (<p! (-> http-client
+                                         (.post (str "/inventory/" pool-id "/items/" item-id "/attachments/")
+                                                binary-data
+                                                (cj {:headers {"Content-Type" type
+                                                               "X-Filename" name}}))))))
 
-                          200 (do
-                                ;; upload attachments sequentially
-                                (doseq [attachment attachments]
-                                  (let [file (:file attachment)
-                                        binary-data (<p! (.. file (arrayBuffer)))
-                                        type (.. file -type)
-                                        name (.. file -name)]
+                            (.. toast (success (if is-create
+                                                 (t (str t-ns ".create.success"))
+                                                 (t (str t-ns ".edit.success")))))
 
-                                    (<p! (-> http-client
-                                             (.post (str "/inventory/" pool-id "/items/" item-id "/attachments/")
-                                                    binary-data
-                                                    (cj {:headers {"Content-Type" type
-                                                                   "X-Filename" name}}))))))
+                            ;; state needs to be forwarded for back navigation
+                            (cond
+                              ;; Items: batch creation -> review page
+                              (and (= entity :item) batch?)
+                              (let [get-ids (fn [data] (mapv (fn [item] [:ids (:id item)]) data))
+                                    model-id (->> item-res :data first :model_id)
+                                    params-search (router/createSearchParams (cj (conj (get-ids (:data item-res))
+                                                                                       [:mid model-id])))]
 
-                                (.. toast (success (if is-create
-                                                     (t (str t-ns ".create.success"))
-                                                     (t (str t-ns ".edit.success")))))
+                                (navigate (str "/inventory/" pool-id "/items/review?" params-search)
+                                          #js {:state state
+                                               :viewTransition true}))
 
-                                ;; state needs to be forwarded for back navigation
-                                (cond
-                                  ;; Items: batch creation -> review page
-                                  (and (= entity :item) batch?)
-                                  (let [get-ids (fn [data] (mapv (fn [item] [:ids (:id item)]) data))
-                                        model-id (->> item-res :data first :model_id)
-                                        params-search (router/createSearchParams (cj (conj (get-ids (:data item-res))
-                                                                                           [:mid model-id])))]
+                              ;; Default: back to list
+                              :else
+                              (navigate (str "/inventory/" pool-id "/list"
+                                             (some-> state .-searchParams))
+                                        #js {:state state
+                                             :viewTransition true})))
 
-                                    (navigate (str "/inventory/" pool-id "/items/review?" params-search)
-                                              #js {:state state
-                                                   :viewTransition true}))
-
-                                  ;; Default: back to list
-                                  :else
-                                  (navigate (str "/inventory/" pool-id "/list"
-                                                 (some-> state .-searchParams))
-                                            #js {:state state
-                                                 :viewTransition true})))
-
-                          ;; default
-                          (.. toast (error (:statusText item-res)))))))]
+                          :else
+                          (errors/toast-error! t item-res [(str t-ns (if is-create ".create" ".edit") ".error")])))))]
 
     ;; Handle model_id disabling when model is pre-selected
     (uix/use-effect

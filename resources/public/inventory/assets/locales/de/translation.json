@@ -542,7 +542,8 @@
           "cancel": "Abbrechen",
           "success": "Anspruchsgruppe wurde erfolgreich gespeichert",
           "invalid_one": "Anspruchsgruppe konnte nicht gespeichert werden, da ein Feld ungültig ist",
-          "invalid_other": "Anspruchsgruppe konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
+          "invalid_other": "Anspruchsgruppe konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+          "error": "Beim Speichern ist ein Fehler aufgetreten"
         },
         "delete": {
           "title": "Löschen",
@@ -641,7 +642,9 @@
           "cancel": "Abbrechen",
           "success": "Vorlage wurde erfolgreich gespeichert",
           "invalid_one": "Vorlage konnte nicht gespeichert werden, da ein Feld ungültig ist",
-          "invalid_other": "Vorlage konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
+          "invalid_other": "Vorlage konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+          "conflict": "Vorlage konnte nicht gespeichert werden, da eine Vorlage mit dem gleichen Namen bereits existiert",
+          "error": "Beim Speichern ist ein Fehler aufgetreten"
         },
         "delete": {
           "title": "Vorlage löschen",
@@ -693,7 +696,8 @@
         "delete": "Löschen",
         "success": "Software wurde erfolgreich gespeichert",
         "invalid_one": "Software konnte nicht gespeichert werden, da ein Feld ungültig ist",
-        "invalid_other": "Software konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
+        "invalid_other": "Software konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+        "409": "Software konnte nicht gespeichert werden, da eine Software mit dem gleichen Namen bereits existiert"
       },
       "delete": {
         "title": "Software löschen",
@@ -924,7 +928,8 @@
         "success": "Modell wurde erfolgreich gespeichert",
         "add_item": "Speichern und Gegenstand hinzufügen",
         "invalid_one": "Modell konnte nicht gespeichert werden, da ein Feld ungültig ist",
-        "invalid_other": "Modell konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
+        "invalid_other": "Modell konnte nicht gespeichert werden, da {{count}} Felder ungültig sind",
+        "409": "Modell konnte nicht gespeichert werden, da ein Modell mit dem gleichen Namen bereits existiert"
       },
       "delete": {
         "title": "Modell löschen",
@@ -932,7 +937,8 @@
         "confirm": "Löschen",
         "cancel": "Abbrechen",
         "success": "Modell wurde erfolgreich gelöscht",
-        "500": "Modell konnte nicht gelöscht werden"
+        "500": "Modell konnte nicht gelöscht werden",
+        "error": "Modell konnte nicht gelöscht werden"
       }
     }
   },
@@ -1022,6 +1028,15 @@
         "go_signin": "Zur Anmeldung",
         "retry": "Erneut versuchen"
       }
+    },
+    "status": {
+      "400": "Die Anfrage konnte nicht verarbeitet werden",
+      "403": "Sie haben keine Berechtigung für diese Aktion",
+      "404": "Nicht gefunden",
+      "409": "Konflikt mit bestehenden Daten",
+      "422": "Einige Werte sind ungültig",
+      "500": "Auf dem Server ist ein Fehler aufgetreten",
+      "default": "Ein Fehler ist aufgetreten"
     }
   }
 }

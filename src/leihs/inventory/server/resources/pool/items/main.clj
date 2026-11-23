@@ -209,16 +209,6 @@
 
 (def ERROR_CREATE_ITEM "Failed to create item")
 
-(defn inventory-code-exists? [tx inventory-code exclude-id]
-  (let [query (-> (sql/select :id)
-                  (sql/from :items)
-                  (sql/where [:= :inventory_code inventory-code])
-                  (cond-> exclude-id
-                    (sql/where [:not= :id exclude-id]))
-                  sql-format)]
-    (-> (jdbc/execute-one! tx query)
-        some?)))
-
 (defn serial-number-exists? [tx serial-number exclude-id]
   (when (seq serial-number)
     (let [normalized (-> serial-number (clojure.string/replace " " "") clojure.string/lower-case)]
@@ -356,7 +346,7 @@
                                        codes))]
          (response created-items))
 
-       :let [inv-code-err (when (inventory-code-exists? tx inventory_code nil)
+       :let [inv-code-err (when (inv-code/inventory-code-exists? tx inventory_code nil)
                             {:code "DUPLICATE_INVENTORY_CODE"
                              :message "Inventory code already exists."
                              :proposed_code (inv-code/propose tx pool_id (= type "package"))})

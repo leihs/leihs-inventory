@@ -269,6 +269,23 @@ feature "Update model", type: :feature do
     end
   end
 
+  scenario "fails with conflicting product name" do
+    existing_model = FactoryBot.create(:leihs_model, product: product_new, version: version_new)
+    login(user)
+    visit "/inventory/#{pool.id}"
+    select_value("with_items", "without_items")
+    search_in_list("#{product_old} #{version_old}")
+    find("a", text: "edit").click
+
+    fill_in "Product", with: existing_model.product
+    fill_in "Version", with: existing_model.version
+    click_on "Save"
+
+    expect(page).to have_text("A model with this name already exists")
+    expect(page).to have_text("Error code: 409")
+    expect(page).to have_text("Failed to update model")
+  end
+
   scenario "displays rentable count in entitlement allocations" do
     # Create items for the model
     3.times do

@@ -19,6 +19,7 @@
    [leihs.inventory.client.components.patch-item-form :refer [PatchItemForm]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
+   [leihs.inventory.client.lib.errors :as errors]
    [leihs.inventory.client.lib.hooks :refer [use-barcode-scanner]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [promesa.core :as p]
@@ -50,30 +51,6 @@
   (.. toast (error (t "pool.scan_edit.invalid_item.error")
                    (cj {:description (t "pool.scan_edit.invalid_item.description")
                         :duration "10000"}))))
-
-(defn- extract-server-message [t data]
-  (let [response (jc (aget data "response"))
-        field-errors (:fields response)]
-    (cond
-      (seq field-errors)
-      (->> field-errors
-           (map (fn [[field code]]
-                  (str (name field) " " (t (str "error.validation." code)))))
-           (str/join ", "))
-
-      :else
-      (or (:message response)
-          (get-in response [:errors 0 :message])))))
-
-(defn- toast-action-error [t http-status message]
-  (.. toast (error (t "error.action.error")
-                   (cj {:description (if (seq message)
-                                       ($ :span
-                                          ($ :p (t "error.action.error_detail"
-                                                   #js {:httpStatus http-status}))
-                                          ($ :p message))
-                                       (t "error.action.error_detail"
-                                          #js {:httpStatus http-status}))}))))
 
 (defn- toast-success [t]
   (.. toast (success (t "pool.scan_edit.success"))))
@@ -224,7 +201,7 @@
              (toast-owner-only t restricted-labels)
 
              (= (aget data "status") "error")
-             (toast-action-error t (aget data "httpStatus") (extract-server-message t data))
+             (errors/toast-error! t (errors/action-result data) ["error.action.error"])
 
              :else
              (do

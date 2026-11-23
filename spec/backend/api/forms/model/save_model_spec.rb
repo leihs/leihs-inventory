@@ -87,6 +87,66 @@ describe "Inventory Model" do
           )
           expect(resp.status).to eq(200)
         end
+
+        it "blocks update of model to the name of an existing model" do
+          product = Faker::Commerce.product_name
+          resp = json_client_post(
+            "/inventory/#{pool_id}/models/",
+            body: {"product" => product, "version" => "1.0"},
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+
+          resp = json_client_post(
+            "/inventory/#{pool_id}/models/",
+            body: {"product" => product, "version" => "2.0"},
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+          model_id = resp.body["id"]
+
+          resp = json_client_put(
+            "/inventory/#{pool_id}/models/#{model_id}",
+            body: {
+              "product" => product,
+              "version" => "1.0",
+              "is_package" => false,
+              "categories" => [],
+              "compatibles" => [],
+              "entitlements" => [],
+              "properties" => [],
+              "accessories" => []
+            },
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(409)
+          expect(resp.body["message"]).to eq("Failed to update model")
+        end
+
+        it "rejects update with an empty property key and returns 400" do
+          resp = json_client_post(
+            "/inventory/#{pool_id}/models/",
+            body: {"product" => Faker::Commerce.product_name},
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+
+          resp = json_client_put(
+            "/inventory/#{pool_id}/models/#{resp.body["id"]}",
+            body: {
+              "product" => Faker::Commerce.product_name,
+              "is_package" => false,
+              "categories" => [],
+              "compatibles" => [],
+              "entitlements" => [],
+              "properties" => [{"key" => "", "value" => "x"}],
+              "accessories" => []
+            },
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(400)
+          expect(resp.body["message"]).to eq("Field ':key' cannot be an empty string.")
+        end
       end
 
       context "update model nil handling" do

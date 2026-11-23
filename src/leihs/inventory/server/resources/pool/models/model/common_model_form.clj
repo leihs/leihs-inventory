@@ -81,7 +81,7 @@
    (doseq [m vec-of-maps]
      (when (and (contains? m k) (= "" (get m k)))
        (throw (ex-info (str "Field '" k "' cannot be an empty string.")
-                       (merge {:key k :map m} (when scope {:scope scope}))))))))
+                       (merge {:status 400 :key k :map m} (when scope {:scope scope}))))))))
 
 (defn process-entitlements [tx entitlements model-id]
   (delete-entries tx :entitlements :id (extract-ids entitlements) [:= :model_id model-id])

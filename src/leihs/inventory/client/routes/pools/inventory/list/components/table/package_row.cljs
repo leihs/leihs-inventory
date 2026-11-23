@@ -9,10 +9,10 @@
    ["lucide-react" :refer [ImageOff ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router" :as router :refer [Link]]
-   ["sonner" :refer [toast]]
    [clojure.string :as str]
    [leihs.inventory.client.components.image-modal :refer [ImageModal]]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.errors :as errors]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.expandable-row :refer [ExpandableRow]]
@@ -47,9 +47,7 @@
                                        (set-result! {:status (.. data -status)
                                                      :statusText (.. data -statusText)
                                                      :data (jc (.. data -data))})))
-                              (.catch (fn [err]
-                                        (.. toast (error (.. err -response -status)
-                                                         #js {:description (.. err -response -statusText)})))))))]
+                              (.catch #(errors/toast-error! t (errors/error-result %) [])))))]
     (uix/use-effect
      (fn []
        (set-result! nil))

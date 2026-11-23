@@ -25,6 +25,7 @@
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.errors :as errors]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.models.crud.components.field-dispatcher :refer [FieldDispatcher]]
@@ -90,9 +91,7 @@
                                                       {:status (.. data -status)
                                                        :statusText (.. data -statusText)
                                                        :data (.. data -data)}))
-                                             (.catch (fn [err]
-                                                       {:status (.. err -response -status)
-                                                        :statusText (.. err -response -statusText)}))))
+                                             (.catch errors/error-result)))
                                 status (:status res)]
 
                             (if (= status 200)
@@ -104,7 +103,7 @@
                                           #js {:state state}))
 
                               ;; show error message
-                              (.. toast (error (t (str "pool.model.delete." (:status res)))))))))
+                              (errors/toast-error! t res ["pool.model.delete.error"])))))
 
         on-submit (fn [submit-data event]
                     (go
@@ -149,9 +148,7 @@
                                                           {:status (.. res -status)
                                                            :statusText (.. res -statusText)
                                                            :id (.. res -data -id)}))
-                                                 (.catch (fn [err]
-                                                           {:status (.. err -response -status)
-                                                            :statusText (.. err -response -statusText)}))))
+                                                 (.catch errors/error-result)))
 
                                         (<p! (let [model-id (aget params "model-id")]
                                                (-> http-client
@@ -166,9 +163,7 @@
                                                             {:status (.. res -status)
                                                              :statusText (.. res -statusText)
                                                              :id (.. res -data -id)}))
-                                                   (.catch (fn [err]
-                                                             {:status (.. err -response -status)
-                                                              :statusText (.. err -response -statusText)}))))))
+                                                   (.catch errors/error-result)))))
 
                             model-id (when (not= (:status model-res) "200") (:id model-res))]
 
@@ -189,7 +184,7 @@
                                      (.then #(.-data %))))))
 
                         (if (not= (:status model-res) 200)
-                          (.. toast (error (t (str "pool.model.create." (:status model-res)))))
+                          (errors/toast-error! t model-res [(str "pool.model." (if is-create "create" "edit") "." (:status model-res))])
 
                           (do
                             ;; upload images sequentially and path model with is_cover when is needed + images with target_type

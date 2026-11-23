@@ -101,4 +101,4 @@
       (response (create-pagination-response request base-query nil)))
     (catch Exception e
       (log-by-severity "Failed to retrieve image:" e)
-      (bad-request {:message "Failed to retrieve image" :details (.getMessage e)}))))
+      (exception-handler request "Failed to retrieve image" e))))

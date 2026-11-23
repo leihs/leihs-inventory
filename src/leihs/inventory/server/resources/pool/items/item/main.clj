@@ -37,16 +37,6 @@
       sql-format
       (->> (jdbc/execute-one! tx))))
 
-(defn inventory-code-exists? [tx inventory-code exclude-id]
-  (let [query (-> (sql/select :id)
-                  (sql/from :items)
-                  (sql/where [:= :inventory_code inventory-code])
-                  (cond-> exclude-id
-                    (sql/where [:not= :id exclude-id]))
-                  sql-format)]
-    (-> (jdbc/execute-one! tx query)
-        some?)))
-
 (defn get-child-item-ids [tx parent-id]
   (-> (sql/select :id)
       (sql/from :items)
@@ -134,7 +124,7 @@
                                         :message "on_conflict strategy is not supported for DUPLICATE_INVENTORY_CODE"}]}}
                       400)
 
-              (and inventory-code (inventory-code-exists? tx inventory-code item_id))
+              (and inventory-code (inv-code/inventory-code-exists? tx inventory-code item_id))
               (status {:body {:errors [{:code "DUPLICATE_INVENTORY_CODE"
                                         :message "Inventory code already exists."
                                         :proposed_code (inv-code/propose tx pool_id (model-is-package? tx (:model_id item)))}]}}

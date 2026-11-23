@@ -187,7 +187,7 @@
           (bad-request {:message UPDATE_MODEL_ERROR})))
       (catch Exception e
         (log-by-severity UPDATE_MODEL_ERROR e)
-        (bad-request {:message UPDATE_MODEL_ERROR :details (.getMessage e)})))))
+        (exception-handler request UPDATE_MODEL_ERROR e)))))
 
 (defn put-resource [request]
   (update-model-handler request))

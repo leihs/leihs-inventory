@@ -25,6 +25,7 @@
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.errors :as errors]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.options.crud.components.field-dispatcher :refer [FieldDispatcher]]
@@ -85,9 +86,7 @@
                                                       {:status (.. data -status)
                                                        :statusText (.. data -statusText)
                                                        :data (.. data -data)}))
-                                             (.catch (fn [err]
-                                                       {:status (.. err -response -status)
-                                                        :statusText (.. err -response -statusText)}))))
+                                             (.catch errors/error-result)))
                                 status (:status res)]
 
                             (if (= status 200)
@@ -99,7 +98,7 @@
                                           #js {:state state}))
 
                               ;; show error message
-                              (.. toast (error (t "pool.option.delete.error")))))))
+                              (errors/toast-error! t res ["pool.option.delete.error"])))))
 
         on-submit (fn [submit-data event]
                     (go
@@ -114,9 +113,7 @@
                                                            {:status (.. res -status)
                                                             :statusText (.. res -statusText)
                                                             :id (.. res -data -id)}))
-                                                  (.catch (fn [err]
-                                                            {:status (.. err -response -status)
-                                                             :statusText (.. err -response -statusText)}))))
+                                                  (.catch errors/error-result)))
 
                                          (<p! (let [option-id (aget params "option-id")]
                                                 (-> http-client
@@ -128,15 +125,11 @@
                                                              {:status (.. res -status)
                                                               :statusText (.. res -statusText)
                                                               :id (.. res -data -id)}))
-                                                    (.catch (fn [err]
-                                                              {:status (.. err -response -status)
-                                                               :statusText (.. err -response -statusText)}))))))]
+                                                    (.catch errors/error-result)))))]
                         (.. event (preventDefault))
 
                         (if (not= (:status option-res) 200)
-                          (if is-create
-                            (.. toast (error (t (str "pool.option.create." (:status option-res)))))
-                            (.. toast (error (t (str "pool.option.edit." (:status option-res))))))
+                          (errors/toast-error! t option-res [(str "pool.option." (if is-create "create" "edit") "." (:status option-res))])
 
                           (do
                             ;; patch cover-image when needed

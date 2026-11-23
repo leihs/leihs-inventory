@@ -542,7 +542,8 @@
           "cancel": "Cancel",
           "success": "Entitlement group was successfully saved",
           "invalid_one": "Entitlement group could not be saved because one field is invalid",
-          "invalid_other": "Entitlement group could not be saved because {{count}} fields are invalid"
+          "invalid_other": "Entitlement group could not be saved because {{count}} fields are invalid",
+          "error": "An error occurred while saving"
         },
         "delete": {
           "title": "Delete",
@@ -641,7 +642,9 @@
           "cancel": "Cancel",
           "success": "Template was successfully saved",
           "invalid_one": "Template could not be saved because one field is invalid",
-          "invalid_other": "Template could not be saved because {{count}} fields are invalid"
+          "invalid_other": "Template could not be saved because {{count}} fields are invalid",
+          "conflict": "Template could not be saved because a template with the same name already exists",
+          "error": "An error occurred while saving"
         },
         "delete": {
           "title": "Delete template",
@@ -693,7 +696,8 @@
         "delete": "Delete",
         "success": "Software successfully saved",
         "invalid_one": "Software could not be saved because one field is invalid",
-        "invalid_other": "Software could not be saved because {{count}} fields are invalid"
+        "invalid_other": "Software could not be saved because {{count}} fields are invalid",
+        "409": "A software with this name already exists"
       },
       "delete": {
         "500": "Software could not be deleted",
@@ -924,7 +928,8 @@
         "success": "Model successfully saved",
         "add_item": "Save and Add Item",
         "invalid_one": "Model could not be saved because one field is invalid",
-        "invalid_other": "Model could not be saved because {{count}} fields are invalid"
+        "invalid_other": "Model could not be saved because {{count}} fields are invalid",
+        "409": "A model with this name already exists"
       },
       "delete": {
         "500": "Model could not be deleted",
@@ -932,7 +937,8 @@
         "description": "Are you sure you want to delete this model?",
         "confirm": "Delete",
         "cancel": "Cancel",
-        "success": "Model successfully deleted"
+        "success": "Model successfully deleted",
+        "error": "Model could not be deleted"
       }
     }
   },
@@ -1022,6 +1028,15 @@
         "go_signin": "Go to sign in",
         "retry": "Retry"
       }
+    },
+    "status": {
+      "400": "The request could not be processed",
+      "403": "You are not allowed to do this",
+      "404": "Not found",
+      "409": "Conflict with existing data",
+      "422": "Some values are invalid",
+      "500": "A server error occurred",
+      "default": "Something went wrong"
     }
   }
 }

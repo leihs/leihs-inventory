@@ -10,7 +10,6 @@
    ["react-hook-form" :refer [useForm useWatch]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router" :refer [useLoaderData useNavigation useParams useSearchParams]]
-   ["sonner" :refer [toast]]
    [clojure.edn :as edn]
    [clojure.string :as str]
    [leihs.inventory.client.components.export :refer [Export]]
@@ -19,6 +18,7 @@
    [leihs.inventory.client.components.typo :refer [Typo]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.dynamic-form :as dynamic-form]
+   [leihs.inventory.client.lib.errors :as errors]
    [leihs.inventory.client.lib.hooks :as hooks]
    [leihs.inventory.client.lib.utils :refer [jc cj]]
    [leihs.inventory.client.routes.pools.inventory.search-edit.components.edit-dialog :refer [EditDialog]]
@@ -160,9 +160,9 @@
                       (set-protected-fields! all-fields)
                       (set-edit-loading! false)
                       (set-edit-open! true))
-                    (p/catch (fn [_err]
+                    (p/catch (fn [err]
                                (set-edit-loading! false)
-                               (.. toast (error (t "pool.models.search_edit.dialog.fields_fetch_error"))))))))))
+                               (errors/toast-error! t (errors/error-result err) ["pool.models.search_edit.dialog.fields_fetch_error"]))))))))
 
         handle-submit (.. form -handleSubmit)
 

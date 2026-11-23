@@ -17,6 +17,7 @@
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.errors :as errors]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -39,9 +40,7 @@
                                                       {:status (.. data -status)
                                                        :statusText (.. data -statusText)
                                                        :data (.. data -data)}))
-                                             (.catch (fn [err]
-                                                       {:status (.. err -response -status)
-                                                        :statusText (.. err -response -statusText)}))))
+                                             (.catch errors/error-result)))
                                 status (:status res)]
 
                             (set-delete-id! nil)
@@ -51,7 +50,7 @@
                                 (.. revalidator (revalidate)))
 
                               ;; show error message)
-                              (.. toast (error (t "pool.templates.template.delete.error")))))))]
+                              (errors/toast-error! t res ["pool.templates.template.delete.error"])))))]
 
     ($ Card {:class-name "my-4"}
        ($ CardHeader

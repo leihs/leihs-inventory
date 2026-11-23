@@ -33,6 +33,14 @@
           (content-type "application/json")
           (resp/status status)))))
 
+(def ^:private server-error-message "Internal server error")
+
+(defn- server-error-response
+  "Generic 500 response which exposes no exception details."
+  [request accept]
+  (create-response-by-accept request accept 500 {:status "failure"
+                                                 :message server-error-message}))
+
 (def ^:private field-error-codes
   "Maps a schema constraint's predicate name to a stable, translatable code.
    The frontend looks these up under an i18n key (e.g. error.validation.<code>) -
@@ -95,10 +103,10 @@
                      (#{"23505" "23503"} sql-state) 409
                      (= "23514" sql-state) 400
                      :else 500)]
-        (create-response-by-accept request accept status {:status "failure"
-                                                          :message message
-                                                          :type (str (class e))
-                                                          :details (.getMessage e)}))
+        (if (= 500 status)
+          (server-error-response request accept)
+          (create-response-by-accept request accept status {:status "failure"
+                                                            :message message})))
 
       ;; Response coercion on image/* to /inventory when not authenticated → 401
       (and (instance? ExceptionInfo e)
@@ -112,7 +120,7 @@
 
       (and (instance? ExceptionInfo e)
            (str/includes? (.getMessage e) "Response coercion failed"))
-      (build-coercion-response request e 500)
+      (server-error-response request accept)
 
       (and (instance? ExceptionInfo e)
            (str/includes? (.getMessage e) "Request coercion failed"))
@@ -126,15 +134,14 @@
             status (or (:status data) 500)
             details (:details data)
             msg (ex-message e)]
-        (create-response-by-accept request accept status {:status "failure"
-                                                          :message msg
-                                                          :type (str (class e))
-                                                          :details (or details msg)}))
+        (if (>= status 500)
+          (server-error-response request accept)
+          (create-response-by-accept request accept status {:status "failure"
+                                                            :message msg
+                                                            :type (str (class e))
+                                                            :details (or details msg)})))
 
-      :else (create-response-by-accept request accept 500 {:status "failure"
-                                                           :message message
-                                                           :type (str (class e))
-                                                           :details (.getMessage e)}))))
+      :else (server-error-response request accept))))
 
 (defn wrap-exception
   "Middleware that catches exceptions and delegates to exception-handler."
@@ -144,4 +151,4 @@
       (handler request)
       (catch Exception e
         (log-by-severity e)
-        (exception-handler request "wrap-exception" e)))))
+        (exception-handler request nil e)))))

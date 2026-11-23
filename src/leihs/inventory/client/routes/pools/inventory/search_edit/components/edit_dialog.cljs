@@ -10,6 +10,7 @@
    ["react-router" :refer [useFetcher]]
    ["sonner" :refer [toast]]
    [leihs.inventory.client.components.patch-item-form :refer [PatchItemForm]]
+   [leihs.inventory.client.lib.errors :as errors]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]))
 
@@ -36,8 +37,11 @@
      (fn []
        (when (and (contains? #{"loading" "submitting"} @prev-state)
                   (= (.-state fetcher) "idle"))
-         (.. toast (success (t "pool.models.search_edit.dialog.success" #js {:count item-count})))
-         (on-open-change false))
+         (let [data (.-data fetcher)]
+           (if (= (some-> data (aget "status")) "error")
+             (errors/toast-error! t (errors/action-result data) ["error.action.error"])
+             (do (.. toast (success (t "pool.models.search_edit.dialog.success" #js {:count item-count})))
+                 (on-open-change false)))))
        (reset! prev-state (.-state fetcher)))
      [fetcher on-open-change t item-count])
 

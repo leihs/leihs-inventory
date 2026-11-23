@@ -60,6 +60,18 @@
            (str "P-" base-code)
            base-code))))))
 
+(defn inventory-code-exists?
+  "Checks case-insensitively whether an item other than `exclude-id` uses the code."
+  [tx inventory-code exclude-id]
+  (let [query (-> (sql/select :id)
+                  (sql/from :items)
+                  (sql/where [:= [:lower :inventory_code] [:lower inventory-code]])
+                  (cond-> exclude-id
+                    (sql/where [:not= :id exclude-id]))
+                  (sql/limit 1)
+                  sql-format)]
+    (boolean (seq (jdbc/query tx query)))))
+
 (comment
   (require '[leihs.core.db :as db])
   (let [tx (db/get-ds)

@@ -21,6 +21,7 @@
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.errors :as errors]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.templates.crud.components.field-dispatcher :refer [FieldDispatcher]]
@@ -80,9 +81,7 @@
                                                       {:status (.. data -status)
                                                        :statusText (.. data -statusText)
                                                        :data (.. data -data)}))
-                                             (.catch (fn [err]
-                                                       {:status (.. err -response -status)
-                                                        :statusText (.. err -response -statusText)}))))
+                                             (.catch errors/error-result)))
                                 status (:status res)]
 
                             (if (= status 200)
@@ -94,7 +93,7 @@
                                           #js {:state state}))
 
                               ;; show error message
-                              (.. toast (error (t "pool.templates.template.delete.error")))))))
+                              (errors/toast-error! t res ["pool.templates.template.delete.error"])))))
 
         on-submit (fn [submitted-data event]
                     (go
@@ -112,9 +111,7 @@
                                                              {:status (.. res -status)
                                                               :statusText (.. res -statusText)
                                                               :id (.. res -data -id)}))
-                                                    (.catch (fn [err]
-                                                              {:status (.. err -response -status)
-                                                               :statusText (.. err -response -statusText)}))))
+                                                    (.catch errors/error-result)))
 
                                            (<p! (let [template-id (aget params "template-id")]
                                                   (-> http-client
@@ -126,16 +123,11 @@
                                                                {:status (.. res -status)
                                                                 :statusText (.. res -statusText)
                                                                 :id (.. res -data -id)}))
-                                                      (.catch (fn [err]
-                                                                {:status (.. err -response -status)
-                                                                 :statusText (.. err -response -statusText)}))))))]
+                                                      (.catch errors/error-result)))))]
 
                         (.. event (preventDefault))
 
                         (case (:status template-res)
-                          409 (.. toast (error (t "pool.templates.template.create.conflict")))
-                          500 (.. toast (error (t "pool.templates.template.create.error")))
-
                           200 (do
                                 (if is-create
                                   (.. toast (success (t "pool.templates.template.create.success")))
@@ -156,7 +148,9 @@
                                                  :viewTransition true})))
 
                           ;; default
-                          (.. toast (error :statusText template-res))))))]
+                          (errors/toast-error! t template-res [(str "pool.templates.template."
+                                                                    (if is-create "create" "edit")
+                                                                    (if (= 409 (:status template-res)) ".conflict" ".error"))])))))]
 
     (if is-loading
       ($ :div {:class-name "flex justify-center items-center h-screen"}
