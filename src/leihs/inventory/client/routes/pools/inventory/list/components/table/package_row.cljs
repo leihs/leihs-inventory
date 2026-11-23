@@ -81,8 +81,9 @@
 
        ($ TableCell
           (if (:url model-image)
-            ($ ImageModal {:url (:url model-image)
-                           :alt (str (:product package) " " (:version package))})
+            ($ :div {:class-name "flex"}
+               ($ ImageModal {:url (:url model-image)
+                              :alt (str (:product package) " " (:version package))}))
             ($ :div {:class-name "flex justify-center min-w-12 h-12 items-center rounded border p-2"}
                ($ ImageOff {:class-name "w-6 h-6"}))))
 

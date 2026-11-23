@@ -372,7 +372,7 @@
         "type": {
           "title": "Type d'inventaire",
           "model": "Modèle",
-          "package": "Paquet",
+          "package": "Modèle paquet",
           "option": "Option",
           "software": "Logiciel"
         },
@@ -454,7 +454,8 @@
         "header": {
           "quantity": "Quantité",
           "name": "Nom",
-          "availability": "Disponibilité"
+          "availability": "Disponibilité",
+          "price": "Prix"
         },
         "actions": {
           "edit": "éditer",

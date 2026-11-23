@@ -3,7 +3,7 @@
    ["@@/button" :refer [Button]]
    ["@@/table" :refer [TableCell
                        TableRow]]
-   ["lucide-react" :refer [Minus Plus Loader2Icon]]
+   ["lucide-react" :refer [ChevronDown ChevronRight Loader2Icon]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui ExpandableRow [{:keys [on-expand subrows subrow-count
@@ -36,26 +36,24 @@
                           {:class-name class-name})
 
           ($ TableCell
-             ($ :div {:class-name "flex items-center gap-4 ml-2"}
-                ($ Button {:variant "outline"
-                           :data-test-id "expand-button"
-                           :on-click handle-expand
-                           :size "icon"
-                           :class-name (cond
-                                         (or (nil? subrow-count)
-                                             (zero? subrow-count))
-                                         "invisible"
-                                         :else
-                                         "")}
-                   (if loading
-                     ($ Loader2Icon {:class-name "h-4 w-4 animate-spin"})
-                     (if subrows
-                       ($ Minus {:class-name "h-4 w-4"})
-                       ($ Plus {:class-name "h-4 w-4"}))))
+             ($ :div {:class-name "flex items-center ml-2"}
+                (if (and subrow-count (pos? subrow-count))
+                  ($ Button {:variant "outline"
+                             :data-test-id "expand-button"
+                             :on-click handle-expand
+                             :size "sm"
+                             :class-name "w-[68px] justify-between px-2.5 text-sm font-semibold"}
+                     (if loading
+                       ($ Loader2Icon {:class-name "h-4 w-4 animate-spin"})
+                       (if subrows
+                         ($ ChevronDown {:class-name "h-4 w-4"})
+                         ($ ChevronRight {:class-name "h-4 w-4"})))
+                     ($ :span {:data-test-id "items"}
+                        subrow-count))
 
-                ($ :span {:class-name "text-xl ml-auto w-6 text-right"
-                          :data-test-id "items"}
-                   subrow-count)))
+                  ($ :span {:class-name "w-[68px] px-2.5 text-sm font-semibold text-right"
+                            :data-test-id "items"}
+                     subrow-count))))
 
           children)
        ;; render subrows

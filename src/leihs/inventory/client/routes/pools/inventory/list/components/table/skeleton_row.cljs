@@ -14,7 +14,7 @@
 
     ($ TableRow {:class-name "shadow-[0_-0.5px_0_hsl(var(--border))] "}
        ($ TableCell
-          ($ Skeleton {:class-name "w-[76px] h-9 ml-2"}))
+          ($ Skeleton {:class-name "w-[68px] h-8 ml-2"}))
 
        ($ TableCell
           ($ Skeleton {:class-name "w-12 h-12"}))

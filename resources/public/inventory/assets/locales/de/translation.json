@@ -365,7 +365,7 @@
         "type": {
           "title": "Inventar-Typ",
           "model": "Modell",
-          "package": "Paket",
+          "package": "Paket-Modell",
           "option": "Option",
           "software": "Software"
         },
@@ -447,7 +447,8 @@
         "header": {
           "quantity": "Menge",
           "name": "Name",
-          "availability": "Verfügbarkeit"
+          "availability": "Verfügbarkeit",
+          "price": "Preis"
         },
         "actions": {
           "edit": "editieren",

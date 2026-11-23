@@ -1400,6 +1400,8 @@ feature "Inventory Page", type: :feature do
     end
 
     expect_table_row_count(10)
+    expect(page).to have_css("thead th", text: "Availability")
+    expect(page).not_to have_css("thead th", text: "Price")
 
     verify_row_details(
       model_1,
@@ -1585,6 +1587,8 @@ feature "Inventory Page", type: :feature do
     expect(page).to have_button("borrowable", disabled: true)
 
     expect_table_row_count(1)
+    expect(page).to have_css("thead th", text: "Price")
+    expect(page).not_to have_css("thead th", text: "Availability")
 
     verify_row_details(
       option_1,

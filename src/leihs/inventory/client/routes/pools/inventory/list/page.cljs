@@ -126,10 +126,12 @@
                               (t "pool.models.list.header.quantity"))
                            ($ TableHead "")
                            ($ TableHead {:class-name "min-w-14 w-14"} "")
-                           ($ TableHead {:class-name "w-full min-w-[600px]"}
+                           ($ TableHead {:class-name "w-full min-w-[240px]"}
                               (t "pool.models.list.header.name"))
                            ($ TableHead {:class-name "min-w-40 text-right "}
-                              (t "pool.models.list.header.availability"))
+                              (if (= (.. search-params (get "type")) "option")
+                                (t "pool.models.list.header.price")
+                                (t "pool.models.list.header.availability")))
                            ($ TableHead {:class-name "rounded-tr-md sticky"} "")))
 
                      ($ TableBody

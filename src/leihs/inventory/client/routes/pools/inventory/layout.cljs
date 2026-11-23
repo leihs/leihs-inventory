@@ -159,26 +159,6 @@
 
                           ($ DropdownMenuItem {:asChild true}
                              ($ Link {:state #js {:searchParams (.. location -search)}
-                                      :to (generatePath "/inventory/:pool-id/software/create"
-                                                        (cj {:pool-id pool-id}))
-                                      :viewTransition true}
-                                ($ Badge {:class-name "w-6 h-5 justify-center shadow-none bg-orange-500"}
-                                   "S")
-                                (t "pool.models.dropdown.add_software")))
-
-                          ($ DropdownMenuItem {:asChild true}
-                             ($ Link {:state #js {:searchParams (.. location -search)}
-                                      :to (generatePath "/inventory/:pool-id/options/create"
-                                                        (cj {:pool-id pool-id}))
-                                      :viewTransition true}
-                                ($ Badge {:class-name "w-6 h-5 justify-center shadow-none bg-emerald-500"}
-                                   "O")
-                                (t "pool.models.dropdown.add_option")))
-
-                          ($ DropdownMenuSeparator)
-
-                          ($ DropdownMenuItem {:asChild true}
-                             ($ Link {:state #js {:searchParams (.. location -search)}
                                       :to (generatePath "/inventory/:pool-id/packages/create"
                                                         (cj {:pool-id pool-id}))
                                       :viewTransition true}
@@ -195,6 +175,17 @@
                                    (t "pool.models.list.item.badge"))
                                 (t "pool.models.dropdown.add_item")))
 
+                          ($ DropdownMenuSeparator)
+
+                          ($ DropdownMenuItem {:asChild true}
+                             ($ Link {:state #js {:searchParams (.. location -search)}
+                                      :to (generatePath "/inventory/:pool-id/software/create"
+                                                        (cj {:pool-id pool-id}))
+                                      :viewTransition true}
+                                ($ Badge {:class-name "w-6 h-5 justify-center shadow-none bg-orange-500"}
+                                   "S")
+                                (t "pool.models.dropdown.add_software")))
+
                           ($ DropdownMenuItem {:asChild true}
                              ($ Link {:state #js {:searchParams (.. location -search)}
                                       :to (generatePath "/inventory/:pool-id/licenses/create"
@@ -202,7 +193,18 @@
                                       :viewTransition true}
                                 ($ Badge {:class-name "w-6 h-5 justify-center bg-yellow-500"}
                                    "L")
-                                (t "pool.models.dropdown.add_license")))))
+                                (t "pool.models.dropdown.add_license")))
+
+                          ($ DropdownMenuSeparator)
+
+                          ($ DropdownMenuItem {:asChild true}
+                             ($ Link {:state #js {:searchParams (.. location -search)}
+                                      :to (generatePath "/inventory/:pool-id/options/create"
+                                                        (cj {:pool-id pool-id}))
+                                      :viewTransition true}
+                                ($ Badge {:class-name "w-6 h-5 justify-center shadow-none bg-emerald-500"}
+                                   "O")
+                                (t "pool.models.dropdown.add_option")))))
 
                     "entitlement-groups"
                     ($ Button {:asChild true}

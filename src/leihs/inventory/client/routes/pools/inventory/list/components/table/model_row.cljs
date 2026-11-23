@@ -91,8 +91,9 @@
 
        ($ TableCell
           (if (get-in model [:image :url])
-            ($ ImageModal {:url (get-in model [:image :url])
-                           :alt (str (:product model) " " (:version model))})
+            ($ :div {:class-name "flex"}
+               ($ ImageModal {:url (get-in model [:image :url])
+                              :alt (str (:product model) " " (:version model))}))
 
             (case (-> model :type)
               "Option"

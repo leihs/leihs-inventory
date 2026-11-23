@@ -36,6 +36,10 @@ feature "Inventory Pagination ", type: :feature do
     change_page_size(100)
     validate_pagination_state(1, 100, "1-100", 4, 400)
 
+    change_page_size(200)
+    validate_pagination_state(1, 200, "1-200", 2, 400)
+    expect(page).to have_css("tbody tr[data-row='model']", count: 200)
+
     change_page_size(10)
     validate_pagination_state(1, 10, "1-10", 40, 400)
 

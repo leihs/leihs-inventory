@@ -365,7 +365,7 @@
         "type": {
           "title": "Inventory type",
           "model": "Model",
-          "package": "Package",
+          "package": "Package model",
           "option": "Option",
           "software": "Software"
         },
@@ -447,7 +447,8 @@
         "header": {
           "quantity": "Quantity",
           "name": "Name",
-          "availability": "Availability"
+          "availability": "Availability",
+          "price": "Price"
         },
         "actions": {
           "edit": "edit",

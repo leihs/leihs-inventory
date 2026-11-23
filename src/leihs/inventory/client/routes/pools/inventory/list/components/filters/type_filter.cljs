@@ -84,15 +84,6 @@
                    ($ Package {:class-name "w-3 h-3 mr-2"})
                    (t "pool.models.filters.type.package")))
 
-             ($ DropdownMenuRadioItem {:value "option"}
-                ($ :button {:type "button"
-                            :class-name "flex items-center"}
-
-                   ($ :span {:class-name "w-12 flex"}
-                      ($ Badge {:class-name "bg-emerald-500 hover:bg-emerald-500 w-6 justify-center"}
-                         "O"))
-                   (t "pool.models.filters.type.option")))
-
              ($ DropdownMenuRadioItem {:value "software"}
                 ($ :button {:type "button"
                             :class-name "flex items-center"}
@@ -100,5 +91,14 @@
                    ($ :span {:class-name "w-12 flex"}
                       ($ Badge {:class-name "bg-orange-500 hover:bg-orange-500 w-6 justify-center"}
                          "S"))
-                   (t "pool.models.filters.type.software"))))))))
+                   (t "pool.models.filters.type.software")))
+
+             ($ DropdownMenuRadioItem {:value "option"}
+                ($ :button {:type "button"
+                            :class-name "flex items-center"}
+
+                   ($ :span {:class-name "w-12 flex"}
+                      ($ Badge {:class-name "bg-emerald-500 hover:bg-emerald-500 w-6 justify-center"}
+                         "O"))
+                   (t "pool.models.filters.type.option"))))))))
 

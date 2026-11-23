@@ -19,25 +19,38 @@
               (find-category-name (:children node) category-id)))
           tree-list)))
 
+(defn contains-category? [tree-list category-id]
+  (some (fn [node]
+          (or (= (:category_id node) category-id)
+              (contains-category? (:children node) category-id)))
+        tree-list))
+
+(defn sort-by-name [tree-list]
+  (->> tree-list
+       (map #(update % :children sort-by-name))
+       (sort #(.localeCompare (:name %1) (:name %2)))))
+
 (defui file-tree-item [{:keys [name category_id searching on-select children]}]
-  (let [[search-params _] (router/useSearchParams)]
+  (let [[search-params _] (router/useSearchParams)
+        selected-id (.. search-params (get "category_id"))]
 
     (if (not (seq children))
       ($ :div {:class-name "relative h-full"}
          ($ :div {:class-name "absolute right-[-25px] flex items-center h-full"}
             ($ RadioGroupItem {:data-test-id category_id
-                               :checked (= category_id (.. search-params (get "category_id")))
+                               :checked (= category_id selected-id)
                                :value category_id
                                :name category_id
                                :on-click on-select}))
 
          ($ :span {:class-name (str "flex text-sm items-center py-1 " (if searching "pl-4" "pl-10"))} name))
 
-      ($ Collapsible {:class-name "pl-4"}
+      ($ Collapsible {:class-name "pl-4"
+                      :default-open (boolean (contains-category? children selected-id))}
          ($ :div {:class-name "relative h-full"}
             ($ :div {:class-name "absolute right-[-25px] flex items-center h-full"}
                ($ RadioGroupItem {:data-test-id category_id
-                                  :checked (= category_id (.. search-params (get "category_id")))
+                                  :checked (= category_id selected-id)
                                   :value category_id
                                   :name category_id
                                   :on-click on-select}))
@@ -76,7 +89,7 @@
          (distinct-by :category_id))))
 
 (defui CategoryFilter [{:keys [class-name]}]
-  (let [categories (:children (:categories (router/useRouteLoaderData "models-page")))
+  (let [categories (sort-by-name (:children (:categories (router/useRouteLoaderData "models-page"))))
         [search set-search!] (uix/use-state categories)
         [search-params set-search-params!] (router/useSearchParams)
         category-id (.. search-params (get "category_id"))
