@@ -20,7 +20,7 @@ feature "Create option", type: :feature do
   scenario "works" do
     login(user)
     visit "/inventory/#{pool.id}/list"
-    click_on "Add inventory"
+    open_add_inventory_menu
     click_on "New option"
 
     fill_in "Product", with: product
@@ -29,7 +29,7 @@ feature "Create option", type: :feature do
     fill_in "Price", with: price
 
     click_on "Save"
-    expect(page.find("body", visible: :all).text).to include("Option successfully created")
+    expect_toast("Option successfully created")
 
     expect(page).to have_content "Inventory List"
 
@@ -47,11 +47,11 @@ feature "Create option", type: :feature do
   scenario "fails with invalid mandatory fields" do
     login(user)
     visit "/inventory/#{pool.id}/list"
-    click_on "Add inventory"
+    open_add_inventory_menu
     click_on "New option"
 
     click_on "Save"
-    expect(page.find("body", visible: :all).text).to include("Option could not be created because 2 fields are invalid")
+    expect_toast("Option could not be created because 2 fields are invalid")
     expect(page).to have_content "Too small: expected input to have >=1 characters"
     expect(page).to have_content "Too small: expected input to have >=1 characters"
   end
@@ -60,7 +60,7 @@ feature "Create option", type: :feature do
     FactoryBot.create(:option, inventory_code: inventory_code)
     login(user)
     visit "/inventory/#{pool.id}/list"
-    click_on "Add inventory"
+    open_add_inventory_menu
     click_on "New option"
     fill_in "Product", with: product
     fill_in "Version", with: version
@@ -69,13 +69,13 @@ feature "Create option", type: :feature do
 
     click_on "Save"
 
-    expect(page.find("body", visible: :all).text).to include("A option with this inventory code already exists")
+    expect_toast("A option with this inventory code already exists")
   end
 
   scenario "cancel works" do
     login(user)
     visit "/inventory/#{pool.id}/list"
-    click_on "Add inventory"
+    open_add_inventory_menu
     click_on "New option"
 
     fill_in "Product", with: product
@@ -83,8 +83,7 @@ feature "Create option", type: :feature do
     fill_in "Inventory code", with: inventory_code
     fill_in "Price", with: price
 
-    click_on "submit-dropdown"
-    click_on "Cancel"
+    choose_from_submit_dropdown("Cancel")
 
     expect(page).to have_content "Inventory List"
   end
