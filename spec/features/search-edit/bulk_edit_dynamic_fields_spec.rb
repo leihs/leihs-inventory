@@ -57,12 +57,8 @@ feature "Search & Edit - bulk edit dynamic fields", type: :feature do
 
     click_on "Add filters to start your search."
     expect(page).to have_button("Add search parameter")
-    click_on "or-0-field-select-0"
-    within find('[data-test-id="field-options"]') do
-      find("span", text: "Inventory Code").click
-    end
-    find("input[name='$or.0.$and.0.value']").set(inv_prefix)
-    await_debounce
+    select_search_filter_field("or-0-field-select-0", "Inventory Code")
+    fill_search_filter_text("$or.0.$and.0.value", inv_prefix)
 
     expect(page).to have_content("#{inv_prefix}-A", wait: 15)
     expect(page).to have_content("#{inv_prefix}-B", wait: 15)
@@ -90,14 +86,15 @@ feature "Search & Edit - bulk edit dynamic fields", type: :feature do
     add_patch_field(idx, "Power consumption in kw/h")
     fill_patch_text(idx, "2.5")
 
+    dismiss_open_menus
     click_on "apply-button"
-    expect(page).to have_content("2 Items were successfully updated", wait: 15)
+    expect_toast("2 Items were successfully updated", wait: 15)
 
-    [item_a, item_b].each do |it|
-      it.reload
-      expect(it.status_note).to eq("bulk updated note")
-      expect(it.is_borrowable).to be(false)
-      props = (it.properties || {}).transform_keys(&:to_s)
+    [item_a, item_b].each do |item|
+      item.reload
+      expect(item.status_note).to eq("bulk updated note")
+      expect(item.is_borrowable).to be(false)
+      props = (item.properties || {}).transform_keys(&:to_s)
       expect(props["ampere_#{suffix}"]).to eq("16A")
       expect(props["electrical_power_#{suffix}"]).to eq("2.5")
     end
