@@ -20,7 +20,8 @@
 (s/defschema inventory-pool-schema
   {:id s/Uuid
    :name s/Str
-   :permission (s/enum "read" "edit")})
+   :permission (s/enum "read" "edit")
+   :enable_alternative_pickup_locations s/Bool})
 
 (s/defschema language-schema
   {:name s/Str

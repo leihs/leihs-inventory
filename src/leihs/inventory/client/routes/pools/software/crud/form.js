@@ -3,6 +3,7 @@ import { z } from "zod"
 export const schema = z.object({
   product: z.string().min(1),
   version: z.string().optional(),
+  transportable: z.boolean().optional(),
   manufacturer: z
     .union([
       z.string(),
