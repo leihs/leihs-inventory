@@ -27,11 +27,9 @@ feature "Delete template", type: :feature do
       click_on "edit"
     end
 
-    click_on "submit-dropdown"
-    click_on "Delete"
-    click_on "Delete"
+    delete_from_submit_dropdown
 
-    expect(page.find("body", visible: :all).text).to include("Template was successfully deleted")
+    expect_toast("Template was successfully deleted")
 
     expect(page).not_to have_content @template.name
   end
@@ -47,8 +45,8 @@ feature "Delete template", type: :feature do
       click_on "delete"
     end
 
-    click_on "Delete"
-    expect(page.find("body", visible: :all).text).to include("Template was successfully deleted")
+    confirm_delete_dialog
+    expect_toast("Template was successfully deleted")
     expect(page).not_to have_content @template.name
   end
 end

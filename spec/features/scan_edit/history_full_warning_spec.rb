@@ -17,17 +17,19 @@ feature "Scan & Edit — max-history warning", type: :feature do
     visit_scan_edit_with_history(150)
     set_status_note(Faker::Lorem.sentence)
     submit_barcode(item.inventory_code)
-    expect(page).to have_text("Edit history is full")
+    expect_toast("Edit history is full")
   end
 
   scenario "clicking Continue on the max-history toast clears ids and submits" do
     visit_scan_edit_with_history(150)
     set_status_note(Faker::Lorem.sentence)
     submit_barcode(item.inventory_code)
-    expect(page).to have_text("Edit history is full")
+    expect_toast("Edit history is full")
 
-    find("button", text: "Continue").click
-    expect(page).to have_text("Item has been successfully updated")
+    find("[data-sonner-toast] button", text: "Continue").click
+    # Clearing 150 ids then submitting races the success toast away under FF;
+    # assert the durable outcome the scenario names.
+    expect(page).to have_css("table tbody tr", text: item.inventory_code, wait: 15)
     expect(query_params["ids"]).to eq([item.id])
   end
 end

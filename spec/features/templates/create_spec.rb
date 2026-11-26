@@ -25,16 +25,19 @@ feature "Create template", type: :feature do
 
     click_on "Select model"
     fill_in "models-input", with: @model.product
+    await_debounce
     within find("[data-test-id='models-list']") do
       click_on "#{@model.product} #{@model.version}"
     end
+    dismiss_open_menus
 
     within "tr", text: @model.product do
       fill_in "quantity", with: "10"
     end
 
+    dismiss_open_menus
     click_on "Create"
-    expect(page.find("body", visible: :all).text).to include("Template was successfully created")
+    expect_toast("Template was successfully created")
 
     expect(page).to have_content "Inventory List"
     expect(page).to have_content template_name
@@ -72,12 +75,12 @@ feature "Create template", type: :feature do
     click_on "Select model"
 
     fill_in "models-input", with: @model.product
+    await_debounce
     within find("[data-test-id='models-list']") do
       click_on "#{@model.product} #{@model.version}"
     end
 
-    click_on "submit-dropdown"
-    click_on "Cancel"
+    choose_from_submit_dropdown("Cancel")
 
     expect(page).to have_content "Inventory List"
   end

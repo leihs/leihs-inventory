@@ -47,8 +47,9 @@ feature "Create entitlement group", type: :feature do
       find("[data-value='Anna Meier - anna@meier.tld']").click
     end
 
+    dismiss_open_menus
     click_on "Create"
-    expect(page.find("body", visible: :all).text).to include("Entitlement group was successfully created")
+    expect_toast("Entitlement group was successfully created")
 
     expect(page).to have_content "Inventory List"
     expect(page).to have_content entitlement_group_name
@@ -76,7 +77,7 @@ feature "Create entitlement group", type: :feature do
     click_on "New entitlement group"
 
     click_on "Create"
-    expect(page.find("body", visible: :all).text).to include("Entitlement group could not be created because one field is invalid")
+    expect_toast("Entitlement group could not be created because one field is invalid")
     expect(page).to have_content "Too small: expected input to have >=1 characters"
   end
 
@@ -93,8 +94,7 @@ feature "Create entitlement group", type: :feature do
       click_on "#{@model.product} #{@model.version}"
     end
 
-    click_on "submit-dropdown"
-    click_on "Cancel"
+    choose_from_submit_dropdown("Cancel")
 
     expect(page).to have_content "Inventory List"
   end

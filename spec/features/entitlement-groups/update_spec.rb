@@ -83,8 +83,9 @@ feature "Update entitlement group", type: :feature do
       expect(page).to have_content "Bert Beier - bert@beier.tld"
     end
 
+    dismiss_open_menus
     click_on "Save"
-    expect(page.find("body", visible: :all).text).to include("Entitlement group was successfully saved")
+    expect_toast("Entitlement group was successfully saved")
 
     expect(page).to have_content "Inventory List"
     expect(page).to have_content entitlement_group_name_new

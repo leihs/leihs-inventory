@@ -45,4 +45,17 @@ feature "Language ", type: :feature do
     click_on "Deutsch"
     expect(page).to have_content("Inventarliste")
   end
+
+  scenario "init gsw falls back to German labels" do
+    pool = FactoryBot.create(:inventory_pool)
+    user = FactoryBot.create(:user, language_locale: "gsw-CH")
+
+    FactoryBot.create(:access_right,
+      inventory_pool: pool,
+      user: user,
+      role: :inventory_manager)
+
+    login(user)
+    expect(page).to have_content("Inventarliste")
+  end
 end
