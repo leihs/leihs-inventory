@@ -36,7 +36,8 @@ i18n.use(initReactI18next).init({
     "fr-CH": ["fr"],
     default: ["en"],
   },
-  debug: true,
+  // Match lending (already on i18next 26): sync resource init + formatter.add
+  initImmediate: false,
 })
 
 // gsw is not supported by Intl; fr uses de-CH number/date formatting per ZHdK convention
