@@ -387,20 +387,22 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(resp.body["errors"].first["proposed_code"]).to eq("#{pool_shortname}4")
       end
 
-      it "proposes max+1 regardless of creation order" do
+      it "proposes next free number after the newest code" do
         pool_shortname = @inventory_pool.shortname
         FactoryBot.create(:item,
           inventory_code: "#{pool_shortname}3",
           model_id: @model.id,
           inventory_pool_id: @inventory_pool.id,
           owner: @inventory_pool,
-          room_id: @room.id)
+          room_id: @room.id,
+          created_at: 2.days.ago)
         FactoryBot.create(:item,
           inventory_code: "#{pool_shortname}1",
           model_id: @model.id,
           inventory_pool_id: @inventory_pool.id,
           owner: @inventory_pool,
-          room_id: @room.id)
+          room_id: @room.id,
+          created_at: 1.day.ago)
 
         item_data = {
           inventory_code: "#{pool_shortname}1",
@@ -413,8 +415,8 @@ describe "Swagger Inventory Endpoints - Items Create" do
         resp = post_with_headers(client, url, item_data)
 
         expect(resp.status).to eq(409)
-        # max is 3, proposes 4 (gap at 2 is not filled)
-        expect(resp.body["errors"].first["proposed_code"]).to eq("#{pool_shortname}4")
+        # newest is 1, proposes 2 (same as legacy "last used +1")
+        expect(resp.body["errors"].first["proposed_code"]).to eq("#{pool_shortname}2")
       end
 
       it "proposes correct next after multiple items with numeric shortname" do
@@ -473,6 +475,97 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         expect(resp.status).to eq(409)
         expect(resp.body["errors"].first["proposed_code"]).to eq("013")
+      end
+
+      it "proposes next code considering other pools with same shortname" do
+        @inventory_pool.update(shortname: "SAME")
+        other_pool = FactoryBot.create(:inventory_pool, shortname: "same")
+        FactoryBot.create(:item,
+          inventory_code: "SAME100",
+          model_id: @model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id,
+          created_at: 2.days.ago)
+        FactoryBot.create(:item,
+          inventory_code: "SAME205",
+          model_id: @model.id,
+          inventory_pool_id: other_pool.id,
+          owner: other_pool,
+          room_id: @room.id,
+          created_at: 1.day.ago)
+
+        resp = post_with_headers(client, url, {
+          inventory_code: "SAME100",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        })
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["errors"].first["proposed_code"]).to eq("SAME206")
+      end
+
+      it "continues after newest code of same-shortname pools, not their max" do
+        @inventory_pool.update(shortname: "NEW")
+        other_pool = FactoryBot.create(:inventory_pool, shortname: "NEW")
+        [["NEW88892", other_pool, 3.days.ago],
+          ["NEW52260", other_pool, 2.days.ago],
+          ["NEW52294", @inventory_pool, 1.day.ago]].each do |code, owner, created_at|
+          FactoryBot.create(:item,
+            inventory_code: code,
+            model_id: @model.id,
+            inventory_pool_id: owner.id,
+            owner: owner,
+            room_id: @room.id,
+            created_at: created_at)
+        end
+
+        resp = post_with_headers(client, url, {
+          inventory_code: "NEW52294",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        })
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["errors"].first["proposed_code"]).to eq("NEW52295")
+      end
+
+      it "skips codes taken by pools with a different shortname" do
+        @inventory_pool.update(shortname: "SKIP")
+        other_pool = FactoryBot.create(:inventory_pool, shortname: "OTHER")
+        FactoryBot.create(:item,
+          inventory_code: "SKIP3",
+          model_id: @model.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner: @inventory_pool,
+          room_id: @room.id)
+        FactoryBot.create(:item,
+          inventory_code: "skip4",
+          model_id: @model.id,
+          inventory_pool_id: other_pool.id,
+          owner: other_pool,
+          room_id: @room.id)
+        FactoryBot.create(:item,
+          inventory_code: "P-SKIP5",
+          model_id: @package_model.id,
+          inventory_pool_id: other_pool.id,
+          owner: other_pool,
+          room_id: @room.id)
+
+        resp = post_with_headers(client, url, {
+          inventory_code: "SKIP3",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        })
+
+        expect(resp.status).to eq(409)
+        expect(resp.body["errors"].first["proposed_code"]).to eq("SKIP6")
       end
 
       it "rejects duplicate serial_number and returns status 409" do
@@ -647,7 +740,7 @@ describe "Swagger Inventory Endpoints - Items Create" do
         expect(numbers.last - numbers.first).to eq(2) # count - 1
       end
 
-      it "generates codes from highest numeric value, not latest created_at" do
+      it "generates codes after newest code, skipping used numbers" do
         # Create item with high number (oldest)
         FactoryBot.create(:item,
           inventory_code: "#{@inventory_pool.shortname}105",
@@ -676,14 +769,42 @@ describe "Swagger Inventory Endpoints - Items Create" do
 
         resp = post_with_headers(client, url, item_data)
 
-        # Should find max(103, 105) = 105, propose 106, generate 106-108
-        # No collision because we use highest numeric value, not created_at
+        # Newest is 103, so 104; 105 is used, so 106 and 107
         expect(resp.status).to eq(200)
         expect(resp.body.length).to eq(3)
 
         codes = resp.body.map { |item| item["inventory_code"] }
         numbers = codes.map { |c| c.gsub(/\D/, "").to_i }
-        expect(numbers).to eq([106, 107, 108])
+        expect(numbers).to eq([104, 106, 107])
+      end
+
+      it "skips codes taken in other pools on batch create" do
+        @inventory_pool.update(shortname: "BATCH")
+        other_pool = FactoryBot.create(:inventory_pool, shortname: "OTHER")
+        FactoryBot.create(:item,
+          inventory_code: "BATCH105",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id)
+        FactoryBot.create(:item,
+          inventory_code: "BATCH107",
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: other_pool.id,
+          owner_id: other_pool.id)
+
+        resp = post_with_headers(client, url, {
+          count: 3,
+          model_id: @model.id,
+          room_id: @room.id,
+          inventory_pool_id: @inventory_pool.id,
+          owner_id: @inventory_pool.id
+        })
+
+        expect(resp.status).to eq(200)
+        codes = resp.body.map { |item| item["inventory_code"] }
+        expect(codes).to eq(%w[BATCH106 BATCH108 BATCH109])
       end
 
       it "rejects duplicate serial_number on batch create and returns 409" do

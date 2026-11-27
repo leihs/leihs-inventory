@@ -30,35 +30,103 @@
       (str/starts-with? code shortname) (subs code (count shortname))
       :else code)))
 
+(def ^:private FREE_CHECK_BATCH_SIZE 50)
+(def ^:private FREE_CHECK_MAX_BATCHES 20)
+
+(defn- same-shortname-pool-ids [shortname]
+  (-> (sql/select :id)
+      (sql/from :inventory_pools)
+      (sql/where [:= [:lower :shortname] (str/lower-case shortname)])))
+
+(defn- same-shortname-codes-query [shortname]
+  (-> (sql/select :inventory_code)
+      (sql/from :items)
+      (sql/where [:in :owner_id (same-shortname-pool-ids shortname)])))
+
+(defn- code-number [shortname code]
+  (-> (str code)
+      (strip-pool-prefix shortname)
+      extract-last-number))
+
+(defn- start-number
+  "Number of the newest code of all pools sharing the shortname, at least 1."
+  [tx shortname]
+  (->> (-> (same-shortname-codes-query shortname)
+           (sql/order-by [:created_at :desc])
+           (sql/limit 1)
+           sql-format)
+       (jdbc/query tx)
+       first
+       :inventory_code
+       (code-number shortname)
+       (max 1)))
+
+(defn- used-numbers
+  "Numbers of all codes of pools sharing the shortname."
+  [tx shortname]
+  (->> (jdbc/query tx (sql-format (same-shortname-codes-query shortname)))
+       (map #(code-number shortname (:inventory_code %)))
+       set))
+
+(defn- codes-for-number [shortname n]
+  [(str shortname n) (str "P-" shortname n)])
+
+(defn- taken-codes
+  "Lower-cased codes among `codes` already used by any item."
+  [tx codes]
+  (->> (-> (sql/select [[:lower :inventory_code] :code])
+           (sql/from :items)
+           (sql/where [:in [:lower :inventory_code] (map str/lower-case codes)])
+           sql-format)
+       (jdbc/query tx)
+       (map :code)
+       set))
+
+(defn- free-numbers
+  "n numbers from `start` on, not in `skip`, whose item and package codes are
+   unused in all pools. Checks in batches; falls back to unchecked numbers
+   after max batches."
+  [tx shortname start n skip]
+  (loop [from start
+         acc []
+         batches 0]
+    (let [missing (- n (count acc))]
+      (cond
+        (zero? missing) acc
+        (>= batches FREE_CHECK_MAX_BATCHES) (->> (iterate inc from)
+                                                 (remove skip)
+                                                 (take missing)
+                                                 (into acc))
+        :else
+        (let [size (max FREE_CHECK_BATCH_SIZE missing)
+              candidates (remove skip (range from (+ from size)))
+              taken (->> candidates
+                         (mapcat #(codes-for-number shortname %))
+                         (taken-codes tx))
+              free (remove (fn [num]
+                             (some #(taken (str/lower-case %))
+                                   (codes-for-number shortname num)))
+                           candidates)]
+          (recur (+ from size)
+                 (into acc (take missing free))
+                 (inc batches)))))))
+
+(defn propose-many
+  "Proposes n free inventory codes, starting at the newest code of all pools
+   sharing the shortname and skipping their used numbers. Same as legacy
+   'last used +1'. For packages, adds P- prefix."
+  [tx pool-id n is-package]
+  (when-let [shortname (:shortname (pools/get-by-id tx pool-id))]
+    (->> (used-numbers tx shortname)
+         (free-numbers tx shortname (start-number tx shortname) n)
+         (map #(str (when is-package "P-") shortname %)))))
+
 (defn propose
-  "Proposes next inventory code. Fetches latest 1000 items matching shortname prefix,
-   extracts numbers (incl floats), returns shortname + (max+1). For packages, adds P- prefix."
+  "Proposes next free inventory code."
   ([tx pool-id]
    (propose tx pool-id false))
   ([tx pool-id is-package]
-   (let [pool (pools/get-by-id tx pool-id)
-         shortname (:shortname pool)]
-     (when shortname
-       (let [query (-> (sql/select :inventory_code)
-                       (sql/from :items)
-                       (sql/where [:and
-                                   [:= :owner_id pool-id]
-                                   [:or
-                                    [:ilike :inventory_code (str shortname "%")]
-                                    [:ilike :inventory_code (str "P-" shortname "%")]]])
-                       (sql/order-by [:created_at :desc])
-                       (sql/limit 1000))
-             results (jdbc/query tx (sql-format query))
-             max-number (->> results
-                             (map :inventory_code)
-                             (map #(strip-pool-prefix % shortname))
-                             (map extract-last-number)
-                             (apply max 0))
-             next-number (inc max-number)
-             base-code (str shortname next-number)]
-         (if is-package
-           (str "P-" base-code)
-           base-code))))))
+   (first (propose-many tx pool-id 1 is-package))))
 
 (defn inventory-code-exists?
   "Checks case-insensitively whether an item other than `exclude-id` uses the code."

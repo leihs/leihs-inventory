@@ -7,7 +7,6 @@
    [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
    [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.resources.pool.inventory-code :as inv-code]
-   [leihs.inventory.server.resources.pool.inventory-pools.main :as pools]
    [leihs.inventory.server.resources.pool.items.export :as items-export]
    [leihs.inventory.server.resources.pool.items.fields-shared :refer [coerce-field-values
                                                                       flatten-properties
@@ -270,13 +269,6 @@
       (->> (jdbc/execute-one! tx))
       :id))
 
-(defn generate-inventory-codes [tx pool-id n is-package]
-  (let [starting-code (inv-code/propose tx pool-id is-package)
-        starting-number (inv-code/extract-last-number starting-code)
-        shortname (:shortname (pools/get-by-id tx pool-id))]
-    (map #(str (when is-package "P-") shortname (+ starting-number %))
-         (range n))))
-
 (defn create-item [tx item-data-coerced properties-json]
   (let [item-data-with-properties (assoc item-data-coerced
                                          :properties [:lift properties-json])
@@ -339,7 +331,7 @@
                409)
 
        (and count (> count 1))
-       (let [codes (generate-inventory-codes tx pool_id count (= type "package"))
+       (let [codes (inv-code/propose-many tx pool_id count (= type "package"))
              created-items (doall (map #(create-item tx
                                                      (assoc item-data-coerced :inventory_code %)
                                                      properties-json)
