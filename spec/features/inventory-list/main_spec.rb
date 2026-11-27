@@ -721,18 +721,9 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/list"
 
     select_status_filter_submenu("Broken", "Yes")
-
-    click_on "Status"
-    click_on "In stock"
-    click_on "No"
-
-    click_on "Status"
-    click_on "Owned"
-    click_on "Yes"
-
-    click_on "Status"
-    click_on "Incomplete"
-    click_on "Yes"
+    select_status_filter_submenu("In stock", "No")
+    select_status_filter_submenu("Owned", "Yes")
+    select_status_filter_submenu("Incomplete", "Yes")
 
     expect(page).to have_button("Status", text: "4")
 
@@ -1053,9 +1044,7 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
     select_value("borrowable", "borrowable")
-    click_on "Status"
-    click_on "Owned"
-    click_on "Yes"
+    select_status_filter_submenu("Owned", "Yes")
 
     expect(page).to have_button("Status", text: "1")
 
@@ -1150,9 +1139,7 @@ feature "Inventory Page", type: :feature do
     # ind_stock=false
     visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
-    click_on "Status"
-    click_on "In stock"
-    click_on "No"
+    select_status_filter_submenu("In stock", "No")
     expect(page).to have_button("Status", text: "1")
 
     expect_table_row_count(1)
@@ -1188,9 +1175,7 @@ feature "Inventory Page", type: :feature do
     # incomplete=true
     visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
-    click_on "Status"
-    click_on "Incomplete"
-    click_on "Yes"
+    select_status_filter_submenu("Incomplete", "Yes")
     expect(page).to have_button("Status", text: "1")
 
     expect_table_row_count(2)
@@ -1548,10 +1533,7 @@ feature "Inventory Page", type: :feature do
     click_on cat_1.id
 
     select_status_filter_submenu("Broken", "Yes")
-
-    click_on "Status"
-    click_on "In stock"
-    click_on "No"
+    select_status_filter_submenu("In stock", "No")
 
     click_on "before-last-check-filter-button"
     expect(page).to have_css("[data-test-id='before-last-check-calendar']", wait: 10)

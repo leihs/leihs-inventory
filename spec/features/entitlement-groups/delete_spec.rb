@@ -24,11 +24,9 @@ feature "Delete entitlement group", type: :feature do
       click_on "edit"
     end
 
-    click_on "submit-dropdown"
-    click_on "Delete"
-    click_on "Delete"
+    delete_from_submit_dropdown
 
-    expect(page.find("body", visible: :all).text).to include("Entitlement group was successfully deleted")
+    expect_toast("Entitlement group was successfully deleted")
     expect(page).not_to have_content @entitlement_group1.name
   end
 
@@ -41,8 +39,8 @@ feature "Delete entitlement group", type: :feature do
       click_on "delete"
     end
 
-    click_on "Delete"
-    expect(page.find("body", visible: :all).text).to include("Entitlement group was successfully deleted")
+    confirm_delete_dialog
+    expect_toast("Entitlement group was successfully deleted")
     expect(page).not_to have_content @entitlement_group1.name
   end
 end

@@ -16,8 +16,31 @@ def assert_unchecked(el)
 end
 
 def await_debounce
-  page.has_css?('[aria-busy="true"]', wait: 1)
+  # Debounce is ~200–300ms. Prefer aria-busy settle over a fixed sleep so
+  # hot paths stay fast when the busy flag appears; fall back briefly if it
+  # never shows (timer already fired between polls).
+  sleep 0.35 unless page.has_css?('[aria-busy="true"]', wait: 0.5)
   expect(page).not_to have_css('[aria-busy="true"]', wait: 10)
+end
+
+# Search & Edit: choosing a filter field remounts the value input. Wait for the
+# options portal to close and the first debounce settle before typing, or the
+# value is wiped.
+def select_search_filter_field(trigger_test_id, label)
+  dismiss_open_menus
+  click_on trigger_test_id
+  within find('[data-test-id="field-options"]', wait: 10) do
+    find("span", text: label, match: :first).click
+  end
+  expect(page).not_to have_css('[data-test-id="field-options"]', wait: 5)
+  await_debounce
+end
+
+def fill_search_filter_text(name, value)
+  field = find("input[name='#{name}'], textarea[name='#{name}']", wait: 10)
+  field.set("")
+  field.set(value)
+  await_debounce
 end
 
 def expect_table_row_count(n, wait: 20)
@@ -41,10 +64,59 @@ def await_list_loaded
   expect(page).not_to have_css('[aria-busy="true"]')
 end
 
+# Sonner toasts mount at opacity 0 then become visible. Wait for a visible toast
+# (not a one-shot body.text snapshot, and not opacity-0-only matches).
+def expect_toast(text, wait: 10)
+  expect(page).to have_css(
+    "[data-sonner-toast]",
+    text: text,
+    visible: :visible,
+    wait: wait
+  )
+end
+
 def dismiss_open_menus
-  page.send_keys(:escape)
-  page.send_keys(:escape)
-  sleep 0.1
+  # Only Escape when a menu/listbox is actually open. Blind Escape closes Radix
+  # Dialogs (bulk-edit / CRUD) and drops the form mid-flow.
+  return unless page.has_css?("[role='menu'], [role='listbox']", visible: :visible, wait: 0.2)
+
+  # page.send_keys targets document.activeElement. Escape unmounts the focused
+  # Radix menu/listbox item, so the next send_keys hits a stale node. Prefer a
+  # freshly found body; fall back to the driver action chain (no element ref).
+  2.times do
+    find("body", visible: :all).send_keys(:escape)
+  rescue Selenium::WebDriver::Error::StaleElementReferenceError
+    page.driver.browser.action.send_keys(:escape).perform
+  end
+  # Wait for menus/listboxes only — tooltips also use radix popper wrappers.
+  page.has_no_css?("[role='menu']", wait: 5)
+  page.has_no_css?("[role='listbox']", wait: 5)
+end
+
+def open_add_inventory_menu
+  dismiss_open_menus
+  click_on "Add inventory"
+  expect(page).to have_css('[data-test-id="add-inventory-dropdown"]', wait: 10)
+end
+
+def choose_from_submit_dropdown(label)
+  dismiss_open_menus
+  click_on "submit-dropdown"
+  expect(page).to have_css('[role="menu"]', wait: 10)
+  within('[role="menu"]', match: :first) do
+    click_on label
+  end
+end
+
+def confirm_delete_dialog
+  within('[role="alertdialog"]', wait: 10) do
+    click_on "Delete"
+  end
+end
+
+def delete_from_submit_dropdown
+  choose_from_submit_dropdown("Delete")
+  confirm_delete_dialog
 end
 
 def create_timeline_list_items(pool:, room:, model:, package_model:, software_model:)
@@ -99,9 +171,13 @@ def fill_in_command_field(placeholder, value)
 end
 
 def select_value(name, value)
-  find("button[name='#{name}']").click
+  dismiss_open_menus
+  find("button[name='#{name}']", wait: 10).click
   option = find("[role='listbox'] [data-test-id='#{value}']", visible: true, wait: 10)
   option.click
+  expect(page).not_to have_css("[role='listbox']", wait: 5)
+  # Filter selects update the URL and refetch the list (timing race).
+  await_debounce
 end
 
 def parse_calendar_data_day(value)
@@ -161,7 +237,14 @@ def click_calendar_day(date, dismiss: true)
   buttons = all(calendar_day_selector(date), minimum: 1, wait: 10)
   button = buttons.find { |el| el.text.strip == date.day.to_s } || buttons.first
   button.click
-  dismiss_open_menus if dismiss
+  if dismiss
+    dismiss_open_menus
+    # Radix calendar popover is role=dialog; guarded menu Escape does not close it.
+    if page.has_css?("[data-day]", wait: 0.2)
+      find("body", visible: :all).send_keys(:escape)
+      expect(page).to have_no_css("[data-day]", wait: 5)
+    end
+  end
 end
 
 def attach_file_by_label(label_text, file_path)
@@ -197,11 +280,34 @@ def cleanup_download(filename)
   FileUtils.rm_f(path)
 end
 
-def select_status_filter_submenu(submenu_label, yes_or_no)
+def open_status_menu
+  # Leftover Radix portals make the next Status click toggle closed.
+  dismiss_open_menus
   click_on "Status"
   # Radix mounts several [role=menu] portals; pick the Status menu (only it has an "Owned" row).
-  menu = find(:xpath, "//*[@role='menu'][.//button[normalize-space()='Owned']]", wait: 10)
-  menu.find(:button, submenu_label, match: :first).click
+  find(:xpath, "//*[@role='menu'][.//button[normalize-space()='Owned']]", wait: 10)
+end
+
+def select_status_filter_submenu(submenu_label, yes_or_no)
   param = STATUS_SUBMENU_BUTTON_NAME.fetch(submenu_label)
-  find("button[name='#{param}']", text: yes_or_no, wait: 10).click
+  last_error = nil
+
+  # Radix DropdownMenuSub portals remount under Firefox; hover/click can leave a
+  # stale Yes/No node between find and click. Retry the whole open→choose flow.
+  5.times do
+    menu = open_status_menu
+    trigger = menu.find(:button, submenu_label, match: :first)
+    # Radix DropdownMenuSub opens on pointer-enter; click-only is flaky.
+    trigger.hover
+    trigger.click
+    find("button[name='#{param}']", text: yes_or_no, visible: true, wait: 10).click
+    dismiss_open_menus
+    await_debounce
+    return
+  rescue Selenium::WebDriver::Error::StaleElementReferenceError => e
+    last_error = e
+    dismiss_open_menus
+  end
+
+  raise last_error
 end

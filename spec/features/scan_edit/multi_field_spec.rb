@@ -79,7 +79,9 @@ feature "Scan & Edit - multiple fields", type: :feature do
     find('[data-test-id="barcode-input"]').set(item.inventory_code)
     find('[data-test-id="barcode-input"]').send_keys(:return)
 
-    expect(page).to have_text("Item has been successfully updated")
+    # Sonner mounts at opacity 0; have_text on the page body flakes under FF.
+    expect_toast("Item has been successfully updated", wait: 15)
+    expect(page).to have_css("table tbody tr", text: item.inventory_code, wait: 15)
 
     item.reload
     expect(item.serial_number).to eq(serial)

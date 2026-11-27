@@ -34,9 +34,11 @@ feature "Update option", type: :feature do
 
   scenario "works" do
     login(user)
-    visit "/inventory/#{pool.id}"
+    visit "/inventory/#{pool.id}/list"
+    dismiss_open_menus
     click_on "Inventory type"
     click_on "Option"
+    await_debounce
     search_in_list("#{product_old} #{version_old}")
 
     within "table" do
@@ -52,8 +54,10 @@ feature "Update option", type: :feature do
     fill_in "Inventory code", with: inventory_code_new
     fill_in "Price", with: price_new
 
+    dismiss_open_menus
     click_on "Save"
-    expect(page.find("body", visible: :all).text).to include("Option successfully saved")
+    # Sonner toast starts opacity 0; one-shot body.text raced async submit.
+    expect_toast("Option successfully saved")
 
     expect(page).to have_content "Inventory List"
     search_in_list("#{product_new} #{version_new}")
@@ -75,9 +79,11 @@ feature "Update option", type: :feature do
   context "price field formatting" do
     before do
       login(user)
-      visit "/inventory/#{pool.id}"
+      visit "/inventory/#{pool.id}/list"
+      dismiss_open_menus
       click_on "Inventory type"
       click_on "Option"
+      await_debounce
       search_in_list("#{product_old} #{version_old}")
       within find("tr", text: "#{product_old} #{version_old}", visible: true) do
         click_on "edit"

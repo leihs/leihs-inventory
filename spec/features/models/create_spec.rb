@@ -231,27 +231,26 @@ feature "Create model", type: :feature do
     FactoryBot.create(:leihs_model, type: "Software", product: product, version: version)
     login(user)
     visit "/inventory/#{pool.id}/list"
-    click_on "Add inventory"
+    open_add_inventory_menu
     click_on "New model"
     fill_in "Product", with: product
     fill_in "Version", with: version
 
     click_on "Create"
 
-    expect(page.find("body", visible: :all).text).to include("A model with this name already exists")
+    expect_toast("A model with this name already exists")
   end
 
   scenario "cancel works" do
     login(user)
     visit "/inventory/#{pool.id}/list"
-    click_on "Add inventory"
+    open_add_inventory_menu
     click_on "New model"
 
     fill_in "Product", with: product
     fill_in "Version", with: version
 
-    click_on "submit-dropdown"
-    click_on "Cancel"
+    choose_from_submit_dropdown("Cancel")
 
     expect(page).to have_content "Inventory List"
   end
